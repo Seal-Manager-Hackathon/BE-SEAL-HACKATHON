@@ -1,10 +1,16 @@
 using Hackathon.Api.Extention;
 using Hackathon.Repository;
+using Hackathon.Extension;
+using Hackathon.Middleware;
 using Microsoft.EntityFrameworkCore;
+using AuthService = Hackathon.Service.Auth;
+using MailService = Hackathon.Service.MailService;
+using JwtService = Hackathon.Service.JwtService;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -17,8 +23,19 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     )
 );
 
+builder.Services.ConfigureRateLimiter();
+builder.Services.AddJwtServices(builder.Configuration);
+builder.Services.AddSwaggerServices();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddScoped<AuthService.IService, AuthService.Service>();
+builder.Services.AddScoped<JwtService.IService, JwtService.Service>();
+builder.Services.AddScoped<MailService.IService, MailService.Service>();
+
 var app = builder.Build();
 
+
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
