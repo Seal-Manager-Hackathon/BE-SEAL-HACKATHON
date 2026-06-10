@@ -474,3 +474,4 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/aspnetcore,dotnetcore,windows,rider,intellij
 Hackathon.Api/appsettings.json
 Hackathon.Api/appsettings.Development.json
+.claude/

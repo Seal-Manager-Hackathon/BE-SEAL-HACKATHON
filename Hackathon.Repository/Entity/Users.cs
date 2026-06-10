@@ -21,6 +21,7 @@ public class Users : BaseEntity<Guid>, IAuditableEntity
     public string? Status { get; set; }
     public string? BanReason { get; set; }
     public DateTimeOffset? BannedAt { get; set; }
+    public bool? IsVerified { get; set; }
 
     public ICollection<UserRoles> UserRoles { get; set; } = new List<UserRoles>();
     public ICollection<RefreshTokens> RefreshTokens { get; set; } = new List<RefreshTokens>();
