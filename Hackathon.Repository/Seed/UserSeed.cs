@@ -1,4 +1,5 @@
 using Hackathon.Repository.Entity;
+using Hackathon.Repository.Enum;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hackathon.Repository.Seed;
@@ -37,7 +38,7 @@ public static class UserSeed
             ImgUrl = "https://seed.local/profile.png",
             LinkUrl = "https://seed.local/users",
             VerifyEmailAt = SeedConstants.CreatedAt,
-            Status = "Active",
+            Status = UserStatusEnum.Active,
             IsVerified = true,
             IsDisable = false,
             CreatedAt = SeedConstants.CreatedAt,

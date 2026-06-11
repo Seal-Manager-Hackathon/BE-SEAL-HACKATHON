@@ -1,4 +1,5 @@
 using Hackathon.Repository.Entity;
+using Hackathon.Repository.Enum;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hackathon.Repository.Seed;
@@ -41,7 +42,7 @@ public static class TeamSeed
                 TeamId = SeedConstants.SeedInnovatorsTeamId,
                 TopicId = SeedConstants.AiTopicId,
                 Description = "Seed Innovators registration",
-                Status = "Approved",
+                Status = RegisterTeamStatusEnum.Approved,
                 IsBanned = false,
                 IsDisable = false,
                 CreatedAt = SeedConstants.CreatedAt,
@@ -53,7 +54,7 @@ public static class TeamSeed
                 TeamId = SeedConstants.GreenCodersTeamId,
                 TopicId = SeedConstants.GreenTopicId,
                 Description = "Green Coders registration",
-                Status = "Approved",
+                Status = RegisterTeamStatusEnum.Approved,
                 IsBanned = false,
                 IsDisable = false,
                 CreatedAt = SeedConstants.CreatedAt,
@@ -70,7 +71,7 @@ public static class TeamSeed
             TeamId = teamId,
             UserId = userId,
             IsLeader = isLeader,
-            Status = "Active",
+            Status = TeamDetailStatusEnum.Active,
             IsDisable = false,
             CreatedAt = SeedConstants.CreatedAt,
             UpdatedAt = SeedConstants.CreatedAt

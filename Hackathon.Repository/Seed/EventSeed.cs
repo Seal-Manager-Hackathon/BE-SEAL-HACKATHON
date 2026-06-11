@@ -1,4 +1,5 @@
 using Hackathon.Repository.Entity;
+using Hackathon.Repository.Enum;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hackathon.Repository.Seed;
@@ -18,7 +19,7 @@ public static class EventSeed
             LimitTeam = 20,
             MinMember = 2,
             MaxMember = 4,
-            Status = "Published",
+            Status = EventStatusEnum.Published,
             NumberRound = 2,
             Season = "2026",
             IsDisable = false,

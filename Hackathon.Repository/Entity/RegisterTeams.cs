@@ -1,4 +1,5 @@
 using Hackathon.Repository.Abtraction;
+using Hackathon.Repository.Enum;
 
 namespace Hackathon.Repository.Entity;
 
@@ -8,7 +9,7 @@ public class RegisterTeams : BaseEntity<Guid>, IAuditableEntity
     public Guid TopicId { get; set; }
     public string? Description { get; set; }
     public string? RejectionReason { get; set; }
-    public string? Status { get; set; }
+    public RegisterTeamStatusEnum? Status { get; set; }
     public bool IsBanned { get; set; }
 
     public Teams Team { get; set; } = null!;
