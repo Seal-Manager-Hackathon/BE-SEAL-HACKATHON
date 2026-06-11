@@ -7,6 +7,7 @@ public class RegisterTeams : BaseEntity<Guid>, IAuditableEntity
     public Guid TeamId { get; set; }
     public Guid TopicId { get; set; }
     public string? Description { get; set; }
+    public string? RejectionReason { get; set; }
     public string? Status { get; set; }
     public bool IsBanned { get; set; }
 
