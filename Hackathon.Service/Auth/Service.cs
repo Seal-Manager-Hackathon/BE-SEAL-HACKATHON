@@ -81,7 +81,7 @@ public class Service : IService
             var pepperPassword = request.Password + _securityOptions.Pepper;
             var hashedPassword = global::BCrypt.Net.BCrypt.EnhancedHashPassword(pepperPassword, hashType: global::BCrypt.Net.HashType.SHA256);
 
-            var newUser = new Users()
+            var newUser = new Hackathon.Repository.Entity.Users()
             {
                 Id = Guid.NewGuid(),
                 Email = request.Email,
@@ -150,7 +150,7 @@ public class Service : IService
 
         string newRawRefreshToken = _jwtService.GenerateRefreshToken();
 
-        var newRefreshTokenEntity = new RefreshTokens()
+        var newRefreshTokenEntity = new Hackathon.Repository.Entity.RefreshTokens()
         {
             RefreshTokenHash = newRawRefreshToken, // Lưu chuỗi thuần trực tiếp theo cấu hình hệ thống
             UserId = storedToken.User.Id,
@@ -224,7 +224,7 @@ public class Service : IService
             var ipAddress = httpContext?.Connection?.RemoteIpAddress?.ToString() ?? "Unknown IP";
             var userAgent = httpContext?.Request?.Headers["User-Agent"].ToString() ?? "Unknown Device";
 
-            var refreshTokenEntity = new RefreshTokens()
+            var refreshTokenEntity = new Hackathon.Repository.Entity.RefreshTokens()
             {
                 Id = Guid.NewGuid(),
                 RefreshTokenHash = refreshToken,
@@ -362,7 +362,7 @@ public class Service : IService
 
         var refreshToken = _jwtService.GenerateRefreshToken();
 
-        var refreshTokenEntity = new RefreshTokens
+        var refreshTokenEntity = new Hackathon.Repository.Entity.RefreshTokens
         {
             Id = Guid.NewGuid(),
             RefreshTokenHash = refreshToken,
