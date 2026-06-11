@@ -25,8 +25,6 @@ Staff từ chối đơn đăng ký, lưu lý do, mở khóa team và gửi thôn
     "id": "guid",
     "teamId": "guid",
     "teamName": "string|null",
-    "topicId": "guid",
-    "topicTitle": "string|null",
     "eventId": "guid",
     "eventName": "string|null",
     "description": "string|null",
@@ -39,6 +37,15 @@ Staff từ chối đơn đăng ký, lưu lý do, mở khóa team và gửi thôn
   }
 }
 ```
+
+## Business rules
+- Request phải có access token hợp lệ.
+- `reason` là bắt buộc khi từ chối đơn.
+- Register team phải tồn tại và chưa bị disable.
+- Staff chỉ được từ chối đơn thuộc event mà mình được phân công.
+- Chỉ đơn đang `Pending` mới được từ chối.
+- Khi từ chối thành công, trạng thái đơn chuyển sang `Rejected`, lưu `rejectionReason` và mở khóa team để chỉnh sửa member lại.
+- Hệ thống gửi thông báo cho team leader sau khi từ chối.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |

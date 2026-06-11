@@ -7,8 +7,6 @@ public static class Response
         public Guid Id { get; set; }
         public Guid TeamId { get; set; }
         public string? TeamName { get; set; }
-        public Guid TopicId { get; set; }
-        public string? TopicTitle { get; set; }
         public Guid EventId { get; set; }
         public string? EventName { get; set; }
         public string? Description { get; set; }
@@ -34,8 +32,6 @@ public static class Response
         public Guid RegisterTeamId { get; set; }
         public Guid TeamId { get; set; }
         public string TeamName { get; set; } = null!;
-        public Guid TopicId { get; set; }
-        public string TopicTitle { get; set; } = null!;
         public int MemberCount { get; set; }
         public string? Status { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
@@ -43,8 +39,6 @@ public static class Response
 
     public class RegisterTeamDetailResponse : RegisterTeamResponse
     {
-        public Guid TrackId { get; set; }
-        public string? TrackTitle { get; set; }
         public List<TeamMemberDetailResponse> Members { get; set; } = new();
     }
 

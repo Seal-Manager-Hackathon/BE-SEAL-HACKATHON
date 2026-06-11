@@ -29,6 +29,12 @@ Xác thực email bằng token; nếu xác thực thành công lần đầu thì
 }
 ```
 
+## Business rules
+- Token xác thực email phải tồn tại và còn hạn.
+- User gắn với token phải còn tồn tại trong hệ thống.
+- Nếu user đã verify trước đó, API trả thông báo `USER_ALREADY_VERIFIED`.
+- Nếu verify lần đầu thành công, hệ thống đánh dấu email đã xác thực và trả token đăng nhập.
+
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|

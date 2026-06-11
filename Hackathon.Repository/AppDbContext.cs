@@ -53,6 +53,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Submissions>().Property(x => x.Status).HasConversion<string>();
         modelBuilder.Entity<TeamDetails>().Property(x => x.Status).HasConversion<string>();
         modelBuilder.Entity<Users>().Property(x => x.Status).HasConversion<string>();
+        modelBuilder.Entity<Roles>().Property(x => x.Name).HasConversion<string>();
+        modelBuilder.Entity<EventRoles>().Property(x => x.Name).HasConversion<string>();
 
         modelBuilder.Entity<UserRoles>()
             .HasOne(userRole => userRole.User)
@@ -130,9 +132,9 @@ public class AppDbContext : DbContext
             .HasForeignKey(registerTeam => registerTeam.TeamId);
 
         modelBuilder.Entity<RegisterTeams>()
-            .HasOne(registerTeam => registerTeam.Topic)
-            .WithMany(topic => topic.RegisterTeams)
-            .HasForeignKey(registerTeam => registerTeam.TopicId);
+            .HasOne(registerTeam => registerTeam.Event)
+            .WithMany(eventEntity => eventEntity.RegisterTeams)
+            .HasForeignKey(registerTeam => registerTeam.EventId);
 
         modelBuilder.Entity<RoundDetails>()
             .HasOne(roundDetail => roundDetail.Round)

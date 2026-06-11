@@ -61,6 +61,16 @@ public class Service : IService
         };
     }
 
+    private void EnsureCurrentUserHasRole(RoleEnum role, string errorCode)
+    {
+        var hasRole = _httpContext.HttpContext?.User.IsInRole(role.ToString()) == true;
+
+        if (!hasRole)
+        {
+            throw new ForbiddenException(errorCode);
+        }
+    }
+
     private async Task<Hackathon.Repository.Entity.TeamDetails> GetLeaderMembership(Guid teamId, Guid userId)
     {
         var leader = await _dbContext.TeamDetails
@@ -204,6 +214,8 @@ public class Service : IService
             throw new BadRequestException("CANNOT_INVITE_YOURSELF");
         }
 
+        EnsureCurrentUserHasRole(RoleEnum.Student, "CURRENT_USER_MUST_BE_STUDENT");
+
         var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
         if (team == null)
         {
@@ -221,6 +233,17 @@ public class Service : IService
         if (invitedUser == null)
         {
             throw new NotFoundException("INVITED_USER_NOT_FOUND");
+        }
+
+        var invitedUserIsStudent = await _dbContext.UserRoles
+            .Include(x => x.Role)
+            .AnyAsync(x => x.UserId == invitedUser.Id
+                           && !x.IsDisable
+                           && !x.Role.IsDisable
+                           && x.Role.Name == RoleEnum.Student);
+        if (!invitedUserIsStudent)
+        {
+            throw new ForbiddenException("INVITED_USER_MUST_BE_STUDENT");
         }
 
         if (invitedUser.IsVerified != true)
@@ -310,6 +333,8 @@ public class Service : IService
     public async Task<Response.InvitationResponse> RespondInvitation(Guid invitationId, Request.RespondInvitationRequest request)
     {
         var userId = GetCurrentUserId();
+        EnsureCurrentUserHasRole(RoleEnum.Student, "CURRENT_USER_MUST_BE_STUDENT");
+
         var invitation = await _dbContext.Invitations
             .Include(x => x.Team)
             .FirstOrDefaultAsync(x => x.Id == invitationId && !x.IsDisable);

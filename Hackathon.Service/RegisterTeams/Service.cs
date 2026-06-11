@@ -56,10 +56,8 @@ public class Service : IService
             Id = registerTeam.Id,
             TeamId = registerTeam.TeamId,
             TeamName = registerTeam.Team?.Name,
-            TopicId = registerTeam.TopicId,
-            TopicTitle = registerTeam.Topic?.Title,
-            EventId = registerTeam.Topic?.Track?.EventId ?? Guid.Empty,
-            EventName = registerTeam.Topic?.Track?.Event?.Name,
+            EventId = registerTeam.EventId,
+            EventName = registerTeam.Event?.Name,
             Description = registerTeam.Description,
             Status = registerTeam.Status?.ToString(),
             RejectionReason = registerTeam.RejectionReason,
@@ -99,9 +97,9 @@ public class Service : IService
     }
 
     /// <summary>
-    /// Team leader gửi đơn đăng ký team tham gia event thông qua topic, tạo hoặc gửi lại đơn ở trạng thái Pending và khóa tạm thời member của team.
+    /// Team leader gửi đơn đăng ký team tham gia event, tạo hoặc gửi lại đơn ở trạng thái Pending và khóa tạm thời member của team.
     /// Các lỗi có thể xảy ra: thiếu access token -> MISSING_ACCESS_TOKEN; token không hợp lệ -> INVALID_ACCESS_TOKEN;
-    /// team/topic/event không tồn tại -> TEAM_NOT_FOUND/TOPIC_NOT_FOUND/EVENT_NOT_FOUND; người gọi không phải leader -> ONLY_TEAM_LEADER_CAN_REGISTER_TEAM;
+    /// team/event không tồn tại -> TEAM_NOT_FOUND/EVENT_NOT_FOUND; người gọi không phải leader -> ONLY_TEAM_LEADER_CAN_REGISTER_TEAM;
     /// team đang bị khóa -> TEAM_MEMBER_LOCKED; hết hạn đăng ký -> EVENT_REGISTRATION_CLOSED; số lượng member không hợp lệ -> TEAM_MEMBER_COUNT_NOT_VALID;
     /// member thiếu profile -> TEAM_MEMBER_PROFILE_NOT_COMPLETED; member đã tham gia team khác cùng event -> MEMBER_ALREADY_REGISTERED_IN_EVENT;
     /// team đã có đơn Pending/Approved trong event -> TEAM_ALREADY_REGISTERED_IN_EVENT.
@@ -114,9 +112,9 @@ public class Service : IService
             throw new BadRequestException("TEAM_ID_REQUIRED");
         }
 
-        if (request.TopicId == Guid.Empty)
+        if (request.EventId == Guid.Empty)
         {
-            throw new BadRequestException("TOPIC_ID_REQUIRED");
+            throw new BadRequestException("EVENT_ID_REQUIRED");
         }
 
         var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == request.TeamId && !x.IsDisable);
@@ -141,17 +139,8 @@ public class Service : IService
             throw new ForbiddenException("ONLY_TEAM_LEADER_CAN_REGISTER_TEAM");
         }
 
-        var topic = await _dbContext.Topics
-            .Include(x => x.Track)
-            .ThenInclude(x => x.Event)
-            .FirstOrDefaultAsync(x => x.Id == request.TopicId && !x.IsDisable);
-        if (topic == null)
-        {
-            throw new NotFoundException("TOPIC_NOT_FOUND");
-        }
-
-        var @event = topic.Track?.Event;
-        if (@event == null || @event.IsDisable)
+        var @event = await _dbContext.Events.FirstOrDefaultAsync(x => x.Id == request.EventId && !x.IsDisable);
+        if (@event == null)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
@@ -180,14 +169,12 @@ public class Service : IService
 
         var memberIds = members.Select(x => x.UserId).ToList();
         var memberAlreadyRegistered = await _dbContext.RegisterTeams
-            .Include(x => x.Topic)
-            .ThenInclude(x => x.Track)
             .Include(x => x.Team)
             .ThenInclude(x => x.TeamDetails)
             .AnyAsync(x => !x.IsDisable
                            && x.TeamId != request.TeamId
                            && (x.Status == RegisterTeamStatusEnum.Pending || x.Status == RegisterTeamStatusEnum.Approved)
-                           && x.Topic.Track.EventId == @event.Id
+                           && x.EventId == @event.Id
                            && x.Team.TeamDetails.Any(td => memberIds.Contains(td.UserId) && !td.IsDisable && td.Status == TeamDetailStatusEnum.Active));
         if (memberAlreadyRegistered)
         {
@@ -195,9 +182,7 @@ public class Service : IService
         }
 
         var existingRegistrations = await _dbContext.RegisterTeams
-            .Include(x => x.Topic)
-            .ThenInclude(x => x.Track)
-            .Where(x => !x.IsDisable && x.TeamId == request.TeamId && x.Topic.Track.EventId == @event.Id)
+            .Where(x => !x.IsDisable && x.TeamId == request.TeamId && x.EventId == @event.Id)
             .ToListAsync();
 
         if (existingRegistrations.Any(x => x.Status == RegisterTeamStatusEnum.Pending || x.Status == RegisterTeamStatusEnum.Approved))
@@ -216,7 +201,7 @@ public class Service : IService
                 {
                     Id = Guid.NewGuid(),
                     TeamId = request.TeamId,
-                    TopicId = request.TopicId,
+                    EventId = request.EventId,
                     Description = request.Description,
                     Status = RegisterTeamStatusEnum.Pending,
                     IsBanned = false,
@@ -227,7 +212,7 @@ public class Service : IService
             }
             else
             {
-                rejectedRegistration.TopicId = request.TopicId;
+                rejectedRegistration.EventId = request.EventId;
                 rejectedRegistration.Description = request.Description;
                 rejectedRegistration.RejectionReason = null;
                 rejectedRegistration.Status = RegisterTeamStatusEnum.Pending;
@@ -247,7 +232,7 @@ public class Service : IService
         }
 
         rejectedRegistration.Team = team;
-        rejectedRegistration.Topic = topic;
+        rejectedRegistration.Event = @event;
         return ToRegisterTeamResponse(rejectedRegistration, "REGISTER_TEAM_SUBMITTED_SUCCESSFULLY");
     }
 
@@ -261,9 +246,7 @@ public class Service : IService
         var userId = GetCurrentUserId();
         var registerTeam = await _dbContext.RegisterTeams
             .Include(x => x.Team)
-            .Include(x => x.Topic)
-            .ThenInclude(x => x.Track)
-            .ThenInclude(x => x.Event)
+            .Include(x => x.Event)
             .FirstOrDefaultAsync(x => x.Id == registerTeamId && !x.IsDisable);
 
         if (registerTeam == null)
@@ -299,7 +282,7 @@ public class Service : IService
                 EventId = x.EventId,
                 EventName = x.Event.Name,
                 EventStatus = x.Event.Status.HasValue ? x.Event.Status.Value.ToString() : null,
-                EventRole = x.EventRole.Name,
+                EventRole = x.EventRole.Name.ToString(),
                 RegisterLimitTime = x.Event.RegisterLimitTime,
             })
             .ToListAsync();
@@ -318,16 +301,12 @@ public class Service : IService
         return await _dbContext.RegisterTeams
             .Include(x => x.Team)
             .ThenInclude(x => x.TeamDetails)
-            .Include(x => x.Topic)
-            .ThenInclude(x => x.Track)
-            .Where(x => !x.IsDisable && x.Status == RegisterTeamStatusEnum.Pending && x.Topic.Track.EventId == eventId)
+            .Where(x => !x.IsDisable && x.Status == RegisterTeamStatusEnum.Pending && x.EventId == eventId)
             .Select(x => new Response.PendingRegisterTeamResponse
             {
                 RegisterTeamId = x.Id,
                 TeamId = x.TeamId,
                 TeamName = x.Team.Name,
-                TopicId = x.TopicId,
-                TopicTitle = x.Topic.Title,
                 MemberCount = x.Team.TeamDetails.Count(td => !td.IsDisable && td.Status == TeamDetailStatusEnum.Active),
                 Status = x.Status.HasValue ? x.Status.Value.ToString() : null,
                 CreatedAt = x.CreatedAt,
@@ -345,9 +324,7 @@ public class Service : IService
         var userId = GetCurrentUserId();
         var registerTeam = await _dbContext.RegisterTeams
             .Include(x => x.Team)
-            .Include(x => x.Topic)
-            .ThenInclude(x => x.Track)
-            .ThenInclude(x => x.Event)
+            .Include(x => x.Event)
             .FirstOrDefaultAsync(x => x.Id == registerTeamId && !x.IsDisable);
 
         if (registerTeam == null)
@@ -355,7 +332,7 @@ public class Service : IService
             throw new NotFoundException("REGISTER_TEAM_NOT_FOUND");
         }
 
-        var eventId = registerTeam.Topic.Track.EventId;
+        var eventId = registerTeam.EventId;
         await EnsureStaffAssignedToEvent(eventId, userId);
 
         var members = await _dbContext.TeamDetails
@@ -382,12 +359,8 @@ public class Service : IService
             Id = registerTeam.Id,
             TeamId = registerTeam.TeamId,
             TeamName = registerTeam.Team.Name,
-            TopicId = registerTeam.TopicId,
-            TopicTitle = registerTeam.Topic.Title,
-            TrackId = registerTeam.Topic.TrackId,
-            TrackTitle = registerTeam.Topic.Track.Title,
             EventId = eventId,
-            EventName = registerTeam.Topic.Track.Event.Name,
+            EventName = registerTeam.Event.Name,
             Description = registerTeam.Description,
             Status = registerTeam.Status?.ToString(),
             RejectionReason = registerTeam.RejectionReason,
@@ -410,9 +383,7 @@ public class Service : IService
         var userId = GetCurrentUserId();
         var registerTeam = await _dbContext.RegisterTeams
             .Include(x => x.Team)
-            .Include(x => x.Topic)
-            .ThenInclude(x => x.Track)
-            .ThenInclude(x => x.Event)
+            .Include(x => x.Event)
             .FirstOrDefaultAsync(x => x.Id == registerTeamId && !x.IsDisable);
 
         if (registerTeam == null)
@@ -420,7 +391,7 @@ public class Service : IService
             throw new NotFoundException("REGISTER_TEAM_NOT_FOUND");
         }
 
-        await EnsureStaffAssignedToEvent(registerTeam.Topic.Track.EventId, userId);
+        await EnsureStaffAssignedToEvent(registerTeam.EventId, userId);
         if (registerTeam.Status != RegisterTeamStatusEnum.Pending)
         {
             throw new ConflictException("REGISTER_TEAM_NOT_PENDING");
@@ -444,7 +415,7 @@ public class Service : IService
                 UserId = leaderId,
                 Title = "REGISTER_TEAM_APPROVED",
                 Status = NotificationStatusEnum.Unread,
-                Description = $"Đơn đăng ký tham gia event {registerTeam.Topic.Track.Event.Name} của team {registerTeam.Team.Name} đã được chấp nhận.",
+                Description = $"Đơn đăng ký tham gia event {registerTeam.Event.Name} của team {registerTeam.Team.Name} đã được chấp nhận.",
                 CreatedAt = now,
                 UpdatedAt = now,
             });
@@ -478,9 +449,7 @@ public class Service : IService
 
         var registerTeam = await _dbContext.RegisterTeams
             .Include(x => x.Team)
-            .Include(x => x.Topic)
-            .ThenInclude(x => x.Track)
-            .ThenInclude(x => x.Event)
+            .Include(x => x.Event)
             .FirstOrDefaultAsync(x => x.Id == registerTeamId && !x.IsDisable);
 
         if (registerTeam == null)
@@ -488,7 +457,7 @@ public class Service : IService
             throw new NotFoundException("REGISTER_TEAM_NOT_FOUND");
         }
 
-        await EnsureStaffAssignedToEvent(registerTeam.Topic.Track.EventId, userId);
+        await EnsureStaffAssignedToEvent(registerTeam.EventId, userId);
         if (registerTeam.Status != RegisterTeamStatusEnum.Pending)
         {
             throw new ConflictException("REGISTER_TEAM_NOT_PENDING");
@@ -512,7 +481,7 @@ public class Service : IService
                 UserId = leaderId,
                 Title = "REGISTER_TEAM_REJECTED",
                 Status = NotificationStatusEnum.Unread,
-                Description = $"Đơn đăng ký tham gia event {registerTeam.Topic.Track.Event.Name} của team {registerTeam.Team.Name} đã bị từ chối. Lý do: {reason}",
+                Description = $"Đơn đăng ký tham gia event {registerTeam.Event.Name} của team {registerTeam.Team.Name} đã bị từ chối. Lý do: {reason}",
                 CreatedAt = now,
                 UpdatedAt = now,
             });
