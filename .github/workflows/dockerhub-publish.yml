@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  IMAGE_NAME: Seal-Hackathon-deploy
+  IMAGE_NAME: seal-hackathon-deploy
 
 jobs:
   docker:
