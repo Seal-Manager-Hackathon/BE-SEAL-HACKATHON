@@ -30,6 +30,11 @@
 }
 ```
 
+## Business rules
+- Email và password là bắt buộc, email phải đúng format.
+- Email/password phải khớp với tài khoản đang tồn tại.
+- Đăng nhập thành công sẽ cấp access token và refresh token mới.
+
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|

@@ -30,6 +30,12 @@ Không có. Cần cookie:
 }
 ```
 
+## Business rules
+- Request phải gửi refresh token hợp lệ trong cookie.
+- Refresh token còn hạn mới được dùng để cấp token mới.
+- Nếu access token hiện tại vẫn còn hiệu lực thì không rotate refresh token.
+- Khi refresh thành công, refresh token cũ bị thay thế bằng refresh token mới.
+
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|

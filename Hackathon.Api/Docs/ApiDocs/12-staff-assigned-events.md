@@ -29,6 +29,12 @@ Không có.
 }
 ```
 
+## Business rules
+- Request phải có access token hợp lệ.
+- Chỉ trả các event mà user hiện tại được phân công trong `AssignEvents`.
+- Event bị disable không được trả về danh sách.
+- Response kèm role của staff trong từng event và thời hạn đăng ký nếu có.
+
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|

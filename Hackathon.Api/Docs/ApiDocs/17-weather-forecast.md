@@ -21,6 +21,11 @@ Không có.
 ]
 ```
 
+## Business rules
+- Đây là API mẫu mặc định, không yêu cầu đăng nhập.
+- Mỗi lần gọi trả 5 dự báo thời tiết ngẫu nhiên.
+- Không dùng API này cho nghiệp vụ hackathon.
+
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|

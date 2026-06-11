@@ -21,8 +21,6 @@ Không có.
     "id": "guid",
     "teamId": "guid",
     "teamName": "string|null",
-    "topicId": "guid",
-    "topicTitle": "string|null",
     "eventId": "guid",
     "eventName": "string|null",
     "description": "string|null",
@@ -35,6 +33,12 @@ Không có.
   }
 }
 ```
+
+## Business rules
+- Request phải có access token hợp lệ.
+- Chỉ member thuộc team của đơn đăng ký mới được xem trạng thái.
+- Trả trạng thái hiện tại của đơn: `Pending`, `Approved` hoặc `Rejected`.
+- Nếu đơn bị từ chối, response có kèm `rejectionReason`.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |

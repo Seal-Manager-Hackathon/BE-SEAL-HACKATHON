@@ -38,6 +38,14 @@ Tạo team mới và tự thêm user hiện tại làm leader.
 }
 ```
 
+## Business rules
+- Request phải có access token hợp lệ.
+- User hiện tại phải tồn tại, chưa bị disable và đã verify email.
+- Profile của user tạo team phải đủ first name, last name, phone number, student id và college.
+- Tên team là bắt buộc, được trim trước khi lưu và không được trùng với team đã có.
+- Khi tạo thành công, user hiện tại được thêm vào team với vai trò leader, trạng thái `Active`.
+- Team mới có `canEdit = true`, nghĩa là còn được chỉnh sửa member trước khi đăng ký event.
+
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|

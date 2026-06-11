@@ -1,10 +1,11 @@
 using Hackathon.Repository.Abtraction;
+using Hackathon.Repository.Enum;
 
 namespace Hackathon.Repository.Entity;
 
 public class EventRoles : BaseEntity<Guid>, IAuditableEntity
 {
-    public required string Name { get; set; }
+    public EventRoleEnum Name { get; set; }
 
     public ICollection<AssignEvents> AssignEvents { get; set; } = new List<AssignEvents>();
 

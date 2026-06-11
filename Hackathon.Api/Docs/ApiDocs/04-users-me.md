@@ -26,6 +26,11 @@ Không có.
 }
 ```
 
+## Business rules
+- Request phải có access token hợp lệ.
+- Chỉ trả thông tin của user đang đăng nhập, không truyền userId từ client.
+- User phải còn tồn tại và chưa bị disable.
+
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|

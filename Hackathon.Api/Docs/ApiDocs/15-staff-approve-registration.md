@@ -21,8 +21,6 @@ Không có.
     "id": "guid",
     "teamId": "guid",
     "teamName": "string|null",
-    "topicId": "guid",
-    "topicTitle": "string|null",
     "eventId": "guid",
     "eventName": "string|null",
     "description": "string|null",
@@ -35,6 +33,14 @@ Không có.
   }
 }
 ```
+
+## Business rules
+- Request phải có access token hợp lệ.
+- Register team phải tồn tại và chưa bị disable.
+- Staff chỉ được duyệt đơn thuộc event mà mình được phân công.
+- Chỉ đơn đang `Pending` mới được duyệt.
+- Khi duyệt thành công, trạng thái đơn chuyển sang `Approved`, xóa lý do từ chối và team tiếp tục bị khóa chỉnh sửa member.
+- Hệ thống gửi thông báo cho team leader sau khi duyệt.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |

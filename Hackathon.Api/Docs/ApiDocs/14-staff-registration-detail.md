@@ -21,10 +21,6 @@ Không có.
     "id": "guid",
     "teamId": "guid",
     "teamName": "string|null",
-    "topicId": "guid",
-    "topicTitle": "string|null",
-    "trackId": "guid",
-    "trackTitle": "string|null",
     "eventId": "guid",
     "eventName": "string|null",
     "description": "string|null",
@@ -52,6 +48,12 @@ Không có.
   }
 }
 ```
+
+## Business rules
+- Request phải có access token hợp lệ.
+- Register team phải tồn tại và chưa bị disable.
+- Staff chỉ xem được chi tiết đơn thuộc event mà mình được phân công.
+- Response trả thông tin đơn đăng ký và danh sách member active để phục vụ duyệt hoặc từ chối.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |

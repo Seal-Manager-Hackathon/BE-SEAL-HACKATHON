@@ -12,7 +12,7 @@ public static class EventRoleSeed
             new EventRoles
             {
                 Id = SeedConstants.MentorEventRoleId,
-                Name = EventRoleEnum.Mentor.ToString(),
+                Name = EventRoleEnum.Mentor,
                 IsDisable = false,
                 CreatedAt = SeedConstants.CreatedAt,
                 UpdatedAt = SeedConstants.CreatedAt
@@ -20,7 +20,7 @@ public static class EventRoleSeed
             new EventRoles
             {
                 Id = SeedConstants.JudgeEventRoleId,
-                Name = EventRoleEnum.Judge.ToString(),
+                Name = EventRoleEnum.Judge,
                 IsDisable = false,
                 CreatedAt = SeedConstants.CreatedAt,
                 UpdatedAt = SeedConstants.CreatedAt

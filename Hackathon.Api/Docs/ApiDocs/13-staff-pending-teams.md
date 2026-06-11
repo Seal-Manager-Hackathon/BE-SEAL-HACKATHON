@@ -22,8 +22,6 @@ Không có.
       "registerTeamId": "guid",
       "teamId": "guid",
       "teamName": "string",
-      "topicId": "guid",
-      "topicTitle": "string",
       "memberCount": 0,
       "status": "Pending",
       "createdAt": "datetimeoffset"
@@ -31,6 +29,12 @@ Không có.
   ]
 }
 ```
+
+## Business rules
+- Request phải có access token hợp lệ.
+- Staff chỉ xem được pending teams của event mà mình được phân công.
+- Chỉ trả các đơn đăng ký có trạng thái `Pending`.
+- Mỗi item gồm thông tin team, trạng thái đơn và số lượng member active.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
