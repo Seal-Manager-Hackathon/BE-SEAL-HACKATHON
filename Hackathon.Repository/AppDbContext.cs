@@ -1,4 +1,5 @@
 using Hackathon.Repository.Entity;
+using Hackathon.Repository.Seed;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hackathon.Repository;
@@ -42,6 +43,16 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<EmailVerifications>().Property(x => x.Status).HasConversion<string>();
+        modelBuilder.Entity<Events>().Property(x => x.Status).HasConversion<string>();
+        modelBuilder.Entity<Invitations>().Property(x => x.Status).HasConversion<string>();
+        modelBuilder.Entity<Notifications>().Property(x => x.Status).HasConversion<string>();
+        modelBuilder.Entity<RegisterTeams>().Property(x => x.Status).HasConversion<string>();
+        modelBuilder.Entity<Reports>().Property(x => x.Status).HasConversion<string>();
+        modelBuilder.Entity<Submissions>().Property(x => x.Status).HasConversion<string>();
+        modelBuilder.Entity<TeamDetails>().Property(x => x.Status).HasConversion<string>();
+        modelBuilder.Entity<Users>().Property(x => x.Status).HasConversion<string>();
 
         modelBuilder.Entity<UserRoles>()
             .HasOne(userRole => userRole.User)
@@ -237,5 +248,24 @@ public class AppDbContext : DbContext
             .HasOne(leaderBoardDetail => leaderBoardDetail.Team)
             .WithMany(team => team.LeaderBoardDetails)
             .HasForeignKey(leaderBoardDetail => leaderBoardDetail.TeamId);
+
+        modelBuilder.SeedRoles();
+        modelBuilder.SeedEventRoles();
+        modelBuilder.SeedUsers();
+        modelBuilder.SeedUserRoles();
+        modelBuilder.SeedAuthData();
+        modelBuilder.SeedEvents();
+        modelBuilder.SeedRounds();
+        modelBuilder.SeedCriteria();
+        modelBuilder.SeedTracks();
+        modelBuilder.SeedAwards();
+        modelBuilder.SeedTeams();
+        modelBuilder.SeedRoundDetails();
+        modelBuilder.SeedSubmissions();
+        modelBuilder.SeedAssignments();
+        modelBuilder.SeedScores();
+        modelBuilder.SeedNotifications();
+        modelBuilder.SeedReports();
+        modelBuilder.SeedLeaderBoards();
     }
 }

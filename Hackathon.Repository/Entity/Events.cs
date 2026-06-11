@@ -1,4 +1,5 @@
 using Hackathon.Repository.Abtraction;
+using Hackathon.Repository.Enum;
 
 namespace Hackathon.Repository.Entity;
 
@@ -12,7 +13,7 @@ public class Events : BaseEntity<Guid>, IAuditableEntity
     public int? LimitTeam { get; set; }
     public int? MinMember { get; set; }
     public int? MaxMember { get; set; }
-    public string? Status { get; set; }
+    public EventStatusEnum? Status { get; set; }
     public int? NumberRound { get; set; }
     public string? Season { get; set; }
 

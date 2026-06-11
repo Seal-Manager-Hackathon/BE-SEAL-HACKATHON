@@ -1,4 +1,5 @@
 using Hackathon.Repository.Abtraction;
+using Hackathon.Repository.Enum;
 
 namespace Hackathon.Repository.Entity;
 
@@ -18,9 +19,10 @@ public class Users : BaseEntity<Guid>, IAuditableEntity
     public string? ImgUrl { get; set; }
     public string? LinkUrl { get; set; }
     public DateTimeOffset? VerifyEmailAt { get; set; }
-    public string? Status { get; set; }
+    public UserStatusEnum? Status { get; set; }
     public string? BanReason { get; set; }
     public DateTimeOffset? BannedAt { get; set; }
+    public bool? IsVerified { get; set; }
 
     public ICollection<UserRoles> UserRoles { get; set; } = new List<UserRoles>();
     public ICollection<RefreshTokens> RefreshTokens { get; set; } = new List<RefreshTokens>();
