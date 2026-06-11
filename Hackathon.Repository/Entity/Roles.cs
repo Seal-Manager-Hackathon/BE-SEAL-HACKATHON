@@ -1,10 +1,11 @@
 using Hackathon.Repository.Abtraction;
+using Hackathon.Repository.Enum;
 
 namespace Hackathon.Repository.Entity;
 
 public class Roles : BaseEntity<Guid>, IAuditableEntity
 {
-    public required string Name { get; set; }
+    public RoleEnum Name { get; set; }
 
     public ICollection<UserRoles> UserRoles { get; set; } = new List<UserRoles>();
 

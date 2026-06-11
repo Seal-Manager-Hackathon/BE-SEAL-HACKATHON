@@ -12,7 +12,7 @@ public static class RoleSeed
             new Roles
             {
                 Id = SeedConstants.AdminRoleId,
-                Name = RoleEnum.Admin.ToString(),
+                Name = RoleEnum.Admin,
                 IsDisable = false,
                 CreatedAt = SeedConstants.CreatedAt,
                 UpdatedAt = SeedConstants.CreatedAt
@@ -20,7 +20,7 @@ public static class RoleSeed
             new Roles
             {
                 Id = SeedConstants.StaffRoleId,
-                Name = RoleEnum.Staff.ToString(),
+                Name = RoleEnum.Staff,
                 IsDisable = false,
                 CreatedAt = SeedConstants.CreatedAt,
                 UpdatedAt = SeedConstants.CreatedAt
@@ -28,7 +28,7 @@ public static class RoleSeed
             new Roles
             {
                 Id = SeedConstants.StudentRoleId,
-                Name = RoleEnum.Student.ToString(),
+                Name = RoleEnum.Student,
                 IsDisable = false,
                 CreatedAt = SeedConstants.CreatedAt,
                 UpdatedAt = SeedConstants.CreatedAt
@@ -36,7 +36,7 @@ public static class RoleSeed
             new Roles
             {
                 Id = SeedConstants.LecturerRoleId,
-                Name = RoleEnum.Lecturer.ToString(),
+                Name = RoleEnum.Lecturer,
                 IsDisable = false,
                 CreatedAt = SeedConstants.CreatedAt,
                 UpdatedAt = SeedConstants.CreatedAt

@@ -29,6 +29,12 @@
 }
 ```
 
+## Business rules
+- Email phải chưa tồn tại trong hệ thống.
+- `password` và `confirmPassword` phải trùng nhau.
+- Sau khi đăng ký thành công, tài khoản cần verify email trước khi dùng các luồng yêu cầu xác thực.
+- Hệ thống gửi email xác thực cho user mới.
+
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|

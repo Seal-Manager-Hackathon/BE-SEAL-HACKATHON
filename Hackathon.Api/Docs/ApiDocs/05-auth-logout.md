@@ -30,6 +30,12 @@ Không có. Cần cookie:
 }
 ```
 
+## Business rules
+- Request phải gửi refresh token hiện tại trong cookie.
+- Refresh token phải hợp lệ và chưa bị thu hồi.
+- Logout thành công sẽ revoke refresh token hiện tại và xóa auth cookies.
+- User đã logout trước đó không thể logout lại bằng cùng refresh token.
+
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
