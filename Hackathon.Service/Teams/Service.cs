@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Hackathon.Repository;
 using Hackathon.Repository.Entity;
+using Hackathon.Repository.Enum;
 using Hackathon.Service.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -9,11 +10,6 @@ namespace Hackathon.Service.Teams;
 
 public class Service : IService
 {
-    private const string ActiveMemberStatus = "Active";
-    private const string PendingInvitationStatus = "Pending";
-    private const string AcceptedInvitationStatus = "Accepted";
-    private const string RejectedInvitationStatus = "Rejected";
-    private const string UnreadNotificationStatus = "Unread";
     private const int MaxTeamMembersBeforeRegisterEvent = 50;
     private readonly AppDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContext;
@@ -58,7 +54,7 @@ public class Service : IService
             Id = invitation.Id,
             TeamId = invitation.TeamId,
             UserId = invitation.UserId,
-            Status = invitation.Status,
+            Status = invitation.Status?.ToString(),
             Description = invitation.Description,
             LimitTime = invitation.LimitTime,
             Message = message,
@@ -148,7 +144,7 @@ public class Service : IService
             TeamId = team.Id,
             UserId = user.Id,
             IsLeader = true,
-            Status = ActiveMemberStatus,
+            Status = TeamDetailStatusEnum.Active,
             CreatedAt = now,
             UpdatedAt = now,
         };
@@ -180,7 +176,7 @@ public class Service : IService
                 {
                     UserId = leader.UserId,
                     IsLeader = leader.IsLeader,
-                    Status = leader.Status,
+                    Status = leader.Status?.ToString(),
                 }
             }
         };
@@ -253,7 +249,7 @@ public class Service : IService
         var hasPendingInvitation = await _dbContext.Invitations.AnyAsync(x =>
             x.TeamId == teamId
             && x.UserId == request.UserId
-            && x.Status == PendingInvitationStatus
+            && x.Status == InvitationStatusEnum.Pending
             && !x.IsDisable);
         if (hasPendingInvitation)
         {
@@ -267,7 +263,7 @@ public class Service : IService
             TeamId = teamId,
             UserId = request.UserId,
             LimitTime = now.AddDays(7),
-            Status = PendingInvitationStatus,
+            Status = InvitationStatusEnum.Pending,
             Description = request.Description,
             CreatedAt = now,
             UpdatedAt = now,
@@ -279,7 +275,7 @@ public class Service : IService
             TeamId = teamId,
             UserId = request.UserId,
             Title = "TEAM_INVITATION_RECEIVED",
-            Status = UnreadNotificationStatus,
+            Status = NotificationStatusEnum.Unread,
             Description = $"Bạn nhận được lời mời tham gia team {team.Name}.",
             CreatedAt = now,
             UpdatedAt = now,
@@ -328,7 +324,7 @@ public class Service : IService
             throw new ForbiddenException("INVITATION_NOT_FOR_CURRENT_USER");
         }
 
-        if (invitation.Status != PendingInvitationStatus)
+        if (invitation.Status != InvitationStatusEnum.Pending)
         {
             throw new ConflictException("INVITATION_ALREADY_RESPONDED");
         }
@@ -336,7 +332,7 @@ public class Service : IService
         var now = DateTimeOffset.UtcNow;
         if (invitation.LimitTime.HasValue && invitation.LimitTime.Value < now)
         {
-            invitation.Status = "Expired";
+            invitation.Status = InvitationStatusEnum.Expired;
             invitation.UpdatedAt = now;
             await _dbContext.SaveChangesAsync();
             throw new BadRequestException("INVITATION_EXPIRED");
@@ -383,16 +379,16 @@ public class Service : IService
                     TeamId = team.Id,
                     UserId = userId,
                     IsLeader = false,
-                    Status = ActiveMemberStatus,
+                    Status = TeamDetailStatusEnum.Active,
                     CreatedAt = now,
                     UpdatedAt = now,
                 });
 
-                invitation.Status = AcceptedInvitationStatus;
+                invitation.Status = InvitationStatusEnum.Accepted;
             }
             else
             {
-                invitation.Status = RejectedInvitationStatus;
+                invitation.Status = InvitationStatusEnum.Rejected;
             }
 
             invitation.UpdatedAt = now;
@@ -403,7 +399,7 @@ public class Service : IService
                 TeamId = team.Id,
                 UserId = leaderId,
                 Title = notificationTitle,
-                Status = UnreadNotificationStatus,
+                Status = NotificationStatusEnum.Unread,
                 Description = notificationDescription,
                 CreatedAt = now,
                 UpdatedAt = now,

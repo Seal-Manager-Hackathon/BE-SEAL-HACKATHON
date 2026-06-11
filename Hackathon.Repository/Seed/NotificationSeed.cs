@@ -1,4 +1,5 @@
 using Hackathon.Repository.Entity;
+using Hackathon.Repository.Enum;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hackathon.Repository.Seed;
@@ -13,7 +14,7 @@ public static class NotificationSeed
             TeamId = SeedConstants.GreenCodersTeamId,
             UserId = SeedConstants.StudentMemberUserId,
             LimitTime = SeedConstants.CreatedAt.AddDays(3),
-            Status = "Pending",
+            Status = InvitationStatusEnum.Pending,
             Description = "Seed invitation",
             IsDisable = false,
             CreatedAt = SeedConstants.CreatedAt,
@@ -26,7 +27,7 @@ public static class NotificationSeed
             UserId = SeedConstants.StudentLeaderUserId,
             TeamId = SeedConstants.SeedInnovatorsTeamId,
             Title = "Registration approved",
-            Status = "Unread",
+            Status = NotificationStatusEnum.Unread,
             Description = "Your team registration has been approved",
             IsDisable = false,
             CreatedAt = SeedConstants.CreatedAt,

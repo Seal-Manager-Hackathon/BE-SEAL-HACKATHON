@@ -1,4 +1,5 @@
 using Hackathon.Repository.Abtraction;
+using Hackathon.Repository.Enum;
 
 namespace Hackathon.Repository.Entity;
 
@@ -11,7 +12,7 @@ public class Reports : BaseEntity<Guid>, IAuditableEntity
     public string? Description { get; set; }
     public string? ImgUrl { get; set; }
     public string? FileUrl { get; set; }
-    public string? Status { get; set; }
+    public ReportStatusEnum? Status { get; set; }
     public string? Reason { get; set; }
     public string? TypeReport { get; set; }
 

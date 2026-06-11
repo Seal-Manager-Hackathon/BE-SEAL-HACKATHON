@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Hackathon.Repository;
+using Hackathon.Repository.Enum;
 using Hackathon.Service.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -8,11 +9,6 @@ namespace Hackathon.Service.RegisterTeams;
 
 public class Service : IService
 {
-    private const string ActiveMemberStatus = "Active";
-    private const string PendingStatus = "Pending";
-    private const string ApprovedStatus = "Approved";
-    private const string RejectedStatus = "Rejected";
-    private const string UnreadNotificationStatus = "Unread";
     private readonly AppDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContext;
 
@@ -65,7 +61,7 @@ public class Service : IService
             EventId = registerTeam.Topic?.Track?.EventId ?? Guid.Empty,
             EventName = registerTeam.Topic?.Track?.Event?.Name,
             Description = registerTeam.Description,
-            Status = registerTeam.Status,
+            Status = registerTeam.Status?.ToString(),
             RejectionReason = registerTeam.RejectionReason,
             IsBanned = registerTeam.IsBanned,
             CreatedAt = registerTeam.CreatedAt,
@@ -139,7 +135,7 @@ public class Service : IService
             && x.UserId == userId
             && x.IsLeader
             && !x.IsDisable
-            && x.Status == ActiveMemberStatus);
+            && x.Status == TeamDetailStatusEnum.Active);
         if (!isLeader)
         {
             throw new ForbiddenException("ONLY_TEAM_LEADER_CAN_REGISTER_TEAM");
@@ -167,7 +163,7 @@ public class Service : IService
 
         var members = await _dbContext.TeamDetails
             .Include(x => x.User)
-            .Where(x => x.TeamId == request.TeamId && !x.IsDisable && x.Status == ActiveMemberStatus)
+            .Where(x => x.TeamId == request.TeamId && !x.IsDisable && x.Status == TeamDetailStatusEnum.Active)
             .ToListAsync();
 
         var minMember = @event.MinMember ?? 1;
@@ -190,9 +186,9 @@ public class Service : IService
             .ThenInclude(x => x.TeamDetails)
             .AnyAsync(x => !x.IsDisable
                            && x.TeamId != request.TeamId
-                           && (x.Status == PendingStatus || x.Status == ApprovedStatus)
+                           && (x.Status == RegisterTeamStatusEnum.Pending || x.Status == RegisterTeamStatusEnum.Approved)
                            && x.Topic.Track.EventId == @event.Id
-                           && x.Team.TeamDetails.Any(td => memberIds.Contains(td.UserId) && !td.IsDisable && td.Status == ActiveMemberStatus));
+                           && x.Team.TeamDetails.Any(td => memberIds.Contains(td.UserId) && !td.IsDisable && td.Status == TeamDetailStatusEnum.Active));
         if (memberAlreadyRegistered)
         {
             throw new ConflictException("MEMBER_ALREADY_REGISTERED_IN_EVENT");
@@ -204,13 +200,13 @@ public class Service : IService
             .Where(x => !x.IsDisable && x.TeamId == request.TeamId && x.Topic.Track.EventId == @event.Id)
             .ToListAsync();
 
-        if (existingRegistrations.Any(x => x.Status == PendingStatus || x.Status == ApprovedStatus))
+        if (existingRegistrations.Any(x => x.Status == RegisterTeamStatusEnum.Pending || x.Status == RegisterTeamStatusEnum.Approved))
         {
             throw new ConflictException("TEAM_ALREADY_REGISTERED_IN_EVENT");
         }
 
         var now = DateTimeOffset.UtcNow;
-        var rejectedRegistration = existingRegistrations.FirstOrDefault(x => x.Status == RejectedStatus);
+        var rejectedRegistration = existingRegistrations.FirstOrDefault(x => x.Status == RegisterTeamStatusEnum.Rejected);
         var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
@@ -222,7 +218,7 @@ public class Service : IService
                     TeamId = request.TeamId,
                     TopicId = request.TopicId,
                     Description = request.Description,
-                    Status = PendingStatus,
+                    Status = RegisterTeamStatusEnum.Pending,
                     IsBanned = false,
                     CreatedAt = now,
                     UpdatedAt = now,
@@ -234,7 +230,7 @@ public class Service : IService
                 rejectedRegistration.TopicId = request.TopicId;
                 rejectedRegistration.Description = request.Description;
                 rejectedRegistration.RejectionReason = null;
-                rejectedRegistration.Status = PendingStatus;
+                rejectedRegistration.Status = RegisterTeamStatusEnum.Pending;
                 rejectedRegistration.IsBanned = false;
                 rejectedRegistration.UpdatedAt = now;
             }
@@ -302,7 +298,7 @@ public class Service : IService
             {
                 EventId = x.EventId,
                 EventName = x.Event.Name,
-                EventStatus = x.Event.Status,
+                EventStatus = x.Event.Status.HasValue ? x.Event.Status.Value.ToString() : null,
                 EventRole = x.EventRole.Name,
                 RegisterLimitTime = x.Event.RegisterLimitTime,
             })
@@ -324,7 +320,7 @@ public class Service : IService
             .ThenInclude(x => x.TeamDetails)
             .Include(x => x.Topic)
             .ThenInclude(x => x.Track)
-            .Where(x => !x.IsDisable && x.Status == PendingStatus && x.Topic.Track.EventId == eventId)
+            .Where(x => !x.IsDisable && x.Status == RegisterTeamStatusEnum.Pending && x.Topic.Track.EventId == eventId)
             .Select(x => new Response.PendingRegisterTeamResponse
             {
                 RegisterTeamId = x.Id,
@@ -332,8 +328,8 @@ public class Service : IService
                 TeamName = x.Team.Name,
                 TopicId = x.TopicId,
                 TopicTitle = x.Topic.Title,
-                MemberCount = x.Team.TeamDetails.Count(td => !td.IsDisable && td.Status == ActiveMemberStatus),
-                Status = x.Status,
+                MemberCount = x.Team.TeamDetails.Count(td => !td.IsDisable && td.Status == TeamDetailStatusEnum.Active),
+                Status = x.Status.HasValue ? x.Status.Value.ToString() : null,
                 CreatedAt = x.CreatedAt,
             })
             .ToListAsync();
@@ -364,7 +360,7 @@ public class Service : IService
 
         var members = await _dbContext.TeamDetails
             .Include(x => x.User)
-            .Where(x => x.TeamId == registerTeam.TeamId && !x.IsDisable && x.Status == ActiveMemberStatus)
+            .Where(x => x.TeamId == registerTeam.TeamId && !x.IsDisable && x.Status == TeamDetailStatusEnum.Active)
             .Select(x => new Response.TeamMemberDetailResponse
             {
                 UserId = x.UserId,
@@ -377,7 +373,7 @@ public class Service : IService
                 AvatarUrl = x.User.AvatarUrl,
                 Bio = x.User.Bio,
                 IsLeader = x.IsLeader,
-                Status = x.Status,
+                Status = x.Status.HasValue ? x.Status.Value.ToString() : null,
             })
             .ToListAsync();
 
@@ -393,7 +389,7 @@ public class Service : IService
             EventId = eventId,
             EventName = registerTeam.Topic.Track.Event.Name,
             Description = registerTeam.Description,
-            Status = registerTeam.Status,
+            Status = registerTeam.Status?.ToString(),
             RejectionReason = registerTeam.RejectionReason,
             IsBanned = registerTeam.IsBanned,
             CreatedAt = registerTeam.CreatedAt,
@@ -425,7 +421,7 @@ public class Service : IService
         }
 
         await EnsureStaffAssignedToEvent(registerTeam.Topic.Track.EventId, userId);
-        if (registerTeam.Status != PendingStatus)
+        if (registerTeam.Status != RegisterTeamStatusEnum.Pending)
         {
             throw new ConflictException("REGISTER_TEAM_NOT_PENDING");
         }
@@ -435,7 +431,7 @@ public class Service : IService
         var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            registerTeam.Status = ApprovedStatus;
+            registerTeam.Status = RegisterTeamStatusEnum.Approved;
             registerTeam.RejectionReason = null;
             registerTeam.UpdatedAt = now;
             registerTeam.Team.CanEdit = false;
@@ -447,7 +443,7 @@ public class Service : IService
                 TeamId = registerTeam.TeamId,
                 UserId = leaderId,
                 Title = "REGISTER_TEAM_APPROVED",
-                Status = UnreadNotificationStatus,
+                Status = NotificationStatusEnum.Unread,
                 Description = $"Đơn đăng ký tham gia event {registerTeam.Topic.Track.Event.Name} của team {registerTeam.Team.Name} đã được chấp nhận.",
                 CreatedAt = now,
                 UpdatedAt = now,
@@ -493,7 +489,7 @@ public class Service : IService
         }
 
         await EnsureStaffAssignedToEvent(registerTeam.Topic.Track.EventId, userId);
-        if (registerTeam.Status != PendingStatus)
+        if (registerTeam.Status != RegisterTeamStatusEnum.Pending)
         {
             throw new ConflictException("REGISTER_TEAM_NOT_PENDING");
         }
@@ -503,7 +499,7 @@ public class Service : IService
         var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            registerTeam.Status = RejectedStatus;
+            registerTeam.Status = RegisterTeamStatusEnum.Rejected;
             registerTeam.RejectionReason = reason;
             registerTeam.UpdatedAt = now;
             registerTeam.Team.CanEdit = true;
@@ -515,7 +511,7 @@ public class Service : IService
                 TeamId = registerTeam.TeamId,
                 UserId = leaderId,
                 Title = "REGISTER_TEAM_REJECTED",
-                Status = UnreadNotificationStatus,
+                Status = NotificationStatusEnum.Unread,
                 Description = $"Đơn đăng ký tham gia event {registerTeam.Topic.Track.Event.Name} của team {registerTeam.Team.Name} đã bị từ chối. Lý do: {reason}",
                 CreatedAt = now,
                 UpdatedAt = now,

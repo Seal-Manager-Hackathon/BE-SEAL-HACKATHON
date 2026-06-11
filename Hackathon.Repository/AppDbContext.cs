@@ -44,6 +44,16 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<EmailVerifications>().Property(x => x.Status).HasConversion<string>();
+        modelBuilder.Entity<Events>().Property(x => x.Status).HasConversion<string>();
+        modelBuilder.Entity<Invitations>().Property(x => x.Status).HasConversion<string>();
+        modelBuilder.Entity<Notifications>().Property(x => x.Status).HasConversion<string>();
+        modelBuilder.Entity<RegisterTeams>().Property(x => x.Status).HasConversion<string>();
+        modelBuilder.Entity<Reports>().Property(x => x.Status).HasConversion<string>();
+        modelBuilder.Entity<Submissions>().Property(x => x.Status).HasConversion<string>();
+        modelBuilder.Entity<TeamDetails>().Property(x => x.Status).HasConversion<string>();
+        modelBuilder.Entity<Users>().Property(x => x.Status).HasConversion<string>();
+
         modelBuilder.Entity<UserRoles>()
             .HasOne(userRole => userRole.User)
             .WithMany(user => user.UserRoles)

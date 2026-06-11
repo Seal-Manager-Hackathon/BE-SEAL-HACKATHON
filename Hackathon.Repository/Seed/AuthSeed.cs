@@ -1,4 +1,5 @@
 using Hackathon.Repository.Entity;
+using Hackathon.Repository.Enum;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hackathon.Repository.Seed;
@@ -39,7 +40,7 @@ public static class AuthSeed
             UserId = SeedConstants.StudentLeaderUserId,
             TokenHash = "seed-email-verification-token-hash",
             ExpiredAt = SeedConstants.CreatedAt.AddDays(1),
-            Status = "Verified",
+            Status = EmailVerificationStatusEnum.Verified,
             IsDisable = false,
             CreatedAt = SeedConstants.CreatedAt,
             UpdatedAt = SeedConstants.CreatedAt

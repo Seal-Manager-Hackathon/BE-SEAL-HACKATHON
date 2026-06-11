@@ -1,4 +1,5 @@
 using Hackathon.Repository.Entity;
+using Hackathon.Repository.Enum;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hackathon.Repository.Seed;
@@ -17,7 +18,7 @@ public static class ReportSeed
             Description = "Seed report for final submission",
             ImgUrl = "https://seed.local/reports/image.png",
             FileUrl = "https://seed.local/reports/file.pdf",
-            Status = "Open",
+            Status = ReportStatusEnum.Open,
             Reason = "Seed review reason",
             TypeReport = "Submission",
             IsDisable = false,

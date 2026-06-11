@@ -1,4 +1,5 @@
 using Hackathon.Repository.Entity;
+using Hackathon.Repository.Enum;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hackathon.Repository.Seed;
@@ -23,7 +24,7 @@ public static class SubmissionSeed
             RoundDetailId = roundDetailId,
             Url = url,
             Description = "Seed submission",
-            Status = "Submitted",
+            Status = SubmissionStatusEnum.Submitted,
             SubmittedAt = SeedConstants.CreatedAt.AddDays(10),
             IsDisable = false,
             CreatedAt = SeedConstants.CreatedAt,
