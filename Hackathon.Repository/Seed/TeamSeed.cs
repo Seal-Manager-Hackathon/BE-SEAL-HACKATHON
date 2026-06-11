@@ -40,7 +40,7 @@ public static class TeamSeed
             {
                 Id = SeedConstants.SeedInnovatorsRegisterTeamId,
                 TeamId = SeedConstants.SeedInnovatorsTeamId,
-                TopicId = SeedConstants.AiTopicId,
+                EventId = SeedConstants.SealHackathonEventId,
                 Description = "Seed Innovators registration",
                 Status = RegisterTeamStatusEnum.Approved,
                 IsBanned = false,
@@ -52,7 +52,7 @@ public static class TeamSeed
             {
                 Id = SeedConstants.GreenCodersRegisterTeamId,
                 TeamId = SeedConstants.GreenCodersTeamId,
-                TopicId = SeedConstants.GreenTopicId,
+                EventId = SeedConstants.SealHackathonEventId,
                 Description = "Green Coders registration",
                 Status = RegisterTeamStatusEnum.Approved,
                 IsBanned = false,

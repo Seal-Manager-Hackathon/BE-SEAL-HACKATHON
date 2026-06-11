@@ -9,7 +9,6 @@ public class Topics : BaseEntity<Guid>, IAuditableEntity
     public string? Description { get; set; }
 
     public Tracks Track { get; set; } = null!;
-    public ICollection<RegisterTeams> RegisterTeams { get; set; } = new List<RegisterTeams>();
 
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }

@@ -352,10 +352,20 @@ public class Service : IService
 
        
 
+        var userRole = await _dbContext.UserRoles
+            .Include(x => x.Role)
+            .FirstOrDefaultAsync(x => x.UserId == user.Id && !x.IsDisable && !x.Role.IsDisable);
+        if (userRole == null)
+        {
+            throw new UnauthorizedException("INVALID_EMAIL_OR_PASSWORD");
+        }
+
+        var roleName = userRole.Role.Name.ToString();
         var claims = new List<Claim>
         {
             new Claim("UserId", user.Id.ToString()),
-            new Claim("isVerify", user.IsVerified.ToString())
+            new Claim("isVerify", user.IsVerified.ToString()),
+            new Claim(ClaimTypes.Role, roleName)
         };
 
         var accessToken = _jwtService.GenerateAccessToken(claims);

@@ -22,6 +22,7 @@ public class Events : BaseEntity<Guid>, IAuditableEntity
     public ICollection<Awards> Awards { get; set; } = new List<Awards>();
     public LeaderBoards? LeaderBoard { get; set; }
     public ICollection<AssignEvents> AssignEvents { get; set; } = new List<AssignEvents>();
+    public ICollection<RegisterTeams> RegisterTeams { get; set; } = new List<RegisterTeams>();
 
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
