@@ -1,4 +1,5 @@
 using Hackathon.Repository.Entity;
+using Hackathon.Repository.Seed;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hackathon.Repository;
@@ -237,5 +238,24 @@ public class AppDbContext : DbContext
             .HasOne(leaderBoardDetail => leaderBoardDetail.Team)
             .WithMany(team => team.LeaderBoardDetails)
             .HasForeignKey(leaderBoardDetail => leaderBoardDetail.TeamId);
+
+        modelBuilder.SeedRoles();
+        modelBuilder.SeedEventRoles();
+        modelBuilder.SeedUsers();
+        modelBuilder.SeedUserRoles();
+        modelBuilder.SeedAuthData();
+        modelBuilder.SeedEvents();
+        modelBuilder.SeedRounds();
+        modelBuilder.SeedCriteria();
+        modelBuilder.SeedTracks();
+        modelBuilder.SeedAwards();
+        modelBuilder.SeedTeams();
+        modelBuilder.SeedRoundDetails();
+        modelBuilder.SeedSubmissions();
+        modelBuilder.SeedAssignments();
+        modelBuilder.SeedScores();
+        modelBuilder.SeedNotifications();
+        modelBuilder.SeedReports();
+        modelBuilder.SeedLeaderBoards();
     }
 }
