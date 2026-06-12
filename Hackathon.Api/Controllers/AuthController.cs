@@ -60,6 +60,21 @@ public class AuthController : ControllerBase
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
+    [Authorize]
+    [HttpPatch("change-password")]
+    public async Task<IActionResult> ChangePassword(AuthService.Request.ChangePasswordRequest request)
+    {
+        var result = await _authService.ChangePassword(request);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(AuthService.Request.ForgotPasswordRequest request)
+    {
+        var result = await _authService.ForgotPassword(request);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
     [HttpPost("login")]
     public async Task<IActionResult> LoginAsync(AuthService.Request.LoginRequest request)
     {

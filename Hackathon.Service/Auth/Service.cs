@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using Hackathon.Repository;
 using Hackathon.Repository.Entity;
 using Hackathon.Service.Exceptions;
@@ -268,6 +269,11 @@ public class Service : IService
         return Guid.Empty;
     }
 
+    private static bool IsValidPassword(string password)
+    {
+        return Regex.IsMatch(password, @"^(?=.*[A-Za-z])(?=.*\d).{8,}$");
+    }
+
     public async Task<Response.GetMeResponse> GetMe()
     {
         var userId = CheckAccessToken();
@@ -396,5 +402,81 @@ public class Service : IService
         };
         return result;
 
+    }
+
+    public async Task<Response.MessageResponse> ChangePassword(Request.ChangePasswordRequest request)
+    {
+        var userId = CheckAccessToken();
+        if (userId == Guid.Empty)
+        {
+            throw new MissingAccessTokenException();
+        }
+
+        if (request.NewPassword != request.ConfirmPassword)
+        {
+            throw new BadRequestException("PASSWORD_CONFIRMATION_NOT_MATCH");
+        }
+
+        if (!IsValidPassword(request.NewPassword))
+        {
+            throw new BadRequestException("INVALID_PASSWORD_FORMAT");
+        }
+
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
+        if (user == null)
+        {
+            throw new NotFoundException("USER_NOT_FOUND");
+        }
+
+        var currentPepperPassword = request.CurrentPassword + _securityOptions.Pepper;
+        var isPasswordValid = global::BCrypt.Net.BCrypt.EnhancedVerify(
+            currentPepperPassword,
+            user.HashPassword,
+            hashType: global::BCrypt.Net.HashType.SHA256
+        );
+
+        if (!isPasswordValid)
+        {
+            throw new BadRequestException("CURRENT_PASSWORD_INVALID");
+        }
+
+        var newPepperPassword = request.NewPassword + _securityOptions.Pepper;
+        user.HashPassword = global::BCrypt.Net.BCrypt.EnhancedHashPassword(newPepperPassword, hashType: global::BCrypt.Net.HashType.SHA256);
+        user.UpdatedAt = DateTimeOffset.UtcNow;
+        await _dbContext.SaveChangesAsync();
+
+        return new Response.MessageResponse { Message = "PASSWORD_CHANGED_SUCCESSFULLY" };
+    }
+
+    public async Task<Response.MessageResponse> ForgotPassword(Request.ForgotPasswordRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Email))
+        {
+            throw new BadRequestException("EMAIL_REQUIRED");
+        }
+
+        var email = request.Email.Trim();
+        if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+        {
+            throw new BadRequestException("INVALID_EMAIL_FORMAT");
+        }
+
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email.ToLower() == email.ToLower() && !x.IsDisable);
+        if (user != null)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim("UserId", user.Id.ToString()),
+            };
+            var resetToken = _jwtService.GenerateEmailVerificationToken(claims, 1);
+            await _mailService.SendMail(new MailContent
+            {
+                To = email,
+                Subject = "Reset password",
+                Body = MailTemplate.EmailContainToken(resetToken),
+            });
+        }
+
+        return new Response.MessageResponse { Message = "FORGOT_PASSWORD_REQUEST_ACCEPTED" };
     }
 }

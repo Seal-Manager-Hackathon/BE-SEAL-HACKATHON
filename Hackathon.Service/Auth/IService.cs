@@ -12,4 +12,6 @@ public interface IService
     public Task<Response.LoginResponse> LoginAsync(
         Request.LoginRequest request
     );
+    public Task<Response.MessageResponse> ChangePassword(Request.ChangePasswordRequest request);
+    public Task<Response.MessageResponse> ForgotPassword(Request.ForgotPasswordRequest request);
 }

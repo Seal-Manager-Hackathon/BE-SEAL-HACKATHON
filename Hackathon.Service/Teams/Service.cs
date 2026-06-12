@@ -99,6 +99,28 @@ public class Service : IService
         return leaderId;
     }
 
+    private static Response.TeamResponse ToTeamResponse(Repository.Entity.Teams team)
+    {
+        return new Response.TeamResponse
+        {
+            Id = team.Id,
+            Name = team.Name,
+            CanEdit = team.CanEdit,
+            CreatedAt = team.CreatedAt,
+            Members = team.TeamDetails
+                .Where(x => !x.IsDisable)
+                .OrderByDescending(x => x.IsLeader)
+                .ThenBy(x => x.CreatedAt)
+                .Select(x => new Response.TeamMemberResponse
+                {
+                    UserId = x.UserId,
+                    IsLeader = x.IsLeader,
+                    Status = x.Status?.ToString(),
+                })
+                .ToList(),
+        };
+    }
+
     /// <summary>
     /// Tạo team mới cho student hiện tại và tự động thêm student đó vào TeamDetails với vai trò leader.
     /// Các lỗi có thể xảy ra: thiếu access token -> MISSING_ACCESS_TOKEN; token không hợp lệ -> INVALID_ACCESS_TOKEN;
@@ -442,5 +464,108 @@ public class Service : IService
         return ToInvitationResponse(invitation, request.IsAccepted
             ? "TEAM_INVITATION_ACCEPTED_SUCCESSFULLY"
             : "TEAM_INVITATION_REJECTED_SUCCESSFULLY");
+    }
+
+    public async Task<Response.TeamResponse> GetTeam(Guid teamId)
+    {
+        var userId = GetCurrentUserId();
+        var team = await _dbContext.Teams
+            .AsNoTracking()
+            .Include(x => x.TeamDetails)
+            .FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
+
+        if (team == null)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        var isMember = team.TeamDetails.Any(x => x.UserId == userId && !x.IsDisable);
+        var isStaff = _httpContext.HttpContext?.User.IsInRole(RoleEnum.Staff.ToString()) == true
+                      || _httpContext.HttpContext?.User.IsInRole(RoleEnum.Admin.ToString()) == true;
+        if (!isMember && !isStaff)
+        {
+            throw new ForbiddenException("TEAM_NOT_VISIBLE_TO_USER");
+        }
+
+        return ToTeamResponse(team);
+    }
+
+    public async Task<Response.TeamResponse> UpdateTeam(Guid teamId, Request.UpdateTeamRequest request)
+    {
+        var userId = GetCurrentUserId();
+        var team = await _dbContext.Teams
+            .Include(x => x.TeamDetails)
+            .FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
+
+        if (team == null)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        if (!team.CanEdit)
+        {
+            throw new ForbiddenException("TEAM_MEMBER_LOCKED");
+        }
+
+        var leader = team.TeamDetails.FirstOrDefault(x => x.UserId == userId && x.IsLeader && !x.IsDisable);
+        if (leader == null)
+        {
+            throw new ForbiddenException("ONLY_TEAM_LEADER_CAN_UPDATE_TEAM");
+        }
+
+        var teamName = request.Name?.Trim();
+        if (string.IsNullOrWhiteSpace(teamName))
+        {
+            throw new BadRequestException("TEAM_NAME_REQUIRED");
+        }
+
+        var isDuplicatedName = await _dbContext.Teams.AnyAsync(x => x.Id != teamId && x.Name.ToLower() == teamName.ToLower());
+        if (isDuplicatedName)
+        {
+            throw new ConflictException("TEAM_NAME_ALREADY_EXISTS");
+        }
+
+        team.Name = teamName;
+        team.UpdatedAt = DateTimeOffset.UtcNow;
+        await _dbContext.SaveChangesAsync();
+        return ToTeamResponse(team);
+    }
+
+    public async Task<Response.MessageResponse> DeleteMember(Guid teamId, Guid userId)
+    {
+        var leaderId = GetCurrentUserId();
+        var isLeader = await _dbContext.TeamDetails.AnyAsync(x => x.TeamId == teamId && x.UserId == leaderId && x.IsLeader && !x.IsDisable);
+        if (!isLeader)
+        {
+            throw new ForbiddenException("ONLY_TEAM_LEADER_CAN_DELETE_MEMBER");
+        }
+
+        var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
+        if (team == null)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        if (!team.CanEdit)
+        {
+            throw new ForbiddenException("TEAM_MEMBER_LOCKED");
+        }
+
+        var member = await _dbContext.TeamDetails.FirstOrDefaultAsync(x => x.TeamId == teamId && x.UserId == userId && !x.IsDisable);
+        if (member == null)
+        {
+            throw new NotFoundException("TEAM_MEMBER_NOT_FOUND");
+        }
+
+        if (member.IsLeader)
+        {
+            throw new BadRequestException("CANNOT_DELETE_TEAM_LEADER");
+        }
+
+        member.IsDisable = true;
+        member.UpdatedAt = DateTimeOffset.UtcNow;
+        await _dbContext.SaveChangesAsync();
+
+        return new Response.MessageResponse { Message = "TEAM_MEMBER_DELETED_SUCCESSFULLY" };
     }
 }
