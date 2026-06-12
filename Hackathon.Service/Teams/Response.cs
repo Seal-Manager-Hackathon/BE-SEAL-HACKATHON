@@ -18,6 +18,11 @@ public static class Response
         public DateTimeOffset CreatedAt { get; set; }
     }
 
+    public class MessageResponse
+    {
+        public string Message { get; set; } = null!;
+    }
+
     public class CreateTeamResponse : TeamResponse
     {
         public string Message { get; set; } = null!;
