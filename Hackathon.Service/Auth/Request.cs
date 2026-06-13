@@ -22,10 +22,22 @@ public class Request
     {
         [Required(ErrorMessage = "Email không được để trống")]
         [EmailAddress(ErrorMessage = "Email không hợp lệ")]
-        public required string Email { get; set; } 
+        public required string Email { get; set; }
 
         [Required(ErrorMessage = "Mật khẩu không được để trống")]
-        
-        public required string Password { get; set; } 
+
+        public required string Password { get; set; }
+    }
+
+    public class ChangePasswordRequest
+    {
+        public required string CurrentPassword { get; set; }
+        public required string NewPassword { get; set; }
+        public required string ConfirmPassword { get; set; }
+    }
+
+    public class ForgotPasswordRequest
+    {
+        public required string Email { get; set; }
     }
 }

@@ -17,4 +17,10 @@ public static class Request
     {
         public bool IsAccepted { get; set; }
     }
+
+    public class UpdateTeamRequest
+    {
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+    }
 }
