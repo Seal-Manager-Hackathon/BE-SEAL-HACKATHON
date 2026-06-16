@@ -13,7 +13,7 @@
 - Store profile fields in `Users`.
 
 ## Role & Assignment
-- Manage global roles via `Roles`/`UserRoles`.
+- Manage global role through `Users.Role` (`RoleEnum`); there are no `Roles`/`UserRoles` tables.
 - Assign staff/lecture to event via `AssignEvents`.
 - Assign mentor/judge to track via `AssignTracks`.
 
@@ -70,7 +70,7 @@
 - Mentor notices via `MentorNotifications`.
 
 ## Admin/System
-- User/role management.
+- User management and global role updates via `Users.Role`.
 - Assignment management.
 - Event lifecycle control.
 - Operational reports and manual decisions.

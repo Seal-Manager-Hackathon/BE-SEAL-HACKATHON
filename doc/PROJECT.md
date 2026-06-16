@@ -12,7 +12,7 @@ SEAL Hackathon Management System là backend quản lý hackathon end-to-end: ac
 
 ## Schema
 - Source of truth: `Hackathon2026.dbml`.
-- Current schema: 29 tables.
+- Current schema: 27 tables/entities in `Hackathon.Repository/AppDbContext.cs`.
 - Tables/entities plural, fields singular.
 - PK/FK: `Guid`.
 - Time: `DateTimeOffset`.
@@ -24,6 +24,8 @@ Do not re-add unless user explicitly changes schema:
 
 ```text
 Profile
+Role
+UserRole
 Permissions
 RolePermissions
 UserPermissions
@@ -38,7 +40,7 @@ ExamPapers
 
 ## Main data flow
 ```text
-Users/Roles
+Users (`RoleEnum` on `Users.Role`)
 -> Teams/TeamDetails
 -> RegisterTeams
 -> RoundDetails

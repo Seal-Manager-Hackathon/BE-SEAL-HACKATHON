@@ -3,7 +3,7 @@
 ## Authorization
 - No dynamic Permission/RBAC tables.
 - API authorization is hard-coded by role/action.
-- Global roles: `Admin`, `Staff`, `Student`, `Lecture`.
+- Global roles: `Admin`, `Staff`, `Student`, `Lecturer`.
 - Event roles: `Mentor`, `Judge`.
 - Event/track APIs must check global role + `AssignEvents` + `AssignTracks` + business rule.
 
@@ -36,7 +36,7 @@
 - `RoundDetails` connects `Rounds` and `RegisterTeams`.
 
 ## Mentor/Judge
-- Lecture becomes mentor/judge only through assignment.
+- Lecturer becomes mentor/judge only through assignment.
 - Mentor supports and sends notices; mentor does not score.
 - Judge scores assigned track submissions by criteria.
 - A lecture should not be mentor and judge in the same event.
