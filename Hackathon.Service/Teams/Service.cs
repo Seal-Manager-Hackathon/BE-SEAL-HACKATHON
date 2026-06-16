@@ -525,6 +525,77 @@ public class Service : IService
         return ToTeamResponse(team);
     }
 
+    public async Task<List<Response.MyTeamResponse>> GetMyTeams(Request.GetMyTeamsRequest request)
+    {
+        var userId = GetCurrentUserId();
+        if (request.Year is <= 0)
+        {
+            throw new BadRequestException("INVALID_YEAR");
+        }
+
+        var membershipsQuery = _dbContext.TeamDetails
+            .AsNoTracking()
+            .Include(x => x.Team)
+                .ThenInclude(x => x.RegisterTeams)
+                    .ThenInclude(x => x.Event)
+            .Where(x => x.UserId == userId && !x.IsDisable && !x.Team.IsDisable);
+
+        if (request.Status.HasValue)
+        {
+            membershipsQuery = membershipsQuery.Where(x => x.Status == request.Status.Value);
+        }
+
+        if (request.Year.HasValue)
+        {
+            var year = request.Year.Value;
+            membershipsQuery = membershipsQuery.Where(x => x.Team.RegisterTeams.Any(registerTeam =>
+                !registerTeam.IsDisable
+                && !registerTeam.Event.IsDisable
+                && ((registerTeam.Event.StartTime.HasValue && registerTeam.Event.StartTime.Value.Year == year)
+                    || (!registerTeam.Event.StartTime.HasValue && registerTeam.Event.CreatedAt.Year == year))));
+        }
+
+        var memberships = await membershipsQuery
+            .OrderByDescending(x => x.CreatedAt)
+            .ToListAsync();
+
+        return memberships.Select(membership =>
+        {
+            var registerTeams = membership.Team.RegisterTeams
+                .Where(registerTeam => !registerTeam.IsDisable && !registerTeam.Event.IsDisable);
+
+            if (request.Year.HasValue)
+            {
+                var year = request.Year.Value;
+                registerTeams = registerTeams.Where(registerTeam =>
+                    (registerTeam.Event.StartTime.HasValue && registerTeam.Event.StartTime.Value.Year == year)
+                    || (!registerTeam.Event.StartTime.HasValue && registerTeam.Event.CreatedAt.Year == year));
+            }
+
+            return new Response.MyTeamResponse
+            {
+                TeamId = membership.TeamId,
+                TeamName = membership.Team.Name,
+                CanEdit = membership.Team.CanEdit,
+                IsLeader = membership.IsLeader,
+                MemberStatus = membership.Status?.ToString(),
+                JoinedAt = membership.CreatedAt,
+                Events = registerTeams
+                    .OrderByDescending(registerTeam => registerTeam.Event.StartTime ?? registerTeam.Event.CreatedAt)
+                    .Select(registerTeam => new Response.MyTeamEventResponse
+                    {
+                        EventId = registerTeam.EventId,
+                        EventName = registerTeam.Event.Name,
+                        Season = registerTeam.Event.Season,
+                        Year = (registerTeam.Event.StartTime ?? registerTeam.Event.CreatedAt).Year,
+                        RegistrationStatus = registerTeam.Status?.ToString(),
+                        IsBanned = registerTeam.IsBanned,
+                    })
+                    .ToList(),
+            };
+        }).ToList();
+    }
+
     public async Task<Response.MessageResponse> DeleteMember(Guid teamId, Guid userId)
     {
         var leaderId = GetCurrentUserId();
