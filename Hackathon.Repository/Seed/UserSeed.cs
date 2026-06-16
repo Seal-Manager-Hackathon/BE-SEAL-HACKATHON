@@ -9,17 +9,17 @@ public static class UserSeed
     public static void SeedUsers(this ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Users>().HasData(
-            CreateUser(SeedConstants.AdminUserId, "admin@seed.local", "Admin", "Seed", "System Administrator"),
-            CreateUser(SeedConstants.StaffUserId, "staff@seed.local", "Staff", "Seed", "Event Staff"),
-            CreateUser(SeedConstants.MentorUserId, "mentor@seed.local", "Mentor", "Lecturer", "Seed Mentor"),
-            CreateUser(SeedConstants.JudgeUserId, "judge@seed.local", "Judge", "Lecturer", "Seed Judge"),
-            CreateUser(SeedConstants.StudentLeaderUserId, "leader@seed.local", "Student", "Leader", "SEAL001"),
-            CreateUser(SeedConstants.StudentMemberUserId, "member@seed.local", "Student", "Member", "SEAL002"),
-            CreateUser(SeedConstants.GreenLeaderUserId, "green.leader@seed.local", "Green", "Leader", "SEAL003")
+            CreateUser(SeedConstants.AdminUserId, "admin@seed.local", "Admin", "Seed", "System Administrator", RoleEnum.Admin),
+            CreateUser(SeedConstants.StaffUserId, "staff@seed.local", "Staff", "Seed", "Event Staff", RoleEnum.Staff),
+            CreateUser(SeedConstants.MentorUserId, "mentor@seed.local", "Mentor", "Lecturer", "Seed Mentor", RoleEnum.Lecturer),
+            CreateUser(SeedConstants.JudgeUserId, "judge@seed.local", "Judge", "Lecturer", "Seed Judge", RoleEnum.Lecturer),
+            CreateUser(SeedConstants.StudentLeaderUserId, "leader@seed.local", "Student", "Leader", "SEAL001", RoleEnum.Student),
+            CreateUser(SeedConstants.StudentMemberUserId, "member@seed.local", "Student", "Member", "SEAL002", RoleEnum.Student),
+            CreateUser(SeedConstants.GreenLeaderUserId, "green.leader@seed.local", "Green", "Leader", "SEAL003", RoleEnum.Student)
         );
     }
 
-    private static Users CreateUser(Guid id, string email, string firstName, string lastName, string studentId)
+    private static Users CreateUser(Guid id, string email, string firstName, string lastName, string studentId, RoleEnum role)
     {
         return new Users
         {
@@ -34,6 +34,7 @@ public static class UserSeed
             Address = "Seed address",
             DateOfBirth = new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero),
             StudentId = studentId,
+            Role = role,
             College = "Seed University",
             ImgUrl = "https://seed.local/profile.png",
             LinkUrl = "https://seed.local/users",

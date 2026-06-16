@@ -257,13 +257,7 @@ public class Service : IService
             throw new NotFoundException("INVITED_USER_NOT_FOUND");
         }
 
-        var invitedUserIsStudent = await _dbContext.UserRoles
-            .Include(x => x.Role)
-            .AnyAsync(x => x.UserId == invitedUser.Id
-                           && !x.IsDisable
-                           && !x.Role.IsDisable
-                           && x.Role.Name == RoleEnum.Student);
-        if (!invitedUserIsStudent)
+        if (invitedUser.Role != RoleEnum.Student)
         {
             throw new ForbiddenException("INVITED_USER_MUST_BE_STUDENT");
         }

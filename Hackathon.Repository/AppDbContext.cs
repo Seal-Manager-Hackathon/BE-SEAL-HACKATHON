@@ -9,10 +9,9 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
-
-    public DbSet<Roles> Roles { get; set; }
+    
     public DbSet<Users> Users { get; set; }
-    public DbSet<UserRoles> UserRoles { get; set; }
+
     public DbSet<RefreshTokens> RefreshTokens { get; set; }
     public DbSet<ResetPasswords> ResetPasswords { get; set; }
     public DbSet<EmailVerifications> EmailVerifications { get; set; }
@@ -53,18 +52,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Submissions>().Property(x => x.Status).HasConversion<string>();
         modelBuilder.Entity<TeamDetails>().Property(x => x.Status).HasConversion<string>();
         modelBuilder.Entity<Users>().Property(x => x.Status).HasConversion<string>();
-        modelBuilder.Entity<Roles>().Property(x => x.Name).HasConversion<string>();
+
         modelBuilder.Entity<EventRoles>().Property(x => x.Name).HasConversion<string>();
-
-        modelBuilder.Entity<UserRoles>()
-            .HasOne(userRole => userRole.User)
-            .WithMany(user => user.UserRoles)
-            .HasForeignKey(userRole => userRole.UserId);
-
-        modelBuilder.Entity<UserRoles>()
-            .HasOne(userRole => userRole.Role)
-            .WithMany(role => role.UserRoles)
-            .HasForeignKey(userRole => userRole.RoleId);
 
         modelBuilder.Entity<RefreshTokens>()
             .HasOne(refreshToken => refreshToken.User)
@@ -250,11 +239,8 @@ public class AppDbContext : DbContext
             .HasOne(leaderBoardDetail => leaderBoardDetail.Team)
             .WithMany(team => team.LeaderBoardDetails)
             .HasForeignKey(leaderBoardDetail => leaderBoardDetail.TeamId);
-
-        modelBuilder.SeedRoles();
         modelBuilder.SeedEventRoles();
         modelBuilder.SeedUsers();
-        modelBuilder.SeedUserRoles();
         modelBuilder.SeedAuthData();
         modelBuilder.SeedEvents();
         modelBuilder.SeedRounds();

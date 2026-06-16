@@ -18,13 +18,13 @@ public class Users : BaseEntity<Guid>, IAuditableEntity
     public string? College { get; set; }
     public string? ImgUrl { get; set; }
     public string? LinkUrl { get; set; }
+    public required RoleEnum Role { get; set; }
     public DateTimeOffset? VerifyEmailAt { get; set; }
     public UserStatusEnum? Status { get; set; }
     public string? BanReason { get; set; }
     public DateTimeOffset? BannedAt { get; set; }
     public bool? IsVerified { get; set; }
 
-    public ICollection<UserRoles> UserRoles { get; set; } = new List<UserRoles>();
     public ICollection<RefreshTokens> RefreshTokens { get; set; } = new List<RefreshTokens>();
     public ICollection<ResetPasswords> ResetPasswords { get; set; } = new List<ResetPasswords>();
     public ICollection<EmailVerifications> EmailVerifications { get; set; } = new List<EmailVerifications>();
