@@ -8,4 +8,5 @@ public interface IService
     Task<Response.TeamResponse> GetTeam(Guid teamId);
     Task<Response.TeamResponse> UpdateTeam(Guid teamId, Request.UpdateTeamRequest request);
     Task<Response.MessageResponse> DeleteMember(Guid teamId, Guid userId);
+    Task<List<Response.MyTeamResponse>> GetMyTeams(Request.GetMyTeamsRequest request);
 }

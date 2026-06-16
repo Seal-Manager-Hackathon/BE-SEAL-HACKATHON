@@ -1,3 +1,5 @@
+using Hackathon.Repository.Enum;
+
 namespace Hackathon.Service.Teams;
 
 public static class Request
@@ -22,5 +24,11 @@ public static class Request
     {
         public string? Name { get; set; }
         public string? Description { get; set; }
+    }
+
+    public class GetMyTeamsRequest
+    {
+        public TeamDetailStatusEnum? Status { get; set; }
+        public int? Year { get; set; }
     }
 }

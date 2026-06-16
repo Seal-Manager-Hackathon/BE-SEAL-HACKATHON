@@ -38,4 +38,25 @@ public static class Response
         public DateTimeOffset? LimitTime { get; set; }
         public string Message { get; set; } = null!;
     }
+
+    public class MyTeamEventResponse
+    {
+        public Guid EventId { get; set; }
+        public string EventName { get; set; } = null!;
+        public string? Season { get; set; }
+        public int Year { get; set; }
+        public string? RegistrationStatus { get; set; }
+        public bool IsBanned { get; set; }
+    }
+
+    public class MyTeamResponse
+    {
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = null!;
+        public bool CanEdit { get; set; }
+        public bool IsLeader { get; set; }
+        public string? MemberStatus { get; set; }
+        public DateTimeOffset JoinedAt { get; set; }
+        public List<MyTeamEventResponse> Events { get; set; } = new();
+    }
 }
