@@ -38,6 +38,30 @@ public class Request
 
     public class ForgotPasswordRequest
     {
+        [Required(ErrorMessage = "EMAIL_REQUIRED")]
+        [EmailAddress(ErrorMessage = "INVALID_EMAIL_FORMAT")]
         public required string Email { get; set; }
+    }
+
+    public class ResetPasswordRequest : IValidatableObject
+    {
+        [Required(ErrorMessage = "Token không được để trống")]
+        public required string Token { get; set; }
+
+        [Required(ErrorMessage = "Mật khẩu mới không được để trống")]
+        public required string NewPassword { get; set; }
+
+        [Required(ErrorMessage = "Xác nhận mật khẩu không được để trống")]
+        public required string ConfirmPassword { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (NewPassword != ConfirmPassword)
+            {
+                yield return new ValidationResult(
+                    "PASSWORD_CONFIRMATION_NOT_MATCH",
+                    new[] { nameof(ConfirmPassword) });
+            }
+        }
     }
 }

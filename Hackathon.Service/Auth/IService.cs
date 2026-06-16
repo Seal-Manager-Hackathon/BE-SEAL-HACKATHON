@@ -14,4 +14,5 @@ public interface IService
     );
     public Task<Response.MessageResponse> ChangePassword(Request.ChangePasswordRequest request);
     public Task<Response.MessageResponse> ForgotPassword(Request.ForgotPasswordRequest request);
+    public Task<Response.MessageResponse> ResetPassword(Request.ResetPasswordRequest request);
 }

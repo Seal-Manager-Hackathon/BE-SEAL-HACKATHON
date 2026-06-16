@@ -75,6 +75,13 @@ public class AuthController : ControllerBase
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(AuthService.Request.ResetPasswordRequest request)
+    {
+        var result = await _authService.ResetPassword(request);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
     [HttpPost("login")]
     public async Task<IActionResult> LoginAsync(AuthService.Request.LoginRequest request)
     {
