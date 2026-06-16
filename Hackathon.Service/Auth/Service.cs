@@ -170,8 +170,9 @@ public class Service : IService
         var claimsForNewToken = new List<Claim>
         {
             new Claim("UserId", storedToken.User.Id.ToString()),
-            new Claim("Role",  RoleEnum.Student.ToString()),
+            new Claim("Role", storedToken.User.Role.ToString()),
             new Claim("IsVerified", storedToken.User.IsVerified.ToString().ToLower()),
+            new Claim(ClaimTypes.Role, storedToken.User.Role.ToString()),
         };
         string newAccessToken = _jwtService.GenerateAccessToken(claimsForNewToken);
 

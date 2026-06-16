@@ -90,7 +90,20 @@ builder.Services.AddScoped<TracksService.IService, TracksService.Service>();
 builder.Services.AddScoped<UserRolesService.IService, UserRolesService.Service>();
 builder.Services.AddScoped<UsersService.IService, UsersService.Service>();
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
 var app = builder.Build();
+
 
 
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
@@ -101,10 +114,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
+
 app.UseSwaggerAPI();
 
+app.UseCors("AllowFrontend");
+app.UseAuthentication();
 app.UseAuthorization();
-app.UseAuthentication();    
 
 app.MapControllers();
 
