@@ -45,7 +45,7 @@ public class AuthController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("/api/users/me")]
+    [HttpGet("/api/auth/me")]
     public async Task<IActionResult> GetMe()
     {
         var result = await _authService.GetMe();

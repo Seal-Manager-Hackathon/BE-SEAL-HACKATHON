@@ -77,7 +77,7 @@ public static class JwtExtensions
             
             options.AddPolicy(UserVerifiedPolicy, policy =>
                 policy.RequireRole("Student")
-                    .RequireClaim("IsVerify", "true"));
+                    .RequireClaim("IsVerified", "true"));
         });
     }
 }
