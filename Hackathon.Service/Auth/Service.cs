@@ -81,6 +81,7 @@ public class Service : IService
                 throw new ConflictException("EMAIL_ALREADY_EXISTS");            }
 
             var pepperPassword = request.Password + _securityOptions.Pepper;
+            //haha
             var hashedPassword = global::BCrypt.Net.BCrypt.EnhancedHashPassword(pepperPassword, hashType: global::BCrypt.Net.HashType.SHA256);
 
             var newUser = new Hackathon.Repository.Entity.Users()
