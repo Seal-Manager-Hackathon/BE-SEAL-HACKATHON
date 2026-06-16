@@ -1006,64 +1006,6 @@ namespace Hackathon.Repository.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Hackathon.Repository.Entity.Roles", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsDisable")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Roles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDisable = false,
-                            Name = "Admin",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
-                        },
-                        new
-                        {
-                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDisable = false,
-                            Name = "Staff",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
-                        },
-                        new
-                        {
-                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDisable = false,
-                            Name = "Student",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
-                        },
-                        new
-                        {
-                            Id = new Guid("44444444-4444-4444-4444-444444444444"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDisable = false,
-                            Name = "Lecturer",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
-                        });
-                });
-
             modelBuilder.Entity("Hackathon.Repository.Entity.RoundDetails", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1757,101 +1699,6 @@ namespace Hackathon.Repository.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Hackathon.Repository.Entity.UserRoles", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsDisable")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("11000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDisable = false,
-                            RoleId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("10000000-0000-0000-0000-000000000001")
-                        },
-                        new
-                        {
-                            Id = new Guid("11000000-0000-0000-0000-000000000002"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDisable = false,
-                            RoleId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("10000000-0000-0000-0000-000000000002")
-                        },
-                        new
-                        {
-                            Id = new Guid("11000000-0000-0000-0000-000000000003"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDisable = false,
-                            RoleId = new Guid("44444444-4444-4444-4444-444444444444"),
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("10000000-0000-0000-0000-000000000003")
-                        },
-                        new
-                        {
-                            Id = new Guid("11000000-0000-0000-0000-000000000004"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDisable = false,
-                            RoleId = new Guid("44444444-4444-4444-4444-444444444444"),
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("10000000-0000-0000-0000-000000000004")
-                        },
-                        new
-                        {
-                            Id = new Guid("11000000-0000-0000-0000-000000000005"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDisable = false,
-                            RoleId = new Guid("33333333-3333-3333-3333-333333333333"),
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("10000000-0000-0000-0000-000000000005")
-                        },
-                        new
-                        {
-                            Id = new Guid("11000000-0000-0000-0000-000000000006"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDisable = false,
-                            RoleId = new Guid("33333333-3333-3333-3333-333333333333"),
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("10000000-0000-0000-0000-000000000006")
-                        },
-                        new
-                        {
-                            Id = new Guid("11000000-0000-0000-0000-000000000007"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDisable = false,
-                            RoleId = new Guid("33333333-3333-3333-3333-333333333333"),
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("10000000-0000-0000-0000-000000000007")
-                        });
-                });
-
             modelBuilder.Entity("Hackathon.Repository.Entity.Users", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1911,6 +1758,9 @@ namespace Hackathon.Repository.Migrations
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("text");
 
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Status")
                         .HasColumnType("text");
 
@@ -1946,6 +1796,7 @@ namespace Hackathon.Repository.Migrations
                             LastName = "Seed",
                             LinkUrl = "https://seed.local/users",
                             PhoneNumber = "0900000000",
+                            Role = 0,
                             Status = "Active",
                             StudentId = "System Administrator",
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -1969,6 +1820,7 @@ namespace Hackathon.Repository.Migrations
                             LastName = "Seed",
                             LinkUrl = "https://seed.local/users",
                             PhoneNumber = "0900000000",
+                            Role = 1,
                             Status = "Active",
                             StudentId = "Event Staff",
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -1992,6 +1844,7 @@ namespace Hackathon.Repository.Migrations
                             LastName = "Lecturer",
                             LinkUrl = "https://seed.local/users",
                             PhoneNumber = "0900000000",
+                            Role = 3,
                             Status = "Active",
                             StudentId = "Seed Mentor",
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -2015,6 +1868,7 @@ namespace Hackathon.Repository.Migrations
                             LastName = "Lecturer",
                             LinkUrl = "https://seed.local/users",
                             PhoneNumber = "0900000000",
+                            Role = 3,
                             Status = "Active",
                             StudentId = "Seed Judge",
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -2038,6 +1892,7 @@ namespace Hackathon.Repository.Migrations
                             LastName = "Leader",
                             LinkUrl = "https://seed.local/users",
                             PhoneNumber = "0900000000",
+                            Role = 2,
                             Status = "Active",
                             StudentId = "SEAL001",
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -2061,6 +1916,7 @@ namespace Hackathon.Repository.Migrations
                             LastName = "Member",
                             LinkUrl = "https://seed.local/users",
                             PhoneNumber = "0900000000",
+                            Role = 2,
                             Status = "Active",
                             StudentId = "SEAL002",
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -2084,6 +1940,7 @@ namespace Hackathon.Repository.Migrations
                             LastName = "Leader",
                             LinkUrl = "https://seed.local/users",
                             PhoneNumber = "0900000000",
+                            Role = 2,
                             Status = "Active",
                             StudentId = "SEAL003",
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -2456,25 +2313,6 @@ namespace Hackathon.Repository.Migrations
                     b.Navigation("Event");
                 });
 
-            modelBuilder.Entity("Hackathon.Repository.Entity.UserRoles", b =>
-                {
-                    b.HasOne("Hackathon.Repository.Entity.Roles", "Role")
-                        .WithMany("UserRoles")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Hackathon.Repository.Entity.Users", "User")
-                        .WithMany("UserRoles")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Role");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Hackathon.Repository.Entity.AssignEvents", b =>
                 {
                     b.Navigation("AssignTracks");
@@ -2529,11 +2367,6 @@ namespace Hackathon.Repository.Migrations
             modelBuilder.Entity("Hackathon.Repository.Entity.RegisterTeams", b =>
                 {
                     b.Navigation("RoundDetails");
-                });
-
-            modelBuilder.Entity("Hackathon.Repository.Entity.Roles", b =>
-                {
-                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("Hackathon.Repository.Entity.RoundDetails", b =>
@@ -2597,8 +2430,6 @@ namespace Hackathon.Repository.Migrations
                     b.Navigation("ResetPasswords");
 
                     b.Navigation("TeamDetails");
-
-                    b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
         }

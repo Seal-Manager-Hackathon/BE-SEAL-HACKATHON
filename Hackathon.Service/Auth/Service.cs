@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text.RegularExpressions;
 using Hackathon.Repository;
 using Hackathon.Repository.Entity;
+using Hackathon.Repository.Enum;
 using Hackathon.Service.Exceptions;
 using Hackathon.Service.MailService;
 using Hackathon.Service.Models;
@@ -89,6 +90,7 @@ public class Service : IService
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 HashPassword = hashedPassword,
+                Role = RoleEnum.Student,
                 IsVerified = false
             };
             await _dbContext.Users.AddAsync(newUser);
@@ -356,22 +358,11 @@ public class Service : IService
             throw new UnauthorizedException("INVALID_EMAIL_OR_PASSWORD");
         }
 
-       
-
-        var userRole = await _dbContext.UserRoles
-            .Include(x => x.Role)
-            .FirstOrDefaultAsync(x => x.UserId == user.Id && !x.IsDisable && !x.Role.IsDisable);
-        if (userRole == null)
-        {
-            throw new UnauthorizedException("INVALID_EMAIL_OR_PASSWORD");
-        }
-
-        var roleName = userRole.Role.Name.ToString();
         var claims = new List<Claim>
         {
             new Claim("UserId", user.Id.ToString()),
-            new Claim("isVerify", user.IsVerified.ToString()),
-            new Claim(ClaimTypes.Role, roleName)
+            new Claim("IsVerified", user.IsVerified.ToString().ToLower()),
+            new Claim(ClaimTypes.Role, user.Role.ToString())
         };
 
         var accessToken = _jwtService.GenerateAccessToken(claims);
