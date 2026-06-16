@@ -1,102 +1,272 @@
-﻿namespace Hackathon.Service.MailService;
+namespace Hackathon.Service.MailService;
 
 public static class MailTemplate
 {
     public static string EmailContainToken(string token)
     {
-        var verificationLink = $"https://hoatheomua.com/verify?token={token}";
-        
+        var verificationLink = $"http://localhost:5173/verify-email?token={token}";
+
         var htmlBody = """
         <!DOCTYPE html>
         <html lang="vi">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Xác thực tài khoản - Hoa Theo Mùa</title>
+            <title>Xác thực tài khoản - SEAL Hackathon</title>
             <style>
-                @media screen and (max-width: 600px) {
-                    .email-container { width: 100% !important; padding: 15px !important; }
-                    .content-wrapper { padding: 30px 20px !important; }
-                    .btn-verify { display: block !important; text-align: center !important; padding: 16px 20px !important; }
+                body {
+                    margin: 0;
+                    padding: 0;
+                    background: #eef4ff;
+                    font-family: Arial, Helvetica, sans-serif;
+                    color: #172033;
+                }
+                .wrapper {
+                    width: 100%;
+                    padding: 40px 16px;
+                    box-sizing: border-box;
+                }
+                .container {
+                    max-width: 620px;
+                    margin: 0 auto;
+                    background: #ffffff;
+                    border-radius: 18px;
+                    overflow: hidden;
+                    box-shadow: 0 18px 45px rgba(28, 67, 140, 0.16);
+                }
+                .hero {
+                    padding: 34px 32px;
+                    background: linear-gradient(135deg, #1247d9 0%, #19a7ce 100%);
+                    color: #ffffff;
+                    text-align: center;
+                }
+                .badge {
+                    display: inline-block;
+                    padding: 7px 13px;
+                    border-radius: 999px;
+                    background: rgba(255, 255, 255, 0.18);
+                    font-size: 12px;
+                    letter-spacing: 1px;
+                    text-transform: uppercase;
+                    margin-bottom: 14px;
+                }
+                .hero h1 {
+                    margin: 0;
+                    font-size: 28px;
+                    line-height: 1.25;
+                }
+                .content {
+                    padding: 34px 36px 28px;
+                    line-height: 1.7;
+                    font-size: 15px;
+                }
+                .content p {
+                    margin: 0 0 16px;
+                }
+                .button-wrap {
+                    text-align: center;
+                    margin: 30px 0;
+                }
+                .btn {
+                    display: inline-block;
+                    padding: 14px 28px;
+                    border-radius: 12px;
+                    background: #1247d9;
+                    color: #ffffff !important;
+                    text-decoration: none;
+                    font-weight: 700;
+                    box-shadow: 0 10px 22px rgba(18, 71, 217, 0.26);
+                }
+                .note {
+                    padding: 14px 16px;
+                    border-left: 4px solid #19a7ce;
+                    background: #f4fbff;
+                    border-radius: 10px;
+                    color: #43516a;
+                    font-size: 14px;
+                }
+                .link-box {
+                    word-break: break-all;
+                    margin-top: 18px;
+                    padding: 13px;
+                    background: #f6f8fc;
+                    border-radius: 10px;
+                    color: #526078;
+                    font-size: 12px;
+                }
+                .footer {
+                    padding: 22px 30px;
+                    background: #f7f9fd;
+                    text-align: center;
+                    color: #7b879d;
+                    font-size: 12px;
                 }
             </style>
         </head>
-        <body style="margin: 0; padding: 0; background-color: #eef3f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #3f3f3f; -webkit-font-smoothing: antialiased;">
-        
-            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #eef3f0; padding: 50px 0;">
-                <tr>
-                    <td align="center">
-                        
-                        <table class="email-container" border="0" cellpadding="0" cellspacing="0" width="580" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #d6e2dc; box-shadow: 0 10px 25px -5px rgba(81, 108, 108, 0.05), 0 8px 10px -6px rgba(81, 108, 108, 0.05);">
-                            
-                            <tr>
-                                <td align="center" style="padding: 40px 40px 10px 40px;">
-                                    
-                                    <h1 style="margin: 0; color: #7a9c59; font-size: 22px; font-weight: 640; letter-spacing: 2px; text-transform: uppercase;">
-                                        Hoa Theo Mùa
-                                    </h1>
-                                    <div style="height: 2px; width: 30px; background-color: #7a9c59; margin: 15px auto 0 auto; border-radius: 2px;"></div>
-                                </td>
-                            </tr>
-        
-                            <tr>
-                                <td class="content-wrapper" style="padding: 30px 45px 40px 45px;">
-                                    <p style="margin-top: 0; margin-bottom: 16px; color: #516c6c; font-size: 18px; font-weight: 600; text-align: center;">
-                                        Xác thực tài khoản của bạn
-                                    </p>
-                                    
-                                    <p style="margin: 0 0 24px 0; font-size: 15px; line-height: 1.6; color: #516c6c; text-align: center;">
-                                        Chào bạn, cảm ơn bạn đã ghé chơi khu vườn <strong>Hoa Theo Mùa</strong>. Để bắt đầu hành trình khám phá những hương sắc ngọt ngào nhất, bạn vui lòng xác nhận tài khoản bằng cách nhấn vào nút bên dưới nhé.
-                                    </p>
-        
-                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 32px 0;">
-                                        <tr>
-                                            <td align="center">
-                                                <a href="{{verification_link}}" class="btn-verify" style="background-color: #516c6c; color: #ffffff; display: inline-block; padding: 14px 36px; font-size: 15px; font-weight: 500; text-decoration: none; border-radius: 8px; box-shadow: 0 4px 14px rgba(81, 108, 108, 0.25); letter-spacing: 0.5px; transition: all 0.2s ease;">
-                                                    Kích Hoạt Tài Khoản
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    </table>
-        
-                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #e3ece7; border-radius: 8px; border-left: 4px solid #7a9c59;">
-                                        <tr>
-                                            <td style="padding: 16px 20px;">
-                                                <p style="margin: 0 0 6px 0; font-size: 13px; font-weight: 600; color: #2f4646;">
-                                                    Bạn gặp sự cố với nút bấm?
-                                                </p>
-                                                <p style="margin: 0; font-size: 12px; color: #6b8079; line-height: 1.5; word-break: break-all;">
-                                                    Sao chép liên kết này dán vào trình duyệt: <br>
-                                                    <a href="{{verification_link}}" style="color: #516c6c; text-decoration: underline; font-weight: 500;">{{verification_link}}</a>
-                                                </p>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
-        
-                            <tr>
-                                <td style="background-color: #fafbfa; padding: 30px 45px; text-align: center; border-top: 1px solid #d6e2dc;">
-                                    <p style="margin: 0 0 12px 0; font-size: 12px; color: #6b8079; line-height: 1.5;">
-                                        Bạn nhận được email này vì đã đăng ký thành viên tại hoatheomua.com.<br>Nếu không phải bạn thực hiện, bạn có thể an tâm bỏ qua email này.
-                                    </p>
-                                    <p style="margin: 0; font-size: 11px; color: #bcd0c7; letter-spacing: 0.5px;">
-                                        &copy; 2026 Hoa Theo Mùa. All right reserved.
-                                    </p>
-                                </td>
-                            </tr>
-        
-                        </table>
-                        </td>
-                </tr>f
-            </table>
-        
+        <body>
+            <div class="wrapper">
+                <div class="container">
+                    <div class="hero">
+                        <div class="badge">SEAL Hackathon 2026</div>
+                        <h1>Kích hoạt tài khoản của bạn</h1>
+                    </div>
+                    <div class="content">
+                        <p>Chào bạn,</p>
+                        <p>Cảm ơn bạn đã đăng ký tham gia <strong>SEAL Hackathon</strong>. Chỉ còn một bước nữa để hoàn tất tài khoản.</p>
+                        <div class="button-wrap">
+                            <a href="{{verification_link}}" class="btn">Xác Thực Tài Khoản</a>
+                        </div>
+                        <div class="note">
+                            Liên kết xác thực chỉ có hiệu lực trong thời gian ngắn. Vui lòng không chia sẻ email này cho bất kỳ ai.
+                        </div>
+                        <div class="link-box">
+                            Nếu nút không hoạt động, hãy sao chép liên kết này vào trình duyệt:<br>
+                            {{verification_link}}
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <p>&copy; 2026 SEAL Hackathon. All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
         </body>
         </html>
         """;
 
+        return htmlBody.Replace("{{verification_link}}", verificationLink);
+    }
 
-        return htmlBody
-            .Replace("{{verification_link}}", verificationLink);
+    public static string ForgotPasswordContainToken(string token)
+    {
+        var resetPasswordLink = $"http://localhost:5173/reset-password?token={token}";
+
+        var htmlBody = """
+        <!DOCTYPE html>
+        <html lang="vi">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Đặt lại mật khẩu - SEAL Hackathon</title>
+            <style>
+                body {
+                    margin: 0;
+                    padding: 0;
+                    background: #fff5f0;
+                    font-family: Arial, Helvetica, sans-serif;
+                    color: #201b18;
+                }
+                .wrapper {
+                    width: 100%;
+                    padding: 40px 16px;
+                    box-sizing: border-box;
+                }
+                .container {
+                    max-width: 620px;
+                    margin: 0 auto;
+                    background: #ffffff;
+                    border-radius: 18px;
+                    overflow: hidden;
+                    box-shadow: 0 18px 45px rgba(186, 74, 27, 0.16);
+                }
+                .hero {
+                    padding: 34px 32px;
+                    background: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
+                    color: #ffffff;
+                    text-align: center;
+                }
+                .badge {
+                    display: inline-block;
+                    padding: 7px 13px;
+                    border-radius: 999px;
+                    background: rgba(255, 255, 255, 0.18);
+                    font-size: 12px;
+                    letter-spacing: 1px;
+                    text-transform: uppercase;
+                    margin-bottom: 14px;
+                }
+                .hero h1 {
+                    margin: 0;
+                    font-size: 28px;
+                    line-height: 1.25;
+                }
+                .content {
+                    padding: 34px 36px 28px;
+                    line-height: 1.7;
+                    font-size: 15px;
+                }
+                .content p {
+                    margin: 0 0 16px;
+                }
+                .button-wrap {
+                    text-align: center;
+                    margin: 30px 0;
+                }
+                .btn {
+                    display: inline-block;
+                    padding: 14px 28px;
+                    border-radius: 12px;
+                    background: #ef4444;
+                    color: #ffffff !important;
+                    text-decoration: none;
+                    font-weight: 700;
+                    box-shadow: 0 10px 22px rgba(239, 68, 68, 0.24);
+                }
+                .warning {
+                    padding: 14px 16px;
+                    border-left: 4px solid #f97316;
+                    background: #fff7ed;
+                    border-radius: 10px;
+                    color: #60402a;
+                    font-size: 14px;
+                }
+                .link-box {
+                    word-break: break-all;
+                    margin-top: 18px;
+                    padding: 13px;
+                    background: #faf7f5;
+                    border-radius: 10px;
+                    color: #6b5b52;
+                    font-size: 12px;
+                }
+                .footer {
+                    padding: 22px 30px;
+                    background: #fff8f4;
+                    text-align: center;
+                    color: #9a8173;
+                    font-size: 12px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="wrapper">
+                <div class="container">
+                    <div class="hero">
+                        <div class="badge">Bảo mật tài khoản</div>
+                        <h1>Đặt lại mật khẩu</h1>
+                    </div>
+                    <div class="content">
+                        <p>Chào bạn,</p>
+                        <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản <strong>SEAL Hackathon</strong> của bạn.</p>
+                        <div class="button-wrap">
+                            <a href="{{reset_password_link}}" class="btn">Đặt Lại Mật Khẩu</a>
+                        </div>
+                        <div class="warning">
+                            Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này. Không chia sẻ liên kết này cho bất kỳ ai.
+                        </div>
+                        <div class="link-box">
+                            Nếu nút không hoạt động, hãy sao chép liên kết này vào trình duyệt:<br>
+                            {{reset_password_link}}
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <p>&copy; 2026 SEAL Hackathon. All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+        """;
+
+        return htmlBody.Replace("{{reset_password_link}}", resetPasswordLink);
     }
 }

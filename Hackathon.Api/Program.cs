@@ -2,7 +2,9 @@ using Hackathon.Api.Extention;
 using Hackathon.Repository;
 using Hackathon.Extension;
 using Hackathon.Middleware;
+using Hackathon.Service.BackgroundJobService;
 using Microsoft.EntityFrameworkCore;
+using Quartz;
 using AuthService = Hackathon.Service.Auth;
 using MailService = Hackathon.Service.MailService;
 using JwtService = Hackathon.Service.JwtService;
@@ -57,6 +59,26 @@ builder.Services.AddJwtServices(builder.Configuration);
 builder.Services.AddSwaggerServices();
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddQuartz(options =>
+{
+    var expirePendingEmailVerificationsJobKey = new JobKey(nameof(ExpirePendingEmailVerificationsJob));
+
+    options.AddJob<ExpirePendingEmailVerificationsJob>(job =>
+        job.WithIdentity(expirePendingEmailVerificationsJobKey));
+
+    options.AddTrigger(trigger => trigger
+        .ForJob(expirePendingEmailVerificationsJobKey)
+        .WithIdentity($"{nameof(ExpirePendingEmailVerificationsJob)}-trigger")
+        .WithSimpleSchedule(schedule => schedule
+            .WithIntervalInMinutes(2)
+            .RepeatForever()));
+});
+
+builder.Services.AddQuartzHostedService(options =>
+{
+    options.WaitForJobsToComplete = true;
+});
+
 builder.Services.AddScoped<AuthService.IService, AuthService.Service>();
 builder.Services.AddScoped<JwtService.IService, JwtService.Service>();
 builder.Services.AddScoped<MailService.IService, MailService.Service>();
@@ -96,10 +118,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .AllowAnyOrigin()
+            .SetIsOriginAllowed(_ => true)
             .AllowAnyHeader()
-            .AllowAnyMethod();
-        // ĐÃ XÓA .AllowCredentials()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 var app = builder.Build();

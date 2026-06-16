@@ -58,7 +58,7 @@ public class Service: IService
             issuer: _jwtOption.Issuer, 
             audience: _jwtOption.Audience, 
             claims: claims, 
-            expires: DateTime.Now.AddHours(expiration),
+            expires: DateTime.Now.AddMinutes(expiration),
             signingCredentials: signingCredentials
         );
         
