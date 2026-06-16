@@ -24,6 +24,13 @@ public class TeamController : ControllerBase
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMyTeams([FromQuery] TeamsService.Request.GetMyTeamsRequest request)
+    {
+        var result = await _teamService.GetMyTeams(request);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
     [HttpGet("{teamId:guid}")]
     public async Task<IActionResult> GetTeam(Guid teamId)
     {
