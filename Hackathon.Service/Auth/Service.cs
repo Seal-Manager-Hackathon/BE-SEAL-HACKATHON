@@ -70,6 +70,11 @@ public class Service : IService
         {
             throw new BadRequestException("PASSWORD_CONFIRMATION_NOT_MATCH");
         }
+        
+        if (!IsValidPassword(request.Password))
+        {
+            throw new BadRequestException("INVALID_PASSWORD_FORMAT");
+        }
 
         var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
