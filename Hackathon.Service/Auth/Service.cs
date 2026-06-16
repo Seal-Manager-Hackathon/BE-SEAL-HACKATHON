@@ -99,6 +99,7 @@ public class Service : IService
             var newClaims = new List<Claim>()
             {
                 new Claim("UserId", newUser.Id.ToString()),
+                new Claim("Role", RoleEnum.Student.ToString()),
                 new Claim("IsVerified", newUser.IsVerified.ToString().ToLower()),
             };
             var emailToken = _jwtService.GenerateEmailVerificationToken(newClaims, 2);
@@ -169,6 +170,7 @@ public class Service : IService
         var claimsForNewToken = new List<Claim>
         {
             new Claim("UserId", storedToken.User.Id.ToString()),
+            new Claim("Role",  RoleEnum.Student.ToString()),
             new Claim("IsVerified", storedToken.User.IsVerified.ToString().ToLower()),
         };
         string newAccessToken = _jwtService.GenerateAccessToken(claimsForNewToken);
@@ -361,6 +363,7 @@ public class Service : IService
         var claims = new List<Claim>
         {
             new Claim("UserId", user.Id.ToString()),
+            new Claim("Role", user.Role.ToString()),
             new Claim("IsVerified", user.IsVerified.ToString().ToLower()),
             new Claim(ClaimTypes.Role, user.Role.ToString())
         };
