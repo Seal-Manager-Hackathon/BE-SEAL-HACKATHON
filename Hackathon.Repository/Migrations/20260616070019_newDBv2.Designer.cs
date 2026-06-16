@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hackathon.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260611132440_RoleEnumNameConversions")]
-    partial class RoleEnumNameConversions
+    [Migration("20260616070019_newDBv2")]
+    partial class newDBv2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
