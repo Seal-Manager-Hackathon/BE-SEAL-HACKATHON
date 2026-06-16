@@ -96,10 +96,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .WithOrigins("*")
+            .AllowAnyOrigin()
             .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+            .AllowAnyMethod();
+        // ĐÃ XÓA .AllowCredentials()
     });
 });
 var app = builder.Build();
