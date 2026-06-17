@@ -25,4 +25,25 @@ public static class Response
         public int TeamCount { get; set; }
         public int ParticipantCount { get; set; }
     }
+
+    public class StudentEventResponse
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = null!;
+        public string? Description { get; set; }
+        public DateTimeOffset? StartTime { get; set; }
+        public DateTimeOffset? EndTime { get; set; }
+        public DateTimeOffset? RegisterLimitTime { get; set; }
+        public int? LimitTeam { get; set; }
+        public int? MinMember { get; set; }
+        public int? MaxMember { get; set; }
+        public string? Status { get; set; }
+        public int? NumberRound { get; set; }
+        public string? Season { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+    }
+
+    public class AdminEventResponse : EventResponse
+    {
+    }
 }

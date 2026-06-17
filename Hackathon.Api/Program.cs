@@ -3,6 +3,8 @@ using Hackathon.Repository;
 using Hackathon.Extension;
 using Hackathon.Middleware;
 using Hackathon.Service.BackgroundJobService;
+using Hackathon.Service.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
 using AuthService = Hackathon.Service.Auth;
@@ -43,6 +45,32 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 
 builder.Services.AddControllers();
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState
+            .Where(e => e.Value != null && e.Value.Errors.Count > 0)
+            .ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value != null
+                    ? kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                    : Array.Empty<string>()
+            );
+
+        var errorResponse = ApiResponseFactory.Error(
+            title: "Validation Failed",
+            status: StatusCodes.Status400BadRequest,
+            detail: "Dữ liệu đầu vào không hợp lệ.",
+            messageCode: "VALIDATION_FAILED",
+            errors: errors,
+            traceId: context.HttpContext.TraceIdentifier
+        );
+
+        return new BadRequestObjectResult(errorResponse);
+    };
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

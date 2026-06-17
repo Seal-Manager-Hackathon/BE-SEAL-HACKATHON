@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using System.Text.RegularExpressions;
 using Hackathon.Repository;
 using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
@@ -66,16 +65,6 @@ public class Service : IService
 
     public async Task<string> Register(Request.RegisterRequest request)
     {
-        if (request.Password != request.ConfirmPassword)
-        {
-            throw new BadRequestException("PASSWORD_CONFIRMATION_NOT_MATCH");
-        }
-        
-        if (!IsValidPassword(request.Password))
-        {
-            throw new BadRequestException("INVALID_PASSWORD_FORMAT");
-        }
-
         var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
@@ -96,7 +85,9 @@ public class Service : IService
                 LastName = request.LastName,
                 HashPassword = hashedPassword,
                 Role = RoleEnum.Student,
-                IsVerified = false
+                IsVerified = false,
+                CreatedAt = DateTimeOffset.UtcNow,
+                UpdatedAt = DateTimeOffset.UtcNow
             };
             
             await _dbContext.Users.AddAsync(newUser);
@@ -210,11 +201,10 @@ public class Service : IService
             throw new BadRequestException("INVALID_OR_EXPIRED_EMAIL_VERIFICATION_TOKEN");
         }
 
-        var a = validateToken.Identities.First().FindFirst("UserId")?.Value;
         var userIdStr = validateToken.FindFirst("UserId")?.Value;
         var userId = Guid.Parse(userIdStr!);
         var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
-        var emailValid = await _dbContext.EmailVerifications.FirstOrDefaultAsync(x => x.Id == userId);
+        var emailValid = await _dbContext.EmailVerifications.FirstOrDefaultAsync(x => x.UserId == userId);
         if (user == null)
         {
             throw new NotFoundException("USER_NOT_FOUND");        
@@ -237,12 +227,14 @@ public class Service : IService
         var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
+            var now = DateTimeOffset.UtcNow;
             user.IsVerified = true;
-            user.UpdatedAt = DateTimeOffset.UtcNow;
+            user.VerifyEmailAt = now;
+            user.UpdatedAt = now;
             _dbContext.Users.Update(user);
-            
+
             emailValid.Status = EmailVerificationStatusEnum.Verified;
-            emailValid.UpdatedAt = DateTimeOffset.UtcNow;
+            emailValid.UpdatedAt = now;
             _dbContext.EmailVerifications.Update(emailValid);
 
             var authClaims = new List<Claim>
@@ -259,7 +251,7 @@ public class Service : IService
             var ipAddress = httpContext?.Connection?.RemoteIpAddress?.ToString() ?? "Unknown IP";
             var userAgent = httpContext?.Request?.Headers["User-Agent"].ToString() ?? "Unknown Device";
 
-            var refreshTokenEntity = new Hackathon.Repository.Entity.RefreshTokens()
+            var refreshTokenEntity = new Repository.Entity.RefreshTokens()
             {
                 Id = Guid.NewGuid(),
                 RefreshTokenHash = refreshToken,
@@ -301,11 +293,6 @@ public class Service : IService
         }
 
         return Guid.Empty;
-    }
-
-    private static bool IsValidPassword(string password)
-    {
-        return Regex.IsMatch(password, @"^(?=.*[A-Za-z])(?=.*\d).{8,}$");
     }
 
     public async Task<Response.GetMeResponse> GetMe()
@@ -402,7 +389,7 @@ public class Service : IService
 
         var refreshToken = _jwtService.GenerateRefreshToken();
 
-        var refreshTokenEntity = new Hackathon.Repository.Entity.RefreshTokens
+        var refreshTokenEntity = new Repository.Entity.RefreshTokens
         {
             Id = Guid.NewGuid(),
             RefreshTokenHash = refreshToken,
@@ -436,16 +423,6 @@ public class Service : IService
             throw new MissingAccessTokenException();
         }
 
-        if (request.NewPassword != request.ConfirmPassword)
-        {
-            throw new BadRequestException("PASSWORD_CONFIRMATION_NOT_MATCH");
-        }
-
-        if (!IsValidPassword(request.NewPassword))
-        {
-            throw new BadRequestException("INVALID_PASSWORD_FORMAT");
-        }
-
         var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
         if (user == null)
         {
@@ -464,10 +441,22 @@ public class Service : IService
             throw new BadRequestException("CURRENT_PASSWORD_INVALID");
         }
 
-        var newPepperPassword = request.NewPassword + _securityOptions.Pepper;
-        user.HashPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(newPepperPassword, hashType: BCrypt.Net.HashType.SHA256);
-        user.UpdatedAt = DateTimeOffset.UtcNow;
-        await _dbContext.SaveChangesAsync();
+        var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            var newPepperPassword = request.NewPassword + _securityOptions.Pepper;
+            user.HashPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(newPepperPassword, hashType: BCrypt.Net.HashType.SHA256);
+            user.UpdatedAt = DateTimeOffset.UtcNow;
+            _dbContext.Users.Update(user);
+            await _dbContext.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
 
         return new Response.MessageResponse { Message = "PASSWORD_CHANGED_SUCCESSFULLY" };
     }
@@ -524,11 +513,6 @@ public class Service : IService
 
     public async Task<Response.MessageResponse> ResetPassword(Request.ResetPasswordRequest request)
     {
-        if (!IsValidPassword(request.NewPassword))
-        {
-            throw new BadRequestException("INVALID_PASSWORD_FORMAT");
-        }
-
         var validateToken = _jwtService.ValidateToken(request.Token);
         if (validateToken == null)
         {
@@ -596,5 +580,65 @@ public class Service : IService
         }
 
         return new Response.MessageResponse { Message = "PASSWORD_RESET_SUCCESSFULLY" };
+    }
+
+    public async Task<Response.MessageResponse> ResendEmailVerification(Request.ResendEmailVerificationRequest request)
+    {
+        var email = request.Email.Trim();
+
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email.ToLower() == email.ToLower() && !x.IsDisable);
+        if (user == null)
+        {
+            throw new NotFoundException("USER_NOT_FOUND");
+        }
+
+        if (user.IsVerified == true)
+        {
+            throw new BadRequestException("USER_ALREADY_VERIFIED");
+        }
+
+        var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            var claims = new List<Claim>
+            {
+                new Claim("UserId", user.Id.ToString()),
+                new Claim("Role", user.Role.ToString()),
+                new Claim("IsVerified", (user.IsVerified ?? false).ToString().ToLower()),
+            };
+            var emailToken = _jwtService.GenerateEmailVerificationToken(claims, 2);
+            var now = DateTimeOffset.UtcNow;
+
+            var emailVerification = new Repository.Entity.EmailVerifications
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                TokenHash = emailToken,
+                ExpiredAt = now.AddMinutes(2),
+                Status = EmailVerificationStatusEnum.Pending,
+                IsDisable = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            await _dbContext.EmailVerifications.AddAsync(emailVerification);
+            await _dbContext.SaveChangesAsync();
+
+            await _mailService.SendMail(new MailContent
+            {
+                To = email,
+                Subject = "Xác thực tài khoản - SEAL Hackathon",
+                Body = MailTemplate.EmailContainToken(emailToken),
+            });
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
+        return new Response.MessageResponse { Message = "EMAIL_VERIFICATION_SENT" };
     }
 }

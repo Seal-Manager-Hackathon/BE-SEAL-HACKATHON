@@ -47,7 +47,9 @@ For this project, scheduled jobs should normally use Quartz. Do not add a differ
    - Resolve/query data.
    - Call existing services for business logic.
    - Log start, meaningful counts/results, and failures.
-6. Register the job and trigger in `Hackathon.Api/Program.cs` or a dedicated extension method if multiple jobs exist.
+6. Register the job and its trigger in `Hackathon.Api/Program.cs` (or a dedicated extension method if multiple jobs exist).
+   - Ensure you register both the job type: `options.AddJob<YourJob>(...)` and its trigger: `options.AddTrigger(...)`.
+   - Never skip DI configuration inside `Program.cs`, otherwise Quartz will fail to resolve and trigger your background tasks.
 7. Add `builder.Services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);` if not already configured.
 8. Build and verify the app starts.
 
@@ -135,6 +137,7 @@ Ask before coding when:
 
 ## Hard Rules
 
+- Do not create a job without registering both the Job class and its Trigger in `Program.cs`.
 - Do not create a job without knowing the job type or schedule source.
 - Do not create a scheduled job without registering Quartz hosted service.
 - Do not query or mutate data in an infinite loop when a Quartz schedule is appropriate.

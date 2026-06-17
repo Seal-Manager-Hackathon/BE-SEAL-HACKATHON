@@ -5,7 +5,7 @@ using RoundsService = Hackathon.Service.Rounds;
 namespace Hackathon.Api.Controllers;
 
 [ApiController]
-[Route("api/rounds")]
+[Route("api/v1/rounds")]
 public class RoundsController : ControllerBase
 {
     private readonly RoundsService.IService _roundsService;

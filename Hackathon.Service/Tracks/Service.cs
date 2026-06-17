@@ -1,5 +1,6 @@
 using Hackathon.Repository;
 using Hackathon.Service.Exceptions;
+using Hackathon.Service.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hackathon.Service.Tracks;
@@ -13,12 +14,10 @@ public class Service : IService
         _dbContext = dbContext;
     }
 
-    public async Task<(List<Response.TrackResponse> Items, int TotalCount)> GetTracks(Guid? eventId, string? keyword, bool? isDisable, int pageIndex, int pageSize)
+    public async Task<BasePaginationResponse> GetTracks(Guid? eventId, string? keyword, bool? isDisable, int pageIndex, int pageSize)
     {
-        if (pageIndex < 1 || pageSize < 1)
-        {
-            throw new BadRequestException("BAD_REQUEST");
-        }
+        pageIndex = pageIndex <= 0 ? 1 : pageIndex;
+        pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
 
         if (eventId.HasValue)
         {
@@ -62,6 +61,6 @@ public class Service : IService
             })
             .ToListAsync();
 
-        return (items, totalCount);
+        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
     }
 }

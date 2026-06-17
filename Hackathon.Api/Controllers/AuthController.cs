@@ -7,7 +7,7 @@ using AuthService = Hackathon.Service.Auth;
 namespace Hackathon.Api.Controllers;
 
 [ApiController]
-[Route("api/auth")]
+[Route("api/v1/auth")]
 public class AuthController : ControllerBase
 {
     private readonly AuthService.IService _authService;
@@ -45,7 +45,7 @@ public class AuthController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("/api/auth/me")]
+    [HttpGet("/api/v1/auth/me")]
     public async Task<IActionResult> GetMe()
     {
         var result = await _authService.GetMe();
@@ -79,6 +79,13 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> ResetPassword(AuthService.Request.ResetPasswordRequest request)
     {
         var result = await _authService.ResetPassword(request);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpPost("email-verifications/resend")]
+    public async Task<IActionResult> ResendEmailVerification(AuthService.Request.ResendEmailVerificationRequest request)
+    {
+        var result = await _authService.ResendEmailVerification(request);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 

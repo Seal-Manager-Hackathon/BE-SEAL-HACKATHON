@@ -23,3 +23,4 @@ Baseline risks and ambiguities:
 - Require `[DisallowConcurrentExecution]` unless overlap is intentional.
 - Prohibit `Thread.Sleep`, `Task.Delay` loops, and fire-and-forget `Task.Run` for scheduled work.
 - Require logs and idempotency considerations for email/notification jobs.
+- Enforce mandatory Dependency Injection registration check in `Program.cs` for both the Job class and trigger setup.

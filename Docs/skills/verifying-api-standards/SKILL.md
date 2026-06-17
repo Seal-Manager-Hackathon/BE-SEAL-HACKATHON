@@ -15,6 +15,10 @@ When auditing API changes, verify each of the following points:
 
 ### 1. Controller Layer Standards
 - **Inheritance & Attributes**: The controller must use `[ApiController]` and route template matching the module.
+- **RESTful Endpoints**:
+  - The endpoints must be designed using **RESTful patterns** (use plural nouns for resource naming, e.g., `/api/events`, `/api/users`).
+  - Do NOT use verbs in basic CRUD endpoints (e.g., avoid `/api/events/delete-event/{id}` or `/api/events/get-events`).
+  - Correct HTTP methods must be mapped to actions (GET for read, POST for create, PUT/PATCH for update, DELETE for delete).
 - **Pattern Matching**: The controller template must match `AuthController.cs` (constructor injection of service interface, endpoints call service methods).
 - **Direct Queries**: The controller **must NOT** query the database or DbContext directly.
 - **Response Wrapper**: 
