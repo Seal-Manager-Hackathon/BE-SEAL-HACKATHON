@@ -14,10 +14,10 @@ public class Service : IService
         _dbContext = dbContext;
     }
 
-    public async Task<BasePaginationResponse> GetTracks(Guid? eventId, string? keyword, bool? isDisable, int pageIndex, int pageSize)
+    public async Task<BasePaginationResponse> GetTracks(Guid? eventId, string? keyword, bool? isDisable, PaginationRequest paginationRequest)
     {
-        pageIndex = pageIndex <= 0 ? 1 : pageIndex;
-        pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
+        var pageIndex = paginationRequest.PageIndex <= 0 ? 1 : paginationRequest.PageIndex;
+        var pageSize = paginationRequest.PageSize <= 0 ? 10 : Math.Min(paginationRequest.PageSize, 100);
 
         if (eventId.HasValue)
         {

@@ -4,5 +4,5 @@ namespace Hackathon.Service.Tracks;
 
 public interface IService
 {
-    Task<BasePaginationResponse> GetTracks(Guid? eventId, string? keyword, bool? isDisable, int pageIndex, int pageSize);
+    Task<BasePaginationResponse> GetTracks(Guid? eventId, string? keyword, bool? isDisable, PaginationRequest paginationRequest);
 }

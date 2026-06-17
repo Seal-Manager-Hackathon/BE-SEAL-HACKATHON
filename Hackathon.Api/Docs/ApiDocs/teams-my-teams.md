@@ -8,7 +8,6 @@ Lấy danh sách phân trang các team mà người dùng hiện tại đang tha
 
 ## Request Parameters
 *   **Query Parameters:**
-    *   `status` (string, Không bắt buộc): Trạng thái của thành viên trong team (`Active` hoặc `Inactive`).
     *   `pageIndex` (int, Không bắt buộc, mặc định: 1): Số trang hiện tại.
     *   `pageSize` (int, Không bắt buộc, mặc định: 10): Số phần tử trên một trang.
 
@@ -47,10 +46,8 @@ Authorization: Bearer <token>
 
 ## Business rules
 - Yêu cầu đăng nhập (`[Authorize]`) bằng Access Token qua Header.
-- Trả về danh sách team mà người dùng hiện tại tham gia, sắp xếp theo:
-  - Trạng thái thành viên trong team: `Active` trước, `Inactive` sau.
-  - Thời gian tạo team: Team nào được tạo mới hơn sẽ lên trước (`Team.CreatedAt` giảm dần).
-- Hỗ trợ lọc theo `status` của thành viên trong team nếu client cung cấp.
+- Chỉ hiển thị các team mà người dùng hiện tại đang tham gia và đang còn hoạt động (`Status = Active` trong bảng `TeamDetails`, team và thành viên không bị disable).
+- Sắp xếp danh sách theo thời gian tạo team: Team nào được tạo mới hơn sẽ lên trước (`Team.CreatedAt` giảm dần).
 
 ## Lỗi có thể xảy ra
 *Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse`:*

@@ -267,28 +267,25 @@ public class Service : IService
         return new Response.MessageResponse { Message = "INVITATION_SENT_SUCCESSFULLY" };
     }
 
-    public async Task<BasePaginationResponse> GetMyTeams(TeamDetailStatusEnum? status, int pageIndex, int pageSize)
+    public async Task<BasePaginationResponse> GetMyTeams(PaginationRequest paginationRequest)
     {
         var userId = GetCurrentUserId();
 
-        pageIndex = pageIndex <= 0 ? 1 : pageIndex;
-        pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
+        var pageIndex = paginationRequest.PageIndex <= 0 ? 1 : paginationRequest.PageIndex;
+        var pageSize = paginationRequest.PageSize <= 0 ? 10 : Math.Min(paginationRequest.PageSize, 100);
 
         var query = _dbContext.TeamDetails
             .AsNoTracking()
             .Include(x => x.Team)
-            .Where(x => x.UserId == userId && !x.IsDisable && !x.Team.IsDisable);
-
-        if (status.HasValue)
-        {
-            query = query.Where(x => x.Status == status.Value);
-        }
+            .Where(x => x.UserId == userId
+                        && !x.IsDisable
+                        && !x.Team.IsDisable
+                        && x.Status == TeamDetailStatusEnum.Active);
 
         var totalCount = await query.CountAsync();
 
         var items = await query
-            .OrderBy(x => x.Status)
-            .ThenByDescending(x => x.Team.CreatedAt)
+            .OrderByDescending(x => x.Team.CreatedAt)
             .Skip((pageIndex - 1) * pageSize)
             .Take(pageSize)
             .Select(x => new Response.MyTeamResponse

@@ -100,15 +100,9 @@ public class Service : IService
             {
                 Id = x.Id,
                 Name = x.Name,
-                Description = x.Description,
                 StartTime = x.StartTime,
                 EndTime = x.EndTime,
-                RegisterLimitTime = x.RegisterLimitTime,
-                LimitTeam = x.LimitTeam,
-                MinMember = x.MinMember,
-                MaxMember = x.MaxMember,
                 Status = x.Status.ToString(),
-                NumberRound = x.NumberRound,
                 Season = x.Season,
                 CreatedAt = x.CreatedAt,
             })
@@ -163,15 +157,9 @@ public class Service : IService
             {
                 Id = x.Id,
                 Name = x.Name,
-                Description = x.Description,
                 StartTime = x.StartTime,
                 EndTime = x.EndTime,
-                RegisterLimitTime = x.RegisterLimitTime,
-                LimitTeam = x.LimitTeam,
-                MinMember = x.MinMember,
-                MaxMember = x.MaxMember,
                 Status = x.Status.ToString(),
-                NumberRound = x.NumberRound,
                 Season = x.Season,
                 IsDisable = x.IsDisable,
                 CreatedAt = x.CreatedAt,
@@ -181,15 +169,9 @@ public class Service : IService
         return ApiResponseFactory.BasePagination(items, reqPageIndex, reqPageSize, totalCount);
     }
 
-    public async Task<Response.EventResponse> GetEvent(Guid eventId, bool? isDisable)
+    public async Task<Response.EventResponse> GetEvent(Guid eventId)
     {
-        var query = _dbContext.Events.AsNoTracking().Where(x => x.Id == eventId);
-        if (isDisable.HasValue)
-        {
-            query = query.Where(x => x.IsDisable == isDisable.Value);
-        }
-
-        var eventEntity = await query.FirstOrDefaultAsync();
+        var eventEntity = await _dbContext.Events.AsNoTracking().FirstOrDefaultAsync(x => x.Id == eventId);
         if (eventEntity == null)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
@@ -198,28 +180,41 @@ public class Service : IService
         return ToResponse(eventEntity);
     }
 
-    public async Task<List<Response.EventResponse>> GetJoinedEvents(int? year, string? status, bool? isDisable)
+    public async Task<BasePaginationResponse> GetJoinedEvents(Request.GetJoinedEventsRequest request)
     {
         var userId = GetCurrentUserId();
+
+        var pageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
+        var pageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
+
         var query = _dbContext.RegisterTeams
             .AsNoTracking()
             .Include(x => x.Event)
             .Include(x => x.Team)
-            .ThenInclude(x => x.TeamDetails)
+                .ThenInclude(x => x.TeamDetails)
             .Where(x => !x.IsDisable
                         && !x.Team.IsDisable
-                        && x.Team.TeamDetails.Any(td => td.UserId == userId && !td.IsDisable))
+                        && !x.Event.IsDisable
+                        && x.Team.TeamDetails.Any(td => td.UserId == userId && !td.IsDisable && td.Status == TeamDetailStatusEnum.Active))
             .Select(x => x.Event)
-            .Where(x => x.IsDisable == (isDisable ?? false));
+            .Distinct();
 
-        if (year.HasValue)
+        if (!string.IsNullOrWhiteSpace(request.Keyword))
         {
-            query = query.Where(x => x.StartTime.HasValue && x.StartTime.Value.Year == year.Value);
+            var normalizedKeyword = request.Keyword.Trim().ToLower();
+            query = query.Where(x => x.Name.ToLower().Contains(normalizedKeyword)
+                                     || (x.Description != null && x.Description.ToLower().Contains(normalizedKeyword))
+                                     || (x.Season != null && x.Season.ToLower().Contains(normalizedKeyword)));
         }
 
-        if (!string.IsNullOrWhiteSpace(status))
+        if (request.Year.HasValue)
         {
-            if (!Enum.TryParse<EventStatusEnum>(status, true, out var eventStatus))
+            query = query.Where(x => x.StartTime.HasValue && x.StartTime.Value.Year == request.Year.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Status))
+        {
+            if (!Enum.TryParse<EventStatusEnum>(request.Status, true, out var eventStatus))
             {
                 throw new BadRequestException("BAD_REQUEST");
             }
@@ -227,12 +222,26 @@ public class Service : IService
             query = query.Where(x => x.Status == eventStatus);
         }
 
-        return await query
-            .Distinct()
-            .OrderBy(x => x.StartTime)
-            .ThenBy(x => x.CreatedAt)
-            .Select(x => ToResponse(x))
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(x => x.StartTime)
+            .ThenByDescending(x => x.CreatedAt)
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new Response.StudentEventResponse
+            {
+                Id = x.Id,
+                Name = x.Name,
+                StartTime = x.StartTime,
+                EndTime = x.EndTime,
+                Status = x.Status.ToString(),
+                Season = x.Season,
+                CreatedAt = x.CreatedAt,
+            })
             .ToListAsync();
+
+        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
     }
 
     public async Task<List<Response.EventParticipantResponse>> GetMostParticipants(int? limit, bool? isDisable)

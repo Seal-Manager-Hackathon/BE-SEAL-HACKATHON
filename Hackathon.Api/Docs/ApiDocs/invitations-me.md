@@ -33,7 +33,8 @@ Authorization: Bearer <token>
         "status": "Pending",
         "description": "Chào bạn, hãy tham gia team của mình nhé!",
         "limitTime": "datetime",
-        "createdAt": "datetime"
+        "createdAt": "datetime",
+        "leaderName": "string|null"
       }
     ],
     "pageIndex": 1,

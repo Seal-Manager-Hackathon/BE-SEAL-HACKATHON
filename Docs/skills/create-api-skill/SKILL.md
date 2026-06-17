@@ -34,6 +34,7 @@ Endpoints must follow RESTful API design patterns:
 3. **Define Request DTOs** in `Hackathon.Service/<Module>/Request.cs`.
    - Always validate properties on the DTO model class using standard **DataAnnotations** attributes (e.g., `[Required]`, `[EmailAddress]`, `[Range]`, `[Compare]`).
    - Do not use `IValidatableObject` or FluentValidation for request validation when DataAnnotations can express the rule.
+   - For DTOs that represent paginated search queries (e.g., `GetEventsRequest`), **always inherit from `PaginationRequest`** (defined in `Hackathon.Service.Models`).
 4. **Define Response DTOs** in `Hackathon.Service/<Module>/Response.cs`.
    - **Always ask the user for response requirements first**, proposing a draft based on the description and related entities before writing code.
    - Do not return EF entities directly.
@@ -42,10 +43,11 @@ Endpoints must follow RESTful API design patterns:
    - Implement the query, sorting, and DTO projection.
    - Do not query the database context directly in controllers.
    - For regular APIs, return the response DTO.
-   - For paginated APIs, **return `BasePaginationResponse` directly from the service** using `ApiResponseFactory.BasePagination` (modeled after the reference screenshot).
+   - For paginated APIs, **return `BasePaginationResponse` directly from the service** using `ApiResponseFactory.BasePagination` and pass `PaginationRequest` as a parameter.
 7. **Add the controller action** to invoke the service method.
    - Regular endpoints return `Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier))`.
    - Paginated endpoints return `Ok(result)` directly since the service already bakes the `BasePaginationResponse` structure.
+   - For paginated query parameters in endpoints, **always bind them using `[FromQuery] PaginationRequest paginationRequest`** (or a DTO inheriting from it) instead of individual `pageIndex` / `pageSize` parameters.
 8. **Register DI (Dependency Injection)** in `Hackathon.Api/Program.cs` immediately when creating a new service module/class.
    - Add the service registration (e.g., `builder.Services.AddScoped<SomeService.IService, SomeService.Service>();`) in the dependency block inside `Program.cs`.
    - Never skip this step, otherwise the application will crash at runtime with `InvalidOperationException` when resolving the controller dependency.
@@ -81,10 +83,10 @@ Use this structure when implementing pagination.
 
 **Service implementation (`Service.cs`):**
 ```csharp
-public async Task<BasePaginationResponse> GetNewsAsync(int pageIndex, int pageSize, string? keyword, NewsStatus? status)
+public async Task<BasePaginationResponse> GetNewsAsync(PaginationRequest paginationRequest, string? keyword, NewsStatus? status)
 {
-    pageIndex = pageIndex <= 0 ? 1 : pageIndex;
-    pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
+    var pageIndex = paginationRequest.PageIndex <= 0 ? 1 : paginationRequest.PageIndex;
+    var pageSize = paginationRequest.PageSize <= 0 ? 10 : Math.Min(paginationRequest.PageSize, 100);
 
     var query = _dbContext.NewsList
         .AsNoTracking()
@@ -132,9 +134,9 @@ public async Task<BasePaginationResponse> GetNewsAsync(int pageIndex, int pageSi
 **Controller action (`Controller.cs`):**
 ```csharp
 [HttpGet]
-public async Task<IActionResult> GetNews([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? keyword, [FromQuery] NewsStatus? status)
+public async Task<IActionResult> GetNews([FromQuery] PaginationRequest paginationRequest, [FromQuery] string? keyword, [FromQuery] NewsStatus? status)
 {
-    var result = await _newsService.GetNewsAsync(pageIndex, pageSize, keyword, status);
+    var result = await _newsService.GetNewsAsync(paginationRequest, keyword, status);
     return Ok(result);
 }
 ```

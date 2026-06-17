@@ -19,9 +19,9 @@ public class TeamController : ControllerBase
     }
 
     [HttpGet("me")]
-    public async Task<IActionResult> GetMyTeams([FromQuery] TeamDetailStatusEnum? status, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+    public async Task<IActionResult> GetMyTeams([FromQuery] PaginationRequest paginationRequest)
     {
-        var result = await _teamService.GetMyTeams(status, pageIndex, pageSize);
+        var result = await _teamService.GetMyTeams(paginationRequest);
         return Ok(result);
     }
 

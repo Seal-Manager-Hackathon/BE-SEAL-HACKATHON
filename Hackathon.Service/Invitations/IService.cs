@@ -5,5 +5,7 @@ namespace Hackathon.Service.Invitations;
 
 public interface IService
 {
-    Task<BasePaginationResponse> GetMyInvitations(int pageIndex, int pageSize);
+    Task<BasePaginationResponse> GetMyInvitations(PaginationRequest paginationRequest);
+    Task<Response.InvitationItemResponse> AcceptInvitation(Guid invitationId);
+    Task<Response.InvitationItemResponse> RejectInvitation(Guid invitationId);
 }

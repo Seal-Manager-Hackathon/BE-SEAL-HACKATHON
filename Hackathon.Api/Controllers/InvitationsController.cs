@@ -18,9 +18,23 @@ public class InvitationsController : ControllerBase
     }
 
     [HttpGet("me")]
-    public async Task<IActionResult> GetMyInvitations([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+    public async Task<IActionResult> GetMyInvitations([FromQuery] PaginationRequest paginationRequest)
     {
-        var result = await _invitationsService.GetMyInvitations(pageIndex, pageSize);
+        var result = await _invitationsService.GetMyInvitations(paginationRequest);
         return Ok(result);
+    }
+
+    [HttpPost("{invitationId:guid}/accept")]
+    public async Task<IActionResult> AcceptInvitation(Guid invitationId)
+    {
+        var result = await _invitationsService.AcceptInvitation(invitationId);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpPost("{invitationId:guid}/reject")]
+    public async Task<IActionResult> RejectInvitation(Guid invitationId)
+    {
+        var result = await _invitationsService.RejectInvitation(invitationId);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 }

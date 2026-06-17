@@ -13,5 +13,6 @@ public static class Response
         public string? Description { get; set; }
         public DateTimeOffset? LimitTime { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
+        public string? LeaderName { get; set; }
     }
 }
