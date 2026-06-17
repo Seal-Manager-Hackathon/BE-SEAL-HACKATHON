@@ -18,4 +18,28 @@ public static class Response
         public DateTimeOffset CreatedAt { get; set; }
         public string Message { get; set; } = null!;
     }
+
+    public class MessageResponse
+    {
+        public string Message { get; set; } = null!;
+    }
+
+    public class MyTeamResponse
+    {
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = null!;
+        public bool CanEdit { get; set; }
+        public bool IsLeader { get; set; }
+        public string? MemberStatus { get; set; }
+        public DateTimeOffset JoinedAt { get; set; }
+    }
+
+    public class TeamDetailResponse
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = null!;
+        public bool CanEdit { get; set; }
+        public List<TeamMemberResponse> Members { get; set; } = new();
+        public DateTimeOffset CreatedAt { get; set; }
+    }
 }

@@ -15,18 +15,18 @@ Generates standardized API documentation for the frontend team matching the Hack
 ## Core Template
 Produce the documentation in Vietnamese following this exact markdown template:
 
-### 1. Endpoint & Mô tả
+### Endpoint & Mô tả
 *   **API:** `[METHOD] /api/v1/...` (e.g. `POST /api/v1/teams`)
 *   **Mô tả:** [Chức năng của API]
 
-### 2. Phân quyền (Permissions)
+### Phân quyền (Permissions)
 *   **Yêu cầu Access Token:** [Có/Không]
 *   **Role hợp lệ:** [Student / Staff / Admin / Public]
 *   **Lỗi phân quyền:**
     *   `401 Unauthorized` (`MISSING_ACCESS_TOKEN` / `INVALID_ACCESS_TOKEN`)
     *   `403 Forbidden` (Nếu role không khớp)
 
-### 3. Request Details
+### Request Details
 *   **Headers:**
     ```
     Authorization: Bearer <token>
@@ -40,7 +40,7 @@ Produce the documentation in Vietnamese following this exact markdown template:
 *   **Ràng buộc validation:**
     *   `[Trường]`: [Loại validation, e.g. Bắt buộc, Range] -> Trả về lỗi `400 Bad Request` với message code tương ứng (e.g. `TEAM_NAME_REQUIRED`).
 
-### 4. Response Details
+### Response Details
 *   **Success Response (200 OK / 201 Created):**
     ```json
     {

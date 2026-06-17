@@ -1,3 +1,4 @@
+using Hackathon.Repository.Enum;
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,10 +18,31 @@ public class TeamController : ControllerBase
         _teamService = teamService;
     }
 
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMyTeams([FromQuery] TeamDetailStatusEnum? status, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+    {
+        var result = await _teamService.GetMyTeams(status, pageIndex, pageSize);
+        return Ok(result);
+    }
+
+    [HttpGet("{teamId:guid}")]
+    public async Task<IActionResult> GetTeamDetail(Guid teamId)
+    {
+        var result = await _teamService.GetTeamDetail(teamId);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateTeam(TeamsService.Request.CreateTeamRequest request)
     {
         var result = await _teamService.CreateTeam(request);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpPost("{teamId:guid}/invitations")]
+    public async Task<IActionResult> InviteMember(Guid teamId, TeamsService.Request.InviteMemberRequest request)
+    {
+        var result = await _teamService.InviteMember(teamId, request);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 }

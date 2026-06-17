@@ -149,6 +149,13 @@ Always validate request properties on the DTO model class using standard **DataA
 
 Do not use `IValidatableObject` or FluentValidation unless explicitly requested.
 
+## Transaction Policy
+
+Only use database transactions (`BeginTransactionAsync`) when atomicity is strictly required across multiple table writes:
+- **Required**: Complex writes/mutations where a partial failure would cause corrupted state (e.g., creating a team along with its leader member, registering a team to an event).
+- **Not Required**: Simple or idempotent actions where duplicate checks prevent issues under network lag or multiple submissions (e.g., sending an invitation which checks for pending invitation first).
+- **Rule**: Keep read-only query steps outside of the transaction block. Only start the transaction right before write operations.
+
 ## Hard Rules
 
 - Do not use verbs in standard CRUD route paths (e.g., avoid `/delete`, `/update`, `/get` inside resource paths).
