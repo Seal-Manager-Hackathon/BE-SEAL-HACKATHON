@@ -9,54 +9,13 @@ public static class Response
         public string? Status { get; set; }
     }
 
-    public class TeamResponse
+    public class CreateTeamResponse
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
         public bool CanEdit { get; set; }
         public List<TeamMemberResponse> Members { get; set; } = new();
         public DateTimeOffset CreatedAt { get; set; }
-    }
-
-    public class MessageResponse
-    {
         public string Message { get; set; } = null!;
-    }
-
-    public class CreateTeamResponse : TeamResponse
-    {
-        public string Message { get; set; } = null!;
-    }
-
-    public class InvitationResponse
-    {
-        public Guid Id { get; set; }
-        public Guid TeamId { get; set; }
-        public Guid UserId { get; set; }
-        public string? Status { get; set; }
-        public string? Description { get; set; }
-        public DateTimeOffset? LimitTime { get; set; }
-        public string Message { get; set; } = null!;
-    }
-
-    public class MyTeamEventResponse
-    {
-        public Guid EventId { get; set; }
-        public string EventName { get; set; } = null!;
-        public string? Season { get; set; }
-        public int Year { get; set; }
-        public string? RegistrationStatus { get; set; }
-        public bool IsBanned { get; set; }
-    }
-
-    public class MyTeamResponse
-    {
-        public Guid TeamId { get; set; }
-        public string TeamName { get; set; } = null!;
-        public bool CanEdit { get; set; }
-        public bool IsLeader { get; set; }
-        public string? MemberStatus { get; set; }
-        public DateTimeOffset JoinedAt { get; set; }
-        public List<MyTeamEventResponse> Events { get; set; } = new();
     }
 }

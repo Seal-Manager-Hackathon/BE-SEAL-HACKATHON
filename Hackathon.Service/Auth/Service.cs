@@ -86,6 +86,8 @@ public class Service : IService
                 HashPassword = hashedPassword,
                 Role = RoleEnum.Student,
                 IsVerified = false,
+                Status = UserStatusEnum.Active,
+                AvatarUrl = $"https://robohash.org/{request.Email}",
                 CreatedAt = DateTimeOffset.UtcNow,
                 UpdatedAt = DateTimeOffset.UtcNow
             };

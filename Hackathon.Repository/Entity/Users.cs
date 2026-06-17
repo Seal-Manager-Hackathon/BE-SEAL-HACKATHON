@@ -7,15 +7,15 @@ public class Users : BaseEntity<Guid>, IAuditableEntity
 {
     public required string Email { get; set; }
     public required string HashPassword { get; set; }
-    public string? FirstName { get; set; }
-    public string? LastName { get; set; }
-    public string? PhoneNumber { get; set; }
-    public string? AvatarUrl { get; set; }
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+    public string AvatarUrl { get; set; } = string.Empty;
     public string? Bio { get; set; }
-    public string? Address { get; set; }
-    public DateTimeOffset? DateOfBirth { get; set; }
-    public string? StudentId { get; set; }
-    public string? College { get; set; }
+    public string Address { get; set; } = string.Empty;
+    public DateTimeOffset DateOfBirth { get; set; } = DateTimeOffset.MinValue;
+    public string StudentId { get; set; } = string.Empty;
+    public string College { get; set; } = string.Empty;
     public string? ImgUrl { get; set; }
     public string? LinkUrl { get; set; }
     public required RoleEnum Role { get; set; }

@@ -1,4 +1,4 @@
-using Hackathon.Repository.Enum;
+using System.ComponentModel.DataAnnotations;
 
 namespace Hackathon.Service.Teams;
 
@@ -6,29 +6,7 @@ public static class Request
 {
     public class CreateTeamRequest
     {
-        public string Name { get; set; } = null!;
-    }
-
-    public class InviteMemberRequest
-    {
-        public Guid UserId { get; set; }
-        public string? Description { get; set; }
-    }
-
-    public class RespondInvitationRequest
-    {
-        public bool IsAccepted { get; set; }
-    }
-
-    public class UpdateTeamRequest
-    {
-        public string? Name { get; set; }
-        public string? Description { get; set; }
-    }
-
-    public class GetMyTeamsRequest
-    {
-        public TeamDetailStatusEnum? Status { get; set; }
-        public int? Year { get; set; }
+        [Required(ErrorMessage = "TEAM_NAME_REQUIRED")]
+        public string? TeamName { get; set; }
     }
 }
