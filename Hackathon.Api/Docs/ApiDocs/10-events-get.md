@@ -1,7 +1,7 @@
 # Get events
 
 ## Tác dụng
-Lấy danh sách event, có thể lọc theo năm và trạng thái soft-disable theo query truyền lên.
+Lấy danh sách event công khai, có thể lọc theo từ khóa, năm và trạng thái. Chỉ trả event chưa bị soft-disable.
 
 ## URL
 `GET /api/v1/events`
@@ -46,9 +46,7 @@ Không có.
         "status": "string|null",
         "numberRound": 0,
         "season": "string|null",
-        "isDisable": false,
-        "createdAt": "datetimeoffset",
-        "updatedAt": "datetimeoffset"
+        "createdAt": "datetimeoffset"
       }
     ],
     "pageIndex": 1,

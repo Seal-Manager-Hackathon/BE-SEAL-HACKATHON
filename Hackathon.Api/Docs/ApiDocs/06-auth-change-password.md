@@ -36,7 +36,6 @@ Yêu cầu access token hợp lệ.
 - Request phải có access token hợp lệ.
 - `currentPassword` phải khớp với mật khẩu hiện tại.
 - `newPassword` và `confirmPassword` phải giống nhau (validate phía client).
-- Mật khẩu mới phải thỏa rule bảo mật của hệ thống.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |

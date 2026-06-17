@@ -31,7 +31,7 @@
 ```
 
 ## Business rules
-- Email và password là bắt buộc, email phải đúng format.
+- Email và password là bắt buộc.
 - Email/password phải khớp với tài khoản đang tồn tại.
 - Tài khoản bị disable (`IsDisable = true`) không thể đăng nhập.
 - Đăng nhập thành công sẽ cấp access token và refresh token mới.

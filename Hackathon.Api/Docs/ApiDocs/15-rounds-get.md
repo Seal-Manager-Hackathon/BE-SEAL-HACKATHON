@@ -52,9 +52,10 @@ Không có.
 - Round thuộc event bị disable không nên được trả về, trừ khi nghiệp vụ cho phép lấy dữ liệu disable bằng query riêng.
 - Kết quả sắp xếp theo `StartTime` tăng dần, sau đó `CreatedAt` tăng dần.
 
+## Lưu ý
+- Endpoint này hiện chưa được implement (throw `NotImplementedException`).
+
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | BAD_REQUEST | Query parameter không hợp lệ. |
-| 404 | NOT_FOUND | EVENT_NOT_FOUND |
 | 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
