@@ -201,11 +201,10 @@ public class Service : IService
             throw new BadRequestException("INVALID_OR_EXPIRED_EMAIL_VERIFICATION_TOKEN");
         }
 
-        var a = validateToken.Identities.First().FindFirst("UserId")?.Value;
         var userIdStr = validateToken.FindFirst("UserId")?.Value;
         var userId = Guid.Parse(userIdStr!);
         var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
-        var emailValid = await _dbContext.EmailVerifications.FirstOrDefaultAsync(x => x.Id == userId);
+        var emailValid = await _dbContext.EmailVerifications.FirstOrDefaultAsync(x => x.UserId == userId);
         if (user == null)
         {
             throw new NotFoundException("USER_NOT_FOUND");        
@@ -390,7 +389,7 @@ public class Service : IService
 
         var refreshToken = _jwtService.GenerateRefreshToken();
 
-        var refreshTokenEntity = new Hackathon.Repository.Entity.RefreshTokens
+        var refreshTokenEntity = new Repository.Entity.RefreshTokens
         {
             Id = Guid.NewGuid(),
             RefreshTokenHash = refreshToken,
@@ -581,5 +580,65 @@ public class Service : IService
         }
 
         return new Response.MessageResponse { Message = "PASSWORD_RESET_SUCCESSFULLY" };
+    }
+
+    public async Task<Response.MessageResponse> ResendEmailVerification(Request.ResendEmailVerificationRequest request)
+    {
+        var email = request.Email.Trim();
+
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email.ToLower() == email.ToLower() && !x.IsDisable);
+        if (user == null)
+        {
+            throw new NotFoundException("USER_NOT_FOUND");
+        }
+
+        if (user.IsVerified == true)
+        {
+            throw new BadRequestException("USER_ALREADY_VERIFIED");
+        }
+
+        var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            var claims = new List<Claim>
+            {
+                new Claim("UserId", user.Id.ToString()),
+                new Claim("Role", user.Role.ToString()),
+                new Claim("IsVerified", (user.IsVerified ?? false).ToString().ToLower()),
+            };
+            var emailToken = _jwtService.GenerateEmailVerificationToken(claims, 2);
+            var now = DateTimeOffset.UtcNow;
+
+            var emailVerification = new Repository.Entity.EmailVerifications
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                TokenHash = emailToken,
+                ExpiredAt = now.AddMinutes(2),
+                Status = EmailVerificationStatusEnum.Pending,
+                IsDisable = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            await _dbContext.EmailVerifications.AddAsync(emailVerification);
+            await _dbContext.SaveChangesAsync();
+
+            await _mailService.SendMail(new MailContent
+            {
+                To = email,
+                Subject = "Xác thực tài khoản - SEAL Hackathon",
+                Body = MailTemplate.EmailContainToken(emailToken),
+            });
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
+        return new Response.MessageResponse { Message = "EMAIL_VERIFICATION_SENT" };
     }
 }

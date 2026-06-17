@@ -82,6 +82,13 @@ public class AuthController : ControllerBase
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
+    [HttpPost("email-verifications/resend")]
+    public async Task<IActionResult> ResendEmailVerification(AuthService.Request.ResendEmailVerificationRequest request)
+    {
+        var result = await _authService.ResendEmailVerification(request);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
     [HttpPost("login")]
     public async Task<IActionResult> LoginAsync(AuthService.Request.LoginRequest request)
     {
