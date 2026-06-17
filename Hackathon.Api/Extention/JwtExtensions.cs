@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text;
+using Hackathon.Repository.Enum;
 using Hackathon.Service.JwtService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -13,7 +14,7 @@ public static class JwtExtensions
     public const string LecturerPolicy = "LecturerPolicy";
     public const string StudentPolicy = "StudentPolicy";
     public const string StaffOrAdminPolicy = "StaffOrAdminPolicy";
-    public const string UserVerifiedPolicy = "UserVerifiedPolicy";
+    public const string StudentVerifiedPolicy = "StudentVerifiedPolicy";
     
     public static void AddJwtServices(this IServiceCollection services, IConfiguration configuration)
     {
@@ -58,25 +59,25 @@ public static class JwtExtensions
         services.AddAuthorization(options =>
         {
             options.AddPolicy(AdminPolicy, policy =>
-                policy.RequireRole("Admin"));
+                policy.RequireRole(RoleEnum.Admin.ToString()));
             // [Authorize(Policy = JwtExtensions.AdminPolicy)]
         
             options.AddPolicy(StaffPolicy, policy =>
-                policy.RequireRole("Staff"));
+                policy.RequireRole(RoleEnum.Staff.ToString()));
             // [Authorize(Policy = JwtExtensions.StaffPolicy)]
         
             options.AddPolicy(StudentPolicy, policy =>
-                policy.RequireRole("Student"));
+                policy.RequireRole(RoleEnum.Student.ToString()));
             
             options.AddPolicy(LecturerPolicy, policy =>
-                policy.RequireRole("Lecturer"));
+                policy.RequireRole(RoleEnum.Lecturer.ToString()));
         
             options.AddPolicy(StaffOrAdminPolicy, policy =>
-                policy.RequireRole("Staff", "Admin"));
+                policy.RequireRole(RoleEnum.Staff.ToString(), RoleEnum.Admin.ToString()));
             // [Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]
             
-            options.AddPolicy(UserVerifiedPolicy, policy =>
-                policy.RequireRole("Student")
+            options.AddPolicy(StudentVerifiedPolicy, policy =>
+                policy.RequireRole(RoleEnum.Student.ToString())
                     .RequireClaim("IsVerified", "true"));
         });
     }

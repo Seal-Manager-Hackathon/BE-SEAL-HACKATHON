@@ -61,10 +61,6 @@ public class Service : IService
 
     public async Task<BasePaginationResponse> GetEvents(Request.GetEventsRequest request)
     {
-        // Lấy giá trị thực tế từ request
-        var reqPageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
-        var reqPageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
-
         var query = _dbContext.Events.AsNoTracking().Where(x => !x.IsDisable);
 
         if (!string.IsNullOrWhiteSpace(request.Keyword))
@@ -94,8 +90,8 @@ public class Service : IService
         var items = await query
             .OrderBy(x => x.StartTime)
             .ThenBy(x => x.CreatedAt)
-            .Skip((reqPageIndex - 1) * reqPageSize)
-            .Take(reqPageSize)
+            .Skip((request.PageIndex - 1) * request.PageSize)
+            .Take(request.PageSize)
             .Select(x => new Response.StudentEventResponse
             {
                 Id = x.Id,
@@ -108,15 +104,11 @@ public class Service : IService
             })
             .ToListAsync();
 
-        return ApiResponseFactory.BasePagination(items, reqPageIndex, reqPageSize, totalCount);
+        return ApiResponseFactory.BasePagination(items, request.PageIndex, request.PageSize, totalCount);
     }
 
     public async Task<BasePaginationResponse> GetEventsForAdmin(Request.GetEventsForAdminRequest request)
     {
-        // Lấy giá trị thực tế từ request
-        var reqPageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
-        var reqPageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
-
         var query = _dbContext.Events.AsNoTracking().AsQueryable();
 
         if (request.IsDisable.HasValue)
@@ -151,8 +143,8 @@ public class Service : IService
         var items = await query
             .OrderBy(x => x.StartTime)
             .ThenBy(x => x.CreatedAt)
-            .Skip((reqPageIndex - 1) * reqPageSize)
-            .Take(reqPageSize)
+            .Skip((request.PageIndex - 1) * request.PageSize)
+            .Take(request.PageSize)
             .Select(x => new Response.AdminEventResponse
             {
                 Id = x.Id,
@@ -166,7 +158,7 @@ public class Service : IService
             })
             .ToListAsync();
 
-        return ApiResponseFactory.BasePagination(items, reqPageIndex, reqPageSize, totalCount);
+        return ApiResponseFactory.BasePagination(items, request.PageIndex, request.PageSize, totalCount);
     }
 
     public async Task<Response.EventResponse> GetEvent(Guid eventId)
@@ -183,9 +175,6 @@ public class Service : IService
     public async Task<BasePaginationResponse> GetJoinedEvents(Request.GetJoinedEventsRequest request)
     {
         var userId = GetCurrentUserId();
-
-        var pageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
-        var pageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
 
         var query = _dbContext.RegisterTeams
             .AsNoTracking()
@@ -227,8 +216,8 @@ public class Service : IService
         var items = await query
             .OrderByDescending(x => x.StartTime)
             .ThenByDescending(x => x.CreatedAt)
-            .Skip((pageIndex - 1) * pageSize)
-            .Take(pageSize)
+            .Skip((request.PageIndex - 1) * request.PageSize)
+            .Take(request.PageSize)
             .Select(x => new Response.StudentEventResponse
             {
                 Id = x.Id,
@@ -241,7 +230,7 @@ public class Service : IService
             })
             .ToListAsync();
 
-        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
+        return ApiResponseFactory.BasePagination(items, request.PageIndex, request.PageSize, totalCount);
     }
 
     public async Task<List<Response.EventParticipantResponse>> GetMostParticipants(int? limit, bool? isDisable)

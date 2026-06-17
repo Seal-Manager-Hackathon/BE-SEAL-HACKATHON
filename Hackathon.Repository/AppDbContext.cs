@@ -125,6 +125,16 @@ public class AppDbContext : DbContext
             .WithMany(eventEntity => eventEntity.RegisterTeams)
             .HasForeignKey(registerTeam => registerTeam.EventId);
 
+        modelBuilder.Entity<RegisterTeams>()
+            .HasOne(registerTeam => registerTeam.Track)
+            .WithMany()
+            .HasForeignKey(registerTeam => registerTeam.TrackId);
+
+        modelBuilder.Entity<RegisterTeams>()
+            .HasOne(registerTeam => registerTeam.Topic)
+            .WithMany()
+            .HasForeignKey(registerTeam => registerTeam.TopicId);
+
         modelBuilder.Entity<RoundDetails>()
             .HasOne(roundDetail => roundDetail.Round)
             .WithMany(round => round.RoundDetails)

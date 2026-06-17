@@ -43,9 +43,6 @@ public class Service : IService
     {
         var userId = GetCurrentUserId();
 
-        var pageIndex = paginationRequest.PageIndex <= 0 ? 1 : paginationRequest.PageIndex;
-        var pageSize = paginationRequest.PageSize <= 0 ? 10 : Math.Min(paginationRequest.PageSize, 100);
-
         var query = _dbContext.Invitations
             .AsNoTracking()
             .Include(x => x.Team)
@@ -56,8 +53,8 @@ public class Service : IService
         var items = await query
             .OrderByDescending(x => x.Status == InvitationStatusEnum.Pending)
             .ThenByDescending(x => x.CreatedAt)
-            .Skip((pageIndex - 1) * pageSize)
-            .Take(pageSize)
+            .Skip((paginationRequest.PageIndex - 1) * paginationRequest.PageSize)
+            .Take(paginationRequest.PageSize)
             .Select(x => new Response.InvitationItemResponse
             {
                 Id = x.Id,
@@ -74,7 +71,7 @@ public class Service : IService
             })
             .ToListAsync();
 
-        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
+        return ApiResponseFactory.BasePagination(items, paginationRequest.PageIndex, paginationRequest.PageSize, totalCount);
     }
 
     private static Response.InvitationItemResponse MapToResponse(Repository.Entity.Invitations x)
