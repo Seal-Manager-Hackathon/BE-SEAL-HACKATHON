@@ -4,7 +4,7 @@
 Lấy bảng xếp hạng của một event theo `eventId`.
 
 ## URL
-`GET /api/events/{eventId}/leaderboard`
+`GET /api/v1/events/{eventId}/leaderboard`
 
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
@@ -22,38 +22,29 @@ Không có.
   "error": null,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": {
-    "eventId": "guid",
-    "eventName": "string",
-    "items": [
-      {
-        "rank": 1,
-        "teamId": "guid",
-        "teamName": "string",
-        "totalScore": 0,
-        "roundScores": [
-          {
-            "roundId": "guid",
-            "roundName": "string",
-            "score": 0
-          }
-        ]
-      }
-    ]
-  }
+  "value": [
+    {
+      "rank": 1,
+      "teamId": "guid",
+      "teamName": "string",
+      "totalScore": 0
+    }
+  ]
 }
 ```
 
 ## Business rules
 - Event leaderboard tính theo tổng điểm các round của event.
-- Round score là điểm trung bình từ các judge scores trong round.
-- Chỉ tính team có đơn đăng ký event hợp lệ theo rule hệ thống.
-- Kết quả sắp xếp theo `totalScore` giảm dần.
-- Nếu bằng điểm, có thể giữ cùng rank hoặc sắp xếp phụ theo rule FE/BE thống nhất.
+- Round score là điểm trung bình từ các judge scores trong round, chỉ tính submission chưa bị disable.
+- Chỉ tính team có đơn đăng ký event hợp lệ (chưa bị disable) và team chưa bị disable.
+- Chỉ tính team có `totalScore > 0`.
+- Kết quả sắp xếp theo `TotalScore` giảm dần, sau đó theo `TeamName` tăng dần.
+- Rank được đánh số thứ tự tuần tự (1, 2, 3,...), không có rank trùng.
+- Event phải tồn tại và chưa bị soft-disable.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 404 | EVENT_NOT_FOUND | Event not found. |
-| 404 | LEADERBOARD_NOT_FOUND | Leaderboard not found. |
+| 404 | NOT_FOUND | EVENT_NOT_FOUND |
+| 404 | NOT_FOUND | LEADERBOARD_NOT_FOUND |
 | 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |

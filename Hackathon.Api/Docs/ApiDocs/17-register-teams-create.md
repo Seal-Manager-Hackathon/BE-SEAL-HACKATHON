@@ -4,7 +4,7 @@
 Leader gửi đơn đăng ký team tham gia event.
 
 ## URL
-`POST /api/register-teams`
+`POST /api/v1/register-teams`
 
 ## Request body
 ```json

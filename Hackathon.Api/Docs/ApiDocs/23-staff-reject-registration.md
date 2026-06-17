@@ -4,7 +4,7 @@
 Staff từ chối đơn đăng ký, lưu lý do, mở khóa team và gửi thông báo cho leader.
 
 ## URL
-`PATCH /api/staff/register-teams/{registerTeamId}/reject`
+`PATCH /api/v1/admin/register-teams/{registerTeamId}/reject`
 
 ## Request body
 ```json

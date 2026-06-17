@@ -4,7 +4,7 @@
 Student được mời chấp nhận hoặc từ chối lời mời vào team.
 
 ## URL
-`POST /api/teams/invitations/{invitationId}/response`
+`POST /api/v1/teams/invitations/{invitationId}/response`
 
 ## Request body
 ```json

@@ -4,7 +4,7 @@
 Member xem trạng thái đơn đăng ký team và lý do bị từ chối nếu có.
 
 ## URL
-`GET /api/register-teams/{registerTeamId}/status`
+`GET /api/v1/register-teams/{registerTeamId}/status`
 
 ## Request body
 Không có.

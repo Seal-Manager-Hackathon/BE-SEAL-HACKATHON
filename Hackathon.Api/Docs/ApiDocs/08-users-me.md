@@ -4,7 +4,7 @@
 Lấy thông tin profile ngắn gọn của user đang đăng nhập.
 
 ## URL
-`GET /api/users/me`
+`GET /api/v1/auth/me`
 
 ## Request body
 Không có.
@@ -35,6 +35,5 @@ Không có.
 | HTTP | messageCode | message/detail |
 |---:|---|---|
 | 401 | MISSING_ACCESS_TOKEN | Access token is missing. |
-| 401 | UNAUTHORIZED | Token không hợp lệ hoặc bị chặn bởi [Authorize] |
 | 404 | NOT_FOUND | USER_NOT_FOUND |
 | 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
