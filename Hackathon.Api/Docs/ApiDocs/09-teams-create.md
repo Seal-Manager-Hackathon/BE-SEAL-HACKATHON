@@ -9,7 +9,7 @@ Tạo team mới và tự thêm user hiện tại làm leader.
 ## Request body
 ```json
 {
-  "name": "string"
+  "teamName": "string"
 }
 ```
 
