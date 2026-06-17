@@ -4,7 +4,7 @@
 Lấy danh sách event có nhiều người tham gia nhất, không quan tâm thời gian diễn ra.
 
 ## URL
-`GET /api/events/most-participants`
+`GET /api/v1/events/most-participants`
 
 ## Query parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
@@ -14,7 +14,7 @@ Lấy danh sách event có nhiều người tham gia nhất, không quan tâm th
 
 ## Ví dụ request
 ```http
-GET /api/events/most-participants?limit=10&isDisable=false
+GET /api/v1/events/most-participants?limit=10&isDisable=false
 ```
 
 ## Request body
@@ -30,26 +30,32 @@ Không có.
   "timestampUtc": "datetime",
   "value": [
     {
-      "eventId": "guid",
-      "eventName": "string",
+      "id": "guid",
+      "name": "string",
       "description": "string|null",
-      "status": "string|null",
-      "season": "string|null",
       "startTime": "datetimeoffset|null",
       "endTime": "datetimeoffset|null",
-      "participantCount": 0,
+      "registerLimitTime": "datetimeoffset|null",
+      "limitTeam": 0,
+      "minMember": 0,
+      "maxMember": 0,
+      "status": "string|null",
+      "numberRound": 0,
+      "season": "string|null",
+      "isDisable": false,
+      "createdAt": "datetimeoffset",
       "teamCount": 0,
-      "isDisable": false
+      "participantCount": 0
     }
   ]
 }
 ```
 
 ## Business rules
+- API không yêu cầu đăng nhập.
 - Không lọc theo thời gian diễn ra event.
 - Số người tham gia được tính từ member của các team đã đăng ký event.
-- Chỉ tính `RegisterTeams` chưa bị soft-disable.
-- Nên chỉ tính đơn đăng ký có trạng thái `Approved`, trừ khi nghiệp vụ yêu cầu tính cả `Pending`.
+- Chỉ tính `RegisterTeams` chưa bị soft-disable và có trạng thái `Approved`.
 - `participantCount` tính số member active, chưa disable trong `TeamDetails`.
 - `teamCount` tính số team hợp lệ tham gia event.
 - Kết quả sắp xếp theo `participantCount` giảm dần, sau đó `teamCount` giảm dần.

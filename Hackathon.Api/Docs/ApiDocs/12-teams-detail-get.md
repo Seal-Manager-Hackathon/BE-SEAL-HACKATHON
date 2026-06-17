@@ -4,7 +4,7 @@
 Lấy thông tin chi tiết team và danh sách member trong team.
 
 ## URL
-`GET /api/teams/{teamId}`
+`GET /api/v1/teams/{teamId}`
 
 ## Authorization
 Yêu cầu access token hợp lệ.
@@ -28,18 +28,11 @@ Không có.
   "value": {
     "id": "guid",
     "name": "string",
-    "description": "string|null",
     "canEdit": true,
-    "isDisable": false,
     "createdAt": "datetimeoffset",
-    "updatedAt": "datetimeoffset",
     "members": [
       {
         "userId": "guid",
-        "email": "string",
-        "firstName": "string|null",
-        "lastName": "string|null",
-        "avatarUrl": "string|null",
         "isLeader": true,
         "status": "string|null"
       }

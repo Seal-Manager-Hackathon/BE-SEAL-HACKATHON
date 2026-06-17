@@ -4,7 +4,7 @@
 Cập nhật thông tin profile của user hiện tại.
 
 ## URL
-`PATCH /api/users/profile`
+`PATCH /api/v1/users/profile`
 
 ## Authorization
 Yêu cầu access token hợp lệ.
@@ -40,8 +40,10 @@ Yêu cầu access token hợp lệ.
     "college": "string|null",
     "avatarUrl": "string|null",
     "bio": "string|null",
-    "updatedAt": "datetimeoffset",
-    "message": "PROFILE_UPDATED_SUCCESSFULLY"
+    "status": "string|null",
+    "isVerified": false,
+    "createdAt": "datetimeoffset",
+    "updatedAt": "datetimeoffset"
   }
 }
 ```
@@ -56,8 +58,8 @@ Yêu cầu access token hợp lệ.
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | INVALID_PROFILE_DATA | Profile data is invalid. |
+| 400 | BAD_REQUEST | INVALID_PROFILE_DATA |
 | 401 | MISSING_ACCESS_TOKEN | Access token is missing. |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
-| 404 | USER_NOT_FOUND | User not found. |
+| 404 | NOT_FOUND | USER_NOT_FOUND |
 | 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |

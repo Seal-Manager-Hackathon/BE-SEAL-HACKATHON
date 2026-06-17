@@ -4,7 +4,7 @@
 Staff xem danh sách event được phân công.
 
 ## URL
-`GET /api/staff/register-teams/events`
+`GET /api/v1/admin/register-teams/events`
 
 ## Request body
 Không có.

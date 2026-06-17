@@ -4,7 +4,7 @@
 Tạo team mới và tự thêm user hiện tại làm leader.
 
 ## URL
-`POST /api/teams`
+`POST /api/v1/teams`
 
 ## Request body
 ```json

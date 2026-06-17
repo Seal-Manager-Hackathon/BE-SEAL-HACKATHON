@@ -4,7 +4,7 @@
 Staff xem chi tiết đơn đăng ký và thông tin member để duyệt/từ chối.
 
 ## URL
-`GET /api/staff/register-teams/{registerTeamId}`
+`GET /api/v1/admin/register-teams/{registerTeamId}`
 
 ## Request body
 Không có.

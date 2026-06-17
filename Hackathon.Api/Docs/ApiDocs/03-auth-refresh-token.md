@@ -4,7 +4,7 @@
 Rotate refresh token và cấp access token mới.
 
 ## URL
-`POST /api/auth/tokens/refresh`
+`POST /api/v1/auth/tokens/refresh`
 
 ## Request body
 Không có. Cần cookie:

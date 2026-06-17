@@ -4,7 +4,7 @@
 Thu hồi refresh token hiện tại và xóa auth cookies.
 
 ## URL
-`POST /api/auth/logout`
+`POST /api/v1/auth/logout`
 
 ## Request body
 Không có. Cần cookie:
@@ -23,8 +23,8 @@ Không có. Cần cookie:
   "traceId": "string",
   "timestampUtc": "datetime",
   "value": {
-    "accessToken": "string|null",
-    "refreshToken": "string|null",
+    "accessToken": null,
+    "refreshToken": null,
     "message": "LOGOUT_SUCCESSFUL"
   }
 }

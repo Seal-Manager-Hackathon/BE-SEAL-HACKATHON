@@ -4,7 +4,7 @@
 Leader gửi lời mời student khác vào team.
 
 ## URL
-`POST /api/teams/{teamId}/invitations`
+`POST /api/v1/teams/{teamId}/invitations`
 
 ## Request body
 ```json
@@ -53,6 +53,7 @@ Leader gửi lời mời student khác vào team.
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 400 | BAD_REQUEST | INVITED_USER_ID_REQUIRED |
 | 400 | BAD_REQUEST | CANNOT_INVITE_YOURSELF |
+| 403 | FORBIDDEN | CURRENT_USER_MUST_BE_STUDENT |
 | 404 | NOT_FOUND | TEAM_NOT_FOUND |
 | 403 | FORBIDDEN | TEAM_MEMBER_LOCKED |
 | 403 | FORBIDDEN | ONLY_TEAM_LEADER_CAN_INVITE_MEMBER |

@@ -4,7 +4,7 @@
 Cập nhật thông tin team.
 
 ## URL
-`PATCH /api/teams/{teamId}`
+`PATCH /api/v1/teams/{teamId}`
 
 ## Authorization
 Yêu cầu access token hợp lệ.
@@ -33,10 +33,15 @@ Yêu cầu access token hợp lệ.
   "value": {
     "id": "guid",
     "name": "string",
-    "description": "string|null",
     "canEdit": true,
-    "updatedAt": "datetimeoffset",
-    "message": "TEAM_UPDATED_SUCCESSFULLY"
+    "createdAt": "datetimeoffset",
+    "members": [
+      {
+        "userId": "guid",
+        "isLeader": true,
+        "status": "string|null"
+      }
+    ]
   }
 }
 ```

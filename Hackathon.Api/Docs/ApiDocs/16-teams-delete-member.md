@@ -4,7 +4,7 @@
 Xóa một member khỏi team bằng cách soft-disable hoặc cập nhật trạng thái member trong `TeamDetails`.
 
 ## URL
-`DELETE /api/teams/{teamId}/members/{userId}`
+`DELETE /api/v1/teams/{teamId}/members/{userId}`
 
 ## Authorization
 Yêu cầu access token hợp lệ.
@@ -27,8 +27,6 @@ Không có.
   "traceId": "string",
   "timestampUtc": "datetime",
   "value": {
-    "teamId": "guid",
-    "userId": "guid",
     "message": "TEAM_MEMBER_DELETED_SUCCESSFULLY"
   }
 }
