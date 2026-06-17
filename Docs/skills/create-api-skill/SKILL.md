@@ -7,106 +7,145 @@ description: Use when adding or modifying API endpoints in the Hackathon .NET ba
 
 ## Overview
 
-When creating an API in this repository, keep the endpoint aligned with the existing Hackathon backend structure: Controller action -> Service interface -> Service implementation -> Request/Response DTOs -> `ApiResponseFactory.Base(...)`.
+When creating an API in this repository, keep the endpoint aligned with the existing Hackathon backend structure: Controller action -> Service interface -> Service implementation -> Request/Response DTOs -> `ApiResponseFactory.Base(...)` or `ApiResponseFactory.BasePagination(...)`.
 
-The user will usually provide the API requirement and request shape. Treat the user's request shape as the source of truth. Infer the response DTO only when the required output is clear; otherwise ask a focused clarification before editing.
-
-## User Input Contract
-
-When the user asks for an API, expect these inputs:
-
-- The API purpose or business action.
-- The request shape, such as route params, query params, or body fields.
-- Optional validation requirements.
-
-Do not invent request fields. If the user gives the request but not the response, inspect the related service/entity patterns and propose the smallest response DTO that satisfies the API purpose. If more than one response shape would be reasonable, ask before editing.
+The user decides the API purpose, business logic context, and request shape. Treat the user's request shape as the source of truth.
 
 ## Required Workflow
 
-1. Identify the target module from the user's requirement.
+1. **Identify the target module** from the user's requirement.
    - Prefer an existing controller/service folder when one matches the domain.
-   - Create a new controller/service folder only when no existing module fits.
-2. Inspect nearby examples before editing.
-   - Use `GetMe` as a simple reference for Controller -> IService -> Service -> Response.
-3. Define or update request DTOs in `Hackathon.Service/<Module>/Request.cs` when the API accepts body/query data.
-   - Route-only parameters do not need a request class unless the API has multiple inputs or validation needs.
-4. Define or update response DTOs in `Hackathon.Service/<Module>/Response.cs`.
-   - Do not return EF entities directly when the API requires a shaped response.
-   - Include only the fields required by the user or clearly needed by the endpoint.
-5. Add the service contract to `Hackathon.Service/<Module>/IService.cs`.
-6. Implement business logic in `Hackathon.Service/<Module>/Service.cs`.
-   - Controllers should not query `AppDbContext` directly.
-   - Use existing exception patterns from the project.
-7. Add the controller action in the matching controller.
-   - Return `Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier))` unless an existing endpoint pattern says otherwise.
-   - Use route constraints such as `{id:guid}` for GUID route values.
-8. Register DI in `Hackathon.Api/Program.cs` only when creating a new service module.
-9. Build or run targeted checks after editing.
+   - If no controller exists for the module, **create a new controller using `AuthController.cs` as a template**.
+2. **Create Controller actions** by referencing any existing API endpoint pattern inside `AuthController.cs`.
+3. **Define Request DTOs** in `Hackathon.Service/<Module>/Request.cs`.
+   - Always validate properties on the DTO model class using standard **DataAnnotations** attributes (e.g., `[Required]`, `[EmailAddress]`, `[Range]`, `[Compare]`).
+   - Do not use `IValidatableObject` or FluentValidation for request validation when DataAnnotations can express the rule.
+4. **Define Response DTOs** in `Hackathon.Service/<Module>/Response.cs`.
+   - **Always ask the user for response requirements first**, proposing a draft based on the description and related entities before writing code.
+   - Do not return EF entities directly.
+5. **Add the service method** to `Hackathon.Service/<Module>/IService.cs`.
+6. **Implement the business logic** in `Hackathon.Service/<Module>/Service.cs`.
+   - Implement the query, sorting, and DTO projection.
+   - Do not query the database context directly in controllers.
+   - For regular APIs, return the response DTO.
+   - For paginated APIs, **return `BasePaginationResponse` directly from the service** using `ApiResponseFactory.BasePagination` (modeled after the reference screenshot).
+7. **Add the controller action** to invoke the service method.
+   - Regular endpoints return `Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier))`.
+   - Paginated endpoints return `Ok(result)` directly since the service already bakes the `BasePaginationResponse` structure.
+8. **Register DI** in `Hackathon.Api/Program.cs` only when creating a new service module.
 
-## Reference Pattern
+## Reference Patterns
 
-Use these files as the baseline pattern:
+### Controller Baseline (`AuthController.cs` example)
+Use this as the template when creating new controllers. Note the use of `[ApiController]`, route structures, dependency injection of the service interface, and returning wrapping base responses:
 
-- `Hackathon.Api/Controllers/AuthController.cs`: `GetMe` action calls `_authService.GetMe()` and wraps the result.
-- `Hackathon.Service/Auth/IService.cs`: declares `Task<Response.GetMeResponse> GetMe()`.
-- `Hackathon.Service/Auth/Response.cs`: declares `GetMeResponse` DTO.
-- `Hackathon.Service/Auth/Service.cs`: implements `GetMe()` and projects database data into the response DTO.
+```csharp
+[ApiController]
+[Route("api/auth")]
+public class AuthController : ControllerBase
+{
+    private readonly AuthService.IService _authService;
+
+    public AuthController(AuthService.IService authService)
+    {
+        _authService = authService;
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> LoginAsync(AuthService.Request.LoginRequest request)
+    {
+        var result = await _authService.LoginAsync(request);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+}
+```
+
+### Paginated API Pattern (Reference Screenshot Example)
+Use this structure when implementing pagination.
+
+**Service implementation (`Service.cs`):**
+```csharp
+public async Task<BasePaginationResponse> GetNewsAsync(int pageIndex, int pageSize, string? keyword, NewsStatus? status)
+{
+    pageIndex = pageIndex <= 0 ? 1 : pageIndex;
+    pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
+
+    var query = _dbContext.NewsList
+        .AsNoTracking()
+        .Include(news => news.CategoryNewsDetail)
+        .Where(news => !news.IsDeleted);
+
+    if (!string.IsNullOrWhiteSpace(keyword))
+    {
+        var searchKeyword = keyword.Trim().ToLower();
+        query = query.Where(news =>
+            news.Title.ToLower().Contains(searchKeyword) ||
+            news.Description.ToLower().Contains(searchKeyword));
+    }
+
+    if (status.HasValue)
+    {
+        query = query.Where(news => news.Status == status.Value);
+    }
+
+    var totalCount = await query.CountAsync();
+    var items = await query
+        .OrderByDescending(news => news.CreatedAt)
+        .Skip((pageIndex - 1) * pageSize)
+        .Take(pageSize)
+        .Select(news => new NewResponse
+        {
+            Id = news.Id,
+            Title = news.Title,
+            Description = news.Description,
+            ViewCount = news.ViewCount,
+            PictureUrl = news.CoverImage,
+            slug = news.slug,
+            Status = news.Status == NewsStatus.Published ? "Published" : "Draft",
+            UserId = news.UserId,
+            CategoryIds = news.CategoryNewsDetail.Select(categoryNewsDetail => categoryNewsDetail.CategoryNewsId).ToList(),
+            CreatedAt = news.CreatedAt,
+            UpdatedAt = news.UpdatedAt
+        })
+        .ToListAsync();
+
+    return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
+}
+```
+
+**Controller action (`Controller.cs`):**
+```csharp
+[HttpGet]
+public async Task<IActionResult> GetNews([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? keyword, [FromQuery] NewsStatus? status)
+{
+    var result = await _newsService.GetNewsAsync(pageIndex, pageSize, keyword, status);
+    return Ok(result);
+}
+```
 
 ## Validation Policy
 
-Only add validation when the user asks for it or when the API requirement explicitly needs it.
+Always validate request properties on the DTO model class using standard **DataAnnotations** attributes:
+- Required: `[Required(ErrorMessage = "FIELD_REQUIRED")]`
+- Email: `[EmailAddress(ErrorMessage = "INVALID_EMAIL_FORMAT")]`
+- Range: `[Range(1, int.MaxValue, ErrorMessage = "VALUE_MUST_BE_GREATER_THAN_ZERO")]`
+- Compare: `[Compare(nameof(Password), ErrorMessage = "PASSWORD_CONFIRMATION_NOT_MATCH")]`
 
-Preferred order:
-
-| Situation | Use |
-| --- | --- |
-| Simple required/email/length check already matching local style | DataAnnotations or existing request pattern |
-| Cross-field validation in the request object | `IValidatableObject` when it keeps logic small |
-| More complex rules or user explicitly asks for FluentValidation | FluentValidation validator |
-
-If the user explicitly says to validate with FluentValidation, use FluentValidation for that request. If the user asks for `IValidatableObject` or the local pattern already uses it for similar cross-field checks, use `IValidatableObject`. Do not add a FluentValidation package or new validation infrastructure unless required for the requested API. Do not mix DataAnnotations, `IValidatableObject`, and FluentValidation for the same request unless the project already does so for that module.
-
-## Clarify Before Editing
-
-Ask one focused question before coding when any of these are unclear:
-
-- Which module owns the endpoint.
-- Whether the endpoint is public or requires `[Authorize]`.
-- The response fields cannot be inferred from the user request.
-- The domain rule is ambiguous, such as what qualifies a user as a mentor.
-- Validation rules are not specified but could change behavior.
+Do not use `IValidatableObject` or FluentValidation unless explicitly requested.
 
 ## Hard Rules
 
 - Do not create a new controller if an existing controller clearly owns the API.
-- Do not create a new service if an existing service module clearly owns the API.
 - Do not skip `IService.cs` when adding service methods.
-- Do not put business logic or database queries in controllers.
-- Do not return repository entities directly for shaped API responses.
-- Do not invent request fields the user did not provide.
-- Do not ignore the user's requested validation style, especially FluentValidation or `IValidatableObject`.
-- Do not add validation beyond the requested or necessary scope.
-- Do not modify unrelated files.
+- Do not query the database or put business logic directly in controllers.
+- Do not return EF entities directly; always map to a response DTO.
+- Do not use `IValidatableObject` or FluentValidation for simple cross-field validations like password comparison when `[Compare]` works.
 
 ## Common Mistakes
 
 | Mistake | Correct action |
 | --- | --- |
-| Adding a controller action but forgetting `IService.cs` | Add the interface method first, then implement it |
-| Creating a new module for an existing domain | Search existing controllers/services and extend the matching one |
-| Returning `Users`, `Teams`, or other EF entities directly | Create a response DTO with the required fields |
-| Guessing vague response fields | Ask for clarification or state the minimal inferred response before editing |
-| Adding FluentValidation for every request | Add it only when requested or when rules are complex |
-| Missing route constraints for GUID IDs | Use `{id:guid}` or equivalent route constraint |
-
-## Red Flags
-
-Stop and clarify or re-check project patterns if you think:
-
-- "I'll just create a new controller to be safe."
-- "The controller can query the database directly; it is faster."
-- "The response can be the entity for now."
-- "I'll add full validation even though the user did not ask."
-- "The request is obvious even though the user did not specify fields."
-
-These usually cause APIs that do not match this repository's conventions.
+| Creating a custom `IValidatableObject` for password confirmation | Use the `[Compare(nameof(Password))]` DataAnnotation |
+| Querying the database context inside a controller action | Always put queries in the Service implementation |
+| Returning EF entities inside the pagination list | Project entities to response DTOs using `.Select()` before `.ToListAsync()` |
+| Returning `Ok(ApiResponseFactory.BasePagination(...))` in the controller when the service returns `BasePaginationResponse` | Return `Ok(result)` directly |

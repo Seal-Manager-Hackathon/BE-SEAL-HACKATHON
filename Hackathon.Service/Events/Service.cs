@@ -3,6 +3,7 @@ using Hackathon.Repository;
 using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
 using Hackathon.Service.Exceptions;
+using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -93,12 +94,10 @@ public class Service : IService
         return ToResponse(eventEntity);
     }
 
-    public async Task<(List<Response.EventResponse> Items, int TotalCount)> SearchEvents(string? keyword, int? year, string? status, bool? isDisable, int pageIndex, int pageSize)
+    public async Task<BasePaginationResponse> SearchEvents(string? keyword, int? year, string? status, bool? isDisable, int pageIndex, int pageSize)
     {
-        if (pageIndex < 1 || pageSize < 1)
-        {
-            throw new BadRequestException("BAD_REQUEST");
-        }
+        pageIndex = pageIndex <= 0 ? 1 : pageIndex;
+        pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
 
         var query = _dbContext.Events.AsNoTracking().AsQueryable();
         query = query.Where(x => x.IsDisable == (isDisable ?? false));
@@ -132,10 +131,26 @@ public class Service : IService
             .ThenBy(x => x.CreatedAt)
             .Skip((pageIndex - 1) * pageSize)
             .Take(pageSize)
-            .Select(x => ToResponse(x))
+            .Select(x => new Response.EventResponse
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                StartTime = x.StartTime,
+                EndTime = x.EndTime,
+                RegisterLimitTime = x.RegisterLimitTime,
+                LimitTeam = x.LimitTeam,
+                MinMember = x.MinMember,
+                MaxMember = x.MaxMember,
+                Status = x.Status.ToString(),
+                NumberRound = x.NumberRound,
+                Season = x.Season,
+                IsDisable = x.IsDisable,
+                CreatedAt = x.CreatedAt,
+            })
             .ToListAsync();
 
-        return (items, totalCount);
+        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
     }
 
     public async Task<List<Response.EventResponse>> GetJoinedEvents(int? year, string? status, bool? isDisable)

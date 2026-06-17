@@ -19,6 +19,6 @@ public class TracksController : ControllerBase
     public async Task<IActionResult> GetTracks([FromQuery] Guid? eventId, [FromQuery] string? keyword, [FromQuery] bool? isDisable, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
     {
         var result = await _tracksService.GetTracks(eventId, keyword, isDisable, pageIndex, pageSize);
-        return Ok(ApiResponseFactory.BasePagination(result.Items, pageIndex, pageSize, result.TotalCount));
+        return Ok(result);
     }
 }

@@ -27,7 +27,7 @@ public class EventsController : ControllerBase
     public async Task<IActionResult> SearchEvents([FromQuery] string? keyword, [FromQuery] int? year, [FromQuery] string? status, [FromQuery] bool? isDisable, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
     {
         var result = await _eventsService.SearchEvents(keyword, year, status, isDisable, pageIndex, pageSize);
-        return Ok(ApiResponseFactory.BasePagination(result.Items, pageIndex, pageSize, result.TotalCount));
+        return Ok(result);
     }
 
     [HttpGet("most-participants")]
