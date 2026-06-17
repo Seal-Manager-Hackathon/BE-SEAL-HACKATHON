@@ -4,17 +4,20 @@
 Lấy danh sách event, có thể lọc theo năm và trạng thái soft-disable theo query truyền lên.
 
 ## URL
-`GET /api/events`
+`GET /api/v1/events`
 
 ## Query parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
 |---|---|---:|---|
-| `year` | `int` | Không | Lọc event theo năm. API lọc theo năm của `StartTime`. |
-| `isDisable` | `bool` | Không | Lọc theo trạng thái soft-disable. Nếu không truyền, mặc định chỉ trả event chưa bị disable (`IsDisable = false`). |
+| `keyword` | `string` | Không | Từ khóa tìm kiếm theo `Name`, `Description` hoặc `Season`. |
+| `year` | `int` | Không | Lọc event theo năm của `StartTime`. |
+| `status` | `string` | Không | Lọc theo trạng thái event. Giá trị theo `EventStatusEnum`. |
+| `pageIndex` | `int` | Không | Trang hiện tại, mặc định `1`. |
+| `pageSize` | `int` | Không | Số item mỗi trang, mặc định `10`. |
 
 ## Ví dụ request
 ```http
-GET /api/events?year=2026&isDisable=false
+GET /api/v1/events?keyword=hackathon&year=2026&pageIndex=1&pageSize=10
 ```
 
 ## Request body
@@ -28,36 +31,42 @@ Không có.
   "error": null,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": [
-    {
-      "id": "guid",
-      "name": "string",
-      "description": "string|null",
-      "startTime": "datetimeoffset|null",
-      "endTime": "datetimeoffset|null",
-      "registerLimitTime": "datetimeoffset|null",
-      "limitTeam": 0,
-      "minMember": 0,
-      "maxMember": 0,
-      "status": "string|null",
-      "numberRound": 0,
-      "season": "string|null",
-      "isDisable": false,
-      "createdAt": "datetimeoffset",
-      "updatedAt": "datetimeoffset"
-    }
-  ]
+  "value": {
+    "items": [
+      {
+        "id": "guid",
+        "name": "string",
+        "description": "string|null",
+        "startTime": "datetimeoffset|null",
+        "endTime": "datetimeoffset|null",
+        "registerLimitTime": "datetimeoffset|null",
+        "limitTeam": 0,
+        "minMember": 0,
+        "maxMember": 0,
+        "status": "string|null",
+        "numberRound": 0,
+        "season": "string|null",
+        "isDisable": false,
+        "createdAt": "datetimeoffset",
+        "updatedAt": "datetimeoffset"
+      }
+    ],
+    "pageIndex": 1,
+    "pageSize": 10,
+    "totalCount": 0,
+    "hasNextPage": false,
+    "hasPreviousPage": false
+  }
 }
 ```
 
 ## Business rules
-- API trả về danh sách event theo điều kiện query.
+- API trả về danh sách event phân trang theo điều kiện query.
+- Nếu truyền `keyword`, tìm kiếm không phân biệt hoa thường theo `Name`, `Description`, `Season`.
 - Nếu `year` được truyền, chỉ trả các event có `StartTime` thuộc năm đó.
-- Nếu `isDisable` được truyền:
-  - `isDisable=false`: chỉ trả event chưa bị soft-disable.
-  - `isDisable=true`: chỉ trả event đã bị soft-disable.
-- Nếu không truyền `isDisable`, mặc định chỉ trả event chưa bị soft-disable.
-- Kết quả nên sắp xếp theo `StartTime` tăng dần, sau đó `CreatedAt` tăng dần.
+- Nếu truyền `status`, lọc theo trạng thái event hợp lệ.
+- Kết quả sắp xếp theo `StartTime` tăng dần, sau đó `CreatedAt` tăng dần.
+- `pageIndex` phải lớn hơn hoặc bằng `1`; `pageSize` phải lớn hơn hoặc bằng `1`.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |

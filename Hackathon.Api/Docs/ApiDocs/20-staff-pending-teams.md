@@ -4,7 +4,7 @@
 Staff xem danh sách team đang chờ duyệt trong event được phân công.
 
 ## URL
-`GET /api/staff/register-teams/events/{eventId}/pending`
+`GET /api/v1/admin/register-teams/events/{eventId}/pending`
 
 ## Request body
 Không có.

@@ -4,7 +4,7 @@
 Staff duyệt đơn đăng ký, khóa chỉnh sửa team và gửi thông báo cho leader.
 
 ## URL
-`PATCH /api/staff/register-teams/{registerTeamId}/approve`
+`PATCH /api/v1/admin/register-teams/{registerTeamId}/approve`
 
 ## Request body
 Không có.

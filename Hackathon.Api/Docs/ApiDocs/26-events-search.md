@@ -3,8 +3,10 @@
 ## Tác dụng
 Tìm kiếm danh sách event theo từ khóa và các điều kiện lọc cơ bản.
 
+**Lưu ý:** Chức năng search là một phần của `GET /api/v1/events`. Không có endpoint `/events/search` riêng. Vui lòng xem [24-events-get.md](24-events-get.md) để biết chi tiết query parameters và response.
+
 ## URL
-`GET /api/events/search`
+`GET /api/v1/events`
 
 ## Query parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
@@ -12,13 +14,12 @@ Tìm kiếm danh sách event theo từ khóa và các điều kiện lọc cơ b
 | `keyword` | `string` | Không | Từ khóa tìm kiếm theo `Name`, `Description` hoặc `Season`. |
 | `year` | `int` | Không | Lọc event theo năm của `StartTime`. |
 | `status` | `string` | Không | Lọc theo trạng thái event. Giá trị theo `EventStatusEnum`. |
-| `isDisable` | `bool` | Không | Lọc theo trạng thái soft-disable. Nếu không truyền, mặc định chỉ trả event chưa bị disable (`IsDisable = false`). |
 | `pageIndex` | `int` | Không | Trang hiện tại, mặc định `1`. |
 | `pageSize` | `int` | Không | Số item mỗi trang, mặc định `10`. |
 
 ## Ví dụ request
 ```http
-GET /api/events/search?keyword=hackathon&year=2026&isDisable=false&pageIndex=1&pageSize=10
+GET /api/v1/events?keyword=hackathon&year=2026&pageIndex=1&pageSize=10
 ```
 
 ## Request body

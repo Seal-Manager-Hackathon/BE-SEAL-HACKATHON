@@ -4,7 +4,7 @@
 Lấy bảng xếp hạng theo năm, tổng hợp điểm leaderboard của các event trong năm đó.
 
 ## URL
-`GET /api/leaderboards/year`
+`GET /api/v1/leaderboards/year`
 
 ## Query parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
@@ -15,7 +15,7 @@ Lấy bảng xếp hạng theo năm, tổng hợp điểm leaderboard của các
 
 ## Ví dụ request
 ```http
-GET /api/leaderboards/year?year=2026&pageIndex=1&pageSize=10
+GET /api/v1/leaderboards/year?year=2026&pageIndex=1&pageSize=10
 ```
 
 ## Request body
@@ -30,20 +30,12 @@ Không có.
   "traceId": "string",
   "timestampUtc": "datetime",
   "value": {
-    "year": 2026,
     "items": [
       {
         "rank": 1,
         "teamId": "guid",
         "teamName": "string",
-        "totalScore": 0,
-        "events": [
-          {
-            "eventId": "guid",
-            "eventName": "string",
-            "score": 0
-          }
-        ]
+        "totalScore": 0
       }
     ],
     "pageIndex": 1,
@@ -58,13 +50,15 @@ Không có.
 ## Business rules
 - `year` là bắt buộc.
 - Year leaderboard = tổng điểm event leaderboard trong các event thuộc năm đó.
-- Chỉ tính event và leaderboard chưa bị soft-disable.
-- Kết quả sắp xếp theo `totalScore` giảm dần.
+- Chỉ tính team có đơn đăng ký hợp lệ, team và event chưa bị soft-disable.
+- Kết quả sắp xếp theo `TotalScore` giảm dần, sau đó theo `TeamName` tăng dần.
+- Chỉ tính team có `totalScore > 0`.
+- Rank được đánh số thứ tự tuần tự.
 - `pageIndex` phải lớn hơn hoặc bằng `1`; `pageSize` phải lớn hơn hoặc bằng `1`.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | YEAR_REQUIRED | Year is required. |
-| 400 | BAD_REQUEST | Query parameter không hợp lệ. |
+| 400 | BAD_REQUEST | YEAR_REQUIRED |
+| 400 | BAD_REQUEST | Query parameter không hợp lệ (pageIndex/pageSize). |
 | 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |

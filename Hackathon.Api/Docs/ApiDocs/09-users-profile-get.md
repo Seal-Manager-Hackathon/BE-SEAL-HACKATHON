@@ -4,7 +4,7 @@
 Lấy thông tin profile của user hiện tại.
 
 ## URL
-`GET /api/users/profile`
+`GET /api/v1/users/profile`
 
 ## Authorization
 Yêu cầu access token hợp lệ.

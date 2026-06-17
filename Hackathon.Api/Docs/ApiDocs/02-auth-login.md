@@ -4,7 +4,7 @@
 Đăng nhập bằng email/password và cấp access/refresh token.
 
 ## URL
-`POST /api/auth/login`
+`POST /api/v1/auth/login`
 
 ## Request body
 ```json
@@ -33,11 +33,12 @@
 ## Business rules
 - Email và password là bắt buộc, email phải đúng format.
 - Email/password phải khớp với tài khoản đang tồn tại.
+- Tài khoản bị disable (`IsDisable = true`) không thể đăng nhập.
 - Đăng nhập thành công sẽ cấp access token và refresh token mới.
+- Access token và refresh token được trả về trong response body và set vào cookie.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | Validation | email/password thiếu hoặc sai format |
 | 401 | UNAUTHORIZED | INVALID_EMAIL_OR_PASSWORD |
 | 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
