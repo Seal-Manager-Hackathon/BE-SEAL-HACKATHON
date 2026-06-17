@@ -85,7 +85,9 @@ public class Service : IService
                 LastName = request.LastName,
                 HashPassword = hashedPassword,
                 Role = RoleEnum.Student,
-                IsVerified = false
+                IsVerified = false,
+                CreatedAt = DateTimeOffset.UtcNow,
+                UpdatedAt = DateTimeOffset.UtcNow
             };
             
             await _dbContext.Users.AddAsync(newUser);
@@ -226,12 +228,14 @@ public class Service : IService
         var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
+            var now = DateTimeOffset.UtcNow;
             user.IsVerified = true;
-            user.UpdatedAt = DateTimeOffset.UtcNow;
+            user.VerifyEmailAt = now;
+            user.UpdatedAt = now;
             _dbContext.Users.Update(user);
-            
+
             emailValid.Status = EmailVerificationStatusEnum.Verified;
-            emailValid.UpdatedAt = DateTimeOffset.UtcNow;
+            emailValid.UpdatedAt = now;
             _dbContext.EmailVerifications.Update(emailValid);
 
             var authClaims = new List<Claim>
@@ -248,7 +252,7 @@ public class Service : IService
             var ipAddress = httpContext?.Connection?.RemoteIpAddress?.ToString() ?? "Unknown IP";
             var userAgent = httpContext?.Request?.Headers["User-Agent"].ToString() ?? "Unknown Device";
 
-            var refreshTokenEntity = new Hackathon.Repository.Entity.RefreshTokens()
+            var refreshTokenEntity = new Repository.Entity.RefreshTokens()
             {
                 Id = Guid.NewGuid(),
                 RefreshTokenHash = refreshToken,
