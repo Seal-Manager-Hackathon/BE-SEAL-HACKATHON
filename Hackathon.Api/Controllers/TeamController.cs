@@ -38,6 +38,13 @@ public class TeamController : ControllerBase
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
+    [HttpGet("{teamId:guid}/tracks")]
+    public async Task<IActionResult> GetTeamTracks(Guid teamId)
+    {
+        var result = await _teamService.GetTeamTracks(teamId);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
     [HttpPatch("{teamId:guid}")]
     public async Task<IActionResult> UpdateTeam(Guid teamId, TeamsService.Request.UpdateTeamRequest request)
     {

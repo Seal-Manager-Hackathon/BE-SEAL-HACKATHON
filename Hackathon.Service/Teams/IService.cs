@@ -6,6 +6,7 @@ public interface IService
     Task<Response.InvitationResponse> InviteMember(Guid teamId, Request.InviteMemberRequest request);
     Task<Response.InvitationResponse> RespondInvitation(Guid invitationId, Request.RespondInvitationRequest request);
     Task<Response.TeamResponse> GetTeam(Guid teamId);
+    Task<List<Response.TeamRegisteredEventResponse>> GetTeamTracks(Guid teamId);
     Task<Response.TeamResponse> UpdateTeam(Guid teamId, Request.UpdateTeamRequest request);
     Task<Response.MessageResponse> DeleteMember(Guid teamId, Guid userId);
     Task<List<Response.MyTeamResponse>> GetMyTeams(Request.GetMyTeamsRequest request);

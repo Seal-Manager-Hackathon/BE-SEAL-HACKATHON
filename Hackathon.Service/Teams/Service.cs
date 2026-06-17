@@ -118,6 +118,29 @@ public class Service : IService
                     Status = x.Status?.ToString(),
                 })
                 .ToList(),
+            Events = team.RegisterTeams?
+                .Where(x => !x.IsDisable && x.Event is { IsDisable: false })
+                .OrderByDescending(x => x.Event.StartTime ?? x.Event.CreatedAt)
+                .Select(x => new Response.TeamRegisteredEventResponse
+                {
+                    RegisterTeamId = x.Id,
+                    EventId = x.EventId,
+                    EventName = x.Event.Name,
+                    RegistrationStatus = x.Status?.ToString(),
+                    IsBanned = x.IsBanned,
+                    Tracks = x.Event.Tracks?
+                        .Where(t => !t.IsDisable)
+                        .OrderBy(t => t.CreatedAt)
+                        .Select(t => new Response.TeamEventTrackResponse
+                        {
+                            Id = t.Id,
+                            Title = t.Title,
+                            Description = t.Description,
+                            MaxTeam = t.MaxTeam,
+                        })
+                        .ToList() ?? new List<Response.TeamEventTrackResponse>()
+                })
+                .ToList() ?? new List<Response.TeamRegisteredEventResponse>(),
         };
     }
 
@@ -466,6 +489,9 @@ public class Service : IService
         var team = await _dbContext.Teams
             .AsNoTracking()
             .Include(x => x.TeamDetails)
+            .Include(x => x.RegisterTeams)
+                .ThenInclude(x => x.Event)
+                    .ThenInclude(x => x.Tracks)
             .FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
 
         if (team == null)
@@ -482,6 +508,57 @@ public class Service : IService
         }
 
         return ToTeamResponse(team);
+    }
+
+    public async Task<List<Response.TeamRegisteredEventResponse>> GetTeamTracks(Guid teamId)
+    {
+        var userId = GetCurrentUserId();
+        var team = await _dbContext.Teams
+            .AsNoTracking()
+            .Include(x => x.TeamDetails)
+            .Include(x => x.RegisterTeams)
+                .ThenInclude(x => x.Event)
+                    .ThenInclude(x => x.Tracks)
+            .FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
+
+        if (team == null)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        var isMember = team.TeamDetails.Any(x => x.UserId == userId && !x.IsDisable);
+        var isStaff = _httpContext.HttpContext?.User.IsInRole(RoleEnum.Staff.ToString()) == true
+                      || _httpContext.HttpContext?.User.IsInRole(RoleEnum.Admin.ToString()) == true;
+        if (!isMember && !isStaff)
+        {
+            throw new ForbiddenException("TEAM_NOT_VISIBLE_TO_USER");
+        }
+
+        var events = team.RegisterTeams?
+            .Where(x => !x.IsDisable && x.Event is { IsDisable: false })
+            .OrderByDescending(x => x.Event.StartTime ?? x.Event.CreatedAt)
+            .Select(x => new Response.TeamRegisteredEventResponse
+            {
+                RegisterTeamId = x.Id, 
+                EventId = x.EventId,
+                EventName = x.Event.Name,
+                RegistrationStatus = x.Status?.ToString(),
+                IsBanned = x.IsBanned,
+                Tracks = x.Event.Tracks?
+                    .Where(t => !t.IsDisable)
+                    .OrderBy(t => t.CreatedAt)
+                    .Select(t => new Response.TeamEventTrackResponse
+                    {
+                        Id = t.Id,
+                        Title = t.Title,
+                        Description = t.Description,
+                        MaxTeam = t.MaxTeam,
+                    })
+                    .ToList() ?? new List<Response.TeamEventTrackResponse>()
+            })
+            .ToList() ?? new List<Response.TeamRegisteredEventResponse>();
+
+        return events;
     }
 
     public async Task<Response.TeamResponse> UpdateTeam(Guid teamId, Request.UpdateTeamRequest request)

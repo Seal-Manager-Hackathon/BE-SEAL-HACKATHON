@@ -16,6 +16,25 @@ public static class Response
         public bool CanEdit { get; set; }
         public List<TeamMemberResponse> Members { get; set; } = new();
         public DateTimeOffset CreatedAt { get; set; }
+        public List<TeamRegisteredEventResponse> Events { get; set; } = new();
+    }
+
+    public class TeamRegisteredEventResponse
+    {
+        public Guid RegisterTeamId { get; set; }
+        public Guid EventId { get; set; }
+        public string EventName { get; set; } = null!;
+        public string? RegistrationStatus { get; set; }
+        public bool IsBanned { get; set; }
+        public List<TeamEventTrackResponse> Tracks { get; set; } = new();
+    }
+
+    public class TeamEventTrackResponse
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = null!;
+        public string? Description { get; set; }
+        public int? MaxTeam { get; set; }
     }
 
     public class MessageResponse
