@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using System.Text.RegularExpressions;
 using Hackathon.Repository;
 using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
@@ -66,16 +65,6 @@ public class Service : IService
 
     public async Task<string> Register(Request.RegisterRequest request)
     {
-        if (request.Password != request.ConfirmPassword)
-        {
-            throw new BadRequestException("PASSWORD_CONFIRMATION_NOT_MATCH");
-        }
-        
-        if (!IsValidPassword(request.Password))
-        {
-            throw new BadRequestException("INVALID_PASSWORD_FORMAT");
-        }
-
         var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
@@ -303,11 +292,6 @@ public class Service : IService
         return Guid.Empty;
     }
 
-    private static bool IsValidPassword(string password)
-    {
-        return Regex.IsMatch(password, @"^(?=.*[A-Za-z])(?=.*\d).{8,}$");
-    }
-
     public async Task<Response.GetMeResponse> GetMe()
     {
         var userId = CheckAccessToken();
@@ -436,16 +420,6 @@ public class Service : IService
             throw new MissingAccessTokenException();
         }
 
-        if (request.NewPassword != request.ConfirmPassword)
-        {
-            throw new BadRequestException("PASSWORD_CONFIRMATION_NOT_MATCH");
-        }
-
-        if (!IsValidPassword(request.NewPassword))
-        {
-            throw new BadRequestException("INVALID_PASSWORD_FORMAT");
-        }
-
         var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
         if (user == null)
         {
@@ -464,10 +438,22 @@ public class Service : IService
             throw new BadRequestException("CURRENT_PASSWORD_INVALID");
         }
 
-        var newPepperPassword = request.NewPassword + _securityOptions.Pepper;
-        user.HashPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(newPepperPassword, hashType: BCrypt.Net.HashType.SHA256);
-        user.UpdatedAt = DateTimeOffset.UtcNow;
-        await _dbContext.SaveChangesAsync();
+        var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            var newPepperPassword = request.NewPassword + _securityOptions.Pepper;
+            user.HashPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(newPepperPassword, hashType: BCrypt.Net.HashType.SHA256);
+            user.UpdatedAt = DateTimeOffset.UtcNow;
+            _dbContext.Users.Update(user);
+            await _dbContext.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
 
         return new Response.MessageResponse { Message = "PASSWORD_CHANGED_SUCCESSFULLY" };
     }
@@ -524,11 +510,6 @@ public class Service : IService
 
     public async Task<Response.MessageResponse> ResetPassword(Request.ResetPasswordRequest request)
     {
-        if (!IsValidPassword(request.NewPassword))
-        {
-            throw new BadRequestException("INVALID_PASSWORD_FORMAT");
-        }
-
         var validateToken = _jwtService.ValidateToken(request.Token);
         if (validateToken == null)
         {

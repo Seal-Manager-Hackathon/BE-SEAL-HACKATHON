@@ -1,3 +1,4 @@
+using Hackathon.Api.Extention;
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +7,7 @@ using EventsService = Hackathon.Service.Events;
 namespace Hackathon.Api.Controllers;
 
 [ApiController]
-[Route("api/events")]
+[Route("api/v1/events")]
 public class EventsController : ControllerBase
 {
     private readonly EventsService.IService _eventsService;
@@ -17,17 +18,18 @@ public class EventsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetEvents([FromQuery] int? year, [FromQuery] bool? isDisable)
+    public async Task<IActionResult> GetEvents([FromQuery] EventsService.Request.GetEventsRequest request)
     {
-        var result = await _eventsService.GetEvents(year, isDisable);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        var result = await _eventsService.GetEvents(request);
+        return Ok(result);
     }
 
-    [HttpGet("search")]
-    public async Task<IActionResult> SearchEvents([FromQuery] string? keyword, [FromQuery] int? year, [FromQuery] string? status, [FromQuery] bool? isDisable, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    [HttpGet("/api/v1/admin/events")]
+    public async Task<IActionResult> GetEventsForAdmin([FromQuery] EventsService.Request.GetEventsForAdminRequest request)
     {
-        var result = await _eventsService.SearchEvents(keyword, year, status, isDisable, pageIndex, pageSize);
-        return Ok(ApiResponseFactory.BasePagination(result.Items, pageIndex, pageSize, result.TotalCount));
+        var result = await _eventsService.GetEventsForAdmin(request);
+        return Ok(result);
     }
 
     [HttpGet("most-participants")]

@@ -7,7 +7,7 @@ using AuthService = Hackathon.Service.Auth;
 namespace Hackathon.Api.Controllers;
 
 [ApiController]
-[Route("api/auth")]
+[Route("api/v1/auth")]
 public class AuthController : ControllerBase
 {
     private readonly AuthService.IService _authService;
@@ -45,7 +45,7 @@ public class AuthController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("/api/auth/me")]
+    [HttpGet("/api/v1/auth/me")]
     public async Task<IActionResult> GetMe()
     {
         var result = await _authService.GetMe();

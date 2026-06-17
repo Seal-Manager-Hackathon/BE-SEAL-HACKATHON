@@ -1,6 +1,8 @@
+using Hackathon.Service.Models;
+
 namespace Hackathon.Service.Tracks;
 
 public interface IService
 {
-    Task<(List<Response.TrackResponse> Items, int TotalCount)> GetTracks(Guid? eventId, string? keyword, bool? isDisable, int pageIndex, int pageSize);
+    Task<BasePaginationResponse> GetTracks(Guid? eventId, string? keyword, bool? isDisable, int pageIndex, int pageSize);
 }

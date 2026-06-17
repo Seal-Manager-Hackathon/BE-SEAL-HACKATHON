@@ -27,14 +27,52 @@ public static class AssignmentSeed
                 IsDisable = false,
                 CreatedAt = SeedConstants.CreatedAt,
                 UpdatedAt = SeedConstants.CreatedAt
-            }
+            },
+
+            // 10 New AssignEvents for new Mentors
+            CreateAssignEvent(Guid.Parse("40000000-0000-0000-0000-000000000010"), Guid.Parse("10000000-0000-0000-0000-000000000020"), SeedConstants.MentorEventRoleId, Guid.Parse("20000000-0000-0000-0000-000000000010")),
+            CreateAssignEvent(Guid.Parse("40000000-0000-0000-0000-000000000011"), Guid.Parse("10000000-0000-0000-0000-000000000021"), SeedConstants.MentorEventRoleId, Guid.Parse("20000000-0000-0000-0000-000000000011")),
+            CreateAssignEvent(Guid.Parse("40000000-0000-0000-0000-000000000012"), Guid.Parse("10000000-0000-0000-0000-000000000022"), SeedConstants.MentorEventRoleId, Guid.Parse("20000000-0000-0000-0000-000000000012")),
+            CreateAssignEvent(Guid.Parse("40000000-0000-0000-0000-000000000013"), Guid.Parse("10000000-0000-0000-0000-000000000023"), SeedConstants.MentorEventRoleId, Guid.Parse("20000000-0000-0000-0000-000000000013")),
+            CreateAssignEvent(Guid.Parse("40000000-0000-0000-0000-000000000014"), Guid.Parse("10000000-0000-0000-0000-000000000024"), SeedConstants.MentorEventRoleId, Guid.Parse("20000000-0000-0000-0000-000000000014")),
+            CreateAssignEvent(Guid.Parse("40000000-0000-0000-0000-000000000015"), Guid.Parse("10000000-0000-0000-0000-000000000020"), SeedConstants.MentorEventRoleId, Guid.Parse("20000000-0000-0000-0000-000000000015")),
+            CreateAssignEvent(Guid.Parse("40000000-0000-0000-0000-000000000016"), Guid.Parse("10000000-0000-0000-0000-000000000021"), SeedConstants.MentorEventRoleId, Guid.Parse("20000000-0000-0000-0000-000000000016")),
+            CreateAssignEvent(Guid.Parse("40000000-0000-0000-0000-000000000017"), Guid.Parse("10000000-0000-0000-0000-000000000022"), SeedConstants.MentorEventRoleId, Guid.Parse("20000000-0000-0000-0000-000000000017")),
+            CreateAssignEvent(Guid.Parse("40000000-0000-0000-0000-000000000018"), Guid.Parse("10000000-0000-0000-0000-000000000023"), SeedConstants.MentorEventRoleId, Guid.Parse("20000000-0000-0000-0000-000000000018")),
+            CreateAssignEvent(Guid.Parse("40000000-0000-0000-0000-000000000019"), Guid.Parse("10000000-0000-0000-0000-000000000024"), SeedConstants.MentorEventRoleId, Guid.Parse("20000000-0000-0000-0000-000000000019"))
         );
 
         modelBuilder.Entity<AssignTracks>().HasData(
             CreateAssignTrack(SeedConstants.MentorAiAssignTrackId, SeedConstants.MentorAssignEventId, SeedConstants.AiTrackId),
             CreateAssignTrack(SeedConstants.JudgeAiAssignTrackId, SeedConstants.JudgeAssignEventId, SeedConstants.AiTrackId),
-            CreateAssignTrack(SeedConstants.JudgeGreenAssignTrackId, SeedConstants.JudgeAssignEventId, SeedConstants.GreenTrackId)
+            CreateAssignTrack(SeedConstants.JudgeGreenAssignTrackId, SeedConstants.JudgeAssignEventId, SeedConstants.GreenTrackId),
+
+            // 10 New AssignTracks connecting new AssignEvents to new Tracks
+            CreateAssignTrack(Guid.Parse("41000000-0000-0000-0000-000000000010"), Guid.Parse("40000000-0000-0000-0000-000000000010"), Guid.Parse("24000000-0000-0000-0000-000000000010")),
+            CreateAssignTrack(Guid.Parse("41000000-0000-0000-0000-000000000011"), Guid.Parse("40000000-0000-0000-0000-000000000011"), Guid.Parse("24000000-0000-0000-0000-000000000011")),
+            CreateAssignTrack(Guid.Parse("41000000-0000-0000-0000-000000000012"), Guid.Parse("40000000-0000-0000-0000-000000000012"), Guid.Parse("24000000-0000-0000-0000-000000000012")),
+            CreateAssignTrack(Guid.Parse("41000000-0000-0000-0000-000000000013"), Guid.Parse("40000000-0000-0000-0000-000000000013"), Guid.Parse("24000000-0000-0000-0000-000000000013")),
+            CreateAssignTrack(Guid.Parse("41000000-0000-0000-0000-000000000014"), Guid.Parse("40000000-0000-0000-0000-000000000014"), Guid.Parse("24000000-0000-0000-0000-000000000014")),
+            CreateAssignTrack(Guid.Parse("41000000-0000-0000-0000-000000000015"), Guid.Parse("40000000-0000-0000-0000-000000000015"), Guid.Parse("24000000-0000-0000-0000-000000000015")),
+            CreateAssignTrack(Guid.Parse("41000000-0000-0000-0000-000000000016"), Guid.Parse("40000000-0000-0000-0000-000000000016"), Guid.Parse("24000000-0000-0000-0000-000000000016")),
+            CreateAssignTrack(Guid.Parse("41000000-0000-0000-0000-000000000017"), Guid.Parse("40000000-0000-0000-0000-000000000017"), Guid.Parse("24000000-0000-0000-0000-000000000017")),
+            CreateAssignTrack(Guid.Parse("41000000-0000-0000-0000-000000000018"), Guid.Parse("40000000-0000-0000-0000-000000000018"), Guid.Parse("24000000-0000-0000-0000-000000000018")),
+            CreateAssignTrack(Guid.Parse("41000000-0000-0000-0000-000000000019"), Guid.Parse("40000000-0000-0000-0000-000000000019"), Guid.Parse("24000000-0000-0000-0000-000000000019"))
         );
+    }
+
+    private static AssignEvents CreateAssignEvent(Guid id, Guid userId, Guid eventRoleId, Guid eventId)
+    {
+        return new AssignEvents
+        {
+            Id = id,
+            UserId = userId,
+            EventRoleId = eventRoleId,
+            EventId = eventId,
+            IsDisable = false,
+            CreatedAt = SeedConstants.CreatedAt,
+            UpdatedAt = SeedConstants.CreatedAt
+        };
     }
 
     private static AssignTracks CreateAssignTrack(Guid id, Guid assignEventId, Guid trackId)
