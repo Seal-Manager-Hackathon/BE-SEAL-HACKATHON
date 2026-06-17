@@ -14,7 +14,7 @@ public static class JwtExtensions
     public const string LecturerPolicy = "LecturerPolicy";
     public const string StudentPolicy = "StudentPolicy";
     public const string StaffOrAdminPolicy = "StaffOrAdminPolicy";
-    public const string StudentVerifiedPolicy = "StudentVerifiedPolicy";
+    public const string StudentVerifiedPolicy = "StudentviêtVerifiedPolicy";
     
     public static void AddJwtServices(this IServiceCollection services, IConfiguration configuration)
     {
