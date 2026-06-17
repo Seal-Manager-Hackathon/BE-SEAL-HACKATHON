@@ -5,7 +5,7 @@ using TracksService = Hackathon.Service.Tracks;
 namespace Hackathon.Api.Controllers;
 
 [ApiController]
-[Route("api/tracks")]
+[Route("api/v1/tracks")]
 public class TracksController : ControllerBase
 {
     private readonly TracksService.IService _tracksService;

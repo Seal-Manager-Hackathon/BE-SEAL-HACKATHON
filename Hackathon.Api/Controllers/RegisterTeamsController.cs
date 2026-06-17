@@ -7,7 +7,7 @@ namespace Hackathon.Api.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/register-teams")]
+[Route("api/v1/register-teams")]
 public class RegisterTeamsController : ControllerBase
 {
     private readonly RegisterTeamsService.IService _registerTeamsService;

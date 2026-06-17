@@ -7,7 +7,7 @@ namespace Hackathon.Api.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/users")]
+[Route("api/v1/users")]
 public class UsersController : ControllerBase
 {
     private readonly UsersService.IService _usersService;

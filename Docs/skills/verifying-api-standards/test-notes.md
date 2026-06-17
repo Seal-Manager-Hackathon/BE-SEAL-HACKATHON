@@ -19,3 +19,4 @@ We simulated auditing code changes without the `verifying-api-standards` skill.
 - Explicitly add checks for Dependency Injection registration in `Program.cs`.
 - Explicitly check for Guid route template constraints (e.g. `{id:guid}`).
 - Enforce strict checks on transaction blocks for any state mutation (Create/Update/Delete).
+- Explicitly check endpoint URLs for RESTful compliance (prohibit verbs in CRUD paths, enforce plural resource nouns).

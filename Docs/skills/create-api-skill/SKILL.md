@@ -11,6 +11,20 @@ When creating an API in this repository, keep the endpoint aligned with the exis
 
 The user decides the API purpose, business logic context, and request shape. Treat the user's request shape as the source of truth.
 
+## RESTful API Standards
+
+Endpoints must follow RESTful API design patterns:
+1. **Resource Naming**:
+   - Use plural nouns for resource paths (e.g., `api/events`, `api/users`, `api/tracks`).
+   - Do NOT include verbs in standard CRUD route paths (e.g., avoid `/api/events/get-events`, `/api/events/delete-event`).
+2. **HTTP Methods**:
+   - `GET`: Retrieve a resource or a paged list. Do not modify server state.
+   - `POST`: Create a new resource.
+   - `PUT` / `PATCH`: Update an existing resource. Use `PATCH` for partial updates.
+   - `DELETE`: Remove a resource.
+3. **Custom Actions (Non-CRUD)**:
+   - For specific business actions that do not fit basic CRUD (e.g., approve a registration, reply to an invitation), append the action verb at the end of the resource path (e.g., `PATCH api/staff/register-teams/{id:guid}/approve` or `POST api/teams/{id:guid}/invitations`).
+
 ## Required Workflow
 
 1. **Identify the target module** from the user's requirement.
@@ -32,7 +46,9 @@ The user decides the API purpose, business logic context, and request shape. Tre
 7. **Add the controller action** to invoke the service method.
    - Regular endpoints return `Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier))`.
    - Paginated endpoints return `Ok(result)` directly since the service already bakes the `BasePaginationResponse` structure.
-8. **Register DI** in `Hackathon.Api/Program.cs` only when creating a new service module.
+8. **Register DI (Dependency Injection)** in `Hackathon.Api/Program.cs` immediately when creating a new service module/class.
+   - Add the service registration (e.g., `builder.Services.AddScoped<SomeService.IService, SomeService.Service>();`) in the dependency block inside `Program.cs`.
+   - Never skip this step, otherwise the application will crash at runtime with `InvalidOperationException` when resolving the controller dependency.
 
 ## Reference Patterns
 
@@ -135,6 +151,7 @@ Do not use `IValidatableObject` or FluentValidation unless explicitly requested.
 
 ## Hard Rules
 
+- Do not use verbs in standard CRUD route paths (e.g., avoid `/delete`, `/update`, `/get` inside resource paths).
 - Do not create a new controller if an existing controller clearly owns the API.
 - Do not skip `IService.cs` when adding service methods.
 - Do not query the database or put business logic directly in controllers.
@@ -145,6 +162,7 @@ Do not use `IValidatableObject` or FluentValidation unless explicitly requested.
 
 | Mistake | Correct action |
 | --- | --- |
+| Using verbs in basic CRUD endpoints (e.g. `[HttpDelete("delete-event/{id}")]`) | Use RESTful noun routes and proper HTTP methods (e.g. `[HttpDelete("{id:guid}")]`) |
 | Creating a custom `IValidatableObject` for password confirmation | Use the `[Compare(nameof(Password))]` DataAnnotation |
 | Querying the database context inside a controller action | Always put queries in the Service implementation |
 | Returning EF entities inside the pagination list | Project entities to response DTOs using `.Select()` before `.ToListAsync()` |

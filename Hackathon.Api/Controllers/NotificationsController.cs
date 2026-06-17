@@ -7,7 +7,7 @@ namespace Hackathon.Api.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/notifications")]
+[Route("api/v1/notifications")]
 public class NotificationsController : ControllerBase
 {
     private readonly NotificationsService.IService _notificationsService;

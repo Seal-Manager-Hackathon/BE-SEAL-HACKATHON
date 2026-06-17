@@ -59,65 +59,30 @@ public class Service : IService
         };
     }
 
-    public async Task<List<Response.EventResponse>> GetEvents(int? year, bool? isDisable)
+    public async Task<BasePaginationResponse> GetEvents(Request.GetEventsRequest request)
     {
-        var query = _dbContext.Events.AsNoTracking().AsQueryable();
-        var disabled = isDisable ?? false;
-        query = query.Where(x => x.IsDisable == disabled);
+        // Lấy giá trị thực tế từ request
+        var reqPageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
+        var reqPageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
 
-        if (year.HasValue)
+        var query = _dbContext.Events.AsNoTracking().Where(x => !x.IsDisable);
+
+        if (!string.IsNullOrWhiteSpace(request.Keyword))
         {
-            query = query.Where(x => x.StartTime.HasValue && x.StartTime.Value.Year == year.Value);
-        }
-
-        return await query
-            .OrderBy(x => x.StartTime)
-            .ThenBy(x => x.CreatedAt)
-            .Select(x => ToResponse(x))
-            .ToListAsync();
-    }
-
-    public async Task<Response.EventResponse> GetEvent(Guid eventId, bool? isDisable)
-    {
-        var query = _dbContext.Events.AsNoTracking().Where(x => x.Id == eventId);
-        if (isDisable.HasValue)
-        {
-            query = query.Where(x => x.IsDisable == isDisable.Value);
-        }
-
-        var eventEntity = await query.FirstOrDefaultAsync();
-        if (eventEntity == null)
-        {
-            throw new NotFoundException("EVENT_NOT_FOUND");
-        }
-
-        return ToResponse(eventEntity);
-    }
-
-    public async Task<BasePaginationResponse> SearchEvents(string? keyword, int? year, string? status, bool? isDisable, int pageIndex, int pageSize)
-    {
-        pageIndex = pageIndex <= 0 ? 1 : pageIndex;
-        pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
-
-        var query = _dbContext.Events.AsNoTracking().AsQueryable();
-        query = query.Where(x => x.IsDisable == (isDisable ?? false));
-
-        if (!string.IsNullOrWhiteSpace(keyword))
-        {
-            var normalizedKeyword = keyword.Trim().ToLower();
+            var normalizedKeyword = request.Keyword.Trim().ToLower();
             query = query.Where(x => x.Name.ToLower().Contains(normalizedKeyword)
                                      || (x.Description != null && x.Description.ToLower().Contains(normalizedKeyword))
                                      || (x.Season != null && x.Season.ToLower().Contains(normalizedKeyword)));
         }
 
-        if (year.HasValue)
+        if (request.Year.HasValue)
         {
-            query = query.Where(x => x.StartTime.HasValue && x.StartTime.Value.Year == year.Value);
+            query = query.Where(x => x.StartTime.HasValue && x.StartTime.Value.Year == request.Year.Value);
         }
 
-        if (!string.IsNullOrWhiteSpace(status))
+        if (!string.IsNullOrWhiteSpace(request.Status))
         {
-            if (!Enum.TryParse<EventStatusEnum>(status, true, out var eventStatus))
+            if (!Enum.TryParse<EventStatusEnum>(request.Status, true, out var eventStatus))
             {
                 throw new BadRequestException("BAD_REQUEST");
             }
@@ -129,9 +94,72 @@ public class Service : IService
         var items = await query
             .OrderBy(x => x.StartTime)
             .ThenBy(x => x.CreatedAt)
-            .Skip((pageIndex - 1) * pageSize)
-            .Take(pageSize)
-            .Select(x => new Response.EventResponse
+            .Skip((reqPageIndex - 1) * reqPageSize)
+            .Take(reqPageSize)
+            .Select(x => new Response.StudentEventResponse
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                StartTime = x.StartTime,
+                EndTime = x.EndTime,
+                RegisterLimitTime = x.RegisterLimitTime,
+                LimitTeam = x.LimitTeam,
+                MinMember = x.MinMember,
+                MaxMember = x.MaxMember,
+                Status = x.Status.ToString(),
+                NumberRound = x.NumberRound,
+                Season = x.Season,
+                CreatedAt = x.CreatedAt,
+            })
+            .ToListAsync();
+
+        return ApiResponseFactory.BasePagination(items, reqPageIndex, reqPageSize, totalCount);
+    }
+
+    public async Task<BasePaginationResponse> GetEventsForAdmin(Request.GetEventsForAdminRequest request)
+    {
+        // Lấy giá trị thực tế từ request
+        var reqPageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
+        var reqPageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
+
+        var query = _dbContext.Events.AsNoTracking().AsQueryable();
+
+        if (request.IsDisable.HasValue)
+        {
+            query = query.Where(x => x.IsDisable == request.IsDisable.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Keyword))
+        {
+            var normalizedKeyword = request.Keyword.Trim().ToLower();
+            query = query.Where(x => x.Name.ToLower().Contains(normalizedKeyword)
+                                     || (x.Description != null && x.Description.ToLower().Contains(normalizedKeyword))
+                                     || (x.Season != null && x.Season.ToLower().Contains(normalizedKeyword)));
+        }
+
+        if (request.Year.HasValue)
+        {
+            query = query.Where(x => x.StartTime.HasValue && x.StartTime.Value.Year == request.Year.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Status))
+        {
+            if (!Enum.TryParse<EventStatusEnum>(request.Status, true, out var eventStatus))
+            {
+                throw new BadRequestException("BAD_REQUEST");
+            }
+
+            query = query.Where(x => x.Status == eventStatus);
+        }
+
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .OrderBy(x => x.StartTime)
+            .ThenBy(x => x.CreatedAt)
+            .Skip((reqPageIndex - 1) * reqPageSize)
+            .Take(reqPageSize)
+            .Select(x => new Response.AdminEventResponse
             {
                 Id = x.Id,
                 Name = x.Name,
@@ -150,7 +178,24 @@ public class Service : IService
             })
             .ToListAsync();
 
-        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
+        return ApiResponseFactory.BasePagination(items, reqPageIndex, reqPageSize, totalCount);
+    }
+
+    public async Task<Response.EventResponse> GetEvent(Guid eventId, bool? isDisable)
+    {
+        var query = _dbContext.Events.AsNoTracking().Where(x => x.Id == eventId);
+        if (isDisable.HasValue)
+        {
+            query = query.Where(x => x.IsDisable == isDisable.Value);
+        }
+
+        var eventEntity = await query.FirstOrDefaultAsync();
+        if (eventEntity == null)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        return ToResponse(eventEntity);
     }
 
     public async Task<List<Response.EventResponse>> GetJoinedEvents(int? year, string? status, bool? isDisable)

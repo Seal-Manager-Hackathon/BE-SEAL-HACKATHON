@@ -7,7 +7,7 @@ namespace Hackathon.Api.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/mentor-notifications")]
+[Route("api/v1/mentor-notifications")]
 public class MentorNotificationsController : ControllerBase
 {
     private readonly MentorNotificationsService.IService _mentorNotificationsService;
