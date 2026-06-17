@@ -68,7 +68,6 @@ Use these files in the repository to compare patterns:
 | Controller calling `_dbContext.Users` or `_dbContext.EmailVerifications` | Instruct to move query logic to `Service.cs` and inject service interface in controller |
 | Controller wrapping paginated response in `BasePagination` again | Change controller return to `Ok(result)` and wrap inside the Service instead |
 | Request DTO using `IValidatableObject` to compare passwords | Replace with `[Compare(nameof(Password), ErrorMessage = "...")]` attribute |
-| Using verbs in standard CRUD route paths (e.g. `[HttpDelete("delete-event/{id}")]`) | Suggest RESTful nouns path and matching HTTP method (e.g. `[HttpDelete("{id:guid}")]`) |
 | Service method mutating DB state without `BeginTransactionAsync()` | Wrap the save operations in `try-catch` block with transaction commit & rollback |
 | Route parameter `[HttpGet("events/{eventId}")]` missing guid check | Suggest changing to `[HttpGet("events/{eventId:guid}")]` |
 | Service registering is missing in DI | Add `builder.Services.AddScoped<IService, Service>();` in `Program.cs` |
