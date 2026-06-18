@@ -29,8 +29,8 @@ Endpoints must follow RESTful API design patterns:
 
 1. **Identify the target module** from the user's requirement.
    - Prefer an existing controller/service folder when one matches the domain.
-   - If no controller exists for the module, **create a new controller using `AuthController.cs` as a template**.
-2. **Create Controller actions** by referencing any existing API endpoint pattern inside `AuthController.cs`.
+   - If no controller exists for the module, **create a new controller using `EventsController.cs` as a template**.
+2. **Create Controller actions** by referencing any existing API endpoint pattern inside `EventsController.cs`.
 3. **Define Request DTOs** in `Hackathon.Service/<Module>/Request.cs`.
    - Always validate properties on the DTO model class using standard **DataAnnotations** attributes (e.g., `[Required]`, `[EmailAddress]`, `[Range]`, `[Compare]`).
    - Do not use `IValidatableObject` or FluentValidation for request validation when DataAnnotations can express the rule.
@@ -54,25 +54,32 @@ Endpoints must follow RESTful API design patterns:
 
 ## Reference Patterns
 
-### Controller Baseline (`AuthController.cs` example)
+### Controller Baseline (`EventsController.cs` example)
 Use this as the template when creating new controllers. Note the use of `[ApiController]`, route structures, dependency injection of the service interface, and returning wrapping base responses:
 
 ```csharp
 [ApiController]
-[Route("api/auth")]
-public class AuthController : ControllerBase
+[Route("api/v1/events")]
+public class EventsController : ControllerBase
 {
-    private readonly AuthService.IService _authService;
+    private readonly EventsService.IService _eventsService;
 
-    public AuthController(AuthService.IService authService)
+    public EventsController(EventsService.IService eventsService)
     {
-        _authService = authService;
+        _eventsService = eventsService;
     }
 
-    [HttpPost("login")]
-    public async Task<IActionResult> LoginAsync(AuthService.Request.LoginRequest request)
+    [HttpGet]
+    public async Task<IActionResult> GetEvents([FromQuery] EventsService.Request.GetEventsRequest request)
     {
-        var result = await _authService.LoginAsync(request);
+        var result = await _eventsService.GetEvents(request);
+        return Ok(result);
+    }
+
+    [HttpGet("{eventId:guid}")]
+    public async Task<IActionResult> GetEvent(Guid eventId)
+    {
+        var result = await _eventsService.GetEvent(eventId);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 }

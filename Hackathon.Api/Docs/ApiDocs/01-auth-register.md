@@ -28,9 +28,12 @@
   "value": "Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản."
 }
 ```
+*(Nếu email đã tồn tại nhưng chưa verify, response sẽ trả về "Tài khoản chưa được xác thực. Chúng tôi đã gửi lại email xác thực.")*
 
 ## Business rules
-- Email phải chưa tồn tại trong hệ thống.
+- Email phải chưa tồn tại ở trạng thái đã xác thực.
+- Nếu email đã tồn tại nhưng **chưa xác thực** (`IsVerified = false`), hệ thống sẽ gửi lại email xác thực mới thay vì báo lỗi.
+- Nếu email đã tồn tại và **đã xác thực** (`IsVerified = true`), hệ thống báo lỗi `EMAIL_ALREADY_EXISTS`.
 - `password` và `confirmPassword` phải trùng nhau (validate phía client).
 - Sau khi đăng ký thành công, tài khoản cần verify email trước khi dùng các luồng yêu cầu xác thực.
 - Hệ thống gửi email xác thực cho user mới.

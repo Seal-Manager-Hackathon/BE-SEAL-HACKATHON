@@ -3095,6 +3095,9 @@ namespace Hackathon.Repository.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int?>("RoundNo")
+                        .HasColumnType("integer");
+
                     b.Property<DateTimeOffset?>("StartSubmission")
                         .HasColumnType("timestamp with time zone");
 
@@ -3122,6 +3125,7 @@ namespace Hackathon.Repository.Migrations
                             IsDisable = false,
                             LimitTeam = 20,
                             Name = "Idea Submission",
+                            RoundNo = 1,
                             StartSubmission = new DateTimeOffset(new DateTime(2026, 6, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             StartTime = new DateTimeOffset(new DateTime(2026, 6, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -3137,6 +3141,7 @@ namespace Hackathon.Repository.Migrations
                             IsDisable = false,
                             LimitTeam = 10,
                             Name = "Final Demo",
+                            RoundNo = 2,
                             StartSubmission = new DateTimeOffset(new DateTime(2026, 6, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             StartTime = new DateTimeOffset(new DateTime(2026, 6, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -3152,6 +3157,7 @@ namespace Hackathon.Repository.Migrations
                             IsDisable = false,
                             LimitTeam = 25,
                             Name = "Idea Submission 2024",
+                            RoundNo = 1,
                             StartSubmission = new DateTimeOffset(new DateTime(2024, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             StartTime = new DateTimeOffset(new DateTime(2024, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -3167,6 +3173,7 @@ namespace Hackathon.Repository.Migrations
                             IsDisable = false,
                             LimitTeam = 25,
                             Name = "Concept Selection 2024",
+                            RoundNo = 1,
                             StartSubmission = new DateTimeOffset(new DateTime(2024, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             StartTime = new DateTimeOffset(new DateTime(2024, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -3182,6 +3189,7 @@ namespace Hackathon.Repository.Migrations
                             IsDisable = false,
                             LimitTeam = 25,
                             Name = "Security Design 2025",
+                            RoundNo = 1,
                             StartSubmission = new DateTimeOffset(new DateTime(2025, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             StartTime = new DateTimeOffset(new DateTime(2025, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -3197,6 +3205,7 @@ namespace Hackathon.Repository.Migrations
                             IsDisable = false,
                             LimitTeam = 25,
                             Name = "AI Model Pitch 2025",
+                            RoundNo = 1,
                             StartSubmission = new DateTimeOffset(new DateTime(2025, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             StartTime = new DateTimeOffset(new DateTime(2025, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -3212,6 +3221,7 @@ namespace Hackathon.Repository.Migrations
                             IsDisable = false,
                             LimitTeam = 25,
                             Name = "Web3 Auditing 2025",
+                            RoundNo = 1,
                             StartSubmission = new DateTimeOffset(new DateTime(2025, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             StartTime = new DateTimeOffset(new DateTime(2025, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -3227,6 +3237,7 @@ namespace Hackathon.Repository.Migrations
                             IsDisable = false,
                             LimitTeam = 25,
                             Name = "Rapid Prototyping 2026",
+                            RoundNo = 1,
                             StartSubmission = new DateTimeOffset(new DateTime(2026, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             StartTime = new DateTimeOffset(new DateTime(2026, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -3242,6 +3253,7 @@ namespace Hackathon.Repository.Migrations
                             IsDisable = false,
                             LimitTeam = 25,
                             Name = "Architecture Demo 2026",
+                            RoundNo = 1,
                             StartSubmission = new DateTimeOffset(new DateTime(2026, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             StartTime = new DateTimeOffset(new DateTime(2026, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -3257,6 +3269,7 @@ namespace Hackathon.Repository.Migrations
                             IsDisable = false,
                             LimitTeam = 25,
                             Name = "Model Training Pitch 2026",
+                            RoundNo = 1,
                             StartSubmission = new DateTimeOffset(new DateTime(2026, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             StartTime = new DateTimeOffset(new DateTime(2026, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -3272,6 +3285,7 @@ namespace Hackathon.Repository.Migrations
                             IsDisable = false,
                             LimitTeam = 25,
                             Name = "Smart Grids Pitch 2027",
+                            RoundNo = 1,
                             StartSubmission = new DateTimeOffset(new DateTime(2027, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             StartTime = new DateTimeOffset(new DateTime(2027, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -3287,6 +3301,7 @@ namespace Hackathon.Repository.Migrations
                             IsDisable = false,
                             LimitTeam = 25,
                             Name = "Robotics Control Pitch 2027",
+                            RoundNo = 1,
                             StartSubmission = new DateTimeOffset(new DateTime(2027, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             StartTime = new DateTimeOffset(new DateTime(2027, 6, 16, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -4376,7 +4391,6 @@ namespace Hackathon.Repository.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("AvatarUrl")
