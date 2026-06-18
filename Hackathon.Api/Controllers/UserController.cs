@@ -7,7 +7,7 @@ using UserService = Hackathon.Service.Users;
 namespace Hackathon.Api.Controllers;
 
 [ApiController]
-[Route("api/users")]
+[Route("api/v1/users")]
 public class UserController : ControllerBase
 {
     private readonly UserService.IService _userService;

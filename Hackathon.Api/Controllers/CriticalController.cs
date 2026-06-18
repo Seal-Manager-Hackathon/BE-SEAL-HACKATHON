@@ -5,7 +5,7 @@ using CriticalService = Hackathon.Service.Criticals;
 namespace Hackathon.Api.Controllers;
 
 [ApiController]
-[Route("api/rounds")]
+[Route("api/v1/rounds")]
 public class CriticalController : ControllerBase
 {
     private readonly CriticalService.IService _criticalService;
