@@ -1,3 +1,4 @@
+cat << 'INNER_EOF' > D:/dotNet/Hackathon/Hackathon.Api/Controllers/RegisterTeamController.cs
 using Hackathon.Repository.Enum;
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -62,15 +63,16 @@ public class RegisterTeamController : ControllerBase
     [Authorize(Roles = "Staff,Admin")]
     public async Task<IActionResult> ApproveRegistration(Guid registerId)
     {
-        var result = await _registerTeamService.AcceptRegisterTeam(registerId);
+        var result = await _teamService.ApproveRegistration(registerId);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpPut("staff/{registerId:guid}/reject")]
     [Authorize(Roles = "Staff,Admin")]
-    public async Task<IActionResult> RejectRegistration(Guid registerId, [FromBody] RegisterTeamsService.Request.RejectRegisterTeamRequest request)
+    public async Task<IActionResult> RejectRegistration(Guid registerId, [FromBody] TeamsService.Request.RejectTeamRequest request)
     {
-        var result = await _registerTeamService.RejectRegisterTeam(registerId, request);
+        var result = await _teamService.RejectRegistration(registerId, request);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 }
+INNER_EOF

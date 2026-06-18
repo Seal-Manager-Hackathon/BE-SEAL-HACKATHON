@@ -518,4 +518,405 @@ public class Service : IService
 
         return new Response.MessageResponse { Message = "LEADER_TRANSFERRED_SUCCESSFULLY" };
     }
+
+    public async Task<Response.RegisterEventResponse> RegisterEvent(Request.RegisterEventRequest request)
+    {
+        var userId = GetCurrentUserId();
+
+        if (request.TeamId == Guid.Empty)
+        {
+            throw new BadRequestException("TEAM_ID_REQUIRED");
+        }
+
+        if (request.EventId == Guid.Empty)
+        {
+            throw new BadRequestException("EVENT_ID_REQUIRED");
+        }
+
+        // Validate user
+        await ValidateAndGetStudentAsync(userId);
+
+        // Validate team & leadership
+        var team = await _dbContext.Teams
+            .Include(x => x.TeamDetails)
+            .FirstOrDefaultAsync(x => x.Id == request.TeamId && !x.IsDisable);
+
+        if (team == null)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        var leaderDetail = team.TeamDetails.FirstOrDefault(x => x.UserId == userId && x.IsLeader && !x.IsDisable);
+        if (leaderDetail == null)
+        {
+            throw new ForbiddenException("ONLY_TEAM_LEADER_CAN_REGISTER_EVENT");
+        }
+
+        // Validate event
+        var eventEntity = await _dbContext.Events.FirstOrDefaultAsync(x => x.Id == request.EventId && !x.IsDisable);
+        if (eventEntity == null)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        if (eventEntity.RegisterLimitTime.HasValue && now > eventEntity.RegisterLimitTime.Value)
+        {
+            throw new BadRequestException("EVENT_REGISTRATION_CLOSED");
+        }
+
+        // Validate team member count limits for this event
+        var activeMembersCount = team.TeamDetails.Count(x => !x.IsDisable && x.Status == TeamDetailStatusEnum.Active);
+
+        if (eventEntity.MinMember.HasValue && activeMembersCount < eventEntity.MinMember.Value)
+        {
+            throw new BadRequestException($"TEAM_DOES_NOT_MEET_MIN_MEMBERS_{eventEntity.MinMember.Value}");
+        }
+
+        if (eventEntity.MaxMember.HasValue && activeMembersCount > eventEntity.MaxMember.Value)
+        {
+            throw new BadRequestException($"TEAM_EXCEEDS_MAX_MEMBERS_{eventEntity.MaxMember.Value}");
+        }
+
+        // Check if already registered
+        var existingRegistrations = await _dbContext.RegisterTeams
+            .Where(x => x.TeamId == request.TeamId && !x.IsDisable)
+            .ToListAsync();
+
+        var existingForThisEvent = existingRegistrations.FirstOrDefault(x => x.EventId == request.EventId);
+
+        if (existingForThisEvent != null)
+        {
+            if (existingForThisEvent.Status == RegisterTeamStatusEnum.Pending || existingForThisEvent.Status == RegisterTeamStatusEnum.Approved)
+            {
+                throw new ConflictException("TEAM_ALREADY_REGISTERED_FOR_EVENT");
+            }
+            // If it's Rejected, we allow them to re-register for this event
+            existingForThisEvent.Status = RegisterTeamStatusEnum.Pending;
+            existingForThisEvent.Description = request.Description;
+            existingForThisEvent.UpdatedAt = now;
+
+            // Check limit team of the event
+            if (eventEntity.LimitTeam.HasValue)
+            {
+                var registeredTeamsCount = await _dbContext.RegisterTeams.CountAsync(x => x.EventId == request.EventId && !x.IsDisable && x.Status != RegisterTeamStatusEnum.Rejected);
+                if (registeredTeamsCount >= eventEntity.LimitTeam.Value)
+                {
+                    throw new ConflictException("EVENT_REACHED_MAX_TEAMS_LIMIT");
+                }
+            }
+
+            var txn = await _dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                _dbContext.RegisterTeams.Update(existingForThisEvent);
+                await _dbContext.SaveChangesAsync();
+                await txn.CommitAsync();
+            }
+            catch
+            {
+                await txn.RollbackAsync();
+                throw;
+            }
+
+            return new Response.RegisterEventResponse
+            {
+                RegisterId = existingForThisEvent.Id,
+                TeamId = team.Id,
+                TeamName = team.Name,
+                EventId = eventEntity.Id,
+                EventName = eventEntity.Name,
+                Status = existingForThisEvent.Status.ToString()!,
+                Message = "Đăng ký lại thành công, ban tổ chức đang xét duyệt bạn."
+            };
+        }
+
+        // If the team has ever been Approved for ANY event, they cannot register for another event
+        if (existingRegistrations.Any(x => x.Status == RegisterTeamStatusEnum.Approved))
+        {
+            throw new ForbiddenException("TEAM_ALREADY_APPROVED_FOR_AN_EVENT");
+        }
+
+        // Check limit team of the event
+        if (eventEntity.LimitTeam.HasValue)
+        {
+            var registeredTeamsCount = await _dbContext.RegisterTeams.CountAsync(x => x.EventId == request.EventId && !x.IsDisable && x.Status != RegisterTeamStatusEnum.Rejected);
+            if (registeredTeamsCount >= eventEntity.LimitTeam.Value)
+            {
+                throw new ConflictException("EVENT_REACHED_MAX_TEAMS_LIMIT");
+            }
+        }
+
+        var registerTeam = new Repository.Entity.RegisterTeams
+        {
+            Id = Guid.NewGuid(),
+            TeamId = team.Id,
+            EventId = eventEntity.Id,
+            Description = request.Description,
+            Status = RegisterTeamStatusEnum.Pending,
+            IsBanned = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            await _dbContext.RegisterTeams.AddAsync(registerTeam);
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
+        return new Response.RegisterEventResponse
+        {
+            RegisterId = registerTeam.Id,
+            TeamId = team.Id,
+            TeamName = team.Name,
+            EventId = eventEntity.Id,
+            EventName = eventEntity.Name,
+            Status = registerTeam.Status.ToString()!,
+            Message = "Đăng ký thành công, ban tổ chức đang xét duyệt bạn."
+        };
+    }
+
+    public async Task<Models.BasePaginationResponse> GetMyRegisteredEvents(Request.GetMyRegisteredEventsRequest request, Models.PaginationRequest paginationRequest)
+    {
+        var userId = GetCurrentUserId();
+
+        // Teams that user is an active member of
+        var myTeamIds = await _dbContext.TeamDetails
+            .Where(x => x.UserId == userId && !x.IsDisable && x.Status == TeamDetailStatusEnum.Active)
+            .Select(x => x.TeamId)
+            .ToListAsync();
+
+        var query = _dbContext.RegisterTeams
+            .AsNoTracking()
+            .Include(x => x.Team)
+            .Include(x => x.Event)
+            .Where(x => !x.IsDisable && myTeamIds.Contains(x.TeamId));
+
+        var statusStr = string.IsNullOrWhiteSpace(request.Status) ? "" : request.Status.Trim();
+        if (!string.IsNullOrWhiteSpace(statusStr))
+        {
+            if (!Enum.TryParse<RegisterTeamStatusEnum>(statusStr, true, out var statusEnum))
+            {
+                throw new BadRequestException("INVALID_STATUS");
+            }
+            query = query.Where(x => x.Status == statusEnum);
+        }
+
+        var totalCount = await query.CountAsync();
+
+        if (string.IsNullOrWhiteSpace(request.Status))
+        {
+            query = query.OrderBy(x => x.Status == RegisterTeamStatusEnum.Pending ? 0 : (x.Status == RegisterTeamStatusEnum.Approved ? 1 : 2)).ThenByDescending(x => x.CreatedAt);
+        }
+        else
+        {
+            query = query.OrderByDescending(x => x.CreatedAt);
+        }
+
+        var items = await query
+            .Skip((paginationRequest.PageIndex - 1) * paginationRequest.PageSize)
+            .Take(paginationRequest.PageSize)
+            .Select(x => new Response.RegisteredEventItemResponse
+            {
+                RegisterId = x.Id,
+                TeamId = x.TeamId,
+                TeamName = x.Team.Name,
+                EventId = x.EventId,
+                EventName = x.Event.Name,
+                Status = x.Status.ToString()!,
+                Description = x.Description,
+                CreatedAt = x.CreatedAt
+            })
+            .ToListAsync();
+
+        return ApiResponseFactory.BasePagination(items, paginationRequest.PageIndex, paginationRequest.PageSize, totalCount);
+    }
+
+    public async Task<Response.RejectionReasonResponse> GetRejectionReason(Guid registerId)
+    {
+        var userId = GetCurrentUserId();
+
+        var registerTeam = await _dbContext.RegisterTeams
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == registerId && !x.IsDisable);
+
+        if (registerTeam == null)
+        {
+            throw new NotFoundException("REGISTER_TEAM_NOT_FOUND");
+        }
+
+        // Check if user is in the team
+        var isMember = await _dbContext.TeamDetails.AnyAsync(x => x.TeamId == registerTeam.TeamId && x.UserId == userId && !x.IsDisable && x.Status == TeamDetailStatusEnum.Active);
+        if (!isMember)
+        {
+            throw new ForbiddenException("USER_NOT_IN_TEAM");
+        }
+
+        if (registerTeam.Status == RegisterTeamStatusEnum.Pending)
+        {
+            return new Response.RejectionReasonResponse
+            {
+                RegisterId = registerTeam.Id,
+                Status = registerTeam.Status.ToString()!,
+                RejectionReason = "Đang đợi xét duyệt"
+            };
+        }
+
+        if (registerTeam.Status == RegisterTeamStatusEnum.Approved)
+        {
+            return new Response.RejectionReasonResponse
+            {
+                RegisterId = registerTeam.Id,
+                Status = registerTeam.Status.ToString()!,
+                RejectionReason = "Đã được đồng ý"
+            };
+        }
+
+        return new Response.RejectionReasonResponse
+        {
+            RegisterId = registerTeam.Id,
+            Status = registerTeam.Status.ToString()!,
+            RejectionReason = registerTeam.RejectionReason
+        };
+    }
+
+    public async Task<Response.RegisterEventResponse> ApproveRegistration(Guid registerId)
+    {
+        // 1. Staff authentication
+        var isStaff = _httpContext.HttpContext?.User.IsInRole(RoleEnum.Staff.ToString()) == true
+                      || _httpContext.HttpContext?.User.IsInRole(RoleEnum.Admin.ToString()) == true;
+        if (!isStaff)
+        {
+            throw new ForbiddenException("ONLY_STAFF_CAN_APPROVE");
+        }
+
+        var registerTeam = await _dbContext.RegisterTeams
+            .Include(x => x.Team)
+            .Include(x => x.Event)
+            .FirstOrDefaultAsync(x => x.Id == registerId && !x.IsDisable);
+
+        if (registerTeam == null)
+        {
+            throw new NotFoundException("REGISTER_TEAM_NOT_FOUND");
+        }
+
+        if (registerTeam.Status != RegisterTeamStatusEnum.Pending)
+        {
+            throw new BadRequestException("ONLY_PENDING_REGISTRATION_CAN_BE_APPROVED");
+        }
+
+        // Lock team editing (it should be locked because it is approved)
+        // Set CanEdit = false
+        var team = registerTeam.Team;
+        team.CanEdit = false;
+        team.UpdatedAt = DateTimeOffset.UtcNow;
+
+        registerTeam.Status = RegisterTeamStatusEnum.Approved;
+        registerTeam.UpdatedAt = DateTimeOffset.UtcNow;
+
+        var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            _dbContext.Teams.Update(team);
+            _dbContext.RegisterTeams.Update(registerTeam);
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
+        return new Response.RegisterEventResponse
+        {
+            RegisterId = registerTeam.Id,
+            TeamId = team.Id,
+            TeamName = team.Name,
+            EventId = registerTeam.Event.Id,
+            EventName = registerTeam.Event.Name,
+            Status = registerTeam.Status.ToString()!,
+            Message = "Approve thành công."
+        };
+    }
+
+    public async Task<Response.RegisterEventResponse> RejectRegistration(Guid registerId, Request.RejectTeamRequest request)
+    {
+        // 1. Staff authentication
+        var isStaff = _httpContext.HttpContext?.User.IsInRole(RoleEnum.Staff.ToString()) == true
+                      || _httpContext.HttpContext?.User.IsInRole(RoleEnum.Admin.ToString()) == true;
+        if (!isStaff)
+        {
+            throw new ForbiddenException("ONLY_STAFF_CAN_REJECT");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Reason))
+        {
+            throw new BadRequestException("REJECTION_REASON_REQUIRED");
+        }
+
+        var registerTeam = await _dbContext.RegisterTeams
+            .Include(x => x.Team)
+            .Include(x => x.Event)
+            .FirstOrDefaultAsync(x => x.Id == registerId && !x.IsDisable);
+
+        if (registerTeam == null)
+        {
+            throw new NotFoundException("REGISTER_TEAM_NOT_FOUND");
+        }
+
+        if (registerTeam.Status != RegisterTeamStatusEnum.Pending)
+        {
+            throw new BadRequestException("ONLY_PENDING_REGISTRATION_CAN_BE_REJECTED");
+        }
+
+        var team = registerTeam.Team;
+
+        // If team has NO other Pending or Approved registrations, it means they are completely rejected from everything.
+        // We can unlock the team ONLY IF they don't have another Pending/Approved registration.
+        var hasOtherPendingOrApproved = await _dbContext.RegisterTeams.AnyAsync(x => x.TeamId == team.Id && x.Id != registerId && !x.IsDisable && (x.Status == RegisterTeamStatusEnum.Pending || x.Status == RegisterTeamStatusEnum.Approved));
+
+        if (!hasOtherPendingOrApproved)
+        {
+            team.CanEdit = true; // Unlock if this was their only hope
+            team.UpdatedAt = DateTimeOffset.UtcNow;
+            _dbContext.Teams.Update(team);
+        }
+
+        registerTeam.Status = RegisterTeamStatusEnum.Rejected;
+        registerTeam.RejectionReason = request.Reason.Trim();
+        registerTeam.UpdatedAt = DateTimeOffset.UtcNow;
+
+        var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            _dbContext.RegisterTeams.Update(registerTeam);
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
+        return new Response.RegisterEventResponse
+        {
+            RegisterId = registerTeam.Id,
+            TeamId = team.Id,
+            TeamName = team.Name,
+            EventId = registerTeam.Event.Id,
+            EventName = registerTeam.Event.Name,
+            Status = registerTeam.Status.ToString()!,
+            Message = "Reject thành công."
+        };
+    }
 }

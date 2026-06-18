@@ -2,11 +2,11 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Hackathon.Service.JwtService;
+using Hackathon.Service.JwtServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Hackathon.Service.JwtService;
+namespace Hackathon.Service.JwtServices;
 
 public class Service: IService
 {

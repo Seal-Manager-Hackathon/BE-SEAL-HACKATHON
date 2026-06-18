@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Hackathon.Service.JwtService;
+namespace Hackathon.Service.JwtServices;
 
 public class JwtOption
 {

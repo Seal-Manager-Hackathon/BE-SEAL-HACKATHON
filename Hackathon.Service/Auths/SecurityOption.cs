@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Hackathon.Service.Auth;
+namespace Hackathon.Service.Auths;
 
 public class SecurityOption
 {

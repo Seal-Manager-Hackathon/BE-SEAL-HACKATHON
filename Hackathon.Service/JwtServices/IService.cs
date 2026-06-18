@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace Hackathon.Service.JwtService;
+namespace Hackathon.Service.JwtServices;
 
 public interface IService
 {

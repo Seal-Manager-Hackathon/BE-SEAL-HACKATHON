@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Hackathon.Service.MailService;
+namespace Hackathon.Service.MailServices;
 
 public class MailOption
 {
