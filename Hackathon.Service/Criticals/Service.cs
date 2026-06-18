@@ -13,7 +13,7 @@ public class Service : IService
         _dbContext = dbContext;
     }
 
-    public async Task<Response.RoundCriteriaResponse> GetCriteriaByRound(Guid roundId, bool? isDisable)
+    public async Task<Response.RoundCriteriaResponse> GetCriteriaByRound(Guid roundId)
     {
         var round = await _dbContext.Rounds
             .AsNoTracking()
@@ -32,11 +32,9 @@ public class Service : IService
             throw new NotFoundException("ROUND_NOT_FOUND");
         }
 
-        var criteriaTemplates = await _dbContext.CriteriaTemplates
+        var criteriaTemplate = await _dbContext.CriteriaTemplates
             .AsNoTracking()
-            .Where(x => x.RoundId == roundId && x.IsDisable == (isDisable ?? false))
-            .OrderBy(x => x.CreatedAt)
-            .ThenBy(x => x.Title)
+            .Where(x => x.RoundId == roundId && !x.IsDisable)
             .Select(x => new Response.CriteriaTemplateResponse
             {
                 Id = x.Id,
@@ -45,7 +43,7 @@ public class Service : IService
                 IsDisable = x.IsDisable,
                 CreatedAt = x.CreatedAt,
                 Items = x.CriteriaItems
-                    .Where(item => item.IsDisable == (isDisable ?? false))
+                    .Where(item => !item.IsDisable)
                     .OrderBy(item => item.CreatedAt)
                     .ThenBy(item => item.Name)
                     .Select(item => new Response.CriteriaItemResponse
@@ -59,14 +57,14 @@ public class Service : IService
                     })
                     .ToList(),
             })
-            .ToListAsync();
+            .FirstOrDefaultAsync();
 
         return new Response.RoundCriteriaResponse
         {
             RoundId = round.Id,
             EventId = round.EventId,
             RoundName = round.Name,
-            Templates = criteriaTemplates,
+            Template = criteriaTemplate,
         };
     }
 }

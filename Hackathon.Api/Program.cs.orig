@@ -97,7 +97,6 @@ builder.Services.AddScoped<RegisterTeamsService.IService, RegisterTeamsService.S
 builder.Services.AddScoped<TracksService.IService, TracksService.Service>();
 builder.Services.AddScoped<CriticalsService.IService, CriticalsService.Service>();
 builder.Services.AddScoped<UserService.IService, UserService.Service>();
-builder.Services.AddScoped<Hackathon.Service.Topics.IService, Hackathon.Service.Topics.Service>();
 
 
 builder.Services.AddCors(options =>

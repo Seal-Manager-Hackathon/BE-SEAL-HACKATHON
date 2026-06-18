@@ -132,4 +132,42 @@ public class Service : IService
 
         return myRounds;
     }
+
+    public async Task<Response.MyRoundDetailResponse> GetMyRoundDetail(Guid roundId, Guid registerTeamId)
+    {
+        var userId = GetCurrentUserId();
+
+        var detail = await _dbContext.RoundDetails
+            .AsNoTracking()
+            .Include(x => x.Round).ThenInclude(r => r.Event)
+            .Include(x => x.RegisterTeam).ThenInclude(rt => rt.Team)
+            .Include(x => x.RegisterTeam).ThenInclude(rt => rt.Track)
+            .Include(x => x.RegisterTeam).ThenInclude(rt => rt.Topic)
+            .Where(x => !x.Round.IsDisable && !x.Round.Event.IsDisable && !x.RegisterTeam.Team.IsDisable)
+            .Where(x => x.RegisterTeam.Team.TeamDetails.Any(td => td.UserId == userId && !td.IsDisable))
+            .Where(x => x.RoundId == roundId && x.RegisterTeamId == registerTeamId)
+            .Select(x => new Response.MyRoundDetailResponse
+            {
+                RoundId = x.RoundId,
+                EventId = x.Round.EventId,
+                RoundName = x.Round.Name,
+                EventName = x.Round.Event.Name,
+                RoundNo = x.Round.RoundNo,
+                TeamId = x.RegisterTeam.TeamId,
+                TeamName = x.RegisterTeam.Team.Name,
+                RegisterTeamId = x.RegisterTeamId,
+                TrackId = x.RegisterTeam.TrackId,
+                TrackTitle = x.RegisterTeam.Track != null ? x.RegisterTeam.Track.Title : null,
+                TopicId = x.RegisterTeam.TopicId,
+                TopicTitle = x.RegisterTeam.Topic != null ? x.RegisterTeam.Topic.Title : null,
+                StartTime = x.Round.StartTime,
+                EndTime = x.Round.EndTime,
+                StartSubmission = x.Round.StartSubmission,
+                EndSubmission = x.Round.EndSubmission
+            })
+            .FirstOrDefaultAsync();
+
+        if (detail == null) throw new NotFoundException("ROUND_DETAIL_NOT_FOUND");
+        return detail;
+    }
 }

@@ -32,11 +32,11 @@ public class RoundsController : ControllerBase
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
-    [HttpGet("{roundId:guid}/register-teams/{registerTeamId:guid}")]
+    [HttpGet("{roundId:guid}/teams/{teamId:guid}")]
     [Authorize]
-    public async Task<IActionResult> GetMyRoundDetail(Guid roundId, Guid registerTeamId)
+    public async Task<IActionResult> GetMyRoundDetail(Guid roundId, Guid teamId)
     {
-        var result = await _roundsService.GetMyRoundDetail(roundId, registerTeamId);
+        var result = await _roundsService.GetMyRoundDetail(roundId, teamId);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 }
