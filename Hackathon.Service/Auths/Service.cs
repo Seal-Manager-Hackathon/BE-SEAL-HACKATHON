@@ -109,7 +109,7 @@ public class Service : IService
                 });
 
                 await transaction.CommitAsync();
-                return "UNVERIFIED_ACCOUNT_VERIFICATION_RESENT";
+                throw new ConflictException("UNVERIFIED_ACCOUNT_PLEASE_LOGIN_TO_VERIFY");
             }
 
             var pepperPassword = request.Password + _securityOptions.Pepper;
