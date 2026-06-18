@@ -42,4 +42,13 @@ public static class Response
         public DateTimeOffset? StartSubmission { get; set; }
         public DateTimeOffset? EndSubmission { get; set; }
     }
+
+    public class SubmissionResponse
+    {
+        public Guid SubmissionId { get; set; }
+        public string? Url { get; set; }
+        public DateTimeOffset? SubmittedAt { get; set; }
+        public string? Status { get; set; }
+        public decimal? TotalScore { get; set; }
+    }
 }

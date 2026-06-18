@@ -3,6 +3,7 @@ using Hackathon.Repository;
 using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
 using Hackathon.Service.Exceptions;
+using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -195,5 +196,37 @@ public class Service : IService
             SubmittedAt = now,
             Message = "SUBMISSION_CREATED_SUCCESSFULLY"
         };
+    }
+
+    public async Task<BasePaginationResponse> GetRoundSubmissions(Guid roundId, Request.GetSubmissionsQuery query)
+    {
+        var round = await _dbContext.Rounds.AsNoTracking().FirstOrDefaultAsync(x => x.Id == roundId && !x.IsDisable);
+        if (round == null)
+        {
+            throw new NotFoundException("ROUND_NOT_FOUND");
+        }
+
+        var submissionsQuery = _dbContext.Submissions
+            .AsNoTracking()
+            .Include(x => x.RoundDetail)
+            .Where(x => x.RoundDetail.RoundId == roundId && !x.IsDisable);
+
+        var totalCount = await submissionsQuery.CountAsync();
+
+        var submissions = await submissionsQuery
+            .OrderByDescending(x => x.SubmittedAt)
+            .Skip((query.PageIndex - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .Select(x => new Response.SubmissionResponse
+            {
+                SubmissionId = x.Id,
+                Url = x.Url,
+                SubmittedAt = x.SubmittedAt,
+                Status = x.Status.ToString(),
+                TotalScore = x.Scores.OrderByDescending(s => s.CreatedAt).FirstOrDefault().TotalScore
+            })
+            .ToListAsync();
+
+        return ApiResponseFactory.BasePagination(submissions, query.PageIndex, query.PageSize, totalCount);
     }
 }
