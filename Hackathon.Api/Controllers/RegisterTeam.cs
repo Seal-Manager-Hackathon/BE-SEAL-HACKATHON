@@ -3,7 +3,7 @@ using Hackathon.Repository.Enum;
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RegisterTeamService = Hackathon.Service.RegisterTeam;
+using RegisterTeamService = Hackathon.Service.RegisterTeams;
 
 namespace Hackathon.Api.Controllers;
 

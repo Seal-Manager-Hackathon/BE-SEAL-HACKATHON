@@ -16,4 +16,13 @@ public static class Response
         public bool IsDisable { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }
+
+    public class SubmitAssignmentResponse
+    {
+        public Guid SubmissionId { get; set; }
+        public Guid TeamId { get; set; }
+        public string? Url { get; set; }
+        public DateTimeOffset SubmittedAt { get; set; }
+        public string Message { get; set; } = null!;
+    }
 }
