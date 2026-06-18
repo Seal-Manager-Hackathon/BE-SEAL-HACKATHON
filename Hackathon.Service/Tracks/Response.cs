@@ -44,4 +44,26 @@ public static class Response
         public string TopicTitle { get; set; } = null!;
         public string Message { get; set; } = null!;
     }
+
+    public class ApprovedTeamResponse
+    {
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = null!;
+        public Guid? TrackId { get; set; }
+        public string? TrackTitle { get; set; }
+        public Guid? TopicId { get; set; }
+        public string? TopicTitle { get; set; }
+        public List<ApprovedTeamMemberResponse> Members { get; set; } = new();
+        public bool IsBanned { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+    }
+
+    public class ApprovedTeamMemberResponse
+    {
+        public Guid UserId { get; set; }
+        public string FullName { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public string StudentId { get; set; } = null!;
+        public bool IsLeader { get; set; }
+    }
 }
