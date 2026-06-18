@@ -69,11 +69,48 @@ public class Service : IService
         var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            var isExistEmail = await _dbContext.Users
-                .AnyAsync(x => x.Email.ToLower() == request.Email.ToLower() );
-            if (isExistEmail)
+            var existingUser = await _dbContext.Users
+                .FirstOrDefaultAsync(x => x.Email.ToLower() == request.Email.ToLower());
+
+            if (existingUser != null)
             {
-                throw new ConflictException("EMAIL_ALREADY_EXISTS");            }
+                if (existingUser.IsVerified == true)
+                {
+                    throw new ConflictException("EMAIL_ALREADY_EXISTS");
+                }
+
+                // Resend verification email for unverified user
+                var oldClaims = new List<Claim>()
+                {
+                    new Claim("UserId", existingUser.Id.ToString()),
+                    new Claim(ClaimTypes.Role, existingUser.Role.ToString()),
+                    new Claim("IsVerified", existingUser.IsVerified.ToString().ToLower()),
+                };
+
+                var resendToken = _jwtService.GenerateEmailVerificationToken(oldClaims, 2);
+                var newEmailVeri = new Repository.Entity.EmailVerifications()
+                {
+                    UserId = existingUser.Id,
+                    TokenHash = resendToken,
+                    ExpiredAt = DateTimeOffset.UtcNow.AddMinutes(2),
+                    Status = EmailVerificationStatusEnum.Pending,
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = DateTimeOffset.UtcNow
+                };
+                
+                await _dbContext.EmailVerifications.AddAsync(newEmailVeri);
+                await _dbContext.SaveChangesAsync();
+                
+                await _mailService.SendMail(new MailContent
+                {
+                    To = request.Email,
+                    Subject = "Xác thực tài khoản - SEAL Hackathon",
+                    Body = MailTemplate.EmailContainToken(resendToken),
+                });
+
+                await transaction.CommitAsync();
+                return "Tài khoản chưa được xác thực. Chúng tôi đã gửi lại email xác thực.";
+            }
 
             var pepperPassword = request.Password + _securityOptions.Pepper;
             var hashedPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(pepperPassword, hashType: BCrypt.Net.HashType.SHA256);
@@ -131,7 +168,6 @@ public class Service : IService
             throw;
         }
     }
-
     public async Task<Response.AuthResponse> RefreshToken()
     {
         // Trả về false tức là: CÒN ACCESS VÀ CÒN HẠN
