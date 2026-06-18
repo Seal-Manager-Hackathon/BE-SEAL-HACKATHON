@@ -25,10 +25,10 @@
   "error": null,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": "Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản."
+  "value": "REGISTRATION_SUCCESSFUL"
 }
 ```
-*(Nếu email đã tồn tại nhưng chưa verify, response sẽ trả về "Tài khoản chưa được xác thực. Chúng tôi đã gửi lại email xác thực.")*
+*(Nếu email đã tồn tại nhưng chưa verify, response sẽ trả về "UNVERIFIED_ACCOUNT_VERIFICATION_RESENT")*
 
 ## Business rules
 - Email phải chưa tồn tại ở trạng thái đã xác thực.
