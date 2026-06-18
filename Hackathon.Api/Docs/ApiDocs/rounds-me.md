@@ -1,8 +1,8 @@
 # Xem Vòng thi đang tham gia (Dành cho Student)
 
 ### Endpoint & Mô tả
-*   **API:** `GET /api/v1/rounds/me` (hoặc có thể ghép vào `GET /api/v1/events/{eventId}/my-rounds`)
-*   **Mô tả:** Lấy danh sách các vòng thi (Rounds) mà User hiện tại đang tham gia (thông qua Team đã đăng ký và được đưa vào vòng thi đó).
+*   **API:** `GET /api/v1/rounds/me`
+*   **Mô tả:** Lấy danh sách các vòng thi (Rounds) mà User hiện tại đang tham gia (thông qua Team đã đăng ký và được đưa vào vòng thi đó). Giúp xác định Team đang ở Round nào trong Event.
 
 ### Phân quyền (Permissions)
 *   **Yêu cầu Access Token:** Có
@@ -32,6 +32,7 @@
           "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
           "roundName": "Vòng Sơ loại",
           "eventName": "Hackathon 2026",
+          "roundNo": 1,
           "teamId": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
           "teamName": "Lập trình viên nghèo",
           "registerTeamId": "d1e2f3a4-b5c6-d7e8-f9a0-b1c2d3e4f5a6",
@@ -46,4 +47,4 @@
     ```
 *   **Error Responses:**
     *   `404 NotFound`: `EVENT_NOT_FOUND` (Nếu có truyền `eventId` nhưng event không tồn tại).
-    *   `400 BadRequest`: `INVALID_INPUT` (Nếu ID không hợp lệ).
+    *   `400 BadRequest`: `INVALID_INPUT` (Nếu ID truyền vào không đúng định dạng Guid).

@@ -23,6 +23,7 @@
       "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
       "name": "Vòng Sơ loại",
       "description": "Mô tả chi tiết vòng sơ loại...",
+      "roundNo": 1,
       "startTime": "2026-06-20T08:00:00Z",
       "endTime": "2026-06-25T17:00:00Z",
       "startSubmission": "2026-06-21T08:00:00Z",
@@ -33,6 +34,7 @@
 *   **Ràng buộc validation:**
     *   `eventId`: Bắt buộc. -> Trả về lỗi `400 Bad Request` với message code `EVENT_ID_REQUIRED`.
     *   `name`: Bắt buộc. -> Trả về lỗi `400 Bad Request` với message code `ROUND_NAME_REQUIRED`.
+    *   `roundNo`: Bắt buộc. Phải lớn hơn 0. -> Trả về `400 Bad Request` với message code `INVALID_ROUND_NO`.
     *   `startTime` & `endTime`: Nếu có truyền vào thì `endTime` phải lớn hơn `startTime`. -> Trả về `400 Bad Request` với message code `INVALID_ROUND_TIME`.
     *   `startSubmission` & `endSubmission`: Nếu có truyền vào thì `endSubmission` phải lớn hơn `startSubmission`. -> Trả về `400 Bad Request` với message code `INVALID_SUBMISSION_TIME`.
     *   `limitTeam`: Nếu có thì phải > 0. -> Trả về `400 Bad Request` với message code `INVALID_LIMIT_TEAM`.
@@ -49,6 +51,7 @@
         "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         "name": "Vòng Sơ loại",
         "description": "Mô tả chi tiết vòng sơ loại...",
+        "roundNo": 1,
         "startTime": "2026-06-20T08:00:00+00:00",
         "endTime": "2026-06-25T17:00:00+00:00",
         "startSubmission": "2026-06-21T08:00:00+00:00",
@@ -63,3 +66,4 @@
 *   **Error Responses:**
     *   `404 NotFound`: `EVENT_NOT_FOUND` (EventId không tồn tại hoặc đã bị disable).
     *   `403 Forbidden`: `STAFF_NOT_ASSIGNED_TO_EVENT` (Staff không phụ trách sự kiện này).
+    *   `409 Conflict`: `ROUND_NO_ALREADY_EXISTS` (Nếu RoundNo đã tồn tại trong event này).

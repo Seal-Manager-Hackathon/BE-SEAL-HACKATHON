@@ -34,6 +34,7 @@
           "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
           "name": "Vòng Sơ loại",
           "description": "Mô tả chi tiết vòng sơ loại...",
+          "roundNo": 1,
           "startTime": "2026-06-20T08:00:00+00:00",
           "endTime": "2026-06-25T17:00:00+00:00",
           "startSubmission": "2026-06-21T08:00:00+00:00",
