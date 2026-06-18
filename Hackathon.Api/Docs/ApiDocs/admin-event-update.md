@@ -43,7 +43,7 @@ Chỉ cần truyền các field muốn cập nhật.
 | `limitTeam` | `int` | Không | Số lượng team tối đa có thể đăng ký. |
 | `minMember` | `int` | Không | Số lượng thành viên tối thiểu mỗi team. |
 | `maxMember` | `int` | Không | Số lượng thành viên tối đa mỗi team. |
-| `status` | `enum` | Không | Trạng thái của event. Giá trị: `Draft`, `Published`, `Closed`, `Cancelled`. Nếu không truyền sẽ giữ nguyên trạng thái hiện tại. |
+| `status` | `enum` | Không | Trạng thái của event. Giá trị: `Draft`, `Published`, `Closed`, `Cancelled`. Nếu không truyền sẽ giữ nguyên trạng thái hiện tại. | // 0: Draft, 1: Published, 2: Closed, 3: Cancelled
 | `numberRound` | `int` | Không | Số vòng thi của event. |
 | `season` | `string` | Không | Mùa/mùa giải của event. |
 

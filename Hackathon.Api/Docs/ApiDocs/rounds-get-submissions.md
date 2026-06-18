@@ -43,14 +43,14 @@ Không có.
         "submissionId": "8fa95f64-5717-4562-b3fc-2c963f66afa6",
         "url": "https://github.com/seal-manager/hackathon-project",
         "submittedAt": "2026-06-19T02:15:27Z",
-        "status": "0",
+        "status": 0, /* 0: Submitted */
         "totalScore": 9.5
       },
       {
         "submissionId": "2cb15a44-1234-4562-a3fc-3d963f66bfb9",
         "url": "https://drive.google.com/file/d/123456",
         "submittedAt": "2026-06-19T01:00:10Z",
-        "status": "0",
+        "status": 0, /* 0: Submitted */
         "totalScore": null
       }
     ],

@@ -18,7 +18,7 @@ Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
 |---|---|---|---:|---|
 | `keyword` | `string` | Không | Từ khóa tìm kiếm theo tên team. |
-| `status` | `string` | Không | Lọc theo trạng thái đơn đăng ký. Giá trị: `Pending`, `Approved`, `Rejected`. |
+| `status` | `int` | Không | Lọc theo trạng thái đơn đăng ký. Giá trị: `Pending`, `Approved`, `Rejected`. | // 0: Pending, 1: Approved, 2: Rejected
 | `isDisable` | `bool` | Không | Lọc theo trạng thái soft-disable của đơn đăng ký. Nếu không truyền, mặc định lấy `false`. |
 | `pageIndex` | `int` | Không | Trang hiện tại (thuộc `PaginationRequest`), mặc định `1`. |
 | `pageSize` | `int` | Không | Số item mỗi trang (thuộc `PaginationRequest`), mặc định `10`. |
