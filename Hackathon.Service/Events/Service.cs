@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Hackathon.Repository;
-using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
 using Hackathon.Service.Exceptions;
 using Hackathon.Service.Models;

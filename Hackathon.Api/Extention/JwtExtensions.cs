@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using System.Text;
 using Hackathon.Repository.Enum;
-using Hackathon.Service.JwtService;
+using Hackathon.Service.JwtServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 

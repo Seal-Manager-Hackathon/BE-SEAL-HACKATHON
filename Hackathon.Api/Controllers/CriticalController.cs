@@ -1,6 +1,6 @@
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Mvc;
-using CriticalService = Hackathon.Service.Critical;
+using CriticalService = Hackathon.Service.Criticals;
 
 namespace Hackathon.Api.Controllers;
 
