@@ -1,0 +1,1 @@
+namespace Hackathon.Service.Users;
