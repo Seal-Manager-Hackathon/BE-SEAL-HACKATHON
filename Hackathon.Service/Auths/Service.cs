@@ -109,7 +109,7 @@ public class Service : IService
                 });
 
                 await transaction.CommitAsync();
-                return "Account not verified. We have resent the verification email.";
+                return "UNVERIFIED_ACCOUNT_VERIFICATION_RESENT";
             }
 
             var pepperPassword = request.Password + _securityOptions.Pepper;
@@ -160,7 +160,7 @@ public class Service : IService
 
 
             await transaction.CommitAsync();
-            return "Registration successful. Please check your email to verify your account.";
+            return "REGISTRATION_SUCCESSFUL";
         }
         catch
         {
