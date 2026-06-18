@@ -92,7 +92,6 @@ builder.Services.AddScoped<InvitationsService.IService, InvitationsService.Servi
 builder.Services.AddScoped<RoundsService.IService, RoundsService.Service>();
 builder.Services.AddScoped<TeamsService.IService, TeamsService.Service>();
 builder.Services.AddScoped<TracksService.IService, TracksService.Service>();
-builder.Services.AddScoped<RegisterTeamsService.IService, RegisterTeamsService.Service>();
 
 
 

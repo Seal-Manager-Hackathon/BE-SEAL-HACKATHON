@@ -52,6 +52,11 @@ public class Service : IService
         }
     }
 
+    private bool IsCurrentUserAdmin()
+    {
+        return _httpContext.HttpContext?.User.IsInRole(RoleEnum.Admin.ToString()) == true;
+    }
+
     public Task<BasePaginationResponse> GetTracksByEvent(Guid eventId, string? keyword, bool? isDisable, PaginationRequest paginationRequest)
     {
         return GetTracks(eventId, keyword, isDisable, paginationRequest);
@@ -134,6 +139,68 @@ public class Service : IService
                 Title = x.Title,
                 Description = x.Description,
                 IsDisable = x.IsDisable,
+                CreatedAt = x.CreatedAt,
+            })
+            .ToListAsync();
+
+        return ApiResponseFactory.BasePagination(items, paginationRequest.PageIndex, paginationRequest.PageSize, totalCount);
+    }
+
+    public async Task<BasePaginationResponse> GetApprovedTeamsByEvent(Guid eventId, string? keyword, bool? isDisable, PaginationRequest paginationRequest)
+    {
+        var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
+        if (!eventExists)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        if (!IsCurrentUserAdmin())
+        {
+            await EnsureStaffAssignedToEvent(eventId);
+        }
+
+        var query = _dbContext.RegisterTeams
+            .AsNoTracking()
+            .Where(x => x.EventId == eventId
+                        && x.IsDisable == (isDisable ?? false)
+                        && x.Status == RegisterTeamStatusEnum.Approved
+                        && !x.Team.IsDisable);
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            var normalizedKeyword = keyword.Trim().ToLower();
+            query = query.Where(x => x.Team.Name.ToLower().Contains(normalizedKeyword));
+        }
+
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .OrderBy(x => x.Team.Name)
+            .ThenBy(x => x.CreatedAt)
+            .Skip((paginationRequest.PageIndex - 1) * paginationRequest.PageSize)
+            .Take(paginationRequest.PageSize)
+            .Select(x => new Response.ApprovedTeamResponse
+            {
+                TeamId = x.TeamId,
+                TeamName = x.Team.Name,
+                TrackId = x.TrackId,
+                TrackTitle = x.Track != null ? x.Track.Title : null,
+                TopicId = x.TopicId,
+                TopicTitle = x.Topic != null ? x.Topic.Title : null,
+                Members = x.Team.TeamDetails
+                    .Where(td => !td.IsDisable && td.Status == TeamDetailStatusEnum.Active)
+                    .OrderByDescending(td => td.IsLeader)
+                    .ThenBy(td => td.User.FirstName)
+                    .ThenBy(td => td.User.LastName)
+                    .Select(td => new Response.ApprovedTeamMemberResponse
+                    {
+                        UserId = td.UserId,
+                        FullName = (td.User.FirstName + " " + td.User.LastName).Trim(),
+                        Email = td.User.Email,
+                        StudentId = td.User.StudentId,
+                        IsLeader = td.IsLeader,
+                    })
+                    .ToList(),
+                IsBanned = x.IsBanned,
                 CreatedAt = x.CreatedAt,
             })
             .ToListAsync();
