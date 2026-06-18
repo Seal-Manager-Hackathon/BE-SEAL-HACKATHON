@@ -38,7 +38,7 @@ public class Service : IService
         return userId;
     }
 
-    private static bool IsProfileCompleted(Hackathon.Repository.Entity.Users user)
+    private static bool IsProfileCompleted(Users user)
     {
         return !string.IsNullOrWhiteSpace(user.Email)
                && !string.IsNullOrWhiteSpace(user.HashPassword)
@@ -51,6 +51,49 @@ public class Service : IService
                && !string.IsNullOrWhiteSpace(user.College);
     }
 
+    private async Task<Users> ValidateAndGetStudentAsync(Guid userId)
+    {
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
+        if (user == null || user.IsDisable == true)
+        {
+            throw new NotFoundException("USER_NOT_FOUND");
+        }
+
+        if (user.Role != RoleEnum.Student)
+        {
+            throw new ForbiddenException("CURRENT_USER_MUST_BE_STUDENT");
+        }
+
+        return user;
+    }
+
+    private async Task<Repository.Entity.Teams> ValidateAndGetEditableTeamAsync(Guid teamId)
+    {
+        var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
+        if (team == null)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        if (!team.CanEdit)
+        {
+            throw new ForbiddenException("TEAM_MEMBER_LOCKED");
+        }
+
+        return team;
+    }
+
+    private async Task<TeamDetails> ValidateAndGetLeaderDetailAsync(Guid teamId, Guid userId, string errorCode = "ONLY_TEAM_LEADER_CAN_PERFORM_ACTION")
+    {
+        var leaderDetail = await _dbContext.TeamDetails.FirstOrDefaultAsync(x => x.TeamId == teamId && x.UserId == userId && x.IsLeader && !x.IsDisable);
+        if (leaderDetail == null)
+        {
+            throw new ForbiddenException(errorCode);
+        }
+
+        return leaderDetail;
+    }
+
     public async Task<Response.CreateTeamResponse> CreateTeam(Request.CreateTeamRequest request)
     {
         var userId = GetCurrentUserId();
@@ -61,20 +104,11 @@ public class Service : IService
             throw new BadRequestException("TEAM_NAME_REQUIRED");
         }
 
-        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
-        if (user == null || user.IsDisable == true)
-        {
-            throw new NotFoundException("USER_NOT_FOUND");
-        }
+        var user = await ValidateAndGetStudentAsync(userId);
 
         if (user.IsVerified != true)
         {
             throw new ForbiddenException("USER_NOT_VERIFIED");
-        }
-
-        if (user.Role != RoleEnum.Student)
-        {
-            throw new ForbiddenException("CURRENT_USER_MUST_BE_STUDENT");
         }
 
         if (!IsProfileCompleted(user))
@@ -153,35 +187,13 @@ public class Service : IService
         }
 
         // Check current user role
-        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == leaderId);
-        if (user == null || user.IsDisable == true)
-        {
-            throw new NotFoundException("USER_NOT_FOUND");
-        }
-
-        if (user.Role != RoleEnum.Student)
-        {
-            throw new ForbiddenException("CURRENT_USER_MUST_BE_STUDENT");
-        }
+        await ValidateAndGetStudentAsync(leaderId);
 
         // Check team status
-        var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
-        if (team == null)
-        {
-            throw new NotFoundException("TEAM_NOT_FOUND");
-        }
-
-        if (!team.CanEdit)
-        {
-            throw new ForbiddenException("TEAM_MEMBER_LOCKED");
-        }
+        var team = await ValidateAndGetEditableTeamAsync(teamId);
 
         // Check current user is the leader of the team
-        var isLeader = await _dbContext.TeamDetails.AnyAsync(x => x.TeamId == teamId && x.UserId == leaderId && x.IsLeader && !x.IsDisable);
-        if (!isLeader)
-        {
-            throw new ForbiddenException("ONLY_TEAM_LEADER_CAN_INVITE_MEMBER");
-        }
+        await ValidateAndGetLeaderDetailAsync(teamId, leaderId, "ONLY_TEAM_LEADER_CAN_INVITE_MEMBER");
 
         // Check target user status
         var invitedUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email.ToLower() == targetEmail.ToLower() && !x.IsDisable);
@@ -203,11 +215,6 @@ public class Service : IService
         if (invitedUser.IsVerified != true)
         {
             throw new ForbiddenException("INVITED_USER_NOT_VERIFIED");
-        }
-
-        if (!IsProfileCompleted(invitedUser))
-        {
-            throw new BadRequestException("INVITED_USER_PROFILE_NOT_COMPLETED");
         }
 
         // Check team limits
@@ -305,6 +312,7 @@ public class Service : IService
         var team = await _dbContext.Teams
             .AsNoTracking()
             .Include(x => x.TeamDetails)
+                .ThenInclude(td => td.User)
             .FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
 
         if (team == null)
@@ -333,10 +341,173 @@ public class Service : IService
                 .Select(x => new Response.TeamMemberResponse
                 {
                     UserId = x.UserId,
+                    FirstName = x.User.FirstName,
+                    LastName = x.User.LastName,
+                    DateOfBirth = x.User.DateOfBirth,
+                    StudentId = x.User.StudentId,
+                    College = x.User.College,
                     IsLeader = x.IsLeader,
                     Status = x.Status?.ToString()
                 })
                 .ToList()
         };
+    }
+
+    public async Task<Response.MessageResponse> UpdateTeam(Guid teamId, Request.UpdateTeamRequest request)
+    {
+        var userId = GetCurrentUserId();
+        var newTeamName = request.TeamName?.Trim();
+
+        if (string.IsNullOrWhiteSpace(newTeamName))
+        {
+            throw new BadRequestException("TEAM_NAME_REQUIRED");
+        }
+
+        // Check current user role & status
+        await ValidateAndGetStudentAsync(userId);
+
+        // Find team
+        var team = await ValidateAndGetEditableTeamAsync(teamId);
+
+        // Check if current user is leader
+        await ValidateAndGetLeaderDetailAsync(teamId, userId, "ONLY_TEAM_LEADER_CAN_UPDATE_TEAM");
+
+        // Check duplicated team name if changed
+        if (team.Name.ToLower() != newTeamName.ToLower())
+        {
+            var isDuplicatedName = await _dbContext.Teams.AnyAsync(x => x.Name.ToLower() == newTeamName.ToLower() && x.Id != teamId);
+            if (isDuplicatedName)
+            {
+                throw new ConflictException("TEAM_NAME_ALREADY_EXISTS");
+            }
+        }
+
+        // Update team
+        team.Name = newTeamName;
+        team.UpdatedAt = DateTimeOffset.UtcNow;
+
+        var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            _dbContext.Teams.Update(team);
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
+        return new Response.MessageResponse { Message = "TEAM_UPDATED_SUCCESSFULLY" };
+    }
+
+    public async Task<Response.MessageResponse> RemoveMembers(Guid teamId, Request.RemoveMembersRequest request)
+    {
+        var leaderId = GetCurrentUserId();
+
+        if (request.UserIds == null || request.UserIds.Count == 0)
+        {
+            throw new BadRequestException("USER_IDS_REQUIRED");
+        }
+
+        // Check current user role & status
+        await ValidateAndGetStudentAsync(leaderId);
+
+        // Find team
+        var team = await ValidateAndGetEditableTeamAsync(teamId);
+
+        // Check if current user is leader
+        await ValidateAndGetLeaderDetailAsync(teamId, leaderId, "ONLY_TEAM_LEADER_CAN_REMOVE_MEMBER");
+
+        if (request.UserIds.Contains(leaderId))
+        {
+            throw new BadRequestException("CANNOT_REMOVE_YOURSELF");
+        }
+
+        var membersToRemove = await _dbContext.TeamDetails
+            .Where(x => x.TeamId == teamId && request.UserIds.Contains(x.UserId) && !x.IsDisable)
+            .ToListAsync();
+
+        if (membersToRemove.Count == 0)
+        {
+            throw new NotFoundException("NO_MATCHING_MEMBERS_FOUND");
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        foreach (var member in membersToRemove)
+        {
+            member.IsDisable = true;
+            member.UpdatedAt = now;
+        }
+
+        var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            _dbContext.TeamDetails.UpdateRange(membersToRemove);
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
+        return new Response.MessageResponse { Message = "MEMBERS_REMOVED_SUCCESSFULLY" };
+    }
+
+    public async Task<Response.MessageResponse> TransferLeader(Guid teamId, Request.TransferLeaderRequest request)
+    {
+        var leaderId = GetCurrentUserId();
+
+        if (request.NewLeaderId == Guid.Empty)
+        {
+            throw new BadRequestException("NEW_LEADER_ID_REQUIRED");
+        }
+
+        // Check current user role & status
+        await ValidateAndGetStudentAsync(leaderId);
+
+        // Find team
+        var team = await ValidateAndGetEditableTeamAsync(teamId);
+
+        // Check if current user is leader
+        var currentLeaderDetail = await ValidateAndGetLeaderDetailAsync(teamId, leaderId, "ONLY_TEAM_LEADER_CAN_TRANSFER_ROLE");
+
+        if (request.NewLeaderId == leaderId)
+        {
+            throw new BadRequestException("ALREADY_THE_LEADER");
+        }
+
+        var newLeaderDetail = await _dbContext.TeamDetails.FirstOrDefaultAsync(x => x.TeamId == teamId && x.UserId == request.NewLeaderId && !x.IsDisable);
+        if (newLeaderDetail == null)
+        {
+            throw new NotFoundException("NEW_LEADER_NOT_IN_TEAM");
+        }
+
+        var now = DateTimeOffset.UtcNow;
+
+        currentLeaderDetail.IsLeader = false;
+        currentLeaderDetail.UpdatedAt = now;
+
+        newLeaderDetail.IsLeader = true;
+        newLeaderDetail.UpdatedAt = now;
+
+        var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            _dbContext.TeamDetails.Update(currentLeaderDetail);
+            _dbContext.TeamDetails.Update(newLeaderDetail);
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
+        return new Response.MessageResponse { Message = "LEADER_TRANSFERRED_SUCCESSFULLY" };
     }
 }

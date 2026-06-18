@@ -38,6 +38,7 @@ Authorization: Bearer <token>
 ## Business rules
 - Yêu cầu xác thực tài khoản qua Access Token ở Header.
 - Học sinh đang đăng nhập phải chính là người nhận lời mời (`UserId` khớp với lời mời).
+- Profile của người được mời lúc này phải **đã hoàn thiện** (không null đối với các trường bắt buộc như email, password, firstName, lastName, phoneNumber, address, dateOfBirth, studentId, college). Nếu chưa hoàn thiện, trả lỗi `USER_PROFILE_NOT_COMPLETED`.
 - Lời mời phải đang ở trạng thái chờ xử lý (`Status = Pending`).
 - Lời mời phải chưa hết hạn (`LimitTime` phải lớn hơn thời gian hiện tại). Nếu hết hạn, trạng thái lời mời sẽ chuyển thành `Expired`, cập nhật `UpdatedAt` và trả lỗi `400 BadRequest` (`INVITATION_EXPIRED`).
 - Team mời phải đang tồn tại, chưa bị vô hiệu hóa (`IsDisable = false`), và còn cho phép sửa đổi thành viên (`CanEdit = true`).
@@ -54,6 +55,7 @@ Authorization: Bearer <token>
 | HTTP | messageCode | message/detail |
 |---:|---|---|
 | 400 | BAD_REQUEST | INVITATION_EXPIRED (lời mời đã hết hạn) |
+| 400 | BAD_REQUEST | USER_PROFILE_NOT_COMPLETED (profile người dùng chưa hoàn thành) |
 | 401 | MISSING_ACCESS_TOKEN | Access token is missing. (khi không truyền token) |
 | 401 | INVALID_ACCESS_TOKEN | Invalid access token. (khi token sai định dạng) |
 | 403 | FORBIDDEN | CURRENT_USER_MUST_BE_STUDENT (người gọi không phải học sinh) |

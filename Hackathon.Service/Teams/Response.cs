@@ -5,6 +5,11 @@ public static class Response
     public class TeamMemberResponse
     {
         public Guid UserId { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public DateTimeOffset DateOfBirth { get; set; }
+        public string StudentId { get; set; } = string.Empty;
+        public string College { get; set; } = string.Empty;
         public bool IsLeader { get; set; }
         public string? Status { get; set; }
     }

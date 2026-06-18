@@ -39,6 +39,19 @@ public class Service : IService
         return userId;
     }
 
+    private static bool IsProfileCompleted(Hackathon.Repository.Entity.Users user)
+    {
+        return !string.IsNullOrWhiteSpace(user.Email)
+               && !string.IsNullOrWhiteSpace(user.HashPassword)
+               && !string.IsNullOrWhiteSpace(user.FirstName)
+               && !string.IsNullOrWhiteSpace(user.LastName)
+               && !string.IsNullOrWhiteSpace(user.PhoneNumber)
+               && !string.IsNullOrWhiteSpace(user.Address)
+               && user.DateOfBirth != DateTimeOffset.MinValue
+               && !string.IsNullOrWhiteSpace(user.StudentId)
+               && !string.IsNullOrWhiteSpace(user.College);
+    }
+
     public async Task<BasePaginationResponse> GetMyInvitations(PaginationRequest paginationRequest)
     {
         var userId = GetCurrentUserId();
@@ -102,6 +115,11 @@ public class Service : IService
         if (user.Role != RoleEnum.Student)
         {
             throw new ForbiddenException("CURRENT_USER_MUST_BE_STUDENT");
+        }
+
+        if (!IsProfileCompleted(user))
+        {
+            throw new BadRequestException("USER_PROFILE_NOT_COMPLETED");
         }
 
         // Find invitation
