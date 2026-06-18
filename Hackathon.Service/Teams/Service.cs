@@ -80,6 +80,14 @@ public class Service : IService
             throw new ForbiddenException("TEAM_MEMBER_LOCKED");
         }
 
+        var hasPendingOrApproved = await _dbContext.RegisterTeams
+            .AnyAsync(x => x.TeamId == teamId && !x.IsDisable && (x.Status == RegisterTeamStatusEnum.Pending || x.Status == RegisterTeamStatusEnum.Approved));
+
+        if (hasPendingOrApproved)
+        {
+            throw new ForbiddenException("TEAM_LOCKED_DUE_TO_REGISTRATION_STATUS");
+        }
+
         return team;
     }
 
