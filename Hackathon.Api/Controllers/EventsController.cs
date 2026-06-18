@@ -3,19 +3,16 @@ using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using EventsService = Hackathon.Service.Events;
+using TracksService = Hackathon.Service.Tracks;
 
 namespace Hackathon.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/events")]
-public class EventsController : ControllerBase
+public class EventsController(EventsService.IService eventsService, TracksService.IService tracksService) : ControllerBase
 {
-    private readonly EventsService.IService _eventsService;
-
-    public EventsController(EventsService.IService eventsService)
-    {
-        _eventsService = eventsService;
-    }
+    private readonly EventsService.IService _eventsService = eventsService;
+    private readonly TracksService.IService _tracksService = tracksService;
 
     [HttpGet]
     public async Task<IActionResult> GetEvents([FromQuery] EventsService.Request.GetEventsRequest request)
@@ -76,6 +73,13 @@ public class EventsController : ControllerBase
     {
         var result = await _eventsService.GetEvent(eventId);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("{eventId:guid}/tracks")]
+    public async Task<IActionResult> GetTracksByEvent(Guid eventId, [FromQuery] string? keyword, [FromQuery] bool? isDisable, [FromQuery] PaginationRequest paginationRequest)
+    {
+        var result = await _tracksService.GetTracks(eventId, keyword, isDisable, paginationRequest);
+        return Ok(result);
     }
 
     [Authorize]
