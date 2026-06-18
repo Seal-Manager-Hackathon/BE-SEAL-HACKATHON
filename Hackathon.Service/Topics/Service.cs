@@ -26,6 +26,7 @@ public class Service : IService
                 EventId = x.EventId,
                 TrackId = x.TrackId,
                 TrackTitle = x.Track != null ? x.Track.Title : null,
+                TrackDescription = x.Track != null ? x.Track.Description : null,
                 TopicId = x.TopicId,
                 TopicTitle = x.Topic != null ? x.Topic.Title : null,
                 TopicDescription = x.Topic != null ? x.Topic.Description : null

@@ -15,5 +15,10 @@ public class TracksController : ControllerBase
         _tracksService = tracksService;
     }
 
-
+    [HttpGet("{trackId:guid}/teams/count")]
+    public async Task<IActionResult> GetTrackTeamCount(Guid trackId)
+    {
+        var result = await _tracksService.GetTrackTeamCount(trackId);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
 }

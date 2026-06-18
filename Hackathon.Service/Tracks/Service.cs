@@ -368,4 +368,38 @@ public class Service : IService
             Message = "TOPIC_ASSIGNED_TO_TEAM_SUCCESSFULLY",
         };
     }
+
+    public async Task<Response.TrackTeamCountResponse> GetTrackTeamCount(Guid trackId)
+    {
+        var track = await _dbContext.Tracks
+            .AsNoTracking()
+            .Include(x => x.Event)
+            .FirstOrDefaultAsync(x => x.Id == trackId && !x.IsDisable);
+
+        if (track == null)
+        {
+            throw new NotFoundException("TRACK_NOT_FOUND");
+        }
+
+        if (track.Event.IsDisable)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        var teamCount = await _dbContext.RegisterTeams
+            .AsNoTracking()
+            .CountAsync(x => x.TrackId == trackId
+                             && !x.IsDisable
+                             && !x.Team.IsDisable
+                             && x.Status == RegisterTeamStatusEnum.Approved);
+
+        return new Response.TrackTeamCountResponse
+        {
+            TrackId = track.Id,
+            EventId = track.EventId,
+            Title = track.Title,
+            MaxTeam = track.MaxTeam,
+            CurrentTeamCount = teamCount
+        };
+    }
 }

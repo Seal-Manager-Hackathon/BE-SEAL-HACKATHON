@@ -10,4 +10,5 @@ public interface IService
     Task<Response.TeamTopicAssignmentResponse> AssignTopicToTeam(Guid teamId, Request.AssignTopicToTeamRequest request);
     Task<BasePaginationResponse> GetApprovedTeamsByEvent(Guid eventId, string? keyword, bool? isDisable, PaginationRequest paginationRequest);
     Task<BasePaginationResponse> GetTracks(Guid? eventId, string? keyword, bool? isDisable, PaginationRequest paginationRequest);
+    Task<Response.TrackTeamCountResponse> GetTrackTeamCount(Guid trackId);
 }

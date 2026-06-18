@@ -66,4 +66,13 @@ public static class Response
         public string StudentId { get; set; } = null!;
         public bool IsLeader { get; set; }
     }
+
+    public class TrackTeamCountResponse
+    {
+        public Guid TrackId { get; set; }
+        public Guid EventId { get; set; }
+        public string Title { get; set; } = null!;
+        public int? MaxTeam { get; set; }
+        public int CurrentTeamCount { get; set; }
+    }
 }

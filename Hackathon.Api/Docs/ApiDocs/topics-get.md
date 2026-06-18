@@ -42,6 +42,7 @@ Response dùng `ApiResponseFactory.Base(result)`.
     "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "trackId": "c4b5a6d7-e8f9-0a1b-2c3d-4e5f6a7b8c9d",
     "trackTitle": "Web Application",
+    "trackDescription": "Phát triển các ứng dụng nền tảng Web",
     "topicId": "e5f6a7b8-c9d0-e1f2-a3b4-c5d6e7f8a9b0",
     "topicTitle": "Quản lý Bệnh viện",
     "topicDescription": "Xây dựng hệ thống số hóa quy trình khám chữa bệnh"
