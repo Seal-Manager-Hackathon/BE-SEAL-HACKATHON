@@ -36,4 +36,26 @@ public static class Request
         [Required(ErrorMessage = "NEW_LEADER_ID_REQUIRED")]
         public Guid NewLeaderId { get; set; }
     }
+
+    public class RegisterEventRequest
+    {
+        [Required(ErrorMessage = "TEAM_ID_REQUIRED")]
+        public Guid TeamId { get; set; }
+
+        [Required(ErrorMessage = "EVENT_ID_REQUIRED")]
+        public Guid EventId { get; set; }
+
+        public string? Description { get; set; }
+    }
+
+    public class GetMyRegisteredEventsRequest
+    {
+        public string? Status { get; set; }
+    }
+
+    public class RejectTeamRequest
+    {
+        [Required(ErrorMessage = "REJECTION_REASON_REQUIRED")]
+        public string? Reason { get; set; }
+    }
 }
