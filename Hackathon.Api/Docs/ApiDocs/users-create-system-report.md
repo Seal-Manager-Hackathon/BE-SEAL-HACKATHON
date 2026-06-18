@@ -51,7 +51,7 @@ Content-Type: application/json
   "error": null,
   "traceId": "string",
   "timestampUtc": "2026-06-18T23:00:00Z",
-  "value": "Gửi báo cáo thành công"
+  "value": "REPORT_CREATED_SUCCESSFULLY"
 }
 ```
 

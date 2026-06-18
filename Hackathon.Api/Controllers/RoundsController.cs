@@ -31,4 +31,20 @@ public class RoundsController : ControllerBase
         var result = await _roundsService.GetMyRounds(eventId);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
+
+    [HttpPost("{roundId:guid}/submit-assignment")]
+    [Authorize]
+    public async Task<IActionResult> SubmitAssignment(Guid roundId, [FromBody] RoundsService.Request.SubmitAssignmentRequest request)
+    {
+        var result = await _roundsService.SubmitAssignment(roundId, request);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("{roundId:guid}/submissions")]
+    [Authorize]
+    public async Task<IActionResult> GetRoundSubmissions(Guid roundId, [FromQuery] RoundsService.Request.GetSubmissionsQuery query)
+    {
+        var result = await _roundsService.GetRoundSubmissions(roundId, query);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
 }
