@@ -24,9 +24,9 @@ public class RoundsController : ControllerBase
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
-    [HttpGet("me")]
+    [HttpGet("teams/{teamId:guid}")]
     [Authorize]
-    public async Task<IActionResult> GetMyRounds([FromQuery] Guid? eventId, [FromQuery] Guid? teamId)
+    public async Task<IActionResult> GetMyRounds(Guid teamId, [FromQuery] Guid? eventId)
     {
         var result = await _roundsService.GetMyRounds(eventId, teamId);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
