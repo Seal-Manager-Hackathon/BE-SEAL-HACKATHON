@@ -229,4 +229,80 @@ public class Service : IService
 
         return ApiResponseFactory.BasePagination(submissions, query.PageIndex, query.PageSize, totalCount);
     }
+
+    public async Task<Response.EndRoundResponse> EndRound(Guid roundId)
+    {
+        var round = await _dbContext.Rounds
+            .Include(x => x.Event)
+            .FirstOrDefaultAsync(x => x.Id == roundId && !x.IsDisable);
+
+        if (round == null)
+        {
+            throw new NotFoundException("ROUND_NOT_FOUND");
+        }
+
+        var nextRound = await _dbContext.Rounds
+            .Where(x => x.EventId == round.EventId && !x.IsDisable && x.RoundNo == round.RoundNo + 1)
+            .FirstOrDefaultAsync();
+
+        var roundDetails = await _dbContext.RoundDetails
+            .Include(x => x.Submissions)
+                .ThenInclude(s => s.Scores)
+            .Where(x => x.RoundId == roundId && !x.IsDisable)
+            .ToListAsync();
+
+        int totalTeamsAdvanced = 0;
+
+        if (nextRound != null)
+        {
+            var limit = nextRound.LimitTeam ?? int.MaxValue;
+            if (limit > 0)
+            {
+                var teamScores = roundDetails.Select(rd => new
+                {
+                    RoundDetail = rd,
+                    MaxScore = rd.Submissions
+                        .Where(s => !s.IsDisable)
+                        .SelectMany(s => s.Scores)
+                        .Where(sc => !sc.IsDisable)
+                        .OrderByDescending(sc => sc.CreatedAt)
+                        .FirstOrDefault()?.TotalScore ?? 0
+                })
+                .OrderByDescending(x => x.MaxScore)
+                .Take(limit)
+                .ToList();
+
+                var nextRoundDetails = new List<RoundDetails>();
+                foreach (var ts in teamScores)
+                {
+                    nextRoundDetails.Add(new RoundDetails
+                    {
+                        Id = Guid.NewGuid(),
+                        RoundId = nextRound.Id,
+                        RegisterTeamId = ts.RoundDetail.RegisterTeamId,
+                        CreatedAt = DateTimeOffset.UtcNow,
+                        UpdatedAt = DateTimeOffset.UtcNow
+                    });
+                    totalTeamsAdvanced++;
+                }
+
+                if (nextRoundDetails.Any())
+                {
+                    await _dbContext.RoundDetails.AddRangeAsync(nextRoundDetails);
+                }
+            }
+        }
+
+        // Close current round
+        round.IsDisable = true;
+        await _dbContext.SaveChangesAsync();
+
+        return new Response.EndRoundResponse
+        {
+            ClosedRoundId = round.Id,
+            NextRoundId = nextRound?.Id,
+            TotalTeamsAdvanced = totalTeamsAdvanced,
+            Message = nextRound == null ? "FINAL_ROUND_CLOSED_HACKATHON_ENDED" : "ROUND_ENDED_SUCCESSFULLY"
+        };
+    }
 }

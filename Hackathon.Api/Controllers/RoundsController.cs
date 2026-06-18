@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Hackathon.Api.Extention;
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -45,6 +46,14 @@ public class RoundsController : ControllerBase
     public async Task<IActionResult> GetRoundSubmissions(Guid roundId, [FromQuery] RoundsService.Request.GetSubmissionsQuery query)
     {
         var result = await _roundsService.GetRoundSubmissions(roundId, query);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpPost("{roundId:guid}/end")]
+    [Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]
+    public async Task<IActionResult> EndRound(Guid roundId)
+    {
+        var result = await _roundsService.EndRound(roundId);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 }
