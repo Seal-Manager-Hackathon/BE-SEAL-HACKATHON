@@ -1,0 +1,71 @@
+# Cập nhật thông tin cá nhân (Profile)
+
+## Tác dụng
+Cho phép người dùng đã đăng nhập cập nhật thông tin cá nhân của họ. Các trường gửi lên sẽ ghi đè dữ liệu cũ.
+
+## URL
+`PATCH /api/users/profile`
+
+## Authorization
+Yêu cầu access token hợp lệ.
+
+## Path parameters
+Không có.
+
+## Query parameters
+Không có.
+
+## Ví dụ request
+```http
+PATCH /api/users/profile
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+
+{
+    "firstName": "John updated",
+    "lastName": "Doe updated",
+    "phoneNumber": "0987654321",
+    "avatarUrl": "https://example.com/new-avatar.jpg",
+    "bio": "Updated bio",
+    "address": "456 Updated St",
+    "studentId": "STU123456",
+    "college": "FPT University"
+}
+```
+
+## Request body
+| Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
+|---|---|---:|---|
+| `firstName` | `string` | Không | Tên của người dùng. |
+| `lastName` | `string` | Không | Họ của người dùng. |
+| `phoneNumber` | `string` | Không | Số điện thoại. |
+| `avatarUrl` | `string` | Không | Link ảnh đại diện. |
+| `bio` | `string` | Không | Giới thiệu ngắn về bản thân. |
+| `address` | `string` | Không | Địa chỉ. |
+| `studentId` | `string` | Không | Mã sinh viên. |
+| `college` | `string` | Không | Trường đại học/Cao đẳng. |
+
+*Lưu ý: Chỉ các trường được gửi (khác null) mới được cập nhật.*
+
+## Response body
+```json
+{
+  "isSuccess": true,
+  "isFailed": false,
+  "error": null,
+  "traceId": "string",
+  "timestampUtc": "2026-06-18T23:00:00Z",
+  "value": "Cập nhật profile thành công"
+}
+```
+
+## Business rules
+- Các trường gửi lên nếu khác null sẽ được cập nhật.
+- User đang gọi API phải tồn tại trong hệ thống.
+
+## Lỗi có thể xảy ra
+| HTTP | messageCode | message/detail |
+|---:|---|---|
+| 401 | MISSING_ACCESS_TOKEN | Access token is missing or invalid. |
+| 404 | NOT_FOUND | USER_NOT_FOUND |
+| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |

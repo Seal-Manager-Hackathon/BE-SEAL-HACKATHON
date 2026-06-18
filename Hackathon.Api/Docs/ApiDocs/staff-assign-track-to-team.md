@@ -1,4 +1,4 @@
-# Staff assign track to team
+ # Staff assign track to team
 
 ## Tác dụng
 Staff gán một track cho team đã đăng ký event, để xác định team thuộc track nào trong event đó.
