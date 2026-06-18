@@ -361,14 +361,19 @@ public class Service : IService
         var user = await _dbContext.Users
             .FirstOrDefaultAsync(x => x.Email == email && !x.IsDisable);
 
+        if (user == null)
+        {
+            throw new NotFoundException("EMAIL_NOT_FOUND");
+        }
+
+        if (user.Status == Repository.Enum.UserStatusEnum.Banned)
+        {
+            throw new ForbiddenException("USER_IS_BANNED");
+        }
+
         if (user.IsVerified == false)
         {
             throw new UnauthorizedException("EMAIL_UNVERIFIED");
-        }
-        
-        if (user == null)
-        {
-            throw new UnauthorizedException("INVALID_EMAIL_OR_PASSWORD");
         }
 
         var pepperPassword = request.Password + _securityOptions.Pepper;
