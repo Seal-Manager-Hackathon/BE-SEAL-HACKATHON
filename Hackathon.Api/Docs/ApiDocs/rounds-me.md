@@ -17,7 +17,8 @@
     Content-Type: application/json
     ```
 *   **Query Parameters:** 
-    *   `eventId` (Guid, Tùy chọn): Nếu truyền lên, sẽ chỉ trả về vòng thi của User trong sự kiện đó. Nếu không truyền, có thể trả về tất cả các vòng thi ở các sự kiện đang tham gia.
+    *   `eventId` (Guid, Tùy chọn): Nếu truyền lên, sẽ chỉ trả về vòng thi của User trong sự kiện đó.
+    *   `teamId` (Guid, Tùy chọn): Lọc theo team để biết cụ thể team này đang ở round nào.
 
 ### Response Details
 *   **Success Response (200 OK):**

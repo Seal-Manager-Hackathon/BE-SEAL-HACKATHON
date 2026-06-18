@@ -71,7 +71,7 @@ public class Service : IService
         return rounds;
     }
 
-    public async Task<List<Response.MyRoundResponse>> GetMyRounds(Guid? eventId)
+    public async Task<List<Response.MyRoundResponse>> GetMyRounds(Guid? eventId, Guid? teamId)
     {
         var userId = GetCurrentUserId();
 
@@ -87,6 +87,18 @@ public class Service : IService
             }
         }
 
+        if (teamId.HasValue)
+        {
+            var teamExists = await _dbContext.Teams
+                .AsNoTracking()
+                .AnyAsync(x => x.Id == teamId.Value && !x.IsDisable);
+
+            if (!teamExists)
+            {
+                throw new NotFoundException("TEAM_NOT_FOUND");
+            }
+        }
+
         var query = _dbContext.RoundDetails
             .AsNoTracking()
             .Include(x => x.Round).ThenInclude(r => r.Event)
@@ -97,6 +109,11 @@ public class Service : IService
         if (eventId.HasValue)
         {
             query = query.Where(x => x.Round.EventId == eventId.Value);
+        }
+
+        if (teamId.HasValue)
+        {
+            query = query.Where(x => x.RegisterTeam.TeamId == teamId.Value);
         }
 
         var myRounds = await query
