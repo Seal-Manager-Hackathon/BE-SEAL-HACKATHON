@@ -16,6 +16,7 @@ using RoundsService = Hackathon.Service.Rounds;
 using TeamsService = Hackathon.Service.Teams;
 using TracksService = Hackathon.Service.Tracks;
 using UserService = Hackathon.Service.Users;
+using RegisterTeamService = Hackathon.Service.RegisterTeam;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -94,6 +95,7 @@ builder.Services.AddScoped<TeamsService.IService, TeamsService.Service>();
 builder.Services.AddScoped<TracksService.IService, TracksService.Service>();
 builder.Services.AddScoped<UserService.IService, UserService.Service>();
 
+builder.Services.AddScoped<RegisterTeamService.IService, RegisterTeamService.Service>();
 
 
 
