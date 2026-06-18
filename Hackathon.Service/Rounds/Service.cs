@@ -49,13 +49,15 @@ public class Service : IService
         var rounds = await _dbContext.Rounds
             .AsNoTracking()
             .Where(x => x.EventId == eventId && !x.IsDisable)
-            .OrderBy(x => x.CreatedAt)
+            .OrderBy(x => x.RoundNo)
+            .ThenBy(x => x.CreatedAt)
             .Select(x => new Response.RoundResponse
             {
                 Id = x.Id,
                 EventId = x.EventId,
                 Name = x.Name,
                 Description = x.Description,
+                RoundNo = x.RoundNo,
                 StartTime = x.StartTime,
                 EndTime = x.EndTime,
                 StartSubmission = x.StartSubmission,
@@ -98,13 +100,15 @@ public class Service : IService
         }
 
         var myRounds = await query
-            .OrderBy(x => x.Round.StartTime)
+            .OrderBy(x => x.Round.RoundNo)
+            .ThenBy(x => x.Round.StartTime)
             .Select(x => new Response.MyRoundResponse
             {
                 RoundId = x.RoundId,
                 EventId = x.Round.EventId,
                 RoundName = x.Round.Name,
                 EventName = x.Round.Event.Name,
+                RoundNo = x.Round.RoundNo,
                 TeamId = x.RegisterTeam.TeamId,
                 TeamName = x.RegisterTeam.Team.Name,
                 RegisterTeamId = x.RegisterTeamId,

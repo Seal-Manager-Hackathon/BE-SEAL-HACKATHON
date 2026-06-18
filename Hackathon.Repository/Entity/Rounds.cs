@@ -7,6 +7,7 @@ public class Rounds : BaseEntity<Guid>, IAuditableEntity
     public Guid EventId { get; set; }
     public required string Name { get; set; }
     public string? Description { get; set; }
+    public int RoundNo { get; set; }
     public DateTimeOffset? StartTime { get; set; }
     public DateTimeOffset? EndTime { get; set; }
     public DateTimeOffset? StartSubmission { get; set; }
