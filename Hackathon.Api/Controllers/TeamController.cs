@@ -45,4 +45,25 @@ public class TeamController : ControllerBase
         var result = await _teamService.InviteMember(teamId, request);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
+
+    [HttpPut("{teamId:guid}")]
+    public async Task<IActionResult> UpdateTeam(Guid teamId, TeamsService.Request.UpdateTeamRequest request)
+    {
+        var result = await _teamService.UpdateTeam(teamId, request);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpDelete("{teamId:guid}/members")]
+    public async Task<IActionResult> RemoveMembers(Guid teamId, TeamsService.Request.RemoveMembersRequest request)
+    {
+        var result = await _teamService.RemoveMembers(teamId, request);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpPut("{teamId:guid}/leader")]
+    public async Task<IActionResult> TransferLeader(Guid teamId, TeamsService.Request.TransferLeaderRequest request)
+    {
+        var result = await _teamService.TransferLeader(teamId, request);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
 }

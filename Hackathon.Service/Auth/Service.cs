@@ -77,7 +77,7 @@ public class Service : IService
             var pepperPassword = request.Password + _securityOptions.Pepper;
             var hashedPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(pepperPassword, hashType: BCrypt.Net.HashType.SHA256);
 
-            var newUser = new Repository.Entity.Users()
+            var newUser = new Users()
             {
                 Id = Guid.NewGuid(),
                 Email = request.Email,
@@ -604,6 +604,7 @@ public class Service : IService
             {
                 new Claim("UserId", user.Id.ToString()),
                 new Claim(ClaimTypes.Role, user.Role.ToString()),
+                new Claim("Role", user.Role.ToString()),
                 new Claim("IsVerified", (user.IsVerified ?? false).ToString().ToLower()),
             };
             var emailToken = _jwtService.GenerateEmailVerificationToken(claims, 2);

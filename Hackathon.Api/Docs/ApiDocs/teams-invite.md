@@ -33,7 +33,7 @@ Gửi lời mời tham gia team cho một học sinh khác bằng email của h�
 - Người thực hiện gửi lời mời (gọi API) phải có vai trò `Student`.
 - Người thực hiện gửi lời mời phải là Leader của team (`IsLeader = true` và `Status = Active` trong `TeamDetails`).
 - Team mời phải đang cho phép chỉnh sửa thành viên (`CanEdit = true`).
-- Email được nhập phải thuộc về tài khoản học sinh (`Role = Student`), chưa bị vô hiệu hóa (`IsDisable = false`), đã xác thực email (`IsVerified = true`), và đã hoàn thiện hồ sơ.
+- Email được nhập phải thuộc về tài khoản học sinh (`Role = Student`), chưa bị vô hiệu hóa (`IsDisable = false`), đã xác thực email (`IsVerified = true`). KHÔNG cần thiết người được mời phải có profile hoàn chỉnh ngay lúc này.
 - Người được mời không thể tự mời chính mình.
 - Team được mời không được vượt quá giới hạn 50 thành viên hiện tại.
 - Học sinh được mời không được là thành viên hiện tại của team hoặc đã có lời mời ở trạng thái `Pending` đối với team này.
@@ -61,7 +61,6 @@ Gửi lời mời tham gia team cho một học sinh khác bằng email của h�
 | 400 | VALIDATION_FAILED | EMAIL_REQUIRED (khi `email` trống hoặc null) |
 | 400 | VALIDATION_FAILED | INVALID_EMAIL_FORMAT (khi `email` sai định dạng) |
 | 400 | BAD_REQUEST | CANNOT_INVITE_YOURSELF (khi tự mời chính mình) |
-| 400 | BAD_REQUEST | INVITED_USER_PROFILE_NOT_COMPLETED (người được mời chưa đầy đủ hồ sơ) |
 | 401 | MISSING_ACCESS_TOKEN | Access token is missing. (khi không truyền token) |
 | 401 | INVALID_ACCESS_TOKEN | Invalid access token. (khi token sai định dạng) |
 | 403 | FORBIDDEN | CURRENT_USER_MUST_BE_STUDENT (người gọi không phải học sinh) |
