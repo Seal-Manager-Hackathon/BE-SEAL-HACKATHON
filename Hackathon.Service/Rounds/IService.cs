@@ -9,4 +9,5 @@ public interface IService
     Task<Response.MyRoundDetailResponse> GetMyRoundDetail(Guid registerTeamId);
     Task<Response.SubmitAssignmentResponse> SubmitAssignment(Guid roundId, Request.SubmitAssignmentRequest request);
     Task<BasePaginationResponse> GetRoundSubmissions(Guid roundId, Request.GetSubmissionsQuery query);
+    Task<Response.EndRoundResponse> EndRound(Guid roundId);
 }
