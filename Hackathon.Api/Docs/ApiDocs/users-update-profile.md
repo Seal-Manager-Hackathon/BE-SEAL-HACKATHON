@@ -28,6 +28,7 @@ Content-Type: application/json
     "avatarUrl": "https://example.com/new-avatar.jpg",
     "bio": "Updated bio",
     "address": "456 Updated St",
+    "dateOfBirth": "2002-10-18T00:00:00+07:00",
     "studentId": "STU123456",
     "college": "FPT University"
 }
