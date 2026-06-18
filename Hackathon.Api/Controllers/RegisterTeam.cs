@@ -33,7 +33,7 @@ public class RegisterTeam : ControllerBase
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
-    [Authorize(Policy = JwtExtensions.StaffPolicy)]
+    [Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]
     [HttpPatch("register-teams/{registerTeamId:guid}/accept")]
     public async Task<IActionResult> AcceptRegisterTeam(Guid registerTeamId)
     {
@@ -41,7 +41,7 @@ public class RegisterTeam : ControllerBase
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
-    [Authorize(Policy = JwtExtensions.StaffPolicy)]
+    [Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]
     [HttpPatch("register-teams/{registerTeamId:guid}/reject")]
     public async Task<IActionResult> RejectRegisterTeam(Guid registerTeamId, RegisterTeamService.Request.RejectRegisterTeamRequest request)
     {

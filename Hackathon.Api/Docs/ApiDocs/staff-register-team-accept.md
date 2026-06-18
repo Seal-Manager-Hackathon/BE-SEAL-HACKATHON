@@ -7,7 +7,7 @@ Staff duyệt đơn đăng ký tham gia event của một team. Khi đơn đư�
 `PATCH /api/v1/staff/register-teams/{registerTeamId}/accept`
 
 ## Authorization
-Yêu cầu access token hợp lệ với role `Staff`.
+Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
 
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
@@ -49,13 +49,14 @@ Response dùng `ApiResponseFactory.Base(data)`.
 ```
 
 ## Business rules
-- Staff phải đăng nhập bằng access token hợp lệ.
-- Endpoint này bắt buộc Staff-only qua `[Authorize(Policy = JwtExtensions.StaffPolicy)]`.
+- Staff hoặc Admin phải đăng nhập bằng access token hợp lệ.
+- Endpoint này cho phép Staff hoặc Admin qua `[Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]`.
 - `registerTeamId` là bắt buộc trên path.
 - Đơn đăng ký phải tồn tại và chưa bị soft-disable, nếu không trả `REGISTER_TEAM_NOT_FOUND`.
 - Event của đơn đăng ký phải tồn tại và chưa bị soft-disable, nếu không trả `EVENT_NOT_FOUND`.
 - Team của đơn đăng ký phải tồn tại và chưa bị soft-disable, nếu không trả `TEAM_NOT_FOUND`.
 - Staff phải được phân công vào event của đơn đăng ký đó (`AssignEvents`) thì mới được duyệt, nếu không trả `STAFF_NOT_ASSIGNED_TO_EVENT`.
+- Admin được duyệt trực tiếp, không cần kiểm tra phân công vào event.
 - Chỉ được duyệt đơn đang ở trạng thái `Pending`; nếu đơn đã `Approved` hoặc `Rejected` thì trả conflict.
 - Nếu team đang bị banned khỏi event (`IsBanned == true`) thì không được duyệt.
 - Khi duyệt thành công:
@@ -86,4 +87,4 @@ Response dùng `ApiResponseFactory.Base(data)`.
 - Đã thêm method `AcceptRegisterTeam(Guid registerTeamId)` trong `Hackathon.Service.RegisterTeam.IService`.
 - Đã implement logic trong `Hackathon.Service.RegisterTeam.Service`.
 - Đã thêm response model `RegisterTeamActionResponse` trong `Hackathon.Service.RegisterTeam.Response`.
-- Endpoint dùng route `PATCH /api/v1/staff/register-teams/{registerTeamId}/accept` và `StaffPolicy`.
+- Endpoint dùng route `PATCH /api/v1/staff/register-teams/{registerTeamId}/accept` và `StaffOrAdminPolicy`.
