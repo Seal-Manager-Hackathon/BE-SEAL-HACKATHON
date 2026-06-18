@@ -13,46 +13,38 @@ Generates standardized API documentation for the frontend team matching the Hack
 *   If the user only notifies completion without requesting the documentation/skill, just acknowledge and ask if they need it documented.
 
 ## Core Template
-Produce the documentation in Vietnamese following this exact markdown template:
+Produce the documentation in Vietnamese. Use `Hackathon.Api/Docs/ApiDocs/staff-register-teams-by-event-get.md` as the absolute gold standard for structure, layout, envelope wrapping (`isSuccess`, `value`, `error`), and markdown formatting. 
 
-### Endpoint & Mô tả
-*   **API:** `[METHOD] /api/v1/...` (e.g. `POST /api/v1/teams`)
-*   **Mô tả:** [Chức năng của API]
+DO NOT output your own markdown headers like "Endpoint & Mô tả". Instead, use the exact headers found in the reference file:
 
-### Phân quyền (Permissions)
-*   **Yêu cầu Access Token:** [Có/Không]
-*   **Role hợp lệ:** [Student / Staff / Admin / Public]
-*   **Lỗi phân quyền:**
-    *   `401 Unauthorized` (`MISSING_ACCESS_TOKEN` / `INVALID_ACCESS_TOKEN`)
-    *   `403 Forbidden` (Nếu role không khớp)
+- `# [Action Name]`
+- `## Tác dụng`
+- `## URL`
+- `## Authorization`
+- `## Path parameters` (nếu có)
+- `## Query parameters` (nếu có)
+- `## Ví dụ request`
+- `## Request body`
+- `## Response body`
+- `## Business rules`
+- `## Lỗi có thể xảy ra` (Dùng định dạng bảng y hệt file reference)
 
-### Request Details
-*   **Headers:**
-    ```
-    Authorization: Bearer <token>
-    Content-Type: application/json
-    ```
-*   **Route / Query Parameters:** (nếu có)
-*   **Body JSON:** (nếu có)
-    ```json
-    { ... }
-    ```
-*   **Ràng buộc validation:**
-    *   `[Trường]`: [Loại validation, e.g. Bắt buộc, Range] -> Trả về lỗi `400 Bad Request` với message code tương ứng (e.g. `TEAM_NAME_REQUIRED`).
-
-### Response Details
-*   **Success Response (200 OK / 201 Created):**
-    ```json
-    {
-      "success": true,
-      "statusCode": 200,
-      "message": "...",
-      "data": { ... },
-      "traceId": "..."
-    }
-    ```
-*   **Error Responses:**
-    Dựa vào logic của Service để viết chi tiết các mã HTTP Status Code (e.g. `400 BadRequest`, `404 NotFound`, `409 Conflict`) kèm theo các giá trị `messageCode` tương ứng sẽ xuất hiện (e.g. `TEAM_NAME_ALREADY_EXISTS`, `USER_PROFILE_NOT_COMPLETED`). Đảm bảo liệt kê đầy đủ tất cả các trường hợp lỗi có thể ném ra từ API/Service.
+### Specific Instructions:
+- **Response Format:** Follow the `ApiResponseFactory.Base` or `ApiResponseFactory.BasePagination` envelope model carefully:
+  ```json
+  {
+    "isSuccess": true,
+    "isFailed": false,
+    "error": null,
+    "traceId": "string",
+    "timestampUtc": "datetime",
+    "value": { ... }
+  }
+  ```
+- **Error Responses:**
+    Dựa vào logic của Service để viết chi tiết các mã HTTP Status Code (e.g. `400 BadRequest`, `404 NotFound`, `409 Conflict`) kèm theo các giá trị `messageCode` tương ứng sẽ xuất hiện (e.g. `TEAM_NAME_ALREADY_EXISTS`, `USER_PROFILE_NOT_COMPLETED`). Trình bày dưới dạng Markdown Table.
+- **Business rules:**
+    Trình bày dưới dạng list gạch đầu dòng (`- `) giống hệt file reference. Đảm bảo liệt kê đầy đủ các validation quan trọng.
 
 ## Common Mistakes
 *   **Lỗi:** Trả về data trực tiếp không bọc qua `ApiResponse` envelope.
