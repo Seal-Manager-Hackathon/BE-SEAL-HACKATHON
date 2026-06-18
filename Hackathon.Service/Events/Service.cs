@@ -58,6 +58,172 @@ public class Service : IService
         };
     }
 
+    public async Task<Response.CreateEventResponse> CreateEvent(Request.CreateEventRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            throw new BadRequestException("EVENT_NAME_REQUIRED");
+        }
+
+        var normalizedName = request.Name.Trim().ToLower();
+        var nameExists = await _dbContext.Events.AnyAsync(x => x.Name.ToLower() == normalizedName);
+        if (nameExists)
+        {
+            throw new ConflictException("EVENT_NAME_ALREADY_EXISTS");
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var eventEntity = new Repository.Entity.Events
+        {
+            Id = Guid.NewGuid(),
+            Name = request.Name.Trim(),
+            Description = request.Description,
+            StartTime = request.StartTime,
+            EndTime = request.EndTime,
+            RegisterLimitTime = request.RegisterLimitTime,
+            LimitTeam = request.LimitTeam,
+            MinMember = request.MinMember,
+            MaxMember = request.MaxMember,
+            Status = EventStatusEnum.Draft,
+            NumberRound = request.NumberRound,
+            Season = request.Season,
+            IsDisable = false,
+            CreatedAt = now,
+            UpdatedAt = now,
+        };
+
+        await _dbContext.Events.AddAsync(eventEntity);
+        await _dbContext.SaveChangesAsync();
+
+        return new Response.CreateEventResponse
+        {
+            Id = eventEntity.Id,
+            Message = "EVENT_CREATED_SUCCESSFULLY",
+        };
+    }
+
+    public async Task<string> UpdateEvent(Guid eventId, Request.UpdateEventRequest request)
+    {
+        var eventEntity = await _dbContext.Events.FirstOrDefaultAsync(x => x.Id == eventId);
+        if (eventEntity == null)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        if (request.Name != null)
+        {
+            if (string.IsNullOrWhiteSpace(request.Name))
+            {
+                throw new BadRequestException("EVENT_NAME_REQUIRED");
+            }
+
+            var normalizedName = request.Name.Trim().ToLower();
+            var nameExists = await _dbContext.Events.AnyAsync(x => x.Id != eventId && x.Name.ToLower() == normalizedName);
+            if (nameExists)
+            {
+                throw new ConflictException("EVENT_NAME_ALREADY_EXISTS");
+            }
+
+            eventEntity.Name = request.Name.Trim();
+        }
+
+        if (request.Description != null)
+        {
+            eventEntity.Description = request.Description;
+        }
+
+        if (request.StartTime.HasValue)
+        {
+            eventEntity.StartTime = request.StartTime;
+        }
+
+        if (request.EndTime.HasValue)
+        {
+            eventEntity.EndTime = request.EndTime;
+        }
+
+        if (request.RegisterLimitTime.HasValue)
+        {
+            eventEntity.RegisterLimitTime = request.RegisterLimitTime;
+        }
+
+        if (request.LimitTeam.HasValue)
+        {
+            eventEntity.LimitTeam = request.LimitTeam;
+        }
+
+        if (request.MinMember.HasValue)
+        {
+            eventEntity.MinMember = request.MinMember;
+        }
+
+        if (request.MaxMember.HasValue)
+        {
+            eventEntity.MaxMember = request.MaxMember;
+        }
+
+        if (request.Status.HasValue)
+        {
+            eventEntity.Status = request.Status.Value;
+        }
+
+        if (request.NumberRound.HasValue)
+        {
+            eventEntity.NumberRound = request.NumberRound;
+        }
+
+        if (request.Season != null)
+        {
+            eventEntity.Season = request.Season;
+        }
+
+        eventEntity.UpdatedAt = DateTimeOffset.UtcNow;
+
+        _dbContext.Events.Update(eventEntity);
+        await _dbContext.SaveChangesAsync();
+
+        return "EVENT_UPDATED_SUCCESSFULLY";
+    }
+
+    public async Task<string> DeleteEvent(Guid eventId)
+    {
+        var eventEntity = await _dbContext.Events.FirstOrDefaultAsync(x => x.Id == eventId);
+        if (eventEntity == null)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        eventEntity.IsDisable = true;
+        eventEntity.UpdatedAt = DateTimeOffset.UtcNow;
+
+        _dbContext.Events.Update(eventEntity);
+        await _dbContext.SaveChangesAsync();
+
+        return "EVENT_DELETED_SUCCESSFULLY";
+    }
+
+    public async Task<string> PublishEvent(Guid eventId)
+    {
+        var eventEntity = await _dbContext.Events.FirstOrDefaultAsync(x => x.Id == eventId && !x.IsDisable);
+        if (eventEntity == null)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        if (eventEntity.Status != EventStatusEnum.Draft)
+        {
+            throw new ConflictException("EVENT_NOT_IN_DRAFT_STATUS");
+        }
+
+        eventEntity.Status = EventStatusEnum.Published;
+        eventEntity.UpdatedAt = DateTimeOffset.UtcNow;
+
+        _dbContext.Events.Update(eventEntity);
+        await _dbContext.SaveChangesAsync();
+
+        return "EVENT_PUBLISHED_SUCCESSFULLY";
+    }
+
     public async Task<BasePaginationResponse> GetEvents(Request.GetEventsRequest request)
     {
         var query = _dbContext.Events.AsNoTracking().Where(x => !x.IsDisable);
