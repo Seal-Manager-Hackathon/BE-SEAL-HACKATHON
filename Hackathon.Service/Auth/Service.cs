@@ -77,7 +77,7 @@ public class Service : IService
             var pepperPassword = request.Password + _securityOptions.Pepper;
             var hashedPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(pepperPassword, hashType: BCrypt.Net.HashType.SHA256);
 
-            var newUser = new Repository.Entity.Users()
+            var newUser = new Users()
             {
                 Id = Guid.NewGuid(),
                 Email = request.Email,
@@ -98,7 +98,7 @@ public class Service : IService
             var newClaims = new List<Claim>()
             {
                 new Claim("UserId", newUser.Id.ToString()),
-                new Claim("Role", RoleEnum.Student.ToString()),
+                new Claim(ClaimTypes.Role, RoleEnum.Student.ToString()),
                 new Claim("IsVerified", newUser.IsVerified.ToString().ToLower()),
             };
             var emailToken = _jwtService.GenerateEmailVerificationToken(newClaims, 2);
@@ -180,9 +180,8 @@ public class Service : IService
         var claimsForNewToken = new List<Claim>
         {
             new Claim("UserId", storedToken.User.Id.ToString()),
-            new Claim("Role", storedToken.User.Role.ToString()),
-            new Claim("IsVerified", storedToken.User.IsVerified.ToString().ToLower()),
             new Claim(ClaimTypes.Role, storedToken.User.Role.ToString()),
+            new Claim("IsVerified", storedToken.User.IsVerified.ToString().ToLower()),
         };
         string newAccessToken = _jwtService.GenerateAccessToken(claimsForNewToken);
 
@@ -242,7 +241,7 @@ public class Service : IService
             var authClaims = new List<Claim>
             {
                 new Claim("UserId", user.Id.ToString()),
-                new Claim("Role", user.Role.ToString()),
+                new Claim(ClaimTypes.Role, user.Role.ToString()),
                 new Claim("IsVerified", user.IsVerified.ToString().ToLower()),
             };
 
@@ -382,9 +381,8 @@ public class Service : IService
         var claims = new List<Claim>
         {
             new Claim("UserId", user.Id.ToString()),
-            new Claim("Role", user.Role.ToString()),
+            new Claim(ClaimTypes.Role, user.Role.ToString()),
             new Claim("IsVerified", user.IsVerified.ToString().ToLower()),
-            new Claim(ClaimTypes.Role, user.Role.ToString())
         };
 
         var accessToken = _jwtService.GenerateAccessToken(claims);
@@ -605,6 +603,7 @@ public class Service : IService
             var claims = new List<Claim>
             {
                 new Claim("UserId", user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role.ToString()),
                 new Claim("Role", user.Role.ToString()),
                 new Claim("IsVerified", (user.IsVerified ?? false).ToString().ToLower()),
             };

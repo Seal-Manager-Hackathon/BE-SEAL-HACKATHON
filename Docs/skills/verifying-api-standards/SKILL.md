@@ -38,11 +38,14 @@ When auditing API changes, verify each of the following points:
 - **No IValidatableObject/FluentValidation**: Do not use `IValidatableObject` or FluentValidation unless explicitly requested. Cross-field validations like password comparison must use `[Compare]`.
 
 ### 4. Pagination Standards
+- **Use PaginationRequest Class**: All paginated APIs and endpoints must utilize the shared `PaginationRequest` class (defined in `Hackathon.Service.Models`).
+  - Search/List DTO classes (e.g. `GetEventsRequest`) **must inherit** from `PaginationRequest`.
+  - Controller actions that accept page index and page size in query parameters **must bind** them as `[FromQuery] PaginationRequest paginationRequest`.
 - **Return Type**: The service method for a paginated query must return `Task<BasePaginationResponse>` directly.
-- **Page Limits**: Ensure pagination parameters are sanitized:
+- **Page Limits**: Ensure pagination parameters from `PaginationRequest` are sanitized:
   ```csharp
-  pageIndex = pageIndex <= 0 ? 1 : pageIndex;
-  pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
+  var pageIndex = paginationRequest.PageIndex <= 0 ? 1 : paginationRequest.PageIndex;
+  var pageSize = paginationRequest.PageSize <= 0 ? 10 : Math.Min(paginationRequest.PageSize, 100);
   ```
 - **Skip & Take implementation**: Use `.Skip((pageIndex - 1) * pageSize).Take(pageSize)` correctly after retrieving the total count.
 - **Factory Return**: The service must wrap and return the paged result via:

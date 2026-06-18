@@ -15,10 +15,4 @@ public class RoundsController : ControllerBase
         _roundsService = roundsService;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetRounds([FromQuery] Guid? eventId, [FromQuery] bool? isDisable)
-    {
-        var result = await _roundsService.GetRounds(eventId, isDisable);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
-    }
 }

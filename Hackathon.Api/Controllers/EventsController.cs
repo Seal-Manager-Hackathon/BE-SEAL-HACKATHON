@@ -40,17 +40,17 @@ public class EventsController : ControllerBase
     }
 
     [HttpGet("{eventId:guid}")]
-    public async Task<IActionResult> GetEvent(Guid eventId, [FromQuery] bool? isDisable)
+    public async Task<IActionResult> GetEvent(Guid eventId)
     {
-        var result = await _eventsService.GetEvent(eventId, isDisable);
+        var result = await _eventsService.GetEvent(eventId);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize]
     [HttpGet("/api/me/events/joined")]
-    public async Task<IActionResult> GetJoinedEvents([FromQuery] int? year, [FromQuery] string? status, [FromQuery] bool? isDisable)
+    public async Task<IActionResult> GetJoinedEvents([FromQuery] EventsService.Request.GetJoinedEventsRequest request)
     {
-        var result = await _eventsService.GetJoinedEvents(year, status, isDisable);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        var result = await _eventsService.GetJoinedEvents(request);
+        return Ok(result);
     }
 }
