@@ -32,4 +32,20 @@ public class RegisterTeam : ControllerBase
         var result = await _registerTeamService.GetRegisterTeamDetail(registerTeamId);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
+
+    [Authorize(Policy = JwtExtensions.StaffPolicy)]
+    [HttpPatch("register-teams/{registerTeamId:guid}/accept")]
+    public async Task<IActionResult> AcceptRegisterTeam(Guid registerTeamId)
+    {
+        var result = await _registerTeamService.AcceptRegisterTeam(registerTeamId);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [Authorize(Policy = JwtExtensions.StaffPolicy)]
+    [HttpPatch("register-teams/{registerTeamId:guid}/reject")]
+    public async Task<IActionResult> RejectRegisterTeam(Guid registerTeamId, RegisterTeamService.Request.RejectRegisterTeamRequest request)
+    {
+        var result = await _registerTeamService.RejectRegisterTeam(registerTeamId, request);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
 }

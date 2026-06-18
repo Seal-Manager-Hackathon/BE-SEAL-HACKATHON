@@ -51,4 +51,16 @@ public static class Response
         public string StudentId { get; set; } = null!;
         public bool IsLeader { get; set; }
     }
+
+    public class RegisterTeamActionResponse
+    {
+        public Guid Id { get; set; }
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = null!;
+        public Guid EventId { get; set; }
+        public string EventName { get; set; } = null!;
+        public RegisterTeamStatusEnum Status { get; set; }
+        public string? RejectionReason { get; set; }
+        public string Message { get; set; } = null!;
+    }
 }

@@ -168,4 +168,153 @@ public class Service : IService
             })
             .FirstAsync();
     }
+
+    public async Task<Response.RegisterTeamActionResponse> AcceptRegisterTeam(Guid registerTeamId)
+    {
+        var registerTeam = await _dbContext.RegisterTeams
+            .Include(x => x.Team)
+            .Include(x => x.Event)
+            .FirstOrDefaultAsync(x => x.Id == registerTeamId && !x.IsDisable);
+
+        if (registerTeam == null)
+        {
+            throw new NotFoundException("REGISTER_TEAM_NOT_FOUND");
+        }
+
+        if (registerTeam.Event.IsDisable)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        if (registerTeam.Team.IsDisable)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        await EnsureStaffAssignedToEvent(registerTeam.EventId);
+
+        if (registerTeam.Status == RegisterTeamStatusEnum.Approved)
+        {
+            throw new ConflictException("REGISTER_TEAM_ALREADY_APPROVED");
+        }
+
+        if (registerTeam.Status == RegisterTeamStatusEnum.Rejected)
+        {
+            throw new ConflictException("REGISTER_TEAM_ALREADY_REJECTED");
+        }
+
+        if (registerTeam.IsBanned)
+        {
+            throw new ConflictException("TEAM_IS_BANNED_FROM_EVENT");
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        registerTeam.Status = RegisterTeamStatusEnum.Approved;
+        registerTeam.RejectionReason = null;
+        registerTeam.UpdatedAt = now;
+        registerTeam.Team.CanEdit = false;
+        registerTeam.Team.UpdatedAt = now;
+
+        _dbContext.RegisterTeams.Update(registerTeam);
+        _dbContext.Teams.Update(registerTeam.Team);
+
+        var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
+        return new Response.RegisterTeamActionResponse
+        {
+            Id = registerTeam.Id,
+            TeamId = registerTeam.TeamId,
+            TeamName = registerTeam.Team.Name,
+            EventId = registerTeam.EventId,
+            EventName = registerTeam.Event.Name,
+            Status = registerTeam.Status.Value,
+            RejectionReason = registerTeam.RejectionReason,
+            Message = "REGISTER_TEAM_ACCEPTED_SUCCESSFULLY",
+        };
+    }
+
+    public async Task<Response.RegisterTeamActionResponse> RejectRegisterTeam(Guid registerTeamId, Request.RejectRegisterTeamRequest request)
+    {
+        var reason = request.Reason?.Trim();
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            throw new BadRequestException("REASON_REQUIRED");
+        }
+
+        var registerTeam = await _dbContext.RegisterTeams
+            .Include(x => x.Team)
+            .Include(x => x.Event)
+            .FirstOrDefaultAsync(x => x.Id == registerTeamId && !x.IsDisable);
+
+        if (registerTeam == null)
+        {
+            throw new NotFoundException("REGISTER_TEAM_NOT_FOUND");
+        }
+
+        if (registerTeam.Event.IsDisable)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        if (registerTeam.Team.IsDisable)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        await EnsureStaffAssignedToEvent(registerTeam.EventId);
+
+        if (registerTeam.Status == RegisterTeamStatusEnum.Approved)
+        {
+            throw new ConflictException("REGISTER_TEAM_ALREADY_APPROVED");
+        }
+
+        if (registerTeam.Status == RegisterTeamStatusEnum.Rejected)
+        {
+            throw new ConflictException("REGISTER_TEAM_ALREADY_REJECTED");
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        registerTeam.Status = RegisterTeamStatusEnum.Rejected;
+        registerTeam.RejectionReason = reason;
+        registerTeam.UpdatedAt = now;
+        registerTeam.Team.CanEdit = true;
+        registerTeam.Team.UpdatedAt = now;
+
+        _dbContext.RegisterTeams.Update(registerTeam);
+        _dbContext.Teams.Update(registerTeam.Team);
+
+        var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
+        return new Response.RegisterTeamActionResponse
+        {
+            Id = registerTeam.Id,
+            TeamId = registerTeam.TeamId,
+            TeamName = registerTeam.Team.Name,
+            EventId = registerTeam.EventId,
+            EventName = registerTeam.Event.Name,
+            Status = registerTeam.Status.Value,
+            RejectionReason = registerTeam.RejectionReason,
+            Message = "REGISTER_TEAM_REJECTED_SUCCESSFULLY",
+        };
+    }
 }
