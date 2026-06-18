@@ -71,4 +71,12 @@ public static class Response
         public string? Status { get; set; }
         public decimal? TotalScore { get; set; }
     }
+
+    public class EndRoundResponse
+    {
+        public Guid ClosedRoundId { get; set; }
+        public Guid? NextRoundId { get; set; }
+        public int TotalTeamsAdvanced { get; set; }
+        public string Message { get; set; } = null!;
+    }
 }
