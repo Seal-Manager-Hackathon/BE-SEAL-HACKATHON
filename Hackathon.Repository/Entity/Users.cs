@@ -12,7 +12,7 @@ public class Users : BaseEntity<Guid>, IAuditableEntity
     public string PhoneNumber { get; set; } = string.Empty;
     public string AvatarUrl { get; set; } = string.Empty;
     public string? Bio { get; set; }
-    public string Address { get; set; } = string.Empty;
+    public string? Address { get; set; } = string.Empty;
     public DateTimeOffset DateOfBirth { get; set; } = DateTimeOffset.MinValue;
     public string StudentId { get; set; } = string.Empty;
     public string College { get; set; } = string.Empty;

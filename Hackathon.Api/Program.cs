@@ -17,6 +17,7 @@ using TeamsService = Hackathon.Service.Teams;
 using RegisterTeamsService = Hackathon.Service.RegisterTeams;
 using TracksService = Hackathon.Service.Tracks;
 using CriticalsService = Hackathon.Service.Criticals;
+using UserService = Hackathon.Service.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -95,7 +96,7 @@ builder.Services.AddScoped<TeamsService.IService, TeamsService.Service>();
 builder.Services.AddScoped<RegisterTeamsService.IService, RegisterTeamsService.Service>();
 builder.Services.AddScoped<TracksService.IService, TracksService.Service>();
 builder.Services.AddScoped<CriticalsService.IService, CriticalsService.Service>();
-
+builder.Services.AddScoped<UserService.IService, UserService.Service>();
 
 
 builder.Services.AddCors(options =>

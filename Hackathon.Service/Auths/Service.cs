@@ -78,7 +78,7 @@ public class Service : IService
             var pepperPassword = request.Password + _securityOptions.Pepper;
             var hashedPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(pepperPassword, hashType: BCrypt.Net.HashType.SHA256);
 
-            var newUser = new Users()
+            var newUser = new Repository.Entity.Users()
             {
                 Id = Guid.NewGuid(),
                 Email = request.Email,
@@ -361,6 +361,11 @@ public class Service : IService
         var user = await _dbContext.Users
             .FirstOrDefaultAsync(x => x.Email == email && !x.IsDisable);
 
+        if (user.IsVerified == false)
+        {
+            throw new UnauthorizedException("EMAIL_UNVERIFIED");
+        }
+        
         if (user == null)
         {
             throw new UnauthorizedException("INVALID_EMAIL_OR_PASSWORD");
