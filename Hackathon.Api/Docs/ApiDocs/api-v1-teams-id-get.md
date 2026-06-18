@@ -38,6 +38,7 @@ Không có.
     "id": "guid",
     "name": "string",
     "canEdit": true,
+    "isLeader": true,
     "createdAt": "datetimeoffset",
     "members": [
       {

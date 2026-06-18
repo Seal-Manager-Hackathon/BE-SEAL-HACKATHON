@@ -337,11 +337,19 @@ public class Service : IService
             throw new ForbiddenException("TEAM_NOT_VISIBLE_TO_USER");
         }
 
+        var isLeader = false;
+        var currentUserDetail = team.TeamDetails.FirstOrDefault(x => x.UserId == userId && !x.IsDisable);
+        if (currentUserDetail != null)
+        {
+            isLeader = currentUserDetail.IsLeader;
+        }
+
         return new Response.TeamDetailResponse
         {
             Id = team.Id,
             Name = team.Name,
             CanEdit = team.CanEdit,
+            IsLeader = isLeader,
             CreatedAt = team.CreatedAt,
             Members = team.TeamDetails
                 .Where(x => !x.IsDisable)

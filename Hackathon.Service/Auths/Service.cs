@@ -322,6 +322,8 @@ public class Service : IService
             .Where(x => x.Id == userId)
             .Select(y => new Response.GetMeResponse()
             {
+                Id = y.Id,
+                Role = y.Role.ToString(),
                 Email = y.Email,
                 FirstName = y.FirstName,
                 LastName = y.LastName,
@@ -630,11 +632,26 @@ public class Service : IService
         var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
+            // Vô hiệu hoá các verification token cũ đang pending
+            var oldVerifications = await _dbContext.EmailVerifications
+                .Where(x => x.UserId == user.Id && x.Status == EmailVerificationStatusEnum.Pending && !x.IsDisable)
+                .ToListAsync();
+
+            if (oldVerifications.Count > 0)
+            {
+                var nowTime = DateTimeOffset.UtcNow;
+                foreach (var old in oldVerifications)
+                {
+                    old.IsDisable = true;
+                    old.UpdatedAt = nowTime;
+                }
+                _dbContext.EmailVerifications.UpdateRange(oldVerifications);
+            }
+
             var claims = new List<Claim>
             {
                 new Claim("UserId", user.Id.ToString()),
                 new Claim(ClaimTypes.Role, user.Role.ToString()),
-                new Claim("Role", user.Role.ToString()),
                 new Claim("IsVerified", (user.IsVerified ?? false).ToString().ToLower()),
             };
             var emailToken = _jwtService.GenerateEmailVerificationToken(claims, 2);

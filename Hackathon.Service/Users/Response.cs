@@ -1,9 +1,10 @@
 namespace Hackathon.Service.Users;
 
-public static class Reponse 
+public static class Reponse
 {
     public class UserProfileDetailResponse
     {
+        public Guid Id { get; set; }
         public string Email { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;

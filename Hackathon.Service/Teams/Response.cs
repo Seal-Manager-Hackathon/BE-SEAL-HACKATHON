@@ -44,6 +44,7 @@ public static class Response
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
         public bool CanEdit { get; set; }
+        public bool IsLeader { get; set; }
         public List<TeamMemberResponse> Members { get; set; } = new();
         public DateTimeOffset CreatedAt { get; set; }
     }
