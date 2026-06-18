@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hackathon.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260618173539_AddRoundNoToRounds")]
-    partial class AddRoundNoToRounds
+    [Migration("20260618174741_addNoround")]
+    partial class addNoround
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -3098,7 +3098,7 @@ namespace Hackathon.Repository.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("RoundNo")
+                    b.Property<int?>("RoundNo")
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset?>("StartSubmission")

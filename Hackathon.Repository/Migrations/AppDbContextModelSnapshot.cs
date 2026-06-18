@@ -3095,7 +3095,7 @@ namespace Hackathon.Repository.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("RoundNo")
+                    b.Property<int?>("RoundNo")
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset?>("StartSubmission")
