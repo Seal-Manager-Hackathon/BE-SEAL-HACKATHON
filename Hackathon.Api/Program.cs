@@ -15,6 +15,7 @@ using InvitationsService = Hackathon.Service.Invitations;
 using RoundsService = Hackathon.Service.Rounds;
 using TeamsService = Hackathon.Service.Teams;
 using TracksService = Hackathon.Service.Tracks;
+using RegisterTeamService = Hackathon.Service.RegisterTeam;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -91,6 +92,7 @@ builder.Services.AddScoped<InvitationsService.IService, InvitationsService.Servi
 builder.Services.AddScoped<RoundsService.IService, RoundsService.Service>();
 builder.Services.AddScoped<TeamsService.IService, TeamsService.Service>();
 builder.Services.AddScoped<TracksService.IService, TracksService.Service>();
+builder.Services.AddScoped<RegisterTeamService.IService, RegisterTeamService.Service>();
 
 
 
