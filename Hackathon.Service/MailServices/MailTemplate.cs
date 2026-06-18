@@ -4,7 +4,7 @@ public static class MailTemplate
 {
     public static string EmailContainToken(string token)
     {
-        var verificationLink = $"http://localhost:5173/verify-email?token={token}";
+        var verificationLink = $"http://localhost:5173/auth/verify-email?token={token}";
 
         var htmlBody = """
         <!DOCTYPE html>

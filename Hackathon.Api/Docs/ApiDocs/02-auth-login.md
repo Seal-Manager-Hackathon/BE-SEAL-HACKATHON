@@ -35,7 +35,7 @@
 - Email/password phải khớp với tài khoản đang tồn tại.
 - Tài khoản bị disable (`IsDisable = true`) không thể đăng nhập.
 - Tài khoản bị cấm (`Status = Banned`) không thể đăng nhập.
-- Tài khoản chưa xác thực email (`IsVerified = false`) không thể đăng nhập.
+- Tài khoản chưa xác thực email (`IsVerified = false`) nhưng nhập đúng password, hệ thống sẽ tự động gửi lại OTP qua email và block luồng đăng nhập (báo lỗi `EMAIL_UNVERIFIED_OTP_SENT`).
 - Đăng nhập thành công sẽ cấp access token và refresh token mới.
 - Access token và refresh token được trả về trong response body và set vào cookie.
 
@@ -44,6 +44,6 @@
 |---:|---|---|
 | 404 | NOT_FOUND | EMAIL_NOT_FOUND |
 | 403 | FORBIDDEN | USER_IS_BANNED |
-| 401 | UNAUTHORIZED | EMAIL_UNVERIFIED |
+| 401 | UNAUTHORIZED | EMAIL_UNVERIFIED_OTP_SENT |
 | 401 | UNAUTHORIZED | INVALID_EMAIL_OR_PASSWORD |
 | 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
