@@ -30,7 +30,7 @@ Authorization: Bearer <token>
         "id": "guid",
         "teamId": "guid",
         "teamName": "string",
-        "status": "Pending",
+        "status": 0, /* Pending */
         "description": "Chào bạn, hãy tham gia team của mình nhé!",
         "limitTime": "datetime",
         "createdAt": "datetime",

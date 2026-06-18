@@ -18,7 +18,7 @@ Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
 |---|---|---|---:|---|
 | `keyword` | `string` | Không | Từ khóa tìm kiếm theo tên team. |
-| `status` | `string` | Không | Lọc theo trạng thái đơn đăng ký. Giá trị: `Pending`, `Approved`, `Rejected`. |
+| `status` | `int` | Không | Lọc theo trạng thái đơn đăng ký. Giá trị: `Pending`, `Approved`, `Rejected`. | // 0: Pending, 1: Approved, 2: Rejected
 | `isDisable` | `bool` | Không | Lọc theo trạng thái soft-disable của đơn đăng ký. Nếu không truyền, mặc định lấy `false`. |
 | `pageIndex` | `int` | Không | Trang hiện tại (thuộc `PaginationRequest`), mặc định `1`. |
 | `pageSize` | `int` | Không | Số item mỗi trang (thuộc `PaginationRequest`), mặc định `10`. |
@@ -77,7 +77,7 @@ Response dùng `ApiResponseFactory.BasePagination(items, pageIndex, pageSize, to
 - Event phải tồn tại và chưa bị soft-disable, nếu không trả `EVENT_NOT_FOUND`.
 - Nếu người gọi là Staff: phải được phân công vào event đó (`AssignEvents`) thì mới được xem danh sách, nếu không trả `STAFF_NOT_ASSIGNED_TO_EVENT`.
 - Nếu người gọi là Admin: không cần kiểm tra phân công, có thể xem tất cả.
-- Nếu truyền `status`, lọc theo `RegisterTeamStatusEnum` tương ứng (`Pending`, `Approved`, `Rejected`).
+- Nếu truyền `status`, lọc theo `RegisterTeamStatusEnum` tương ứng (`Pending`, `Approved`, `Rejected`). // 0: Pending, 1: Approved, 2: Rejected
 - Nếu không truyền `status`, trả về tất cả trạng thái.
 - Query luôn lọc `IsDisable == (isDisable ?? false)`.
 - Nếu truyền `keyword`, tìm kiếm không phân biệt hoa thường theo tên team.

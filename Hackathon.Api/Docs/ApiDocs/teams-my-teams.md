@@ -31,7 +31,7 @@ Authorization: Bearer <token>
         "teamName": "string",
         "canEdit": true,
         "isLeader": true,
-        "memberStatus": "Active",
+        "memberStatus": 0, /* Active */
         "joinedAt": "datetime"
       }
     ],

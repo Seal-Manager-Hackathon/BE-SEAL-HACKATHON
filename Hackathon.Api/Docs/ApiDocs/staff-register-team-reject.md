@@ -51,7 +51,7 @@ Response dùng `ApiResponseFactory.Base(data)`.
     "teamName": "string",
     "eventId": "guid",
     "eventName": "string",
-    "status": "Rejected",
+    "status": 2, /* Rejected */
     "rejectionReason": "string",
     "message": "REGISTER_TEAM_REJECTED_SUCCESSFULLY"
   }

@@ -42,7 +42,7 @@ Response dùng `ApiResponseFactory.Base(data)`.
     "teamName": "string",
     "eventId": "guid",
     "eventName": "string",
-    "status": "Approved",
+    "status": 1, /* Approved */
     "message": "REGISTER_TEAM_ACCEPTED_SUCCESSFULLY"
   }
 }

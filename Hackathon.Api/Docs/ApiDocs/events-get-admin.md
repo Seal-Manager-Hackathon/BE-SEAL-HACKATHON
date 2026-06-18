@@ -63,7 +63,7 @@ Authorization: Bearer <token>
 
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | BAD_REQUEST | Trạng thái event (`status`) không hợp lệ. |
+| 400 | BAD_REQUEST | Trạng thái event (`status`) không hợp lệ. | // 0: Draft, 1: Published, 2: Closed, 3: Cancelled
 | 401 | MISSING_ACCESS_TOKEN | Access token is missing. (khi không truyền token) |
 | 401 | INVALID_ACCESS_TOKEN | Invalid access token. (khi token sai định dạng) |
 | 403 | FORBIDDEN | Quyền truy cập bị từ chối (khi người gọi không phải Admin/Staff) |

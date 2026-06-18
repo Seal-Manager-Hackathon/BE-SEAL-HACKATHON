@@ -31,7 +31,7 @@ Tạo một team mới cho học sinh (Student) đang đăng nhập và tự đ�
       {
         "userId": "guid",
         "isLeader": true,
-        "status": "Active"
+        "status": 0 /* Active */
       }
     ]
   }
