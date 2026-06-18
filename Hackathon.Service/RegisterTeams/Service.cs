@@ -203,7 +203,10 @@ public class Service : IService
             throw new NotFoundException("TEAM_NOT_FOUND");
         }
 
-        await EnsureStaffAssignedToEvent(registerTeam.EventId);
+        if (!IsCurrentUserAdmin())
+        {
+            await EnsureStaffAssignedToEvent(registerTeam.EventId);
+        }
 
         if (registerTeam.Status == RegisterTeamStatusEnum.Approved)
         {
@@ -283,7 +286,10 @@ public class Service : IService
             throw new NotFoundException("TEAM_NOT_FOUND");
         }
 
-        await EnsureStaffAssignedToEvent(registerTeam.EventId);
+        if (!IsCurrentUserAdmin())
+        {
+            await EnsureStaffAssignedToEvent(registerTeam.EventId);
+        }
 
         if (registerTeam.Status == RegisterTeamStatusEnum.Approved)
         {

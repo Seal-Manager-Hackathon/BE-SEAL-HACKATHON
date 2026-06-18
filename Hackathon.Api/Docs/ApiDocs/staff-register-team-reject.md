@@ -7,7 +7,7 @@ Staff từ chối đơn đăng ký tham gia event của một team, chuyển tr�
 `PATCH /api/v1/staff/register-teams/{registerTeamId}/reject`
 
 ## Authorization
-Yêu cầu access token hợp lệ với role `Staff`.
+Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
 
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
@@ -59,14 +59,15 @@ Response dùng `ApiResponseFactory.Base(data)`.
 ```
 
 ## Business rules
-- Staff phải đăng nhập bằng access token hợp lệ.
-- Endpoint này bắt buộc Staff-only qua `[Authorize(Policy = JwtExtensions.StaffPolicy)]`.
+- Staff hoặc Admin phải đăng nhập bằng access token hợp lệ.
+- Endpoint này cho phép Staff hoặc Admin qua `[Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]`.
 - `registerTeamId` là bắt buộc trên path.
 - `reason` là bắt buộc trong request body, sau khi trim không được để trống, nếu không trả `REASON_REQUIRED`.
 - Đơn đăng ký phải tồn tại và chưa bị soft-disable, nếu không trả `REGISTER_TEAM_NOT_FOUND`.
 - Event của đơn đăng ký phải tồn tại và chưa bị soft-disable, nếu không trả `EVENT_NOT_FOUND`.
 - Team của đơn đăng ký phải tồn tại và chưa bị soft-disable, nếu không trả `TEAM_NOT_FOUND`.
 - Staff phải được phân công vào event của đơn đăng ký đó (`AssignEvents`) thì mới được từ chối, nếu không trả `STAFF_NOT_ASSIGNED_TO_EVENT`.
+- Admin được từ chối trực tiếp, không cần kiểm tra phân công vào event.
 - Chỉ được từ chối đơn đang ở trạng thái `Pending`; nếu đơn đã `Approved` hoặc `Rejected` thì trả conflict.
 - Khi từ chối thành công:
   - `RegisterTeams.Status` được cập nhật thành `Rejected`.
@@ -97,4 +98,4 @@ Response dùng `ApiResponseFactory.Base(data)`.
 - Đã thêm request model `RejectRegisterTeamRequest` trong `Hackathon.Service.RegisterTeam.Request` với field `reason`.
 - Đã implement logic trong `Hackathon.Service.RegisterTeam.Service`.
 - Đã dùng chung response model `RegisterTeamActionResponse` với accept trong `Hackathon.Service.RegisterTeam.Response`.
-- Endpoint dùng route `PATCH /api/v1/staff/register-teams/{registerTeamId}/reject` và `StaffPolicy`.
+- Endpoint dùng route `PATCH /api/v1/staff/register-teams/{registerTeamId}/reject` và `StaffOrAdminPolicy`.
