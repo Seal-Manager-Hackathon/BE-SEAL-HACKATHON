@@ -43,8 +43,8 @@ public class Service : IService
                 var expirationTime = DateTimeOffset.FromUnixTimeSeconds(expUnixTime);
                 if (expirationTime > DateTimeOffset.UtcNow)
                 {
-                    // Token VẪN CÒN HẠN
-                    Console.WriteLine("Token vẫn còn hiệu lực.");
+                    // Token is STILL VALID
+                    Console.WriteLine("Token is still valid.");
                     return false;
                 }
                 return true;
@@ -104,12 +104,12 @@ public class Service : IService
                 await _mailService.SendMail(new MailContent
                 {
                     To = request.Email,
-                    Subject = "Xác thực tài khoản - SEAL Hackathon",
+                    Subject = "Account Verification - SEAL Hackathon",
                     Body = MailTemplate.EmailContainToken(resendToken),
                 });
 
                 await transaction.CommitAsync();
-                return "Tài khoản chưa được xác thực. Chúng tôi đã gửi lại email xác thực.";
+                return "Account not verified. We have resent the verification email.";
             }
 
             var pepperPassword = request.Password + _securityOptions.Pepper;
@@ -154,13 +154,13 @@ public class Service : IService
             await _mailService.SendMail(new MailContent
             {
                 To = request.Email,
-                Subject = "Xác thực tài khoản - SEAL Hackathon",
+                Subject = "Account Verification - SEAL Hackathon",
                 Body = MailTemplate.EmailContainToken(emailToken),
             });
 
 
             await transaction.CommitAsync();
-            return "Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.";
+            return "Registration successful. Please check your email to verify your account.";
         }
         catch
         {
@@ -170,13 +170,13 @@ public class Service : IService
     }
     public async Task<Response.AuthResponse> RefreshToken()
     {
-        // Trả về false tức là: CÒN ACCESS VÀ CÒN HẠN
+        // Return false means: HAS ACCESS AND STILL VALID
         bool isMissingAccessToken = CheckExpiredAccessToken();
 
         if (!isMissingAccessToken)
-        {// Nếu trả về true: Nghĩa là KHÔNG CÓ ACCESS TOKEN -> Luồng tự động trôi xuống bước 2
+        {// If returns true: Means NO ACCESS TOKEN -> Logic automatically proceeds to step 2
             throw new BadRequestException("ACCESS_TOKEN_STILL_VALID");
-        } 
+        }
 
         var rawRefreshToken = CheckRefreshToken();
 
@@ -203,7 +203,7 @@ public class Service : IService
 
         var newRefreshTokenEntity = new Hackathon.Repository.Entity.RefreshTokens()
         {
-            RefreshTokenHash = newRawRefreshToken, // Lưu chuỗi thuần trực tiếp theo cấu hình hệ thống
+            RefreshTokenHash = newRawRefreshToken, // Store raw string directly based on system configuration
             UserId = storedToken.User.Id,
             IpAddress = _httpContext.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
             UserAgent = _httpContext.HttpContext?.Request.Headers["User-Agent"].ToString() ?? "Unknown",
@@ -542,7 +542,7 @@ public class Service : IService
                 await _mailService.SendMail(new MailContent
                 {
                     To = email,
-                    Subject = "Đặt lại mật khẩu - SEAL Hackathon",
+                    Subject = "Reset Password - SEAL Hackathon",
                     Body = MailTemplate.ForgotPasswordContainToken(resetToken),
                 });
 
@@ -675,7 +675,7 @@ public class Service : IService
             await _mailService.SendMail(new MailContent
             {
                 To = email,
-                Subject = "Xác thực tài khoản - SEAL Hackathon",
+                Subject = "Account Verification - SEAL Hackathon",
                 Body = MailTemplate.EmailContainToken(emailToken),
             });
 
