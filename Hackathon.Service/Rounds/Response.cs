@@ -18,6 +18,15 @@ public static class Response
         public DateTimeOffset CreatedAt { get; set; }
     }
 
+    public class SubmitAssignmentResponse
+    {
+        public Guid SubmissionId { get; set; }
+        public Guid TeamId { get; set; }
+        public string? Url { get; set; }
+        public DateTimeOffset SubmittedAt { get; set; }
+        public string Message { get; set; } = null!;
+    }
+
     public class MyRoundResponse
     {
         public Guid RoundId { get; set; }
@@ -52,5 +61,14 @@ public static class Response
         public DateTimeOffset? EndTime { get; set; }
         public DateTimeOffset? StartSubmission { get; set; }
         public DateTimeOffset? EndSubmission { get; set; }
+    }
+
+    public class SubmissionResponse
+    {
+        public Guid SubmissionId { get; set; }
+        public string? Url { get; set; }
+        public DateTimeOffset? SubmittedAt { get; set; }
+        public string? Status { get; set; }
+        public decimal? TotalScore { get; set; }
     }
 }

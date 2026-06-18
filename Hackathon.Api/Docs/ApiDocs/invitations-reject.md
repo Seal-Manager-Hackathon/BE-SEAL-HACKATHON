@@ -27,7 +27,7 @@ Authorization: Bearer <token>
     "id": "guid",
     "teamId": "guid",
     "teamName": "string",
-    "status": "Rejected",
+    "status": 2, /* Rejected */
     "description": "string|null",
     "limitTime": "datetime|null",
     "createdAt": "datetime"

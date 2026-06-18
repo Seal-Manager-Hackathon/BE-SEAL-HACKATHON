@@ -57,8 +57,10 @@ public class Service : IService
         if (request.AvatarUrl != null) user.AvatarUrl = request.AvatarUrl;
         if (request.Bio != null) user.Bio = request.Bio;
         if (request.Address != null) user.Address = request.Address;
+        if (request.DateOfBirth != null) user.DateOfBirth = request.DateOfBirth.Value;
         if (request.StudentId != null) user.StudentId = request.StudentId;
         if (request.College != null) user.College = request.College;
+
 
         
         user.UpdatedAt = DateTimeOffset.UtcNow;
@@ -66,7 +68,7 @@ public class Service : IService
         _dbContext.Users.Update(user);
         await _dbContext.SaveChangesAsync();
 
-        return "Cập nhật profile thành công";
+        return "PROFILE_UPDATED_SUCCESSFULLY";
     }
 
     public async Task<string> CreateSystemReport(Request.CreateSystemReportRequest request)
@@ -92,7 +94,7 @@ public class Service : IService
         _dbContext.Reports.Add(report);
         await _dbContext.SaveChangesAsync();
 
-        return "Gửi báo cáo thành công";
+        return "REPORT_CREATED_SUCCESSFULLY";
     }
 
     private Guid GetUserId()

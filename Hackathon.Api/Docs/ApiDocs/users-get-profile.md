@@ -45,7 +45,7 @@ Không có.
     "college": "FPT University",
     "imgUrl": "https://example.com/img.jpg",
     "linkUrl": "https://github.com/johndoe",
-    "status": "Active",
+    "status": 0, /* 0: Active, 1: Inactive, 2: Banned */
     "banReason": null
   }
 }

@@ -32,7 +32,7 @@ Không yêu cầu Access Token (Public API).
         "name": "string",
         "startTime": "datetime|null",
         "endTime": "datetime|null",
-        "status": "string|null",
+        "status": 0, /* Draft */
         "season": "string|null",
         "createdAt": "datetime"
       }
@@ -59,5 +59,5 @@ Không yêu cầu Access Token (Public API).
 
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | BAD_REQUEST | Trạng thái event (`status`) không hợp lệ. |
+| 400 | BAD_REQUEST | Trạng thái event (`status`) không hợp lệ. | // 0: Draft, 1: Published, 2: Closed, 3: Cancelled
 | 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |

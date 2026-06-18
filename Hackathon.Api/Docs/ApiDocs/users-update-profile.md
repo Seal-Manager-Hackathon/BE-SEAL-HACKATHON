@@ -55,7 +55,7 @@ Content-Type: application/json
   "error": null,
   "traceId": "string",
   "timestampUtc": "2026-06-18T23:00:00Z",
-  "value": "Cập nhật profile thành công"
+  "value": "PROFILE_UPDATED_SUCCESSFULLY"
 }
 ```
 
