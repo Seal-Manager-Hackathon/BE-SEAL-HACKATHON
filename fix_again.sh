@@ -1,2 +1,0 @@
-sed -i 's/if (string.IsNullOrWhiteSpace(request.Status)) {/var myTeamIds = await _dbContext.TeamDetails.Where(x => x.UserId == userId \&\& !x.IsDisable \&\& x.Status == TeamDetailStatusEnum.Active).Select(x => x.TeamId).ToListAsync();\n        if (string.IsNullOrWhiteSpace(request.Status)) {/' D:/dotNet/Hackathon/Hackathon.Service/Teams/Service.cs
-sed -i '/var myTeamIds = await _dbContext.TeamDetails/,/ToListAsync();/d' D:/dotNet/Hackathon/Hackathon.Service/Teams/Service.cs
