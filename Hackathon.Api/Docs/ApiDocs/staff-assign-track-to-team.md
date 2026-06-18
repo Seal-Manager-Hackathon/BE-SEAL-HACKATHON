@@ -42,6 +42,7 @@ Yêu cầu access token hợp lệ với role `Staff`.
 
 ## Business rules
 - Staff phải đăng nhập bằng access token hợp lệ.
+- Staff phải được phân công vào event chứa track (`AssignEvents`) thì mới được gán team vào track của event đó.
 - Team phải tồn tại và chưa bị soft-disable.
 - Track phải tồn tại và chưa bị soft-disable.
 - Track phải thuộc một event đang tồn tại và chưa bị soft-disable.
@@ -57,6 +58,7 @@ Yêu cầu access token hợp lệ với role `Staff`.
 | 401 | MISSING_ACCESS_TOKEN | Access token is missing. |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | User không có role `Staff`. |
+| 403 | FORBIDDEN | STAFF_NOT_ASSIGNED_TO_EVENT |
 | 400 | BAD_REQUEST | TRACK_ID_REQUIRED |
 | 404 | NOT_FOUND | TEAM_NOT_FOUND |
 | 404 | NOT_FOUND | TRACK_NOT_FOUND |

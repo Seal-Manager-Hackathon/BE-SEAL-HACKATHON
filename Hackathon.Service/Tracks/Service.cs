@@ -38,6 +38,20 @@ public class Service : IService
         return userId;
     }
 
+    private async Task EnsureStaffAssignedToEvent(Guid eventId)
+    {
+        var staffId = GetCurrentUserId();
+        var isAssigned = await _dbContext.AssignEvents.AnyAsync(x => x.UserId == staffId
+            && x.EventId == eventId
+            && !x.IsDisable
+            && !x.Event.IsDisable);
+
+        if (!isAssigned)
+        {
+            throw new ForbiddenException("STAFF_NOT_ASSIGNED_TO_EVENT");
+        }
+    }
+
     public Task<BasePaginationResponse> GetTracksByEvent(Guid eventId, string? keyword, bool? isDisable, PaginationRequest paginationRequest)
     {
         return GetTracks(eventId, keyword, isDisable, paginationRequest);
@@ -153,6 +167,8 @@ public class Service : IService
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
 
+        await EnsureStaffAssignedToEvent(track.EventId);
+
         var registerTeam = await _dbContext.RegisterTeams.FirstOrDefaultAsync(x => x.TeamId == teamId
             && x.EventId == track.EventId
             && !x.IsDisable);
@@ -225,6 +241,8 @@ public class Service : IService
         {
             throw new NotFoundException("TRACK_NOT_FOUND");
         }
+
+        await EnsureStaffAssignedToEvent(topic.Track.EventId);
 
         var registerTeam = await _dbContext.RegisterTeams.FirstOrDefaultAsync(x => x.TeamId == teamId
             && x.EventId == topic.Track.EventId
