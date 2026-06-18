@@ -1,4 +1,0 @@
-sed -i '/if (!status.HasValue)/,/}/d' D:/dotNet/Hackathon/Hackathon.Service/RegisterTeams/Service.cs
-sed -i 's/        var items = await query/        var totalCount = await query.CountAsync();\n\n        if (!status.HasValue)\n        {\n            query = query.OrderBy(x => x.Status == RegisterTeamStatusEnum.Pending ? 0 : (x.Status == RegisterTeamStatusEnum.Approved ? 1 : 2)).ThenBy(x => x.Team.Name).ThenBy(x => x.CreatedAt);\n        }\n        else\n        {\n            query = query.OrderBy(x => x.Team.Name).ThenBy(x => x.CreatedAt);\n        }\n\n        var items = await query/' D:/dotNet/Hackathon/Hackathon.Service/RegisterTeams/Service.cs
-sed -i 's/            .OrderBy(x => x.Team.Name)//' D:/dotNet/Hackathon/Hackathon.Service/RegisterTeams/Service.cs
-sed -i 's/            .ThenBy(x => x.CreatedAt)//' D:/dotNet/Hackathon/Hackathon.Service/RegisterTeams/Service.cs
