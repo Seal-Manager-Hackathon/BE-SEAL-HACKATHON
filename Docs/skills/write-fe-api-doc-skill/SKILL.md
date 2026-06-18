@@ -45,6 +45,46 @@ DO NOT output your own markdown headers like "Endpoint & Mô tả". Instead, use
     Dựa vào logic của Service để viết chi tiết các mã HTTP Status Code (e.g. `400 BadRequest`, `404 NotFound`, `409 Conflict`) kèm theo các giá trị `messageCode` tương ứng sẽ xuất hiện (e.g. `TEAM_NAME_ALREADY_EXISTS`, `USER_PROFILE_NOT_COMPLETED`). Trình bày dưới dạng Markdown Table.
 - **Business rules:**
     Trình bày dưới dạng list gạch đầu dòng (`- `) giống hệt file reference. Đảm bảo liệt kê đầy đủ các validation quan trọng.
+Produce the documentation in Vietnamese following this exact markdown template:
+
+### Endpoint & Mô tả
+*   **API:** `[METHOD] /api/v1/...` (e.g. `POST /api/v1/teams`)
+*   **Mô tả:** [Chức năng của API]
+
+### Phân quyền (Permissions)
+*   **Yêu cầu Access Token:** [Có/Không]
+*   **Role hợp lệ:** [Student / Staff / Admin / Public]
+*   **Lỗi phân quyền:**
+    *   `401 Unauthorized` (`MISSING_ACCESS_TOKEN` / `INVALID_ACCESS_TOKEN`)
+    *   `403 Forbidden` (Nếu role không khớp)
+
+### Request Details
+*   **Headers:**
+    ```
+    Authorization: Bearer <token>
+    Content-Type: application/json
+    ```
+*   **Route / Query Parameters:** (nếu có)
+*   **Body JSON:** (nếu có)
+    ```json
+    { ... }
+    ```
+*   **Ràng buộc validation:**
+    *   `[Trường]`: [Loại validation, e.g. Bắt buộc, Range] -> Trả về lỗi `400 Bad Request` với message code tương ứng (e.g. `TEAM_NAME_REQUIRED`).
+
+### Response Details
+*   **Success Response (200 OK / 201 Created):**
+    ```json
+    {
+      "success": true,
+      "statusCode": 200,
+      "message": "...",
+      "data": { ... },
+      "traceId": "..."
+    }
+    ```
+*   **Error Responses:**
+    Dựa vào logic của Service để viết chi tiết các mã HTTP Status Code (e.g. `400 BadRequest`, `404 NotFound`, `409 Conflict`) kèm theo các giá trị `messageCode` tương ứng sẽ xuất hiện (e.g. `TEAM_NAME_ALREADY_EXISTS`, `USER_PROFILE_NOT_COMPLETED`). Đảm bảo liệt kê đầy đủ tất cả các trường hợp lỗi có thể ném ra từ API/Service.
 
 ## Common Mistakes
 *   **Lỗi:** Trả về data trực tiếp không bọc qua `ApiResponse` envelope.
