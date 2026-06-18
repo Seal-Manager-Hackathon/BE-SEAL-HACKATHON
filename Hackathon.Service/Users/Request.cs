@@ -10,8 +10,10 @@ public static class Request
         public string? AvatarUrl { get; set; }
         public string? Bio { get; set; }
         public string? Address { get; set; }
+        public DateTimeOffset? DateOfBirth { get; set; }
         public string? StudentId { get; set; }
         public string? College { get; set; }
+
     }
 
     public class CreateSystemReportRequest
