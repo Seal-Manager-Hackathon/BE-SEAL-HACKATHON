@@ -3,7 +3,7 @@ using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
 
-namespace Hackathon.Service.MailService;
+namespace Hackathon.Service.MailServices;
 
 public class Service: IService
 {

@@ -1,4 +1,4 @@
-namespace Hackathon.Service.RegisterTeam;
+namespace Hackathon.Service.RegisterTeams;
 
 public static class Request
 {

@@ -20,6 +20,12 @@ public static class Response
         public DateTimeOffset CreatedAt { get; set; }
     }
 
+    public class CreateEventResponse
+    {
+        public Guid Id { get; set; }
+        public string Message { get; set; } = null!;
+    }
+
     public class EventParticipantResponse : EventResponse
     {
         public int TeamCount { get; set; }

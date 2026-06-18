@@ -25,6 +25,38 @@ public class EventsController : ControllerBase
     }
 
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    [HttpPost("/api/v1/admin/events")]
+    public async Task<IActionResult> CreateEvent(EventsService.Request.CreateEventRequest request)
+    {
+        var result = await _eventsService.CreateEvent(request);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    [HttpPatch("/api/v1/admin/events/{eventId:guid}")]
+    public async Task<IActionResult> UpdateEvent(Guid eventId, EventsService.Request.UpdateEventRequest request)
+    {
+        var result = await _eventsService.UpdateEvent(eventId, request);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    [HttpDelete("/api/v1/admin/events/{eventId:guid}")]
+    public async Task<IActionResult> DeleteEvent(Guid eventId)
+    {
+        var result = await _eventsService.DeleteEvent(eventId);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    [HttpPatch("/api/v1/admin/events/{eventId:guid}/publish")]
+    public async Task<IActionResult> PublishEvent(Guid eventId)
+    {
+        var result = await _eventsService.PublishEvent(eventId);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
     [HttpGet("/api/v1/admin/events")]
     public async Task<IActionResult> GetEventsForAdmin([FromQuery] EventsService.Request.GetEventsForAdminRequest request)
     {
@@ -47,7 +79,7 @@ public class EventsController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("/api/me/events/joined")]
+    [HttpGet("events/joined")]
     public async Task<IActionResult> GetJoinedEvents([FromQuery] EventsService.Request.GetJoinedEventsRequest request)
     {
         var result = await _eventsService.GetJoinedEvents(request);

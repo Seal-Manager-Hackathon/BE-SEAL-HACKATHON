@@ -3,27 +3,28 @@ using Hackathon.Repository;
 using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
 using Hackathon.Service.Exceptions;
-using Hackathon.Service.MailService;
+using Hackathon.Service.MailServices;
 using Hackathon.Service.Models;
-using Hackathon.Service.Auth;
+using Hackathon.Service.Auths;
+using Hackathon.Service.JwtServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using IService = Hackathon.Service.MailService.IService;
+using IService = Hackathon.Service.Auths.IService;
 
-namespace Hackathon.Service.Auth;
+namespace Hackathon.Service.Auths;
 
 public class Service : IService
 {
     private readonly AppDbContext _dbContext;
     private readonly SecurityOption _securityOptions = new();
-    private readonly JwtService.IService _jwtService;
-    private readonly MailService.IService _mailService;
+    private readonly JwtServices.IService _jwtService;
+    private readonly MailServices.IService _mailService;
     private readonly IHttpContextAccessor _httpContext;
 
     public Service(AppDbContext dbContext, IConfiguration configuration,
-        MailService.IService mailService, IHttpContextAccessor httpContextAccessor,
-        JwtService.IService jwtService)
+        MailServices.IService mailService, IHttpContextAccessor httpContextAccessor,
+        JwtServices.IService jwtService)
     {
         _dbContext = dbContext;
         configuration.GetSection(nameof(SecurityOption)).Bind(_securityOptions);
@@ -77,7 +78,7 @@ public class Service : IService
             var pepperPassword = request.Password + _securityOptions.Pepper;
             var hashedPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(pepperPassword, hashType: BCrypt.Net.HashType.SHA256);
 
-            var newUser = new Users()
+            var newUser = new Repository.Entity.Users()
             {
                 Id = Guid.NewGuid(),
                 Email = request.Email,

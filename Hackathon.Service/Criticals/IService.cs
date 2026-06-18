@@ -1,4 +1,4 @@
-namespace Hackathon.Service.Critical;
+namespace Hackathon.Service.Criticals;
 
 public interface IService
 {
