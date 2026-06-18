@@ -77,7 +77,7 @@ public class Service : IService
             var pepperPassword = request.Password + _securityOptions.Pepper;
             var hashedPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(pepperPassword, hashType: BCrypt.Net.HashType.SHA256);
 
-            var newUser = new Users()
+            var newUser = new Repository.Entity.Users()
             {
                 Id = Guid.NewGuid(),
                 Email = request.Email,

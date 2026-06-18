@@ -39,7 +39,7 @@ public class Service : IService
         return userId;
     }
 
-    private static bool IsProfileCompleted(Users user)
+    private static bool IsProfileCompleted(UserEntity user)
     {
         return !string.IsNullOrWhiteSpace(user.Email)
                && !string.IsNullOrWhiteSpace(user.HashPassword)
@@ -52,7 +52,7 @@ public class Service : IService
                && !string.IsNullOrWhiteSpace(user.College);
     }
 
-    private async Task<Users> ValidateAndGetStudentAsync(Guid userId)
+    private async Task<UserEntity> ValidateAndGetStudentAsync(Guid userId)
     {
         var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
         if (user == null || user.IsDisable == true)
