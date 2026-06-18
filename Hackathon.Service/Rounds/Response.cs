@@ -8,6 +8,7 @@ public static class Response
         public Guid EventId { get; set; }
         public string Name { get; set; } = null!;
         public string? Description { get; set; }
+        public int? RoundNo { get; set; }
         public DateTimeOffset? StartTime { get; set; }
         public DateTimeOffset? EndTime { get; set; }
         public DateTimeOffset? StartSubmission { get; set; }
@@ -24,5 +25,21 @@ public static class Response
         public string? Url { get; set; }
         public DateTimeOffset SubmittedAt { get; set; }
         public string Message { get; set; } = null!;
+    }
+
+    public class MyRoundResponse
+    {
+        public Guid RoundId { get; set; }
+        public Guid EventId { get; set; }
+        public string RoundName { get; set; } = null!;
+        public string EventName { get; set; } = null!;
+        public int? RoundNo { get; set; }
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = null!;
+        public Guid RegisterTeamId { get; set; }
+        public DateTimeOffset? StartTime { get; set; }
+        public DateTimeOffset? EndTime { get; set; }
+        public DateTimeOffset? StartSubmission { get; set; }
+        public DateTimeOffset? EndSubmission { get; set; }
     }
 }

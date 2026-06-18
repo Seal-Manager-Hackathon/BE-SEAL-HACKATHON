@@ -37,9 +37,91 @@ public class Service : IService
         return userId;
     }
 
-    public async Task<List<Response.RoundResponse>> GetRounds(Guid? eventId, bool? isDisable)
+    public async Task<List<Response.RoundResponse>> GetRounds(Guid eventId)
     {
-        throw new NotImplementedException();
+        var eventExists = await _dbContext.Events
+            .AsNoTracking()
+            .AnyAsync(x => x.Id == eventId && !x.IsDisable);
+
+        if (!eventExists)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        var rounds = await _dbContext.Rounds
+            .AsNoTracking()
+            .Where(x => x.EventId == eventId && !x.IsDisable)
+            .OrderBy(x => x.RoundNo)
+            .ThenBy(x => x.CreatedAt)
+            .Select(x => new Response.RoundResponse
+            {
+                Id = x.Id,
+                EventId = x.EventId,
+                Name = x.Name,
+                Description = x.Description,
+                RoundNo = x.RoundNo,
+                StartTime = x.StartTime,
+                EndTime = x.EndTime,
+                StartSubmission = x.StartSubmission,
+                EndSubmission = x.EndSubmission,
+                LimitTeam = x.LimitTeam,
+                IsDisable = x.IsDisable,
+                CreatedAt = x.CreatedAt
+            })
+            .ToListAsync();
+
+        return rounds;
+    }
+
+    public async Task<List<Response.MyRoundResponse>> GetMyRounds(Guid? eventId)
+    {
+        var userId = GetCurrentUserId();
+
+        if (eventId.HasValue)
+        {
+            var eventExists = await _dbContext.Events
+                .AsNoTracking()
+                .AnyAsync(x => x.Id == eventId.Value && !x.IsDisable);
+
+            if (!eventExists)
+            {
+                throw new NotFoundException("EVENT_NOT_FOUND");
+            }
+        }
+
+        var query = _dbContext.RoundDetails
+            .AsNoTracking()
+            .Include(x => x.Round).ThenInclude(r => r.Event)
+            .Include(x => x.RegisterTeam).ThenInclude(rt => rt.Team)
+            .Where(x => !x.Round.IsDisable && !x.Round.Event.IsDisable && !x.RegisterTeam.Team.IsDisable)
+            .Where(x => x.RegisterTeam.Team.TeamDetails.Any(td => td.UserId == userId && !td.IsDisable));
+
+        if (eventId.HasValue)
+        {
+            query = query.Where(x => x.Round.EventId == eventId.Value);
+        }
+
+        var myRounds = await query
+            .OrderBy(x => x.Round.RoundNo)
+            .ThenBy(x => x.Round.StartTime)
+            .Select(x => new Response.MyRoundResponse
+            {
+                RoundId = x.RoundId,
+                EventId = x.Round.EventId,
+                RoundName = x.Round.Name,
+                EventName = x.Round.Event.Name,
+                RoundNo = x.Round.RoundNo,
+                TeamId = x.RegisterTeam.TeamId,
+                TeamName = x.RegisterTeam.Team.Name,
+                RegisterTeamId = x.RegisterTeamId,
+                StartTime = x.Round.StartTime,
+                EndTime = x.Round.EndTime,
+                StartSubmission = x.Round.StartSubmission,
+                EndSubmission = x.Round.EndSubmission
+            })
+            .ToListAsync();
+
+        return myRounds;
     }
 
     public async Task<Response.SubmitAssignmentResponse> SubmitAssignment(Guid roundId, Request.SubmitAssignmentRequest request)

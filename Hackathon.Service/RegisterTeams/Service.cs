@@ -233,6 +233,18 @@ public class Service : IService
         _dbContext.RegisterTeams.Update(registerTeam);
         _dbContext.Teams.Update(registerTeam.Team);
 
+        var round1 = await _dbContext.Rounds
+            .FirstOrDefaultAsync(r => r.EventId == registerTeam.EventId && r.RoundNo == 1 && !r.IsDisable);
+
+        if (round1 != null)
+        {
+            _dbContext.RoundDetails.Add(new Hackathon.Repository.Entity.RoundDetails
+            {
+                RoundId = round1.Id,
+                RegisterTeamId = registerTeam.Id
+            });
+        }
+
         var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
