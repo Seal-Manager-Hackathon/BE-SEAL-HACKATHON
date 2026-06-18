@@ -6,7 +6,7 @@ using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace Hackathon.Service.RegisterTeam;
+namespace Hackathon.Service.RegisterTeams;
 
 public class Service : IService
 {
@@ -86,10 +86,22 @@ public class Service : IService
             query = query.Where(x => x.Team.Name.ToLower().Contains(normalizedKeyword));
         }
 
+
+
         var totalCount = await query.CountAsync();
+
+        if (!status.HasValue)
+        {
+            query = query.OrderBy(x => x.Status == RegisterTeamStatusEnum.Pending ? 0 : (x.Status == RegisterTeamStatusEnum.Approved ? 1 : 2)).ThenBy(x => x.Team.Name).ThenBy(x => x.CreatedAt);
+        }
+        else
+        {
+            query = query.OrderBy(x => x.Team.Name).ThenBy(x => x.CreatedAt);
+        }
+
         var items = await query
-            .OrderBy(x => x.Team.Name)
-            .ThenBy(x => x.CreatedAt)
+
+
             .Skip((paginationRequest.PageIndex - 1) * paginationRequest.PageSize)
             .Take(paginationRequest.PageSize)
             .Select(x => new Response.RegisterTeamResponse

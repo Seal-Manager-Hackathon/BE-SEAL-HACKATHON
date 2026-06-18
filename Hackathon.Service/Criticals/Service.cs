@@ -2,7 +2,7 @@ using Hackathon.Repository;
 using Hackathon.Service.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
-namespace Hackathon.Service.Critical;
+namespace Hackathon.Service.Criticals;
 
 public class Service : IService
 {

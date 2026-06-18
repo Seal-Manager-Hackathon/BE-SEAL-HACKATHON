@@ -7,16 +7,17 @@ using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
-using AuthService = Hackathon.Service.Auth;
-using MailService = Hackathon.Service.MailService;
-using JwtService = Hackathon.Service.JwtService;
+using AuthsService = Hackathon.Service.Auths;
+using MailServices = Hackathon.Service.MailServices;
+using JwtServices = Hackathon.Service.JwtServices;
 using EventsService = Hackathon.Service.Events;
 using InvitationsService = Hackathon.Service.Invitations;
 using RoundsService = Hackathon.Service.Rounds;
 using TeamsService = Hackathon.Service.Teams;
+using RegisterTeamsService = Hackathon.Service.RegisterTeams;
 using TracksService = Hackathon.Service.Tracks;
+using CriticalsService = Hackathon.Service.Criticals;
 using UserService = Hackathon.Service.Users;
-using RegisterTeamService = Hackathon.Service.RegisterTeam;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -85,18 +86,17 @@ builder.Services.AddQuartzHostedService(options =>
     options.WaitForJobsToComplete = true;
 });
 
-builder.Services.AddScoped<AuthService.IService, AuthService.Service>();
-builder.Services.AddScoped<JwtService.IService, JwtService.Service>();
-builder.Services.AddScoped<MailService.IService, MailService.Service>();
+builder.Services.AddScoped<AuthsService.IService, AuthsService.Service>();
+builder.Services.AddScoped<JwtServices.IService, JwtServices.Service>();
+builder.Services.AddScoped<MailServices.IService, MailServices.Service>();
 builder.Services.AddScoped<EventsService.IService, EventsService.Service>();
 builder.Services.AddScoped<InvitationsService.IService, InvitationsService.Service>();
 builder.Services.AddScoped<RoundsService.IService, RoundsService.Service>();
 builder.Services.AddScoped<TeamsService.IService, TeamsService.Service>();
+builder.Services.AddScoped<RegisterTeamsService.IService, RegisterTeamsService.Service>();
 builder.Services.AddScoped<TracksService.IService, TracksService.Service>();
+builder.Services.AddScoped<CriticalsService.IService, CriticalsService.Service>();
 builder.Services.AddScoped<UserService.IService, UserService.Service>();
-
-builder.Services.AddScoped<RegisterTeamService.IService, RegisterTeamService.Service>();
-
 
 
 builder.Services.AddCors(options =>

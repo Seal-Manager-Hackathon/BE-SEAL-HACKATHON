@@ -1,7 +1,7 @@
 using Hackathon.Repository.Enum;
 using Hackathon.Service.Models;
 
-namespace Hackathon.Service.RegisterTeam;
+namespace Hackathon.Service.RegisterTeams;
 
 public interface IService
 {

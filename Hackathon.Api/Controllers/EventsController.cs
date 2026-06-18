@@ -47,7 +47,7 @@ public class EventsController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("/api/me/events/joined")]
+    [HttpGet("events/joined")]
     public async Task<IActionResult> GetJoinedEvents([FromQuery] EventsService.Request.GetJoinedEventsRequest request)
     {
         var result = await _eventsService.GetJoinedEvents(request);

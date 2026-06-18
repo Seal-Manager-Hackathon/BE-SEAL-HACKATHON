@@ -1,4 +1,4 @@
-﻿namespace Hackathon.Service.Auth;
+﻿namespace Hackathon.Service.Auths;
 
 public class Response
 {

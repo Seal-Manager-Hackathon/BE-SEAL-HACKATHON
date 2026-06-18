@@ -1,6 +1,6 @@
 using Hackathon.Repository.Enum;
 
-namespace Hackathon.Service.RegisterTeam;
+namespace Hackathon.Service.RegisterTeams;
 
 public static class Response
 {

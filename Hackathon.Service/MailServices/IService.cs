@@ -1,4 +1,4 @@
-﻿namespace Hackathon.Service.MailService;
+﻿namespace Hackathon.Service.MailServices;
 
 public interface IService
 {
