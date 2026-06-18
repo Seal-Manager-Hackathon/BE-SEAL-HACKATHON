@@ -43,6 +43,26 @@ public static class Response
         public DateTimeOffset? EndSubmission { get; set; }
     }
 
+    public class MyRoundDetailResponse
+    {
+        public Guid RoundId { get; set; }
+        public Guid EventId { get; set; }
+        public string RoundName { get; set; } = null!;
+        public string EventName { get; set; } = null!;
+        public int? RoundNo { get; set; }
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = null!;
+        public Guid RegisterTeamId { get; set; }
+        public Guid? TrackId { get; set; }
+        public string? TrackTitle { get; set; }
+        public Guid? TopicId { get; set; }
+        public string? TopicTitle { get; set; }
+        public DateTimeOffset? StartTime { get; set; }
+        public DateTimeOffset? EndTime { get; set; }
+        public DateTimeOffset? StartSubmission { get; set; }
+        public DateTimeOffset? EndSubmission { get; set; }
+    }
+
     public class SubmissionResponse
     {
         public Guid SubmissionId { get; set; }

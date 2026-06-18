@@ -127,6 +127,20 @@ public class Service : IService
             eventEntity.Name = request.Name.Trim();
         }
 
+        var newStartTime = request.StartTime ?? eventEntity.StartTime;
+        var newEndTime = request.EndTime ?? eventEntity.EndTime;
+        var newRegisterLimitTime = request.RegisterLimitTime ?? eventEntity.RegisterLimitTime;
+
+        if (newStartTime.HasValue && newEndTime.HasValue && newStartTime.Value >= newEndTime.Value)
+        {
+            throw new BadRequestException("START_TIME_MUST_BE_BEFORE_END_TIME");
+        }
+
+        if (newRegisterLimitTime.HasValue && newStartTime.HasValue && newRegisterLimitTime.Value >= newStartTime.Value)
+        {
+            throw new BadRequestException("REGISTER_LIMIT_TIME_MUST_BE_BEFORE_START_TIME");
+        }
+
         if (request.Description != null)
         {
             eventEntity.Description = request.Description;

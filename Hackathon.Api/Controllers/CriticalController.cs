@@ -16,9 +16,9 @@ public class CriticalController : ControllerBase
     }
 
     [HttpGet("{roundId}/criteria")]
-    public async Task<IActionResult> GetCriteriaByRound(Guid roundId, [FromQuery] bool? isDisable)
+    public async Task<IActionResult> GetCriteriaByRound(Guid roundId)
     {
-        var result = await _criticalService.GetCriteriaByRound(roundId, isDisable);
+        var result = await _criticalService.GetCriteriaByRound(roundId);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 }

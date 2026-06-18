@@ -1,0 +1,10 @@
+--- Program.cs
++++ Program.cs
+@@ -107,6 +107,7 @@
+ builder.Services.AddScoped<Hackathon.Service.ScoreItems.IService, Hackathon.Service.ScoreItems.Service>();
+ builder.Services.AddScoped<Hackathon.Service.Submissions.IService, Hackathon.Service.Submissions.Service>();
+ builder.Services.AddScoped<Hackathon.Service.Upload.IService, Hackathon.Service.Upload.Service>();
++builder.Services.AddScoped<Hackathon.Service.Topics.IService, Hackathon.Service.Topics.Service>();
+ 
+ builder.Services.Configure<FormOptions>(options =>
+ {

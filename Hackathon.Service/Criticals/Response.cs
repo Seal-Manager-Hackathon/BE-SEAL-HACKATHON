@@ -7,7 +7,7 @@ public static class Response
         public Guid RoundId { get; set; }
         public Guid EventId { get; set; }
         public string RoundName { get; set; } = null!;
-        public List<CriteriaTemplateResponse> Templates { get; set; } = new();
+        public CriteriaTemplateResponse? Template { get; set; }
     }
 
     public class CriteriaTemplateResponse

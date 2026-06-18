@@ -55,7 +55,7 @@ Response dùng `ApiResponseFactory.BasePagination(items, pageIndex, pageSize, to
         "topicTitle": "string|null",
         "description": "string|null",
         "rejectionReason": "string|null",
-        "status": "string",
+        "status": 0, /* Pending */
         "isBanned": false,
         "isDisable": false,
         "createdAt": "datetimeoffset"

@@ -1,8 +1,8 @@
 # Xem Vòng thi đang tham gia (Dành cho Student)
 
 ### Endpoint & Mô tả
-*   **API:** `GET /api/v1/rounds/me`
-*   **Mô tả:** Lấy danh sách các vòng thi (Rounds) mà User hiện tại đang tham gia (thông qua Team đã đăng ký và được đưa vào vòng thi đó). Giúp xác định Team đang ở Round nào trong Event.
+*   **API:** `GET /api/v1/rounds/teams/{teamId}`
+*   **Mô tả:** Lấy danh sách các vòng thi (Rounds) mà User hiện tại đang tham gia (thông qua Team cụ thể đã đăng ký và được đưa vào vòng thi đó). Giúp xác định Team đang ở Round nào trong Event.
 
 ### Phân quyền (Permissions)
 *   **Yêu cầu Access Token:** Có
@@ -16,8 +16,10 @@
     Authorization: Bearer <token>
     Content-Type: application/json
     ```
+*   **Path Parameters:**
+    *   `teamId` (Guid, Bắt buộc): ID của team mà user là thành viên.
 *   **Query Parameters:** 
-    *   `eventId` (Guid, Tùy chọn): Nếu truyền lên, sẽ chỉ trả về vòng thi của User trong sự kiện đó. Nếu không truyền, có thể trả về tất cả các vòng thi ở các sự kiện đang tham gia.
+    *   `eventId` (Guid, Tùy chọn): Nếu truyền lên, sẽ chỉ trả về vòng thi của User trong sự kiện đó.
 
 ### Response Details
 *   **Success Response (200 OK):**

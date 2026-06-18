@@ -53,6 +53,37 @@ public class Service : IService
         return true;
     }
 
+    private async Task SendVerificationEmailAsync(Repository.Entity.Users user, string email)
+    {
+        var claims = new List<Claim>()
+        {
+            new Claim("UserId", user.Id.ToString()),
+            new Claim(ClaimTypes.Role, user.Role.ToString()),
+            new Claim("IsVerified", user.IsVerified.ToString().ToLower()),
+        };
+        var emailToken = _jwtService.GenerateEmailVerificationToken(claims, 2);
+        
+        var newEmailVerification = new Repository.Entity.EmailVerifications()
+        {
+            UserId = user.Id,
+            TokenHash = emailToken,
+            ExpiredAt = DateTimeOffset.UtcNow.AddMinutes(2),
+            Status = EmailVerificationStatusEnum.Pending,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+        
+        await _dbContext.EmailVerifications.AddAsync(newEmailVerification);
+        await _dbContext.SaveChangesAsync();
+        
+        await _mailService.SendMail(new MailContent
+        {
+            To = email,
+            Subject = "Account Verification - SEAL Hackathon",
+            Body = MailTemplate.EmailContainToken(emailToken),
+        });
+    }
+
     private string CheckRefreshToken()
     {
         _httpContext.HttpContext!.Request.Cookies.TryGetValue("Refresh-Token", out var check);
@@ -79,37 +110,7 @@ public class Service : IService
                     throw new ConflictException("EMAIL_ALREADY_EXISTS");
                 }
 
-                // Resend verification email for unverified user
-                var oldClaims = new List<Claim>()
-                {
-                    new Claim("UserId", existingUser.Id.ToString()),
-                    new Claim(ClaimTypes.Role, existingUser.Role.ToString()),
-                    new Claim("IsVerified", existingUser.IsVerified.ToString().ToLower()),
-                };
-
-                var resendToken = _jwtService.GenerateEmailVerificationToken(oldClaims, 2);
-                var newEmailVeri = new Repository.Entity.EmailVerifications()
-                {
-                    UserId = existingUser.Id,
-                    TokenHash = resendToken,
-                    ExpiredAt = DateTimeOffset.UtcNow.AddMinutes(2),
-                    Status = EmailVerificationStatusEnum.Pending,
-                    CreatedAt = DateTimeOffset.UtcNow,
-                    UpdatedAt = DateTimeOffset.UtcNow
-                };
-                
-                await _dbContext.EmailVerifications.AddAsync(newEmailVeri);
-                await _dbContext.SaveChangesAsync();
-                
-                await _mailService.SendMail(new MailContent
-                {
-                    To = request.Email,
-                    Subject = "Account Verification - SEAL Hackathon",
-                    Body = MailTemplate.EmailContainToken(resendToken),
-                });
-
-                await transaction.CommitAsync();
-                return "UNVERIFIED_ACCOUNT_VERIFICATION_RESENT";
+                throw new ConflictException("UNVERIFIED_ACCOUNT_PLEASE_LOGIN_TO_VERIFY");
             }
 
             var pepperPassword = request.Password + _securityOptions.Pepper;
@@ -131,33 +132,9 @@ public class Service : IService
             };
             
             await _dbContext.Users.AddAsync(newUser);
-            
-
-            var newClaims = new List<Claim>()
-            {
-                new Claim("UserId", newUser.Id.ToString()),
-                new Claim(ClaimTypes.Role, RoleEnum.Student.ToString()),
-                new Claim("IsVerified", newUser.IsVerified.ToString().ToLower()),
-            };
-            var emailToken = _jwtService.GenerateEmailVerificationToken(newClaims, 2);
-            var newEmailVerifications = new Repository.Entity.EmailVerifications()
-            {
-                UserId = newUser.Id,
-                TokenHash = emailToken,
-                ExpiredAt = DateTimeOffset.UtcNow.AddMinutes(2),
-                Status = EmailVerificationStatusEnum.Pending,
-                CreatedAt = DateTimeOffset.UtcNow,
-                UpdatedAt = DateTimeOffset.UtcNow
-            };
-            await _dbContext.EmailVerifications.AddAsync(newEmailVerifications);
             await _dbContext.SaveChangesAsync();
-            await _mailService.SendMail(new MailContent
-            {
-                To = request.Email,
-                Subject = "Account Verification - SEAL Hackathon",
-                Body = MailTemplate.EmailContainToken(emailToken),
-            });
 
+            await SendVerificationEmailAsync(newUser, request.Email);
 
             await transaction.CommitAsync();
             return "REGISTRATION_SUCCESSFUL";
@@ -386,8 +363,7 @@ public class Service : IService
         };
     }
     
-    public async Task<Response.LoginResponse> LoginAsync(
-        Request.LoginRequest request)
+    public async Task<Response.LoginResponse> LoginAsync(Request.LoginRequest request)
     {
         var httpContext = _httpContext.HttpContext;
         var ipAddress = httpContext?.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
@@ -407,13 +383,7 @@ public class Service : IService
             throw new ForbiddenException("USER_IS_BANNED");
         }
 
-        if (user.IsVerified == false)
-        {
-            throw new UnauthorizedException("EMAIL_UNVERIFIED");
-        }
-
         var pepperPassword = request.Password + _securityOptions.Pepper;
-
         var isPasswordValid = global::BCrypt.Net.BCrypt.EnhancedVerify(
             pepperPassword,
             user.HashPassword,
@@ -425,6 +395,23 @@ public class Service : IService
             throw new UnauthorizedException("INVALID_EMAIL_OR_PASSWORD");
         }
 
+        if (user.IsVerified == false)
+        {
+            // Password is correct, but unverified. Send OTP and block login.
+            var transaction = await _dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                await SendVerificationEmailAsync(user, email);
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+            throw new UnauthorizedException("EMAIL_UNVERIFIED_OTP_SENT");
+        }
+
         var claims = new List<Claim>
         {
             new Claim("UserId", user.Id.ToString()),
@@ -433,7 +420,6 @@ public class Service : IService
         };
 
         var accessToken = _jwtService.GenerateAccessToken(claims);
-
         var refreshToken = _jwtService.GenerateRefreshToken();
 
         var refreshTokenEntity = new Repository.Entity.RefreshTokens
@@ -456,12 +442,9 @@ public class Service : IService
             AccessToken = accessToken,
             RefreshToken = refreshToken,
             Message = "LOGIN_SUCCESSFUL",
-            
         };
         return result;
-
     }
-
     public async Task<Response.MessageResponse> ChangePassword(Request.ChangePasswordRequest request)
     {
         var userId = CheckAccessToken();

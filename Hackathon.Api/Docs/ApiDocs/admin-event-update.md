@@ -71,6 +71,8 @@ Response dùng `ApiResponseFactory.Base(data)` và chỉ trả message khi cập
 - Nếu truyền `name`, tên mới không được trùng với event khác (không phân biệt hoa thường), nếu không trả `EVENT_NAME_ALREADY_EXISTS`.
 - `status` nếu truyền được bind trực tiếp vào `EventStatusEnum` (`Draft`, `Published`, `Closed`, `Cancelled`). Nếu không truyền hoặc truyền `null`, sẽ giữ nguyên trạng thái hiện tại của event. // 0: Draft, 1: Published, 2: Closed, 3: Cancelled
 - `UpdatedAt` được cập nhật theo thời gian hiện tại (`DateTimeOffset.UtcNow`).
+- `startTime` phải diễn ra trước `endTime` (so với giá trị mới nếu truyền, hoặc so với giá trị cũ nếu giữ nguyên), nếu không trả lỗi `START_TIME_MUST_BE_BEFORE_END_TIME`.
+- `registerLimitTime` phải diễn ra trước `startTime` (so với giá trị mới nếu truyền, hoặc so với giá trị cũ nếu giữ nguyên), nếu không trả lỗi `REGISTER_LIMIT_TIME_MUST_BE_BEFORE_START_TIME`.
 - Khi cập nhật thành công chỉ trả message `EVENT_UPDATED_SUCCESSFULLY`, không trả data event.
 
 ## Lỗi có thể xảy ra
@@ -81,6 +83,8 @@ Response dùng `ApiResponseFactory.Base(data)` và chỉ trả message khi cập
 | 403 | FORBIDDEN | User không có role `Admin`. |
 | 400 | BAD_REQUEST | EVENT_NAME_REQUIRED |
 | 400 | BAD_REQUEST | BAD_REQUEST (status không hợp lệ) |
+| 400 | BAD_REQUEST | START_TIME_MUST_BE_BEFORE_END_TIME |
+| 400 | BAD_REQUEST | REGISTER_LIMIT_TIME_MUST_BE_BEFORE_START_TIME |
 | 404 | NOT_FOUND | EVENT_NOT_FOUND |
 | 409 | CONFLICT | EVENT_NAME_ALREADY_EXISTS |
 | 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |

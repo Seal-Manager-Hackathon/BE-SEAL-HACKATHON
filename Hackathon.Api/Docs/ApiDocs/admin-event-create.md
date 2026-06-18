@@ -63,6 +63,8 @@ Response dùng `ApiResponseFactory.Base(data)` và chỉ trả `id` của event 
 - Khi tạo mới, event mặc định có `Status = Draft`, `IsDisable = false`.
 - `CreatedAt` và `UpdatedAt` được set theo thời gian hiện tại (`DateTimeOffset.UtcNow`).
 - Các field không bắt buộc nếu không truyền sẽ để `null`.
+- `startTime` phải diễn ra trước `endTime` (nếu cả 2 có giá trị), nếu không trả về lỗi `START_TIME_MUST_BE_BEFORE_END_TIME`.
+- `registerLimitTime` phải diễn ra trước `startTime` (nếu cả 2 có giá trị), nếu không trả về lỗi `REGISTER_LIMIT_TIME_MUST_BE_BEFORE_START_TIME`.
 - `startTime`, `endTime`, `registerLimitTime` nếu có thì phải theo đúng format ISO 8601.
 - Khi tạo thành công chỉ trả `id` của event vừa tạo và message `EVENT_CREATED_SUCCESSFULLY`, không trả data event.
 
@@ -73,6 +75,8 @@ Response dùng `ApiResponseFactory.Base(data)` và chỉ trả `id` của event 
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | User không có role `Admin`. |
 | 400 | BAD_REQUEST | EVENT_NAME_REQUIRED |
+| 400 | BAD_REQUEST | START_TIME_MUST_BE_BEFORE_END_TIME |
+| 400 | BAD_REQUEST | REGISTER_LIMIT_TIME_MUST_BE_BEFORE_START_TIME |
 | 409 | CONFLICT | EVENT_NAME_ALREADY_EXISTS |
 | 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
 

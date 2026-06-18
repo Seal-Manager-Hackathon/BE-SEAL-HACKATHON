@@ -39,7 +39,7 @@ Không có.
       "limitTeam": 0,
       "minMember": 0,
       "maxMember": 0,
-      "status": "string|null",
+      "status": 0, /* Draft */
       "numberRound": 0,
       "season": "string|null",
       "isDisable": false,

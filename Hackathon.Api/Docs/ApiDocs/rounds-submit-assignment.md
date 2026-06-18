@@ -57,11 +57,12 @@ Content-Type: application/json
 - `roundId` không được rỗng.
 - `url` là bắt buộc và không được để trống.
 - Round phải tồn tại và chưa bị disable (`IsDisable = false`).
-- Nếu round có `StartSubmission`, thời điểm hiện tại phải lớn hơn hoặc bằng `StartSubmission`.
-- Nếu round có `EndSubmission`, thời điểm hiện tại phải nhỏ hơn hoặc bằng `EndSubmission`.
+- Nếu round có `StartSubmission`, thời điểm hiện tại phải lớn hơn hoặc bằng `StartSubmission` (Lỗi: `SUBMISSION_NOT_STARTED`).
+- Nếu round có `EndSubmission`, thời điểm hiện tại phải nhỏ hơn hoặc bằng `EndSubmission` (Lỗi: `SUBMISSION_CLOSED`).
 - Người gọi API phải thuộc team active của register team đã được duyệt (`Status = Approved`).
 - Register team không được bị disable hoặc bị banned.
 - Round detail tương ứng không được bị disable.
+- Team chưa nộp bài lần nào trong round này (chỉ được submit 1 lần duy nhất). Nếu đã nộp trước đó sẽ trả về lỗi `ALREADY_SUBMITTED`.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
@@ -71,4 +72,5 @@ Content-Type: application/json
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | USER_TEAM_NOT_ALLOWED_TO_SUBMIT_THIS_ROUND |
 | 404 | NOT_FOUND | ROUND_NOT_FOUND |
+| 409 | CONFLICT | ALREADY_SUBMITTED |
 | 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |

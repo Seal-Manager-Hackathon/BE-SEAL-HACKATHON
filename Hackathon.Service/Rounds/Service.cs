@@ -74,7 +74,7 @@ public class Service : IService
         return rounds;
     }
 
-    public async Task<List<Response.MyRoundResponse>> GetMyRounds(Guid? eventId)
+    public async Task<List<Response.MyRoundResponse>> GetMyRounds(Guid? eventId, Guid teamId)
     {
         var userId = GetCurrentUserId();
 
@@ -90,6 +90,15 @@ public class Service : IService
             }
         }
 
+        var teamExists = await _dbContext.Teams
+            .AsNoTracking()
+            .AnyAsync(x => x.Id == teamId && !x.IsDisable);
+
+        if (!teamExists)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
         var query = _dbContext.RoundDetails
             .AsNoTracking()
             .Include(x => x.Round).ThenInclude(r => r.Event)
@@ -101,6 +110,8 @@ public class Service : IService
         {
             query = query.Where(x => x.Round.EventId == eventId.Value);
         }
+
+        query = query.Where(x => x.RegisterTeam.TeamId == teamId);
 
         var myRounds = await query
             .OrderBy(x => x.Round.RoundNo)
@@ -123,6 +134,44 @@ public class Service : IService
             .ToListAsync();
 
         return myRounds;
+    }
+
+    public async Task<Response.MyRoundDetailResponse> GetMyRoundDetail(Guid registerTeamId)
+    {
+        var userId = GetCurrentUserId();
+
+        var detail = await _dbContext.RoundDetails
+            .AsNoTracking()
+            .Include(x => x.Round).ThenInclude(r => r.Event)
+            .Include(x => x.RegisterTeam).ThenInclude(rt => rt.Team)
+            .Include(x => x.RegisterTeam).ThenInclude(rt => rt.Track)
+            .Include(x => x.RegisterTeam).ThenInclude(rt => rt.Topic)
+            .Where(x => !x.Round.IsDisable && !x.Round.Event.IsDisable && !x.RegisterTeam.Team.IsDisable)
+            .Where(x => x.RegisterTeam.Team.TeamDetails.Any(td => td.UserId == userId && !td.IsDisable))
+            .Where(x => x.RegisterTeamId == registerTeamId)
+            .Select(x => new Response.MyRoundDetailResponse
+            {
+                RoundId = x.RoundId,
+                EventId = x.Round.EventId,
+                RoundName = x.Round.Name,
+                EventName = x.Round.Event.Name,
+                RoundNo = x.Round.RoundNo,
+                TeamId = x.RegisterTeam.TeamId,
+                TeamName = x.RegisterTeam.Team.Name,
+                RegisterTeamId = x.RegisterTeamId,
+                TrackId = x.RegisterTeam.TrackId,
+                TrackTitle = x.RegisterTeam.Track != null ? x.RegisterTeam.Track.Title : null,
+                TopicId = x.RegisterTeam.TopicId,
+                TopicTitle = x.RegisterTeam.Topic != null ? x.RegisterTeam.Topic.Title : null,
+                StartTime = x.Round.StartTime,
+                EndTime = x.Round.EndTime,
+                StartSubmission = x.Round.StartSubmission,
+                EndSubmission = x.Round.EndSubmission
+            })
+            .FirstOrDefaultAsync();
+
+        if (detail == null) throw new NotFoundException("ROUND_DETAIL_NOT_FOUND");
+        return detail;
     }
 
     public async Task<Response.SubmitAssignmentResponse> SubmitAssignment(Guid roundId, Request.SubmitAssignmentRequest request)
@@ -173,7 +222,15 @@ public class Service : IService
             throw new ForbiddenException("USER_TEAM_NOT_ALLOWED_TO_SUBMIT_THIS_ROUND");
         }
 
-        var submission = new Submissions
+        var submission = await _dbContext.Submissions
+            .FirstOrDefaultAsync(x => x.RoundDetailId == roundDetail.Id && !x.IsDisable);
+
+        if (submission != null)
+        {
+            throw new ConflictException("ALREADY_SUBMITTED");
+        }
+
+        var newSubmission = new Submissions
         {
             Id = Guid.NewGuid(),
             RoundDetailId = roundDetail.Id,
@@ -185,14 +242,14 @@ public class Service : IService
             UpdatedAt = now
         };
 
-        await _dbContext.Submissions.AddAsync(submission);
+        await _dbContext.Submissions.AddAsync(newSubmission);
         await _dbContext.SaveChangesAsync();
 
         return new Response.SubmitAssignmentResponse
         {
-            SubmissionId = submission.Id,
+            SubmissionId = newSubmission.Id,
             TeamId = roundDetail.RegisterTeam.TeamId,
-            Url = submission.Url,
+            Url = newSubmission.Url,
             SubmittedAt = now,
             Message = "SUBMISSION_CREATED_SUCCESSFULLY"
         };
