@@ -53,4 +53,13 @@ public static class Response
     {
         public int Count { get; set; }
     }
+
+    public class LatestRegisteredEventResponse
+    {
+        public Guid RegisterId { get; set; }
+        public Guid EventId { get; set; }
+        public string EventName { get; set; } = null!;
+        public string Status { get; set; } = null!;
+        public DateTimeOffset CreatedAt { get; set; }
+    }
 }

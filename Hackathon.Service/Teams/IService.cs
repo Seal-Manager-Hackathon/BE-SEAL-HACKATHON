@@ -14,4 +14,5 @@ public interface IService
     Task<Response.MessageResponse> TransferLeader(Guid teamId, Request.TransferLeaderRequest request);
     Task<BasePaginationResponse> GetTeamRegisteredEvents(Guid teamId, RegisterTeams.Request.GetTeamRegisteredEventsRequest request, PaginationRequest paginationRequest);
     Task<Response.CountResponse> GetApprovedEventsCount(Guid teamId);
+    Task<Response.LatestRegisteredEventResponse?> GetLatestRegisteredEvent(Guid teamId);
 }

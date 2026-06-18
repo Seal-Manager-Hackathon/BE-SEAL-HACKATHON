@@ -10,14 +10,9 @@ namespace Hackathon.Api.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/v1/teams")]
-public class TeamController : ControllerBase
+public class TeamController(TeamsService.IService teamService) : ControllerBase
 {
-    private readonly TeamsService.IService _teamService;
-
-    public TeamController(TeamsService.IService teamService)
-    {
-        _teamService = teamService;
-    }
+    private readonly TeamsService.IService _teamService = teamService;
 
     [HttpGet("me")]
     public async Task<IActionResult> GetMyTeams([FromQuery] PaginationRequest paginationRequest)
@@ -79,6 +74,13 @@ public class TeamController : ControllerBase
     public async Task<IActionResult> GetApprovedEventsCount(Guid teamId)
     {
         var result = await _teamService.GetApprovedEventsCount(teamId);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("{teamId:guid}/events/latest")]
+    public async Task<IActionResult> GetLatestRegisteredEvent(Guid teamId)
+    {
+        var result = await _teamService.GetLatestRegisteredEvent(teamId);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 }

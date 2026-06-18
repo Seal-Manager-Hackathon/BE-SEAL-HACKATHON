@@ -597,4 +597,30 @@ public class Service : IService
             Count = count
         };
     }
+
+    public async Task<Response.LatestRegisteredEventResponse?> GetLatestRegisteredEvent(Guid teamId)
+    {
+        var teamExists = await _dbContext.Teams.AnyAsync(x => x.Id == teamId && !x.IsDisable);
+        if (!teamExists)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        var latestRegistration = await _dbContext.RegisterTeams
+            .AsNoTracking()
+            .Include(x => x.Event)
+            .Where(x => x.TeamId == teamId && !x.IsDisable && x.Status == RegisterTeamStatusEnum.Approved)
+            .OrderByDescending(x => x.CreatedAt)
+            .Select(x => new Response.LatestRegisteredEventResponse
+            {
+                RegisterId = x.Id,
+                EventId = x.EventId,
+                EventName = x.Event.Name,
+                Status = x.Status.ToString()!,
+                CreatedAt = x.CreatedAt
+            })
+            .FirstOrDefaultAsync();
+
+        return latestRegistration;
+    }
 }
