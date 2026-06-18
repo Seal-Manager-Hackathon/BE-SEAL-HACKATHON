@@ -6,6 +6,7 @@ using Hackathon.Service.Exceptions;
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using UserEntity = Hackathon.Repository.Entity.Users;
 
 namespace Hackathon.Service.Teams;
 
