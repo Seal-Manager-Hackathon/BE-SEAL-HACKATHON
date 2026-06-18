@@ -52,7 +52,7 @@ Produce the documentation in Vietnamese following this exact markdown template:
     }
     ```
 *   **Error Responses:**
-    Liệt kê chi tiết mã lỗi (e.g. `400 BadRequest`, `404 NotFound`, `409 Conflict`) kèm theo `messageCode` tương ứng (e.g. `TEAM_NAME_ALREADY_EXISTS`, `USER_PROFILE_NOT_COMPLETED`).
+    Dựa vào logic của Service để viết chi tiết các mã HTTP Status Code (e.g. `400 BadRequest`, `404 NotFound`, `409 Conflict`) kèm theo các giá trị `messageCode` tương ứng sẽ xuất hiện (e.g. `TEAM_NAME_ALREADY_EXISTS`, `USER_PROFILE_NOT_COMPLETED`). Đảm bảo liệt kê đầy đủ tất cả các trường hợp lỗi có thể ném ra từ API/Service.
 
 ## Common Mistakes
 *   **Lỗi:** Trả về data trực tiếp không bọc qua `ApiResponse` envelope.

@@ -17,6 +17,7 @@ public class Service : IService
         _IhttpContex = httpContextAccessor;
     }
 
+    
     public async Task<Reponse.UserProfileDetailResponse> GetProfileUser()
     {
         var userId = GetUserId();
@@ -59,6 +60,7 @@ public class Service : IService
         if (request.StudentId != null) user.StudentId = request.StudentId;
         if (request.College != null) user.College = request.College;
 
+        
         user.UpdatedAt = DateTimeOffset.UtcNow;
 
         _dbContext.Users.Update(user);
