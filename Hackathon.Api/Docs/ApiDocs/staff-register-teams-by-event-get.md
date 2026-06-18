@@ -77,7 +77,7 @@ Response dùng `ApiResponseFactory.BasePagination(items, pageIndex, pageSize, to
 - Event phải tồn tại và chưa bị soft-disable, nếu không trả `EVENT_NOT_FOUND`.
 - Nếu người gọi là Staff: phải được phân công vào event đó (`AssignEvents`) thì mới được xem danh sách, nếu không trả `STAFF_NOT_ASSIGNED_TO_EVENT`.
 - Nếu người gọi là Admin: không cần kiểm tra phân công, có thể xem tất cả.
-- Nếu truyền `status`, lọc theo `RegisterTeamStatusEnum` tương ứng (`Pending`, `Approved`, `Rejected`).
+- Nếu truyền `status`, lọc theo `RegisterTeamStatusEnum` tương ứng (`Pending`, `Approved`, `Rejected`). // 0: Pending, 1: Approved, 2: Rejected
 - Nếu không truyền `status`, trả về tất cả trạng thái.
 - Query luôn lọc `IsDisable == (isDisable ?? false)`.
 - Nếu truyền `keyword`, tìm kiếm không phân biệt hoa thường theo tên team.

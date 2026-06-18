@@ -48,7 +48,7 @@ Không có.
         "studentId": "string",
         "college": "string",
         "isLeader": true,
-        "status": "Active"
+        "status": 0 /* Active */
       }
     ]
   }
