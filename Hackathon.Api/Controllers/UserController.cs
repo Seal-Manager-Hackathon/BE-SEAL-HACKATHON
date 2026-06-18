@@ -1,3 +1,4 @@
+using Hackathon.Service.Users;
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +22,14 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetProfileUser()
     {
         var result = await _userService.GetProfileUser();
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpPatch("profile")]
+    [Authorize]
+    public async Task<IActionResult> UpdateProfile(Request.UpdateProfileRequest requestBody)
+    {
+        var result = await _userService.UpdateProfile(requestBody);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 }
