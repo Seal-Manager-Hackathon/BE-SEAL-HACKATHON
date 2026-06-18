@@ -10,6 +10,7 @@ New folder/
 DATABASE_SCHEMA.md
 Hackathon2026.dbml
 SYSTEM_WORKFLOW.md
+.sh
 # User-specific files
 *.suo
 *.user

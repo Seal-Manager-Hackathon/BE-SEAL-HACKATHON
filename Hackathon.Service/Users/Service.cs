@@ -1,4 +1,6 @@
 using Hackathon.Repository;
+using Hackathon.Repository.Entity;
+using Hackathon.Repository.Enum;
 using Hackathon.Service.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +16,7 @@ public class Service : IService
         _dbContext = dbContext;
         _IhttpContex = httpContextAccessor;
     }
+
     
     public async Task<Reponse.UserProfileDetailResponse> GetProfileUser()
     {
@@ -44,8 +47,8 @@ public class Service : IService
     {
         var userId = GetUserId();
         var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
-        
-        if (user == null) 
+
+        if (user == null)
             throw new NotFoundException("USER_NOT_FOUND");
 
         if (request.FirstName != null) user.FirstName = request.FirstName;
@@ -56,6 +59,7 @@ public class Service : IService
         if (request.Address != null) user.Address = request.Address;
         if (request.StudentId != null) user.StudentId = request.StudentId;
         if (request.College != null) user.College = request.College;
+
         
         user.UpdatedAt = DateTimeOffset.UtcNow;
 
@@ -63,6 +67,32 @@ public class Service : IService
         await _dbContext.SaveChangesAsync();
 
         return "Cập nhật profile thành công";
+    }
+
+    public async Task<string> CreateSystemReport(Request.CreateSystemReportRequest request)
+    {
+        var userId = GetUserId();
+
+        var report = new Reports
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            AssignEventId = request.AssignEventId,
+            SubmissionId = request.SubmissionId,
+            Title = request.Title,
+            Description = request.Description,
+            ImgUrl = request.ImgUrl,
+            FileUrl = request.FileUrl,
+            TypeReport = request.TypeReport,
+            Status = ReportStatusEnum.Open,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+
+        _dbContext.Reports.Add(report);
+        await _dbContext.SaveChangesAsync();
+
+        return "Gửi báo cáo thành công";
     }
 
     private Guid GetUserId()
