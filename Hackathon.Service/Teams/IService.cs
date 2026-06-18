@@ -12,9 +12,6 @@ public interface IService
     Task<Response.MessageResponse> UpdateTeam(Guid teamId, Request.UpdateTeamRequest request);
     Task<Response.MessageResponse> RemoveMembers(Guid teamId, Request.RemoveMembersRequest request);
     Task<Response.MessageResponse> TransferLeader(Guid teamId, Request.TransferLeaderRequest request);
-    Task<Response.RegisterEventResponse> RegisterEvent(Request.RegisterEventRequest request);
-    Task<BasePaginationResponse> GetMyRegisteredEvents(Request.GetMyRegisteredEventsRequest request, PaginationRequest paginationRequest);
-    Task<Response.RejectionReasonResponse> GetRejectionReason(Guid registerId);
-    Task<Response.RegisterEventResponse> ApproveRegistration(Guid registerId);
-    Task<Response.RegisterEventResponse> RejectRegistration(Guid registerId, Request.RejectTeamRequest request);
+    Task<BasePaginationResponse> GetTeamRegisteredEvents(Guid teamId, RegisterTeams.Request.GetTeamRegisteredEventsRequest request, PaginationRequest paginationRequest);
+    Task<Response.CountResponse> GetApprovedEventsCount(Guid teamId);
 }

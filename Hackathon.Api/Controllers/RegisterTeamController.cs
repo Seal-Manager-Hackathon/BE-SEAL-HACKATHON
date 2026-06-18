@@ -2,7 +2,6 @@ using Hackathon.Repository.Enum;
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TeamsService = Hackathon.Service.Teams;
 using RegisterTeamsService = Hackathon.Service.RegisterTeams;
 
 namespace Hackathon.Api.Controllers;
@@ -12,33 +11,31 @@ namespace Hackathon.Api.Controllers;
 [Route("api/v1/register-teams")]
 public class RegisterTeamController : ControllerBase
 {
-    private readonly TeamsService.IService _teamService;
     private readonly RegisterTeamsService.IService _registerTeamService;
 
-    public RegisterTeamController(TeamsService.IService teamService, RegisterTeamsService.IService registerTeamService)
+    public RegisterTeamController(RegisterTeamsService.IService registerTeamService)
     {
-        _teamService = teamService;
         _registerTeamService = registerTeamService;
     }
 
     [HttpPost]
-    public async Task<IActionResult> RegisterEvent([FromBody] TeamsService.Request.RegisterEventRequest request)
+    public async Task<IActionResult> RegisterEvent([FromBody] RegisterTeamsService.Request.RegisterEventRequest request)
     {
-        var result = await _teamService.RegisterEvent(request);
+        var result = await _registerTeamService.RegisterEvent(request);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpGet("me")]
-    public async Task<IActionResult> GetMyRegisteredEvents([FromQuery] TeamsService.Request.GetMyRegisteredEventsRequest request, [FromQuery] PaginationRequest paginationRequest)
+    public async Task<IActionResult> GetMyRegisteredEvents([FromQuery] RegisterTeamsService.Request.GetMyRegisteredEventsRequest request, [FromQuery] PaginationRequest paginationRequest)
     {
-        var result = await _teamService.GetMyRegisteredEvents(request, paginationRequest);
+        var result = await _registerTeamService.GetMyRegisteredEvents(request, paginationRequest);
         return Ok(result);
     }
 
     [HttpGet("{registerId:guid}/rejection-reason")]
     public async Task<IActionResult> GetRejectionReason(Guid registerId)
     {
-        var result = await _teamService.GetRejectionReason(registerId);
+        var result = await _registerTeamService.GetRejectionReason(registerId);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 

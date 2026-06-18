@@ -52,10 +52,4 @@ public static class Request
     {
         public string? Status { get; set; }
     }
-
-    public class RejectTeamRequest
-    {
-        [Required(ErrorMessage = "REJECTION_REASON_REQUIRED")]
-        public string? Reason { get; set; }
-    }
 }

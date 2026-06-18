@@ -57,7 +57,17 @@ public class Service : IService
         if (request.AvatarUrl != null) user.AvatarUrl = request.AvatarUrl;
         if (request.Bio != null) user.Bio = request.Bio;
         if (request.Address != null) user.Address = request.Address;
-        if (request.DateOfBirth != null) user.DateOfBirth = request.DateOfBirth.Value;
+        if (request.DateOfBirth != null)
+        {
+            var userTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"); // +7 timezone for vn
+
+            // Lấy UTC offset của múi giờ +7 (7 giờ)
+            var offset = userTimeZone.GetUtcOffset(DateTime.UtcNow);
+
+            // Khởi tạo DateTimeOffset tại đúng 0 giờ của ngày đó ở múi giờ +7, SAU ĐÓ chuyển về UTC để PostgreSQL có thể lưu được (Offset = 0)
+            var localDob = new DateTimeOffset(request.DateOfBirth.Value.Year, request.DateOfBirth.Value.Month, request.DateOfBirth.Value.Day, 0, 0, 0, offset);
+            user.DateOfBirth = localDob.ToUniversalTime();
+        }
         if (request.StudentId != null) user.StudentId = request.StudentId;
         if (request.College != null) user.College = request.College;
 

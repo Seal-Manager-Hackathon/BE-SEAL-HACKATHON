@@ -3,6 +3,7 @@ using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TeamsService = Hackathon.Service.Teams;
+using RegisterTeamsService = Hackathon.Service.RegisterTeams;
 
 namespace Hackathon.Api.Controllers;
 
@@ -64,6 +65,20 @@ public class TeamController : ControllerBase
     public async Task<IActionResult> TransferLeader(Guid teamId, TeamsService.Request.TransferLeaderRequest request)
     {
         var result = await _teamService.TransferLeader(teamId, request);
+        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("{teamId:guid}/events")]
+    public async Task<IActionResult> GetTeamRegisteredEvents(Guid teamId, [FromQuery] RegisterTeamsService.Request.GetTeamRegisteredEventsRequest request, [FromQuery] PaginationRequest paginationRequest)
+    {
+        var result = await _teamService.GetTeamRegisteredEvents(teamId, request, paginationRequest);
+        return Ok(result);
+    }
+
+    [HttpGet("{teamId:guid}/events/approved-count")]
+    public async Task<IActionResult> GetApprovedEventsCount(Guid teamId)
+    {
+        var result = await _teamService.GetApprovedEventsCount(teamId);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 }
