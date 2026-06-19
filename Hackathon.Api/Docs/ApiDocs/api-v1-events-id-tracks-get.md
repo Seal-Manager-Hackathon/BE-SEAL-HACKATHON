@@ -70,5 +70,5 @@ Response dùng `ApiResponseFactory.BasePagination(...)`.
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | BAD_REQUEST | Query parameter không hợp lệ. |
+| 400 | BAD_REQUEST | QUERY_PARAMETER_INVALID |
 | 404 | NOT_FOUND | EVENT_NOT_FOUND |

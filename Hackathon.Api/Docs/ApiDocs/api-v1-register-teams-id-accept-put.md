@@ -4,7 +4,7 @@
 Staff duyệt đơn đăng ký tham gia event của một team. Khi đơn được duyệt, trạng thái đăng ký chuyển sang `Approved` và team bị khóa chỉnh sửa thành viên để đảm bảo danh sách thành viên tham gia event không thay đổi sau khi được chấp nhận.
 
 ## URL
-`PATCH /api/v1/staff/register-teams/{registerTeamId}/accept`
+`PUT /api/v1/register-teams/staff/{registerId}/approve`
 
 ## Authorization
 Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
@@ -70,9 +70,9 @@ Response dùng `ApiResponseFactory.Base(data)`.
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 401 | MISSING_ACCESS_TOKEN | Access token is missing. |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
-| 403 | FORBIDDEN | User không có role `Staff`. |
+| 403 | FORBIDDEN | FORBIDDEN |
 | 403 | FORBIDDEN | STAFF_NOT_ASSIGNED_TO_EVENT |
 | 404 | NOT_FOUND | REGISTER_TEAM_NOT_FOUND |
 | 404 | NOT_FOUND | EVENT_NOT_FOUND |
@@ -80,7 +80,7 @@ Response dùng `ApiResponseFactory.Base(data)`.
 | 409 | CONFLICT | REGISTER_TEAM_ALREADY_APPROVED |
 | 409 | CONFLICT | REGISTER_TEAM_ALREADY_REJECTED |
 | 409 | CONFLICT | TEAM_IS_BANNED_FROM_EVENT |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
 - Đã implement endpoint trong `Hackathon.Api.Controllers.RegisterTeam`.

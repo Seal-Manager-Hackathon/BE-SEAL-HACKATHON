@@ -40,6 +40,6 @@ Không có. Cần cookie:
 | HTTP | messageCode | message/detail |
 |---:|---|---|
 | 400 | BAD_REQUEST | ACCESS_TOKEN_STILL_VALID |
-| 401 | MISSING_ACCESS_TOKEN | Access token is missing. |
-| 401 | EXPIRED_REFRESH_TOKEN | Refresh token has expired. Please login again. |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 400 | BAD_REQUEST | REFRESH_TOKEN_MISSING |
+| 401 | EXPIRED_REFRESH_TOKEN | REFRESH_TOKEN_HAS_EXPIRED |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

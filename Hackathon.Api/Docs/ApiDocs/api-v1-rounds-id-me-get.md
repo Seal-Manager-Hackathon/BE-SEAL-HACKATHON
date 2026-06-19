@@ -67,7 +67,7 @@ Response dùng `ApiResponseFactory.Base(result)`.
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---|---|---|
-| 401 | MISSING_ACCESS_TOKEN | Access token is missing. |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 404 | NOT_FOUND | ROUND_DETAIL_NOT_FOUND |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

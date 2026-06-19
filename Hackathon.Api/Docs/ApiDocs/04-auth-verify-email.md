@@ -41,4 +41,4 @@ Xác thực email bằng token; nếu xác thực thành công lần đầu thì
 | 400 | BAD_REQUEST | INVALID_OR_EXPIRED_EMAIL_VERIFICATION_TOKEN |
 | 404 | NOT_FOUND | USER_NOT_FOUND |
 | 404 | NOT_FOUND | EMAILVALID_NOT_FOUND |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

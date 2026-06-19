@@ -39,7 +39,7 @@ Không có. Cần cookie:
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 401 | MISSING_ACCESS_TOKEN | Access token is missing. |
+| 400 | BAD_REQUEST | REFRESH_TOKEN_MISSING |
 | 401 | UNAUTHORIZED | INVALID_REFRESH_TOKEN |
 | 401 | UNAUTHORIZED | USER_ALREADY_LOGGED_OUT |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

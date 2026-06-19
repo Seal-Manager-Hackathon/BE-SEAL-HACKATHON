@@ -57,4 +57,4 @@ Response dùng `ApiResponseFactory.Base(result)`.
 |---|---|---|
 | 404 | NOT_FOUND | TRACK_NOT_FOUND |
 | 404 | NOT_FOUND | EVENT_NOT_FOUND |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

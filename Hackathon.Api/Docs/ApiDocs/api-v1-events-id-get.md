@@ -51,6 +51,5 @@ Không yêu cầu Access Token (Public API).
 
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | BAD_REQUEST | Định dạng ID (`eventId`) không hợp lệ. |
 | 404 | NOT_FOUND | EVENT_NOT_FOUND |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

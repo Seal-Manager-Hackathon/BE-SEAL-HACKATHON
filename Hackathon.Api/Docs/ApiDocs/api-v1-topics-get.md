@@ -59,4 +59,4 @@ Response dùng `ApiResponseFactory.Base(result)`.
 | HTTP | messageCode | message/detail |
 |---|---|---|
 | 404 | NOT_FOUND | REGISTER_TEAM_NOT_FOUND |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

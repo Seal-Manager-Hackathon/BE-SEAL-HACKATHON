@@ -56,15 +56,15 @@ Authorization: Bearer <token>
 - Sắp xếp danh sách mặc định theo thời gian bắt đầu của event tăng dần (`StartTime` tăng dần), sau đó theo thời gian tạo (`CreatedAt` tăng dần).
 - Lọc theo keyword (tìm kiếm không phân biệt chữ hoa thường trên `Name`, `Description`, `Season`).
 - Lọc theo năm bắt đầu của event (`StartTime.Value.Year`).
-- Lọc theo trạng thái của event (`Status`). Nếu trạng thái không hợp lệ, trả lỗi `400 BadRequest` (`BAD_REQUEST`).
+- Lọc theo trạng thái của event (`Status`). Nếu trạng thái không hợp lệ, trả lỗi `400 BadRequest` (`INVALID_EVENT_STATUS`).
 
 ## Lỗi có thể xảy ra
 *Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse`:*
 
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | BAD_REQUEST | Trạng thái event (`status`) không hợp lệ. | // 0: Draft, 1: Published, 2: Closed, 3: Cancelled
-| 401 | MISSING_ACCESS_TOKEN | Access token is missing. (khi không truyền token) |
-| 401 | INVALID_ACCESS_TOKEN | Invalid access token. (khi token sai định dạng) |
-| 403 | FORBIDDEN | Quyền truy cập bị từ chối (khi người gọi không phải Admin/Staff) |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 400 | BAD_REQUEST | INVALID_EVENT_STATUS |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
+| 401 | INVALID_ACCESS_TOKEN | INVALID_ACCESS_TOKEN |
+| 403 | FORBIDDEN | FORBIDDEN |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

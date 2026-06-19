@@ -63,6 +63,6 @@ Không có.
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | BAD_REQUEST | Query parameter không hợp lệ. |
+| 400 | BAD_REQUEST | QUERY_PARAMETER_INVALID |
 | 404 | NOT_FOUND | EVENT_NOT_FOUND |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

@@ -51,12 +51,12 @@ Authorization: Bearer <token>
 | HTTP | messageCode | message/detail |
 |---:|---|---|
 | 400 | BAD_REQUEST | INVITATION_EXPIRED (lời mời đã hết hạn) |
-| 401 | MISSING_ACCESS_TOKEN | Access token is missing. (khi không truyền token) |
-| 401 | INVALID_ACCESS_TOKEN | Invalid access token. (khi token sai định dạng) |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
+| 401 | INVALID_ACCESS_TOKEN | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | CURRENT_USER_MUST_BE_STUDENT (người gọi không phải học sinh) |
 | 403 | FORBIDDEN | INVITATION_NOT_FOR_CURRENT_USER (lời mời không thuộc về học sinh này) |
 | 404 | NOT_FOUND | USER_NOT_FOUND (tài khoản không tồn tại hoặc bị khóa) |
-| 404 | NOT_FOUND | INVITATION_NOT_FOUND (không tìm thấy lời mời) |
-| 404 | NOT_FOUND | TEAM_LEADER_NOT_FOUND (không tìm thấy leader của team) |
+| 404 | NOT_FOUND | INVITATION_NOT_FOUND |
+| 404 | NOT_FOUND | TEAM_LEADER_NOT_FOUND |
 | 409 | CONFLICT | INVITATION_ALREADY_RESPONDED (lời mời đã được chấp nhận/từ chối trước đó) |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

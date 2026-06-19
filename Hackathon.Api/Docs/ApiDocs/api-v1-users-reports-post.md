@@ -64,5 +64,5 @@ Content-Type: application/json
 | HTTP | messageCode | message/detail |
 |---:|---|---|
 | 400 | BAD_REQUEST | Lỗi validation từ định dạng Guid hoặc Request Body. |
-| 401 | MISSING_ACCESS_TOKEN | Access token is missing or invalid. |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

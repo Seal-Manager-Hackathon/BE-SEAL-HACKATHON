@@ -4,7 +4,7 @@
 Staff xem chi tiết đơn đăng ký tham gia event của một team, bao gồm thông tin team, danh sách thành viên, track/topic đã gán và trạng thái đơn.
 
 ## URL
-`GET /api/v1/staff/register-teams/{registerTeamId}`
+`GET /api/v1/register-teams/staff/{registerTeamId}`
 
 ## Authorization
 Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
@@ -78,12 +78,12 @@ Response dùng `ApiResponseFactory.Base(data)`.
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 401 | MISSING_ACCESS_TOKEN | Access token is missing. |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
-| 403 | FORBIDDEN | User không có role `Staff`. |
+| 403 | FORBIDDEN | FORBIDDEN |
 | 403 | FORBIDDEN | STAFF_NOT_ASSIGNED_TO_EVENT |
 | 404 | NOT_FOUND | REGISTER_TEAM_NOT_FOUND |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
 - Chưa implement endpoint.

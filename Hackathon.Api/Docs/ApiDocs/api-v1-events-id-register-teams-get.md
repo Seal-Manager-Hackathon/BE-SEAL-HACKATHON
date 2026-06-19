@@ -93,13 +93,13 @@ Response dùng `ApiResponseFactory.BasePagination(items, pageIndex, pageSize, to
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 401 | MISSING_ACCESS_TOKEN | Access token is missing. |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
-| 403 | FORBIDDEN | User không có role `Staff` hoặc `Admin`. |
+| 403 | FORBIDDEN | FORBIDDEN |
 | 403 | FORBIDDEN | STAFF_NOT_ASSIGNED_TO_EVENT |
-| 400 | BAD_REQUEST | Query parameter không hợp lệ. |
+| 400 | BAD_REQUEST | QUERY_PARAMETER_INVALID |
 | 404 | NOT_FOUND | EVENT_NOT_FOUND |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
 - Chưa implement endpoint.

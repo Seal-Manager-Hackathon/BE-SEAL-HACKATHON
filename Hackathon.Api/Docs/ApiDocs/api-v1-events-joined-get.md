@@ -4,7 +4,7 @@
 Lấy danh sách phân trang các event mà học sinh (Student) đang đăng nhập đã tham gia (thông qua team đã đăng ký event đó).
 
 ## URL
-`GET /api/me/events/joined`
+`GET /api/v1/events/events/joined`
 
 ## Request Parameters
 *   **Query Parameters:**
@@ -60,6 +60,7 @@ Authorization: Bearer <token>
 
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 401 | MISSING_ACCESS_TOKEN | Access token is missing. (khi không truyền token) |
-| 401 | INVALID_ACCESS_TOKEN | Invalid access token. (khi token sai định dạng) |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 400 | BAD_REQUEST | INVALID_EVENT_STATUS |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
+| 401 | INVALID_ACCESS_TOKEN | INVALID_ACCESS_TOKEN |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
