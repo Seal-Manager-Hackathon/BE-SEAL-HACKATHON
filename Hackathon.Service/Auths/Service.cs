@@ -399,10 +399,24 @@ public class Service : IService
 
         if (user.IsVerified == false)
         {
-            // Password is correct, but unverified. Send OTP and block login.
             var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
+                var oldVerifications = await _dbContext.EmailVerifications
+                    .Where(x => x.UserId == user.Id && x.Status == EmailVerificationStatusEnum.Pending && !x.IsDisable)
+                    .ToListAsync();
+
+                if (oldVerifications.Count > 0)
+                {
+                    var now = DateTimeOffset.UtcNow;
+                    foreach (var old in oldVerifications)
+                    {
+                        old.IsDisable = true;
+                        old.UpdatedAt = now;
+                    }
+                    _dbContext.EmailVerifications.UpdateRange(oldVerifications);
+                }
+
                 await SendVerificationEmailAsync(user, email);
                 await transaction.CommitAsync();
             }
