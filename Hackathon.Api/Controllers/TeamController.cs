@@ -1,3 +1,4 @@
+using Hackathon.Api.Extention;
 using Hackathon.Repository.Enum;
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -14,6 +15,7 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
 {
     private readonly TeamsService.IService _teamService = teamService;
 
+    [Authorize(Policy = JwtExtensions.StudentPolicy)]
     [HttpGet("me")]
     public async Task<IActionResult> GetMyTeams([FromQuery] PaginationRequest paginationRequest)
     {
@@ -28,6 +30,7 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
+    [Authorize(Policy = JwtExtensions.StudentPolicy)]
     [HttpPost]
     public async Task<IActionResult> CreateTeam(TeamsService.Request.CreateTeamRequest request)
     {
@@ -35,6 +38,7 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
+    [Authorize(Policy = JwtExtensions.StudentPolicy)]
     [HttpPost("{teamId:guid}/invitations")]
     public async Task<IActionResult> InviteMember(Guid teamId, TeamsService.Request.InviteMemberRequest request)
     {
@@ -42,6 +46,7 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
+    [Authorize(Policy = JwtExtensions.StudentPolicy)]
     [HttpPut("{teamId:guid}")]
     public async Task<IActionResult> UpdateTeam(Guid teamId, TeamsService.Request.UpdateTeamRequest request)
     {
@@ -49,6 +54,7 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
+    [Authorize(Policy = JwtExtensions.StudentPolicy)]
     [HttpDelete("{teamId:guid}/members")]
     public async Task<IActionResult> RemoveMembers(Guid teamId, TeamsService.Request.RemoveMembersRequest request)
     {
@@ -56,6 +62,7 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
+    [Authorize(Policy = JwtExtensions.StudentPolicy)]
     [HttpPut("{teamId:guid}/leader")]
     public async Task<IActionResult> TransferLeader(Guid teamId, TeamsService.Request.TransferLeaderRequest request)
     {
@@ -63,6 +70,7 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
+    [Authorize(Policy = JwtExtensions.StudentPolicy)]
     [HttpGet("{teamId:guid}/events")]
     public async Task<IActionResult> GetTeamRegisteredEvents(Guid teamId, [FromQuery] RegisterTeamsService.Request.GetTeamRegisteredEventsRequest request, [FromQuery] PaginationRequest paginationRequest)
     {
@@ -70,6 +78,7 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Policy = JwtExtensions.StudentPolicy)]
     [HttpGet("{teamId:guid}/events/approved-count")]
     public async Task<IActionResult> GetApprovedEventsCount(Guid teamId)
     {
@@ -77,6 +86,7 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 
+    [Authorize(Policy = JwtExtensions.StudentPolicy)]
     [HttpGet("{teamId:guid}/events/latest")]
     public async Task<IActionResult> GetLatestRegisteredEvent(Guid teamId)
     {

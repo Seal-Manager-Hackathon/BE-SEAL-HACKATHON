@@ -19,12 +19,13 @@ enum_mapping = {
 
 docs_dir = "./Hackathon.Api/Docs/ApiDocs/"
 
-for filename in os.listdir(docs_dir):
-    if not filename.endswith(".md") or filename == "00-enum-values.md":
-        continue
-    
-    filepath = os.path.join(docs_dir, filename)
-    with open(filepath, "r", encoding="utf-8") as f:
+for root, dirs, files in os.walk(docs_dir):
+    for filename in files:
+        if not filename.endswith(".md") or filename == "enum-values.md":
+            continue
+
+        filepath = os.path.join(root, filename)
+        with open(filepath, "r", encoding="utf-8") as f:
         content = f.read()
 
     changed = False
