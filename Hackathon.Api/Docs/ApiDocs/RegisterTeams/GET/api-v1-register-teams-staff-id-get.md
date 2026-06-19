@@ -19,7 +19,7 @@ Không có.
 
 ## Ví dụ request
 ```http
-GET /api/v1/staff/register-teams/00000000-0000-0000-0000-000000000000
+GET /api/v1/register-teams/staff/00000000-0000-0000-0000-000000000000
 Authorization: Bearer {accessToken}
 ```
 
@@ -86,8 +86,6 @@ Response dùng `ApiResponseFactory.Base(data)`.
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- Chưa implement endpoint.
-- Cần thêm method `GetRegisterTeamDetail` trong `RegisterTeamService`.
-- Dùng policy `StaffOrAdminPolicy` (Admin không cần kiểm tra phân công, Staff phải được phân công vào event).
-- Cần thêm response model `RegisterTeamDetailResponse` và `RegisterTeamMemberResponse` (đã có sẵn trong `Response.cs`).
-- Endpoint mới trong `RegisterTeam` controller.
+- Đã implement endpoint trong `Hackathon.Api.Controllers.RegisterTeamController`.
+- Method: `GetRegisterTeamDetail(Guid registerTeamId)`.
+- Endpoint dùng route `GET /api/v1/register-teams/staff/{registerTeamId:guid}` và `StaffOrAdminPolicy`.

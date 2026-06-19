@@ -6,6 +6,9 @@ Lấy danh sách round, có thể lọc theo event.
 ## URL
 `GET /api/v1/rounds`
 
+## Authorization
+Không yêu cầu Access Token (Public API).
+
 ## Query parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
 |---|---|---:|---|
@@ -51,9 +54,6 @@ Không có.
 - Nếu không truyền `isDisable`, mặc định chỉ trả round chưa bị soft-disable.
 - Round thuộc event bị disable không nên được trả về, trừ khi nghiệp vụ cho phép lấy dữ liệu disable bằng query riêng.
 - Kết quả sắp xếp theo `StartTime` tăng dần, sau đó `CreatedAt` tăng dần.
-
-## Lưu ý
-- Endpoint này hiện chưa được implement (throw `NotImplementedException`).
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |

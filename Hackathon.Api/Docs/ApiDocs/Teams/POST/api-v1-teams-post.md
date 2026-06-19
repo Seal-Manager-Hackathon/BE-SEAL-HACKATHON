@@ -6,6 +6,9 @@ Tạo một team mới cho học sinh (Student) đang đăng nhập và tự đ�
 ## URL
 `POST /api/v1/teams`
 
+## Authorization
+Yêu cầu access token hợp lệ với role `Student`.
+
 ## Request body
 ```json
 {

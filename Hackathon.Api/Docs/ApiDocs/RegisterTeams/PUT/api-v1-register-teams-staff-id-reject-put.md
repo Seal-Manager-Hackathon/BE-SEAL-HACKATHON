@@ -19,7 +19,7 @@ Không có.
 
 ## Ví dụ request
 ```http
-PATCH /api/v1/staff/register-teams/00000000-0000-0000-0000-000000000000/reject
+PUT /api/v1/register-teams/staff/00000000-0000-0000-0000-000000000000/reject
 Authorization: Bearer {accessToken}
 Content-Type: application/json
 ```
@@ -98,4 +98,4 @@ Response dùng `ApiResponseFactory.Base(data)`.
 - Đã thêm request model `RejectRegisterTeamRequest` trong `Hackathon.Service.RegisterTeam.Request` với field `reason`.
 - Đã implement logic trong `Hackathon.Service.RegisterTeam.Service`.
 - Đã dùng chung response model `RegisterTeamActionResponse` với accept trong `Hackathon.Service.RegisterTeam.Response`.
-- Endpoint dùng route `PATCH /api/v1/staff/register-teams/{registerTeamId}/reject` và `StaffOrAdminPolicy`.
+- Endpoint dùng route `PUT /api/v1/register-teams/staff/{registerId}/reject` và `StaffOrAdminPolicy`.

@@ -7,7 +7,7 @@ Staff lấy danh sách track của một event cụ thể (bao gồm cả track 
 `GET /api/v1/staff/events/{eventId}/tracks`
 
 ## Authorization
-Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
+Yêu cầu access token hợp lệ với role `Staff`.
 
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
@@ -60,9 +60,9 @@ Response dùng `ApiResponseFactory.BasePagination(...)`.
 ```
 
 ## Business rules
-- Chỉ Staff/Admin mới có quyền truy cập.
+- Chỉ Staff mới có quyền truy cập.
 - Event phải tồn tại, nếu không trả `EVENT_NOT_FOUND`.
-- Staff phải được phân công vào event (`AssignEvents`) mới xem được, Admin thì không cần.
+- Staff phải được phân công vào event (`AssignEvents`) mới xem được.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |

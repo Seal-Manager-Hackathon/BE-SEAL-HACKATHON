@@ -6,6 +6,9 @@ Lấy thông tin profile ngắn gọn của user đang đăng nhập.
 ## URL
 `GET /api/v1/auth/me`
 
+## Authorization
+Yêu cầu access token hợp lệ.
+
 ## Request body
 Không có.
 

@@ -7,7 +7,7 @@ Lấy ra duy nhất **một** event tham gia gần đây nhất của một team
 `GET /api/v1/teams/{teamId}/events/latest`
 
 ## Authorization
-Yêu cầu Access Token hợp lệ.
+Yêu cầu access token hợp lệ với role `Student`.
 
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |

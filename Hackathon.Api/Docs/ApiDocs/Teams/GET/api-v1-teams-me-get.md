@@ -11,10 +11,8 @@ Lấy danh sách phân trang các team mà người dùng hiện tại đang tha
     *   `pageIndex` (int, Không bắt buộc, mặc định: 1): Số trang hiện tại.
     *   `pageSize` (int, Không bắt buộc, mặc định: 10): Số phần tử trên một trang.
 
-## Request Headers
-```
-Authorization: Bearer <token>
-```
+## Authorization
+Yêu cầu access token hợp lệ với role `Student`.
 
 ## Response body (Success - 200 OK)
 ```json
@@ -45,7 +43,7 @@ Authorization: Bearer <token>
 ```
 
 ## Business rules
-- Yêu cầu đăng nhập (`[Authorize]`) bằng Access Token qua Header.
+- Yêu cầu đăng nhập với role `Student`.
 - Chỉ hiển thị các team mà người dùng hiện tại đang tham gia và đang còn hoạt động (`Status = Active` trong bảng `TeamDetails`, team và thành viên không bị disable).
 - Sắp xếp danh sách theo thời gian tạo team: Team nào được tạo mới hơn sẽ lên trước (`Team.CreatedAt` giảm dần).
 

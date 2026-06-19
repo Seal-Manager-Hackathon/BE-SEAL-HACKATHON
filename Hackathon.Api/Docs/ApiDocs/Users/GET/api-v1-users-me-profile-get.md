@@ -4,7 +4,7 @@
 Cho phép người dùng đã đăng nhập lấy thông tin cá nhân của họ.
 
 ## URL
-`GET /api/users/profile`
+`GET /api/v1/users/profile`
 
 ## Authorization
 Yêu cầu access token hợp lệ.

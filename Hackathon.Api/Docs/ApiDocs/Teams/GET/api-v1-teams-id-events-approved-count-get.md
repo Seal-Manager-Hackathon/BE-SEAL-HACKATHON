@@ -7,7 +7,7 @@ API dùng để đếm số lượng các sự kiện (events) mà một team c�
 `GET /api/v1/teams/{teamId}/events/approved-count`
 
 ## Authorization
-Yêu cầu Access Token (Cần đăng nhập).
+Yêu cầu access token hợp lệ với role `Student`.
 
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |

@@ -4,7 +4,7 @@
 Staff hoặc Admin lấy danh sách đơn đăng ký tham gia event của các team, có hỗ trợ lọc theo trạng thái (`Pending`, `Approved`, `Rejected`), tìm kiếm, lọc soft-disable và phân trang theo `BasePaginationResponse`.
 
 ## URL
-`GET /api/v1/staff/events/{eventId}/register-teams`
+`GET /api/v1/register-teams/staff/events/{eventId}`
 
 ## Authorization
 Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
@@ -25,7 +25,7 @@ Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
 
 ## Ví dụ request
 ```http
-GET /api/v1/staff/events/00000000-0000-0000-0000-000000000000/register-teams?keyword=abc&status=Approved&isDisable=false&pageIndex=1&pageSize=10
+GET /api/v1/register-teams/staff/events/00000000-0000-0000-0000-000000000000?keyword=abc&status=Approved&isDisable=false&pageIndex=1&pageSize=10
 Authorization: Bearer {accessToken}
 ```
 
@@ -102,7 +102,6 @@ Response dùng `ApiResponseFactory.BasePagination(items, pageIndex, pageSize, to
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- Chưa implement endpoint.
-- Cần tạo service method mới trong `TracksService` để query `RegisterTeams` theo `EventId`, hỗ trợ lọc `Status` (3 trạng thái), `IsDisable`, `keyword` theo tên team, phân trang.
-- Cần include `Team`, `Track`, `Topic` để lấy tên.
-- Cần thêm endpoint mới trong `StaffTracksController` với `StaffOrAdminPolicy`.
+- Đã implement endpoint trong `Hackathon.Api.Controllers.RegisterTeamController`.
+- Method: `GetRegisterTeamsByEvent(Guid eventId, ...)`.
+- Endpoint dùng route `GET /api/v1/register-teams/staff/events/{eventId:guid}` và `[Authorize(Roles = "Staff,Admin")]`.

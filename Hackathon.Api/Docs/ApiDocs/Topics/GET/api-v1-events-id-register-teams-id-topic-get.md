@@ -7,7 +7,7 @@ Lấy thông tin chủ đề (Topic) và phân ban (Track) của một Team (đ�
 `GET /api/v1/events/{eventId}/register-teams/{registerTeamId}/topic`
 
 ## Authorization
-Không yêu cầu role phân biệt, nhưng cần truyền Access Token hợp lệ.
+Không yêu cầu Access Token (Public API).
 
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |

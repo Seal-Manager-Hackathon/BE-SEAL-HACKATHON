@@ -6,6 +6,9 @@ Gửi lời mời tham gia team cho một học sinh khác bằng email của h�
 ## URL
 `POST /api/v1/teams/{teamId:guid}/invitations`
 
+## Authorization
+Yêu cầu access token hợp lệ với role `Student`.
+
 ## Request body
 ```json
 {

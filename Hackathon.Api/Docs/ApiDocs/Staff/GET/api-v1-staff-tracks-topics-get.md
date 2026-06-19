@@ -7,7 +7,7 @@ Staff lấy danh sách topic của một track cụ thể (bao gồm cả topic 
 `GET /api/v1/staff/tracks/{trackId}/topics`
 
 ## Authorization
-Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
+Yêu cầu access token hợp lệ với role `Staff`.
 
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
@@ -60,7 +60,7 @@ Response dùng `ApiResponseFactory.BasePagination(...)`.
 ```
 
 ## Business rules
-- Chỉ Staff/Admin mới có quyền truy cập.
+- Chỉ Staff mới có quyền truy cập.
 - Track phải tồn tại, nếu không trả `TRACK_NOT_FOUND`.
 
 ## Lỗi có thể xảy ra

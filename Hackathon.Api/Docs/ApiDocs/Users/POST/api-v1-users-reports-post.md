@@ -4,7 +4,7 @@
 Cho phép người dùng tạo báo cáo (System Report) gửi lên hệ thống. Báo cáo có thể liên quan đến một Assignment hoặc một Submission.
 
 ## URL
-`POST /api/users/system-report`
+`POST /api/v1/users/system-report`
 
 ## Authorization
 Yêu cầu access token hợp lệ.

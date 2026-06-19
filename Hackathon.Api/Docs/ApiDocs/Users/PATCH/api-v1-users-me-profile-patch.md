@@ -4,7 +4,7 @@
 Cho phép người dùng đã đăng nhập cập nhật thông tin cá nhân của họ. Các trường gửi lên sẽ ghi đè dữ liệu cũ.
 
 ## URL
-`PATCH /api/users/profile`
+`PATCH /api/v1/users/profile`
 
 ## Authorization
 Yêu cầu access token hợp lệ.
