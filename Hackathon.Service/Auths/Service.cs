@@ -89,7 +89,7 @@ public class Service : IService
         _httpContext.HttpContext!.Request.Cookies.TryGetValue("Refresh-Token", out var check);
         if (check == null)
         {
-            throw new MissingAccessTokenException();
+            throw new BadRequestException("REFRESH_TOKEN_MISSING");
         }
 
         return check;
