@@ -61,8 +61,8 @@ Gửi lời mời tham gia team cho một học sinh khác bằng email của h�
 | 400 | VALIDATION_FAILED | EMAIL_REQUIRED (khi `email` trống hoặc null) |
 | 400 | VALIDATION_FAILED | INVALID_EMAIL_FORMAT (khi `email` sai định dạng) |
 | 400 | BAD_REQUEST | CANNOT_INVITE_YOURSELF (khi tự mời chính mình) |
-| 401 | MISSING_ACCESS_TOKEN | Access token is missing. (khi không truyền token) |
-| 401 | INVALID_ACCESS_TOKEN | Invalid access token. (khi token sai định dạng) |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
+| 401 | INVALID_ACCESS_TOKEN | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | CURRENT_USER_MUST_BE_STUDENT (người gọi không phải học sinh) |
 | 403 | FORBIDDEN | TEAM_MEMBER_LOCKED (team đã khóa chỉnh sửa) |
 | 403 | FORBIDDEN | ONLY_TEAM_LEADER_CAN_INVITE_MEMBER (người gọi không phải leader) |
@@ -70,8 +70,8 @@ Gửi lời mời tham gia team cho một học sinh khác bằng email của h�
 | 403 | FORBIDDEN | INVITED_USER_NOT_VERIFIED (người được mời chưa xác thực email) |
 | 404 | NOT_FOUND | USER_NOT_FOUND (tài khoản người gọi không tồn tại hoặc bị khóa) |
 | 404 | NOT_FOUND | TEAM_NOT_FOUND (team không tồn tại) |
-| 404 | NOT_FOUND | INVITED_USER_NOT_FOUND (không tìm thấy người được mời) |
+| 404 | NOT_FOUND | INVITED_USER_NOT_FOUND |
 | 409 | CONFLICT | TEAM_MEMBER_LIMIT_EXCEEDED (team đã đủ 50 thành viên) |
 | 409 | CONFLICT | USER_ALREADY_IN_TEAM (người được mời đã trong team) |
 | 409 | CONFLICT | INVITATION_ALREADY_PENDING (đã có lời mời đang chờ xử lý) |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

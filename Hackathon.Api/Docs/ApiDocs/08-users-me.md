@@ -34,6 +34,6 @@ Không có.
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 401 | MISSING_ACCESS_TOKEN | Access token is missing. |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 404 | NOT_FOUND | USER_NOT_FOUND |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

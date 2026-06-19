@@ -46,7 +46,7 @@ public class GlobalExceptionHandlerMiddleware : IMiddleware
             var response = ApiResponseFactory.Error(
                 title: appEx.Title,
                 status: appEx.StatusCode,
-                detail: appEx.StatusCode >= 500 ? "An unexpected error occurred." : ex.Message,
+                detail: appEx.StatusCode >= 500 ? "AN_UNEXPECTED_ERROR_OCCURRED" : ex.Message,
                 messageCode: appEx.MessageCode,
                 errors: _environment.IsDevelopment() ? new { detail = ex.Message } : null, 
                 traceId: context.TraceIdentifier

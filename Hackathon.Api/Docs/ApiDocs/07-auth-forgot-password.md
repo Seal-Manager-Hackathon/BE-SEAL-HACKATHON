@@ -36,4 +36,4 @@ Gửi yêu cầu quên mật khẩu để user nhận email/link chứa token đ
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

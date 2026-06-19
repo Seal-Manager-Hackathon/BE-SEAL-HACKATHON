@@ -72,4 +72,4 @@ Response dùng `ApiResponseFactory.BasePagination(...)`.
 |---|---|---|
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | CURRENT_USER_MUST_BE_STUDENT |
-| 400 | BAD_REQUEST | INVALID_STATUS (Nếu status truyền vào không đúng chuẩn enum) |
+| 400 | BAD_REQUEST | INVALID_STATUS |

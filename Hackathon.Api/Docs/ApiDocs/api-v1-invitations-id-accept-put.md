@@ -56,16 +56,16 @@ Authorization: Bearer <token>
 |---:|---|---|
 | 400 | BAD_REQUEST | INVITATION_EXPIRED (lời mời đã hết hạn) |
 | 400 | BAD_REQUEST | USER_PROFILE_NOT_COMPLETED (profile người dùng chưa hoàn thành) |
-| 401 | MISSING_ACCESS_TOKEN | Access token is missing. (khi không truyền token) |
-| 401 | INVALID_ACCESS_TOKEN | Invalid access token. (khi token sai định dạng) |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
+| 401 | INVALID_ACCESS_TOKEN | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | CURRENT_USER_MUST_BE_STUDENT (người gọi không phải học sinh) |
 | 403 | FORBIDDEN | INVITATION_NOT_FOR_CURRENT_USER (lời mời không thuộc về học sinh này) |
 | 403 | FORBIDDEN | TEAM_MEMBER_LOCKED (team đã bị khóa thành viên) |
 | 404 | NOT_FOUND | USER_NOT_FOUND (tài khoản không tồn tại hoặc bị khóa) |
-| 404 | NOT_FOUND | INVITATION_NOT_FOUND (không tìm thấy lời mời) |
+| 404 | NOT_FOUND | INVITATION_NOT_FOUND |
 | 404 | NOT_FOUND | TEAM_NOT_FOUND (team không tồn tại) |
-| 404 | NOT_FOUND | TEAM_LEADER_NOT_FOUND (không tìm thấy leader của team) |
+| 404 | NOT_FOUND | TEAM_LEADER_NOT_FOUND |
 | 409 | CONFLICT | INVITATION_ALREADY_RESPONDED (lời mời đã được chấp nhận/từ chối trước đó) |
 | 409 | CONFLICT | USER_ALREADY_IN_TEAM (đã là thành viên của team) |
 | 409 | CONFLICT | TEAM_MEMBER_LIMIT_EXCEEDED (team đã đạt giới hạn 50 thành viên) |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

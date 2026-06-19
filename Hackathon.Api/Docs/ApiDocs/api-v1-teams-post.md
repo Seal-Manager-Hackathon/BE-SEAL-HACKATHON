@@ -70,9 +70,9 @@ Tạo một team mới cho học sinh (Student) đang đăng nhập và tự đ�
 |---:|---|---|
 | 400 | VALIDATION_FAILED | TEAM_NAME_REQUIRED (khi `teamName` trống hoặc null) |
 | 400 | BAD_REQUEST | USER_PROFILE_NOT_COMPLETED (hồ sơ thiếu thông tin bắt buộc) |
-| 401 | MISSING_ACCESS_TOKEN | Access token is missing. (khi không truyền token) |
-| 401 | INVALID_ACCESS_TOKEN | Invalid access token. (khi token sai định dạng) |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
+| 401 | INVALID_ACCESS_TOKEN | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | USER_NOT_VERIFIED (tài khoản chưa xác thực email) |
 | 404 | NOT_FOUND | USER_NOT_FOUND (tài khoản không tồn tại hoặc bị khóa) |
 | 409 | CONFLICT | TEAM_NAME_ALREADY_EXISTS (tên team đã tồn tại) |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

@@ -343,7 +343,7 @@ public class Service : IService
         var rtInCookie = CheckRefreshToken();
 
         var refreshToken = await _dbContext.RefreshTokens.FirstOrDefaultAsync(x =>
-            x.RefreshTokenHash == rtInCookie);
+            x.RefreshTokenHash == rtInCookie  && !x.IsDisable && x.RevokedAt == null);
 
         if (refreshToken == null)
         {

@@ -78,16 +78,16 @@ Response dùng `ApiResponseFactory.Base(data)` và chỉ trả message khi cập
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 401 | MISSING_ACCESS_TOKEN | Access token is missing. |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
-| 403 | FORBIDDEN | User không có role `Admin`. |
+| 403 | FORBIDDEN | FORBIDDEN |
 | 400 | BAD_REQUEST | EVENT_NAME_REQUIRED |
-| 400 | BAD_REQUEST | BAD_REQUEST (status không hợp lệ) |
+| 400 | BAD_REQUEST | INVALID_EVENT_STATUS |
 | 400 | BAD_REQUEST | START_TIME_MUST_BE_BEFORE_END_TIME |
 | 400 | BAD_REQUEST | REGISTER_LIMIT_TIME_MUST_BE_BEFORE_START_TIME |
 | 404 | NOT_FOUND | EVENT_NOT_FOUND |
 | 409 | CONFLICT | EVENT_NAME_ALREADY_EXISTS |
-| 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
 - Đã implement endpoint trong `Hackathon.Api.Controllers.EventsController`.
