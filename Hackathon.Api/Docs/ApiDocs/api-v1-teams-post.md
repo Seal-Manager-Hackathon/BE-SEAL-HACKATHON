@@ -68,7 +68,7 @@ Tạo một team mới cho học sinh (Student) đang đăng nhập và tự đ�
 
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | VALIDATION_FAILED | TEAM_NAME_REQUIRED (khi `teamName` trống hoặc null) |
+| 400 | BAD_REQUEST | TEAM_NAME_REQUIRED (khi `teamName` trống hoặc null) |
 | 400 | BAD_REQUEST | USER_PROFILE_NOT_COMPLETED (hồ sơ thiếu thông tin bắt buộc) |
 | 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | INVALID_ACCESS_TOKEN | INVALID_ACCESS_TOKEN |

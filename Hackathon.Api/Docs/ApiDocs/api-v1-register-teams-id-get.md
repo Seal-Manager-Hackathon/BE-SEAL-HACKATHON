@@ -4,7 +4,7 @@
 Staff xem chi tiết đơn đăng ký tham gia event của một team, bao gồm thông tin team, danh sách thành viên, track/topic đã gán và trạng thái đơn.
 
 ## URL
-`GET /api/v1/staff/register-teams/{registerTeamId}`
+`GET /api/v1/register-teams/staff/{registerTeamId}`
 
 ## Authorization
 Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.

@@ -4,7 +4,7 @@
 Staff duyệt đơn đăng ký tham gia event của một team. Khi đơn được duyệt, trạng thái đăng ký chuyển sang `Approved` và team bị khóa chỉnh sửa thành viên để đảm bảo danh sách thành viên tham gia event không thay đổi sau khi được chấp nhận.
 
 ## URL
-`PATCH /api/v1/staff/register-teams/{registerTeamId}/accept`
+`PUT /api/v1/register-teams/staff/{registerId}/approve`
 
 ## Authorization
 Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.

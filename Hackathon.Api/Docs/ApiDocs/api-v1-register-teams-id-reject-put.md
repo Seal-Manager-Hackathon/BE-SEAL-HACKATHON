@@ -4,7 +4,7 @@
 Staff từ chối đơn đăng ký tham gia event của một team, chuyển trạng thái đơn từ `Pending` sang `Rejected` kèm lý do từ chối.
 
 ## URL
-`PATCH /api/v1/staff/register-teams/{registerTeamId}/reject`
+`PUT /api/v1/register-teams/staff/{registerId}/reject`
 
 ## Authorization
 Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
