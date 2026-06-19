@@ -69,3 +69,7 @@ Authorization: Bearer <token>
 | 409 | CONFLICT | USER_ALREADY_IN_TEAM (đã là thành viên của team) |
 | 409 | CONFLICT | TEAM_MEMBER_LIMIT_EXCEEDED (team đã đạt giới hạn 50 thành viên) |
 | 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+
+
+## Ghi chú Enum
+Tham chiếu file [00-enum-values.md](00-enum-values.md) để biết chi tiết các giá trị số (int) trả về cho các trường Trạng thái (Status).

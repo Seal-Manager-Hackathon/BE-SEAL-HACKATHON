@@ -286,12 +286,14 @@ public class Service : IService
         return ApiResponseFactory.BasePagination(items, paginationRequest.PageIndex, paginationRequest.PageSize, totalCount);
     }
 
-    public async Task<Response.RejectionReasonResponse> GetRejectionReason(Guid registerId)
+    public async Task<Response.RegisterTeamDetailForStudentResponse> GetRegisterTeamDetailForStudent(Guid registerId)
     {
         var userId = GetCurrentUserId();
 
         var registerTeam = await _dbContext.RegisterTeams
             .AsNoTracking()
+            .Include(x => x.Team)
+            .Include(x => x.Event)
             .FirstOrDefaultAsync(x => x.Id == registerId && !x.IsDisable);
 
         if (registerTeam == null)
@@ -306,31 +308,27 @@ public class Service : IService
             throw new ForbiddenException("USER_NOT_IN_TEAM");
         }
 
+        var rejectionReason = registerTeam.RejectionReason;
         if (registerTeam.Status == RegisterTeamStatusEnum.Pending)
         {
-            return new Response.RejectionReasonResponse
-            {
-                RegisterId = registerTeam.Id,
-                Status = registerTeam.Status.ToString()!,
-                RejectionReason = "Đang đợi xét duyệt"
-            };
+            rejectionReason = "Đang đợi xét duyệt";
         }
-
-        if (registerTeam.Status == RegisterTeamStatusEnum.Approved)
+        else if (registerTeam.Status == RegisterTeamStatusEnum.Approved)
         {
-            return new Response.RejectionReasonResponse
-            {
-                RegisterId = registerTeam.Id,
-                Status = registerTeam.Status.ToString()!,
-                RejectionReason = "Đã được đồng ý"
-            };
+            rejectionReason = "Đã được đồng ý";
         }
 
-        return new Response.RejectionReasonResponse
+        return new Response.RegisterTeamDetailForStudentResponse
         {
             RegisterId = registerTeam.Id,
+            TeamId = registerTeam.TeamId,
+            TeamName = registerTeam.Team.Name,
+            EventId = registerTeam.EventId,
+            EventName = registerTeam.Event.Name,
             Status = registerTeam.Status.ToString()!,
-            RejectionReason = registerTeam.RejectionReason
+            Description = registerTeam.Description,
+            RejectionReason = rejectionReason,
+            CreatedAt = registerTeam.CreatedAt
         };
     }
 

@@ -76,3 +76,6 @@ Không có.
 | 401 | MISSING_ACCESS_TOKEN | Access token is missing. |
 | 404 | NOT_FOUND | ROUND_NOT_FOUND |
 | 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+
+## Ghi chú Enum
+Tham chiếu file [00-enum-values.md](00-enum-values.md) để biết chi tiết các giá trị số (int) trả về cho các trường Trạng thái (Status).

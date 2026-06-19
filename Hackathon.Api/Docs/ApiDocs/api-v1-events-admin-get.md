@@ -68,3 +68,7 @@ Authorization: Bearer <token>
 | 401 | INVALID_ACCESS_TOKEN | Invalid access token. (khi token sai định dạng) |
 | 403 | FORBIDDEN | Quyền truy cập bị từ chối (khi người gọi không phải Admin/Staff) |
 | 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+
+
+## Ghi chú Enum
+Tham chiếu file [00-enum-values.md](00-enum-values.md) để biết chi tiết các giá trị số (int) trả về cho các trường Trạng thái (Status).

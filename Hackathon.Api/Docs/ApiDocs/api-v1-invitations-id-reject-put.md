@@ -60,3 +60,7 @@ Authorization: Bearer <token>
 | 404 | NOT_FOUND | TEAM_LEADER_NOT_FOUND (không tìm thấy leader của team) |
 | 409 | CONFLICT | INVITATION_ALREADY_RESPONDED (lời mời đã được chấp nhận/từ chối trước đó) |
 | 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+
+
+## Ghi chú Enum
+Tham chiếu file [00-enum-values.md](00-enum-values.md) để biết chi tiết các giá trị số (int) trả về cho các trường Trạng thái (Status).

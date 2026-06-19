@@ -9,14 +9,9 @@ namespace Hackathon.Api.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/v1/register-teams")]
-public class RegisterTeamController : ControllerBase
+public class RegisterTeamController(RegisterTeamsService.IService registerTeamService) : ControllerBase
 {
-    private readonly RegisterTeamsService.IService _registerTeamService;
-
-    public RegisterTeamController(RegisterTeamsService.IService registerTeamService)
-    {
-        _registerTeamService = registerTeamService;
-    }
+    private readonly RegisterTeamsService.IService _registerTeamService = registerTeamService;
 
     [HttpPost]
     public async Task<IActionResult> RegisterEvent([FromBody] RegisterTeamsService.Request.RegisterEventRequest request)
@@ -32,10 +27,10 @@ public class RegisterTeamController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("{registerId:guid}/rejection-reason")]
-    public async Task<IActionResult> GetRejectionReason(Guid registerId)
+    [HttpGet("{registerId:guid}")]
+    public async Task<IActionResult> GetRegisterTeamDetailForStudent(Guid registerId)
     {
-        var result = await _registerTeamService.GetRejectionReason(registerId);
+        var result = await _registerTeamService.GetRegisterTeamDetailForStudent(registerId);
         return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
     }
 

@@ -61,3 +61,7 @@ Không yêu cầu Access Token (Public API).
 |---:|---|---|
 | 400 | BAD_REQUEST | Trạng thái event (`status`) không hợp lệ. | // 0: Draft, 1: Published, 2: Closed, 3: Cancelled
 | 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+
+
+## Ghi chú Enum
+Tham chiếu file [00-enum-values.md](00-enum-values.md) để biết chi tiết các giá trị số (int) trả về cho các trường Trạng thái (Status).

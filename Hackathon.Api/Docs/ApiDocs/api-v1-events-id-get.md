@@ -54,3 +54,7 @@ Không yêu cầu Access Token (Public API).
 | 400 | BAD_REQUEST | Định dạng ID (`eventId`) không hợp lệ. |
 | 404 | NOT_FOUND | EVENT_NOT_FOUND |
 | 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred. |
+
+
+## Ghi chú Enum
+Tham chiếu file [00-enum-values.md](00-enum-values.md) để biết chi tiết các giá trị số (int) trả về cho các trường Trạng thái (Status).

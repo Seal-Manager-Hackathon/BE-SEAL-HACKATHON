@@ -88,3 +88,7 @@ Response dùng `ApiResponseFactory.Base(data)`.
 - Đã implement logic trong `Hackathon.Service.RegisterTeam.Service`.
 - Đã thêm response model `RegisterTeamActionResponse` trong `Hackathon.Service.RegisterTeam.Response`.
 - Endpoint dùng route `PATCH /api/v1/staff/register-teams/{registerTeamId}/accept` và `StaffOrAdminPolicy`.
+
+
+## Ghi chú Enum
+Tham chiếu file [00-enum-values.md](00-enum-values.md) để biết chi tiết các giá trị số (int) trả về cho các trường Trạng thái (Status).

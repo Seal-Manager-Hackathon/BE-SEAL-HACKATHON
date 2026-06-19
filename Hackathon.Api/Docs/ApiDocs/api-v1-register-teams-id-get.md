@@ -91,3 +91,7 @@ Response dùng `ApiResponseFactory.Base(data)`.
 - Dùng policy `StaffOrAdminPolicy` (Admin không cần kiểm tra phân công, Staff phải được phân công vào event).
 - Cần thêm response model `RegisterTeamDetailResponse` và `RegisterTeamMemberResponse` (đã có sẵn trong `Response.cs`).
 - Endpoint mới trong `RegisterTeam` controller.
+
+
+## Ghi chú Enum
+Tham chiếu file [00-enum-values.md](00-enum-values.md) để biết chi tiết các giá trị số (int) trả về cho các trường Trạng thái (Status).

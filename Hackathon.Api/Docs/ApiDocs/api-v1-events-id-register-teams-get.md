@@ -106,3 +106,7 @@ Response dùng `ApiResponseFactory.BasePagination(items, pageIndex, pageSize, to
 - Cần tạo service method mới trong `TracksService` để query `RegisterTeams` theo `EventId`, hỗ trợ lọc `Status` (3 trạng thái), `IsDisable`, `keyword` theo tên team, phân trang.
 - Cần include `Team`, `Track`, `Topic` để lấy tên.
 - Cần thêm endpoint mới trong `StaffTracksController` với `StaffOrAdminPolicy`.
+
+
+## Ghi chú Enum
+Tham chiếu file [00-enum-values.md](00-enum-values.md) để biết chi tiết các giá trị số (int) trả về cho các trường Trạng thái (Status).
