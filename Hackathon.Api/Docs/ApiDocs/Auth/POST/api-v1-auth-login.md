@@ -20,13 +20,14 @@
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": {
+  "data": {
     "accessToken": "string|null",
-    "refreshToken": "string|null",
-    "message": "LOGIN_SUCCESSFUL"
-  }
+    "refreshToken": "string|null"
+  },
+  "message": "LOGIN_SUCCESSFUL"
 }
 ```
 

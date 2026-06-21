@@ -22,8 +22,8 @@ public class RegisterTeamController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> RegisterEvent([FromBody] RegisterTeamsService.Request.RegisterEventRequest request)
     {
-        var result = await _registerTeamService.RegisterEvent(request);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        var (data, message) = await _registerTeamService.RegisterEvent(request);
+        return Ok(ApiResponseFactory.Base(data,200,message, traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpGet("me")]
@@ -61,7 +61,7 @@ public class RegisterTeamController : ControllerBase
     public async Task<IActionResult> ApproveRegistration(Guid registerId)
     {
         var result = await _registerTeamService.AcceptRegisterTeam(registerId);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"REGISTER_TEAM_ACCEPTED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpPut("staff/{registerId:guid}/reject")]
@@ -69,6 +69,6 @@ public class RegisterTeamController : ControllerBase
     public async Task<IActionResult> RejectRegistration(Guid registerId, [FromBody] RegisterTeamsService.Request.RejectRegisterTeamRequest request)
     {
         var result = await _registerTeamService.RejectRegisterTeam(registerId, request);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"REGISTER_TEAM_REJECTED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 }

@@ -29,15 +29,15 @@ public class UserController : ControllerBase
     [Authorize]
     public async Task<IActionResult> UpdateProfile(Request.UpdateProfileRequest requestBody)
     {
-        var result = await _userService.UpdateProfile(requestBody);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        var message = await _userService.UpdateProfile(requestBody);
+        return Ok(ApiResponseFactory.Base(null,200,message, traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpPost("system-report")]
     [Authorize]
     public async Task<IActionResult> CreateSystemReport(Request.CreateSystemReportRequest requestBody)
     {
-        var result = await _userService.CreateSystemReport(requestBody);
-        return Ok(ApiResponseFactory.Base(result,201,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        var message = await _userService.CreateSystemReport(requestBody);
+        return Ok(ApiResponseFactory.Base(null,201,message, traceId: HttpContext.TraceIdentifier));
     }
 }

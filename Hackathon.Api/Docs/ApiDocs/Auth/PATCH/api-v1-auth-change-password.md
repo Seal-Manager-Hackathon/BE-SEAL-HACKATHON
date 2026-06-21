@@ -24,11 +24,11 @@ Yêu cầu access token hợp lệ.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": {
-    "message": "PASSWORD_CHANGED_SUCCESSFULLY"
-  }
+  "data": null,
+  "message": "PASSWORD_CHANGED_SUCCESSFULLY"
 }
 ```
 

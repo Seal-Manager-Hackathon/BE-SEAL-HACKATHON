@@ -55,9 +55,11 @@ Content-Type: application/json
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "2026-06-18T23:00:00Z",
-  "value": "PROFILE_UPDATED_SUCCESSFULLY"
+  "data": null,
+  "message": "PROFILE_UPDATED_SUCCESSFULLY"
 }
 ```
 

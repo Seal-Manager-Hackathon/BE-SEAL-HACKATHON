@@ -46,7 +46,7 @@ public class RoundsController : ControllerBase
     public async Task<IActionResult> SubmitAssignment(Guid roundId, [FromBody] RoundsService.Request.SubmitAssignmentRequest request)
     {
         var result = await _roundsService.SubmitAssignment(roundId, request);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUBMISSION_CREATED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpGet("{roundId:guid}/submissions")]
@@ -61,7 +61,7 @@ public class RoundsController : ControllerBase
     [Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]
     public async Task<IActionResult> EndRound(Guid roundId)
     {
-        var result = await _roundsService.EndRound(roundId);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        var (data, message) = await _roundsService.EndRound(roundId);
+        return Ok(ApiResponseFactory.Base(data,200,message, traceId: HttpContext.TraceIdentifier));
     }
 }

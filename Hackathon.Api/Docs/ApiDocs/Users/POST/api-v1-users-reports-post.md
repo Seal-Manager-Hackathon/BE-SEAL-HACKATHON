@@ -49,9 +49,11 @@ Content-Type: application/json
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 201,
   "traceId": "string",
   "timestampUtc": "2026-06-18T23:00:00Z",
-  "value": "REPORT_CREATED_SUCCESSFULLY"
+  "data": null,
+  "message": "REPORT_CREATED_SUCCESSFULLY"
 }
 ```
 

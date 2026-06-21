@@ -19,9 +19,10 @@ Không yêu cầu Access Token (Public API).
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string|null",
   "timestampUtc": "datetime",
-  "value": {
+  "data": {
     "id": "guid",
     "name": "string",
     "description": "string|null",
@@ -36,7 +37,8 @@ Không yêu cầu Access Token (Public API).
     "season": "string|null",
     "isDisable": false,
     "createdAt": "datetime"
-  }
+  },
+  "message": "SUCCESS"
 }
 ```
 

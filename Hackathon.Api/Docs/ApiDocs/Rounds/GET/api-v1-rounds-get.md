@@ -29,9 +29,10 @@ Không có.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": [
+  "data": [
     {
       "id": "guid",
       "eventId": "guid",
@@ -45,7 +46,8 @@ Không có.
       "isDisable": false,
       "createdAt": "datetimeoffset"
     }
-  ]
+  ],
+  "message": "SUCCESS"
 }
 ```
 

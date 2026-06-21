@@ -39,11 +39,11 @@ Content-Type: application/json
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": {
-    "message": "LEADER_TRANSFERRED_SUCCESSFULLY"
-  }
+  "data": null,
+  "message": "LEADER_TRANSFERRED_SUCCESSFULLY"
 }
 ```
 

@@ -34,9 +34,10 @@ Response dùng `ApiResponseFactory.Base(data)`.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string|null",
   "timestampUtc": "datetime",
-  "value": {
+  "data": {
     "id": "guid",
     "teamId": "guid",
     "teamName": "string",
@@ -62,7 +63,8 @@ Response dùng `ApiResponseFactory.Base(data)`.
     ],
     "createdAt": "datetimeoffset",
     "updatedAt": "datetimeoffset"
-  }
+  },
+  "message": "SUCCESS"
 }
 ```
 

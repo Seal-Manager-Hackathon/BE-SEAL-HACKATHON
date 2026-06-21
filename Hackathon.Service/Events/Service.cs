@@ -98,7 +98,6 @@ public class Service : IService
         return new Response.CreateEventResponse
         {
             Id = eventEntity.Id,
-            Message = "EVENT_CREATED_SUCCESSFULLY",
         };
     }
 

@@ -26,12 +26,14 @@ Authorization: Bearer {accessToken}
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string|null",
   "timestampUtc": "datetime",
-  "value": {
-    "registerTeamId": "guid",
+  "data": {
+    "registerId": "guid",
     "rejectionReason": "string"
-  }
+  },
+  "message": "SUCCESS"
 }
 ```
 

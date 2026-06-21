@@ -15,16 +15,16 @@ Yêu cầu access token hợp lệ với role `Admin`.
 | `eventId` | `guid` | Có | Id của event cần xóa. |
 
 ## Response body
-Response dùng `ApiResponseFactory.Base(data)` và chỉ trả message khi xóa thành công.
-
 ```json
 {
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string|null",
   "timestampUtc": "datetime",
-  "value": "EVENT_DELETED_SUCCESSFULLY"
+  "data": null,
+  "message": "EVENT_DELETED_SUCCESSFULLY"
 }
 ```
 
