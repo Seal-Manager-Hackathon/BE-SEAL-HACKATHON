@@ -38,9 +38,10 @@ Response dùng `ApiResponseFactory.BasePagination(...)`.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": null,
   "timestampUtc": "datetime",
-  "value": {
+  "data": {
     "items": [
       {
         "id": "guid",

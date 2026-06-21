@@ -33,9 +33,10 @@ Response dùng `ApiResponseFactory.Base(...)`. Nếu team không tham gia event 
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "...",
   "timestampUtc": "2026-06-19T...",
-  "value": {
+  "data": {
     "registerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "eventId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
     "eventName": "Hackathon ABC",

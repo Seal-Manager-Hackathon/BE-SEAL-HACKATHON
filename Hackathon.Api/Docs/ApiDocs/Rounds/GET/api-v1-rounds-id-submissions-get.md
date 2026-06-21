@@ -35,9 +35,10 @@ Không có.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": {
+  "data": {
     "items": [
       {
         "submissionId": "8fa95f64-5717-4562-b3fc-2c963f66afa6",
@@ -59,7 +60,8 @@ Không có.
     "totalCount": 2,
     "hasNextPage": false,
     "hasPreviousPage": false
-  }
+  },
+  "message": "SUCCESS"
 }
 ```
 

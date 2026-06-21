@@ -39,19 +39,18 @@ Yêu cầu access token hợp lệ với role `Admin`.
 | `season` | `string` | Không | Mùa/mùa giải của event. |
 
 ## Response body
-Response dùng `ApiResponseFactory.Base(data)` và chỉ trả `id` của event vừa tạo kèm message khi tạo thành công.
-
 ```json
 {
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 201,
   "traceId": "string|null",
   "timestampUtc": "datetime",
-  "value": {
-    "id": "guid",
-    "message": "EVENT_CREATED_SUCCESSFULLY"
-  }
+  "data": {
+    "id": "guid"
+  },
+  "message": "EVENT_CREATED_SUCCESSFULLY"
 }
 ```
 

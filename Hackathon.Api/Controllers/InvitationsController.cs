@@ -28,13 +28,13 @@ public class InvitationsController : ControllerBase
     public async Task<IActionResult> AcceptInvitation(Guid invitationId)
     {
         var result = await _invitationsService.AcceptInvitation(invitationId);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"INVITATION_ACCEPTED", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpPost("{invitationId:guid}/reject")]
     public async Task<IActionResult> RejectInvitation(Guid invitationId)
     {
         var result = await _invitationsService.RejectInvitation(invitationId);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"INVITATION_REJECTED", traceId: HttpContext.TraceIdentifier));
     }
 }

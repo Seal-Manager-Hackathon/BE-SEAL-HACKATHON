@@ -35,39 +35,39 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
     public async Task<IActionResult> CreateTeam(TeamsService.Request.CreateTeamRequest request)
     {
         var result = await _teamService.CreateTeam(request);
-        return Ok(ApiResponseFactory.Base(result,201,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,201,"TEAM_CREATED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.StudentPolicy)]
     [HttpPost("{teamId:guid}/invitations")]
     public async Task<IActionResult> InviteMember(Guid teamId, TeamsService.Request.InviteMemberRequest request)
     {
-        var result = await _teamService.InviteMember(teamId, request);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        var message = await _teamService.InviteMember(teamId, request);
+        return Ok(ApiResponseFactory.Base(null,200,message, traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.StudentPolicy)]
     [HttpPut("{teamId:guid}")]
     public async Task<IActionResult> UpdateTeam(Guid teamId, TeamsService.Request.UpdateTeamRequest request)
     {
-        var result = await _teamService.UpdateTeam(teamId, request);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        var message = await _teamService.UpdateTeam(teamId, request);
+        return Ok(ApiResponseFactory.Base(null,200,message, traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.StudentPolicy)]
     [HttpDelete("{teamId:guid}/members")]
     public async Task<IActionResult> RemoveMembers(Guid teamId, TeamsService.Request.RemoveMembersRequest request)
     {
-        var result = await _teamService.RemoveMembers(teamId, request);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        var message = await _teamService.RemoveMembers(teamId, request);
+        return Ok(ApiResponseFactory.Base(null,200,message, traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.StudentPolicy)]
     [HttpPut("{teamId:guid}/leader")]
     public async Task<IActionResult> TransferLeader(Guid teamId, TeamsService.Request.TransferLeaderRequest request)
     {
-        var result = await _teamService.TransferLeader(teamId, request);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        var message = await _teamService.TransferLeader(teamId, request);
+        return Ok(ApiResponseFactory.Base(null,200,message, traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.StudentPolicy)]

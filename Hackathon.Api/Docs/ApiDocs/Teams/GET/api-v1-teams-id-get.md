@@ -32,9 +32,10 @@ Không có.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": {
+  "data": {
     "id": "guid",
     "name": "string",
     "canEdit": true,
@@ -52,7 +53,8 @@ Không có.
         "status": 0 /* Active */
       }
     ]
-  }
+  },
+  "message": "SUCCESS"
 }
 ```
 

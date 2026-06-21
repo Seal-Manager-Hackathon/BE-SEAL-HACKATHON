@@ -26,16 +26,15 @@ GET /api/v1/rounds/8f3b2553-933e-4861-a577-ab6453664d41/criteria
 Không có.
 
 ## Response body
-Response dùng `ApiResponseFactory.Base(result)`.
-
 ```json
 {
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "00-84a1e9df64619d8...",
   "timestampUtc": "2026-06-19T10:00:00.0000000Z",
-  "value": {
+  "data": {
     "roundId": "8f3b2553-933e-4861-a577-ab6453664d41",
     "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "roundName": "Vòng Sơ loại",
@@ -64,7 +63,8 @@ Response dùng `ApiResponseFactory.Base(result)`.
         }
       ]
     }
-  }
+  },
+  "message": "SUCCESS"
 }
 ```
 

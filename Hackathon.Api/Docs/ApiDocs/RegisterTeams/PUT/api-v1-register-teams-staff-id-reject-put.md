@@ -43,18 +43,19 @@ Response dùng `ApiResponseFactory.Base(data)`.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string|null",
   "timestampUtc": "datetime",
-  "value": {
+  "data": {
     "id": "guid",
     "teamId": "guid",
     "teamName": "string",
     "eventId": "guid",
     "eventName": "string",
     "status": 2, /* Rejected */
-    "rejectionReason": "string",
-    "message": "REGISTER_TEAM_REJECTED_SUCCESSFULLY"
-  }
+    "rejectionReason": "string"
+  },
+  "message": "REGISTER_TEAM_REJECTED_SUCCESSFULLY"
 }
 ```
 

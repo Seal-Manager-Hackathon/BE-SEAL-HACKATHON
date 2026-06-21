@@ -37,9 +37,10 @@ Response dùng `ApiResponseFactory.BasePagination(...)`.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "00-84a1e9df64619d8...",
   "timestampUtc": "2026-06-19T10:00:00.0000000Z",
-  "value": {
+  "data": {
     "items": [
       {
         "registerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -55,7 +56,6 @@ Response dùng `ApiResponseFactory.BasePagination(...)`.
     "pageIndex": 1,
     "pageSize": 10,
     "totalCount": 1,
-    "totalPages": 1,
     "hasNextPage": false,
     "hasPreviousPage": false
   }

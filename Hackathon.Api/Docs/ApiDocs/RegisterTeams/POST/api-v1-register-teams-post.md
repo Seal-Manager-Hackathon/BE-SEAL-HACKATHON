@@ -30,15 +30,16 @@ Response dùng `ApiResponseFactory.Base(data)`.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string|null",
   "timestampUtc": "datetime",
-  "value": {
+  "data": {
     "id": "guid",
     "teamId": "guid",
     "eventId": "guid",
-    "status": 0,
-    "message": "REGISTERED_SUCCESSFULLY"
-  }
+    "status": 0
+  },
+  "message": "REGISTERED_SUCCESSFULLY"
 }
 ```
 

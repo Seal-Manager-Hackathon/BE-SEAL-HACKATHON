@@ -22,14 +22,14 @@ Yêu cầu access token hợp lệ với role `Student`.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 201,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": {
+  "data": {
     "id": "guid",
     "name": "string",
     "canEdit": true,
     "createdAt": "datetime",
-    "message": "TEAM_CREATED_SUCCESSFULLY",
     "members": [
       {
         "userId": "guid",
@@ -37,7 +37,8 @@ Yêu cầu access token hợp lệ với role `Student`.
         "status": 0 /* Active */
       }
     ]
-  }
+  },
+  "message": "TEAM_CREATED_SUCCESSFULLY"
 }
 ```
 

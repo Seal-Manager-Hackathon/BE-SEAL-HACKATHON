@@ -23,11 +23,11 @@ Gửi lại email xác thực tài khoản cho user khi user chưa xác thực e
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": {
-    "message": "VERIFICATION_EMAIL_RESENT"
-  }
+  "data": null,
+  "message": "VERIFICATION_EMAIL_RESENT"
 }
 ```
 

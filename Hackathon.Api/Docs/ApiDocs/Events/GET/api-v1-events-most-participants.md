@@ -26,9 +26,10 @@ Không có.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": [
+  "data": [
     {
       "id": "guid",
       "name": "string",
@@ -47,7 +48,8 @@ Không có.
       "teamCount": 0,
       "participantCount": 0
     }
-  ]
+  ],
+  "message": "SUCCESS"
 }
 ```
 

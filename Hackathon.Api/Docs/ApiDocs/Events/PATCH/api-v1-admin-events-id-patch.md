@@ -48,16 +48,16 @@ Chỉ cần truyền các field muốn cập nhật.
 | `season` | `string` | Không | Mùa/mùa giải của event. |
 
 ## Response body
-Response dùng `ApiResponseFactory.Base(data)` và chỉ trả message khi cập nhật thành công.
-
 ```json
 {
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string|null",
   "timestampUtc": "datetime",
-  "value": "EVENT_UPDATED_SUCCESSFULLY"
+  "data": null,
+  "message": "EVENT_UPDATED_SUCCESSFULLY"
 }
 ```
 

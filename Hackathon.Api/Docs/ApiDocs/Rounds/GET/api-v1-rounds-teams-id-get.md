@@ -36,9 +36,10 @@ Response dùng `ApiResponseFactory.Base(data)`.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": [
+  "data": [
     {
       "roundId": "guid",
       "eventId": "guid",
@@ -53,7 +54,8 @@ Response dùng `ApiResponseFactory.Base(data)`.
       "startSubmission": "datetimeoffset|null",
       "endSubmission": "datetimeoffset|null"
     }
-  ]
+  ],
+  "message": "SUCCESS"
 }
 ```
 

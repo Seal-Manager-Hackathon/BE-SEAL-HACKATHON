@@ -5,7 +5,7 @@ namespace Hackathon.Service.RegisterTeams;
 
 public interface IService
 {
-    Task<Response.RegisterTeamActionResponse> RegisterEvent(Request.RegisterEventRequest request);
+    Task<(Response.RegisterTeamActionResponse Data, string Message)> RegisterEvent(Request.RegisterEventRequest request);
     Task<BasePaginationResponse> GetMyRegisteredEvents(Request.GetMyRegisteredEventsRequest request, PaginationRequest paginationRequest);
     Task<Response.RegisterTeamDetailForStudentResponse> GetRegisterTeamDetailForStudent(Guid registerId);
 

@@ -41,15 +41,16 @@ Content-Type: application/json
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": {
+  "data": {
     "submissionId": "00000000-0000-0000-0000-000000000000",
     "teamId": "00000000-0000-0000-0000-000000000000",
     "url": "https://example.com/submission",
-    "submittedAt": "datetime",
-    "message": "SUBMISSION_CREATED_SUCCESSFULLY"
-  }
+    "submittedAt": "datetime"
+  },
+  "message": "SUBMISSION_CREATED_SUCCESSFULLY"
 }
 ```
 
