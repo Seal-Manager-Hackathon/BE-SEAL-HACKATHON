@@ -26,7 +26,7 @@ public class EventsController(EventsService.IService eventsService, TracksServic
     public async Task<IActionResult> CreateEvent(EventsService.Request.CreateEventRequest request)
     {
         var result = await _eventsService.CreateEvent(request);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,201,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
@@ -34,7 +34,7 @@ public class EventsController(EventsService.IService eventsService, TracksServic
     public async Task<IActionResult> UpdateEvent(Guid eventId, EventsService.Request.UpdateEventRequest request)
     {
         var result = await _eventsService.UpdateEvent(eventId, request);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
@@ -42,7 +42,7 @@ public class EventsController(EventsService.IService eventsService, TracksServic
     public async Task<IActionResult> DeleteEvent(Guid eventId)
     {
         var result = await _eventsService.DeleteEvent(eventId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
@@ -50,7 +50,7 @@ public class EventsController(EventsService.IService eventsService, TracksServic
     public async Task<IActionResult> PublishEvent(Guid eventId)
     {
         var result = await _eventsService.PublishEvent(eventId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
@@ -65,14 +65,14 @@ public class EventsController(EventsService.IService eventsService, TracksServic
     public async Task<IActionResult> GetMostParticipants([FromQuery] int? limit, [FromQuery] bool? isDisable)
     {
         var result = await _eventsService.GetMostParticipants(limit, isDisable);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpGet("{eventId:guid}")]
     public async Task<IActionResult> GetEvent(Guid eventId)
     {
         var result = await _eventsService.GetEvent(eventId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpGet("{eventId:guid}/tracks")]

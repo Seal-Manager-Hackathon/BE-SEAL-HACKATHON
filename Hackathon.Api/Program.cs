@@ -3,6 +3,8 @@ using Hackathon.Repository;
 using Hackathon.Extension;
 using Hackathon.Middleware;
 using Hackathon.Service.BackgroundJobService;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +27,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 
 builder.Services.AddControllers();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+builder.Services.AddValidatorsFromAssemblyContaining<AuthsService.Request.RegisterRequest>();
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
@@ -42,7 +47,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
         var errorResponse = ApiResponseFactory.Error(
             title: "Validation Failed",
             status: StatusCodes.Status400BadRequest,
-            detail: "Dữ liệu đầu vào không hợp lệ.",
+            message: "INVALID_INPUT_DATA",
             messageCode: "VALIDATION_FAILED",
             errors: errors,
             traceId: context.HttpContext.TraceIdentifier
