@@ -20,9 +20,10 @@ Yêu cầu access token hợp lệ với role `Student`.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string|null",
   "timestampUtc": "datetime",
-  "value": {
+  "data": {
     "items": [
       {
         "teamId": "guid",

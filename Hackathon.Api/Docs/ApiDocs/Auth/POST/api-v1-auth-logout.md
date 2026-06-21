@@ -20,13 +20,11 @@ Không có. Cần cookie:
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": {
-    "accessToken": null,
-    "refreshToken": null,
-    "message": "LOGOUT_SUCCESSFUL"
-  }
+  "data": null,
+  "message": "LOGOUT_SUCCESSFUL"
 }
 ```
 

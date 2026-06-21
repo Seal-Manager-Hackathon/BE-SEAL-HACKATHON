@@ -30,9 +30,10 @@ Không có.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "2026-06-18T23:00:00Z",
-  "value": {
+  "data": {
     "email": "user@example.com",
     "firstName": "John",
     "lastName": "Doe",
@@ -47,8 +48,8 @@ Không có.
     "linkUrl": "https://github.com/johndoe",
     "status": 0, /* 0: Active, 1: Inactive, 2: Banned */
     "banReason": null
-  }
-}
+  },
+  "message": "SUCCESS"
 ```
 
 ## Business rules

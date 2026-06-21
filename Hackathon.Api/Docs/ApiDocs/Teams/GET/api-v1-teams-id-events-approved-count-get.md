@@ -33,11 +33,13 @@ Response dùng `ApiResponseFactory.Base(...)`. Value trả về là số lượn
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "00-84a1e9df64619d8...",
   "timestampUtc": "2026-06-19T10:00:00.0000000Z",
-  "value": {
+  "data": {
     "count": 2
-  }
+  },
+  "message": "SUCCESS"
 }
 ```
 

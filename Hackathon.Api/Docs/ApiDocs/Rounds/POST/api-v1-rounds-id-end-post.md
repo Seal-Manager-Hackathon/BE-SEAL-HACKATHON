@@ -32,14 +32,15 @@ Không có.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": {
+  "data": {
     "closedRoundId": "9cb15a44-1234-4562-a3fc-3d963f66bfb9",
     "nextRoundId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "totalTeamsAdvanced": 5,
-    "message": "ROUND_ENDED_SUCCESSFULLY"
-  }
+    "totalTeamsAdvanced": 5
+  },
+  "message": "ROUND_ENDED_SUCCESSFULLY | FINAL_ROUND_CLOSED_HACKATHON_ENDED"
 }
 ```
 

@@ -25,11 +25,11 @@ Cho phép user đặt lại mật khẩu mới bằng token đã nhận được
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": {
-    "message": "PASSWORD_RESET_SUCCESSFULLY"
-  }
+  "data": null,
+  "message": "PASSWORD_RESET_SUCCESSFULLY"
 }
 ```
 

@@ -26,9 +26,10 @@ Authorization: Bearer <token>
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string|null",
   "timestampUtc": "datetime",
-  "value": {
+  "data": {
     "items": [
       {
         "id": "guid",

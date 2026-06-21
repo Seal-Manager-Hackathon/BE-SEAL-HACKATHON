@@ -18,14 +18,18 @@ Không có.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": {
+  "data": {
+    "id": "guid",
+    "role": "string",
     "firstName": "string",
     "lastName": "string",
     "email": "string",
     "avatar": "string|null"
-  }
+  },
+  "message": "SUCCESS"
 }
 ```
 

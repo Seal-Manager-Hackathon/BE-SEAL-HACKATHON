@@ -21,9 +21,10 @@ Authorization: Bearer <token>
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string|null",
   "timestampUtc": "datetime",
-  "value": {
+  "data": {
     "id": "guid",
     "teamId": "guid",
     "teamName": "string",
@@ -31,7 +32,8 @@ Authorization: Bearer <token>
     "description": "string|null",
     "limitTime": "datetime|null",
     "createdAt": "datetime"
-  }
+  },
+  "message": "INVITATION_ACCEPTED"
 }
 ```
 

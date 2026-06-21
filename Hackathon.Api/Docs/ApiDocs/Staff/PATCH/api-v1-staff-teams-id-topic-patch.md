@@ -27,18 +27,19 @@ Yêu cầu access token hợp lệ với role `Staff`.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string|null",
   "timestampUtc": "datetime",
-  "value": {
+  "data": {
     "teamId": "guid",
     "teamName": "string",
     "eventId": "guid",
     "trackId": "guid",
     "trackTitle": "string",
     "topicId": "guid",
-    "topicTitle": "string",
-    "message": "TOPIC_ASSIGNED_TO_TEAM_SUCCESSFULLY"
-  }
+    "topicTitle": "string"
+  },
+  "message": "TOPIC_ASSIGNED_TO_TEAM_SUCCESSFULLY"
 }
 ```
 

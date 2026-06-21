@@ -19,13 +19,14 @@ Xác thực email bằng token; nếu xác thực thành công lần đầu thì
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": {
+  "data": {
     "accessToken": "string|null",
-    "refreshToken": "string|null",
-    "message": "EMAIL_VERIFICATION_SUCCESSFUL | USER_ALREADY_VERIFIED"
-  }
+    "refreshToken": "string|null"
+  },
+  "message": "EMAIL_VERIFICATION_SUCCESSFUL | USER_ALREADY_VERIFIED"
 }
 ```
 

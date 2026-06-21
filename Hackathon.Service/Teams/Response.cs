@@ -21,12 +21,6 @@ public static class Response
         public bool CanEdit { get; set; }
         public List<TeamMemberResponse> Members { get; set; } = new();
         public DateTimeOffset CreatedAt { get; set; }
-        public string Message { get; set; } = null!;
-    }
-
-    public class MessageResponse
-    {
-        public string Message { get; set; } = null!;
     }
 
     public class MyTeamResponse

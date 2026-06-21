@@ -21,7 +21,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Register(AuthsService.Request.RegisterRequest request)
     {
         var result = await _authService.Register(request);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(null,200,result, traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpPost("tokens/refresh")]
@@ -41,7 +41,10 @@ public class AuthController : ControllerBase
             Response.WriteAuthCookies(result.AccessToken, result.RefreshToken);
         }
 
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        var message = !string.IsNullOrEmpty(result?.AccessToken)
+            ? "EMAIL_VERIFICATION_SUCCESSFUL"
+            : "USER_ALREADY_VERIFIED";
+        return Ok(ApiResponseFactory.Base(result,200,message, traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize]
@@ -55,38 +58,38 @@ public class AuthController : ControllerBase
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {
-        var result = await _authService.Logout();
+        var message = await _authService.Logout();
         Response.DeleteAuthCookies();
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(null,200,message, traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize]
     [HttpPatch("change-password")]
     public async Task<IActionResult> ChangePassword(AuthsService.Request.ChangePasswordRequest request)
     {
-        var result = await _authService.ChangePassword(request);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        var message = await _authService.ChangePassword(request);
+        return Ok(ApiResponseFactory.Base(null,200,message, traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword(AuthsService.Request.ForgotPasswordRequest request)
     {
-        var result = await _authService.ForgotPassword(request);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        var message = await _authService.ForgotPassword(request);
+        return Ok(ApiResponseFactory.Base(null,200,message, traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPassword(AuthsService.Request.ResetPasswordRequest request)
     {
-        var result = await _authService.ResetPassword(request);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        var message = await _authService.ResetPassword(request);
+        return Ok(ApiResponseFactory.Base(null,200,message, traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpPost("email-verifications/resend")]
     public async Task<IActionResult> ResendEmailVerification(AuthsService.Request.ResendEmailVerificationRequest request)
     {
-        var result = await _authService.ResendEmailVerification(request);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        var message = await _authService.ResendEmailVerification(request);
+        return Ok(ApiResponseFactory.Base(null,200,message, traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpPost("login")]
@@ -94,6 +97,6 @@ public class AuthController : ControllerBase
     {
         var result = await _authService.LoginAsync(request);
         Response.WriteAuthCookies(result.AccessToken!, result.RefreshToken!);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"LOGIN_SUCCESSFUL", traceId: HttpContext.TraceIdentifier));
     }
 }

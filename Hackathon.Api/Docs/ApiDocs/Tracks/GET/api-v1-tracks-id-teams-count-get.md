@@ -33,15 +33,17 @@ Response dùng `ApiResponseFactory.Base(result)`.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "00-84a1e9df64619d8...",
   "timestampUtc": "2026-06-19T10:00:00.0000000Z",
-  "value": {
+  "data": {
     "trackId": "c4b5a6d7-e8f9-0a1b-2c3d-4e5f6a7b8c9d",
     "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "title": "Web Application",
     "maxTeam": 50,
     "currentTeamCount": 12
-  }
+  },
+  "message": "SUCCESS"
 }
 ```
 

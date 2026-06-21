@@ -31,16 +31,15 @@ GET /api/v1/events/00000000-0000-0000-0000-000000000000/tracks?keyword=ai&isDisa
 Không có.
 
 ## Response body
-Response dùng `ApiResponseFactory.BasePagination(...)`.
-
 ```json
 {
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": null,
   "timestampUtc": "datetime",
-  "value": {
+  "data": {
     "items": [
       {
         "id": "guid",

@@ -23,9 +23,11 @@
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": "REGISTRATION_SUCCESSFUL"
+  "data": null,
+  "message": "REGISTRATION_SUCCESSFUL"
 }
 ```
 

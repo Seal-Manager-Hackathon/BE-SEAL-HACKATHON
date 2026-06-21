@@ -19,11 +19,11 @@ Gửi yêu cầu quên mật khẩu để user nhận email/link chứa token đ
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "string",
   "timestampUtc": "datetime",
-  "value": {
-    "message": "FORGOT_PASSWORD_REQUEST_ACCEPTED"
-  }
+  "data": null,
+  "message": "FORGOT_PASSWORD_REQUEST_ACCEPTED"
 }
 ```
 
