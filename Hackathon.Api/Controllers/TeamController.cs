@@ -27,7 +27,7 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
     public async Task<IActionResult> GetTeamDetail(Guid teamId)
     {
         var result = await _teamService.GetTeamDetail(teamId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.StudentPolicy)]
@@ -35,7 +35,7 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
     public async Task<IActionResult> CreateTeam(TeamsService.Request.CreateTeamRequest request)
     {
         var result = await _teamService.CreateTeam(request);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,201,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.StudentPolicy)]
@@ -43,7 +43,7 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
     public async Task<IActionResult> InviteMember(Guid teamId, TeamsService.Request.InviteMemberRequest request)
     {
         var result = await _teamService.InviteMember(teamId, request);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.StudentPolicy)]
@@ -51,7 +51,7 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
     public async Task<IActionResult> UpdateTeam(Guid teamId, TeamsService.Request.UpdateTeamRequest request)
     {
         var result = await _teamService.UpdateTeam(teamId, request);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.StudentPolicy)]
@@ -59,7 +59,7 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
     public async Task<IActionResult> RemoveMembers(Guid teamId, TeamsService.Request.RemoveMembersRequest request)
     {
         var result = await _teamService.RemoveMembers(teamId, request);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.StudentPolicy)]
@@ -67,7 +67,7 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
     public async Task<IActionResult> TransferLeader(Guid teamId, TeamsService.Request.TransferLeaderRequest request)
     {
         var result = await _teamService.TransferLeader(teamId, request);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.StudentPolicy)]
@@ -83,7 +83,7 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
     public async Task<IActionResult> GetApprovedEventsCount(Guid teamId)
     {
         var result = await _teamService.GetApprovedEventsCount(teamId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.StudentPolicy)]
@@ -91,6 +91,6 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
     public async Task<IActionResult> GetLatestRegisteredEvent(Guid teamId)
     {
         var result = await _teamService.GetLatestRegisteredEvent(teamId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 }

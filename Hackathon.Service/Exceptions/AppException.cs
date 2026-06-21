@@ -7,7 +7,7 @@ public abstract class AppException: Exception
     public string MessageCode { get; set; }
     
     protected AppException(
-        string title, int statusCode, string messageCode,  string detail): base(detail)
+        string title, int statusCode, string messageCode,  string message): base(message)
     {
         Title = title;
         StatusCode = statusCode;

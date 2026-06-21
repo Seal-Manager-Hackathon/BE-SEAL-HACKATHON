@@ -14,7 +14,7 @@ public class TracksController(TracksService.IService tracksService) : Controller
     public async Task<IActionResult> GetTrackTeamCount(Guid trackId)
     {
         var result = await _tracksService.GetTrackTeamCount(trackId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpGet("{trackId:guid}/topics")]

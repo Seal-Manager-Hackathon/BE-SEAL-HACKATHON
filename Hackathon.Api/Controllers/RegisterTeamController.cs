@@ -23,7 +23,7 @@ public class RegisterTeamController : ControllerBase
     public async Task<IActionResult> RegisterEvent([FromBody] RegisterTeamsService.Request.RegisterEventRequest request)
     {
         var result = await _registerTeamService.RegisterEvent(request);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpGet("me")]
@@ -37,7 +37,7 @@ public class RegisterTeamController : ControllerBase
     public async Task<IActionResult> GetRejectionReason(Guid registerId)
     {
         var result = await _registerTeamService.GetRejectionReason(registerId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpGet("staff/events/{eventId:guid}")]
@@ -53,7 +53,7 @@ public class RegisterTeamController : ControllerBase
     public async Task<IActionResult> GetRegisterTeamDetail(Guid registerTeamId)
     {
         var result = await _registerTeamService.GetRegisterTeamDetail(registerTeamId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpPut("staff/{registerId:guid}/approve")]
@@ -61,7 +61,7 @@ public class RegisterTeamController : ControllerBase
     public async Task<IActionResult> ApproveRegistration(Guid registerId)
     {
         var result = await _registerTeamService.AcceptRegisterTeam(registerId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpPut("staff/{registerId:guid}/reject")]
@@ -69,6 +69,6 @@ public class RegisterTeamController : ControllerBase
     public async Task<IActionResult> RejectRegistration(Guid registerId, [FromBody] RegisterTeamsService.Request.RejectRegisterTeamRequest request)
     {
         var result = await _registerTeamService.RejectRegisterTeam(registerId, request);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 }
