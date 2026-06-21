@@ -22,7 +22,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetProfileUser()
     {
         var result = await _userService.GetProfileUser();
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpPatch("profile")]
@@ -30,7 +30,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> UpdateProfile(Request.UpdateProfileRequest requestBody)
     {
         var result = await _userService.UpdateProfile(requestBody);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpPost("system-report")]
@@ -38,6 +38,6 @@ public class UserController : ControllerBase
     public async Task<IActionResult> CreateSystemReport(Request.CreateSystemReportRequest requestBody)
     {
         var result = await _userService.CreateSystemReport(requestBody);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,201,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 }

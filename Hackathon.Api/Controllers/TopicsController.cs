@@ -19,6 +19,6 @@ public class TopicsController : ControllerBase
     public async Task<IActionResult> GetTopic(Guid eventId, Guid registerTeamId)
     {
         var result = await _topicsService.GetTopic(eventId, registerTeamId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 }
