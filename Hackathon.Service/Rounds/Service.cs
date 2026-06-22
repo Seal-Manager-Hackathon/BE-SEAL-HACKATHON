@@ -251,7 +251,6 @@ public class Service : IService
             TeamId = roundDetail.RegisterTeam.TeamId,
             Url = newSubmission.Url,
             SubmittedAt = now,
-            Message = "SUBMISSION_CREATED_SUCCESSFULLY"
         };
     }
 
@@ -287,7 +286,7 @@ public class Service : IService
         return ApiResponseFactory.BasePagination(submissions, query.PageIndex, query.PageSize, totalCount);
     }
 
-    public async Task<Response.EndRoundResponse> EndRound(Guid roundId)
+    public async Task<(Response.EndRoundResponse Data, string Message)> EndRound(Guid roundId)
     {
         var round = await _dbContext.Rounds
             .Include(x => x.Event)
@@ -354,12 +353,13 @@ public class Service : IService
         round.IsDisable = true;
         await _dbContext.SaveChangesAsync();
 
-        return new Response.EndRoundResponse
+        var message = nextRound == null ? "FINAL_ROUND_CLOSED_HACKATHON_ENDED" : "ROUND_ENDED_SUCCESSFULLY";
+
+        return (new Response.EndRoundResponse
         {
             ClosedRoundId = round.Id,
             NextRoundId = nextRound?.Id,
             TotalTeamsAdvanced = totalTeamsAdvanced,
-            Message = nextRound == null ? "FINAL_ROUND_CLOSED_HACKATHON_ENDED" : "ROUND_ENDED_SUCCESSFULLY"
-        };
+        }, message);
     }
 }

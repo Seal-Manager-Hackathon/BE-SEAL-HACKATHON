@@ -56,7 +56,7 @@ public class Service : IService
         return _httpContext.HttpContext?.User.IsInRole(RoleEnum.Admin.ToString()) == true;
     }
 
-    public async Task<Response.RegisterTeamActionResponse> RegisterEvent(Request.RegisterEventRequest request)
+    public async Task<(Response.RegisterTeamActionResponse Data, string Message)> RegisterEvent(Request.RegisterEventRequest request)
     {
         var userId = GetCurrentUserId();
 
@@ -165,7 +165,7 @@ public class Service : IService
                 throw;
             }
 
-            return new Response.RegisterTeamActionResponse
+            return (new Response.RegisterTeamActionResponse
             {
                 Id = existingForThisEvent.Id,
                 TeamId = team.Id,
@@ -173,8 +173,7 @@ public class Service : IService
                 EventId = eventEntity.Id,
                 EventName = eventEntity.Name,
                 Status = existingForThisEvent.Status.Value,
-                Message = "Đăng ký lại thành công, ban tổ chức đang xét duyệt bạn."
-            };
+            }, "REGISTERED_AGAIN_SUCCESSFULLY");
         }
 
         // If the team has ever been Approved for ANY event, they cannot register for another event
@@ -218,7 +217,7 @@ public class Service : IService
             throw;
         }
 
-        return new Response.RegisterTeamActionResponse
+        return (new Response.RegisterTeamActionResponse
         {
             Id = registerTeam.Id,
             TeamId = team.Id,
@@ -226,8 +225,7 @@ public class Service : IService
             EventId = eventEntity.Id,
             EventName = eventEntity.Name,
             Status = registerTeam.Status.Value,
-            Message = "Đăng ký thành công, ban tổ chức đang xét duyệt bạn."
-        };
+        }, "REGISTERED_SUCCESSFULLY");
     }
 
     public async Task<BasePaginationResponse> GetMyRegisteredEvents(Request.GetMyRegisteredEventsRequest request, PaginationRequest paginationRequest)
@@ -544,7 +542,6 @@ public class Service : IService
             EventName = registerTeam.Event.Name,
             Status = registerTeam.Status.Value,
             RejectionReason = registerTeam.RejectionReason,
-            Message = "REGISTER_TEAM_ACCEPTED_SUCCESSFULLY",
         };
     }
 
@@ -622,7 +619,6 @@ public class Service : IService
             EventName = registerTeam.Event.Name,
             Status = registerTeam.Status.Value,
             RejectionReason = registerTeam.RejectionReason,
-            Message = "REGISTER_TEAM_REJECTED_SUCCESSFULLY",
         };
     }
 }
