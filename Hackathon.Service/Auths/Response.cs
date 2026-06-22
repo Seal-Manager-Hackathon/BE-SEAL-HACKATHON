@@ -6,11 +6,10 @@ public class Response
     {
         public string? AccessToken { get; set; }
         public string? RefreshToken { get; set; }
-        public string? Message { get; set; }
     }
 
     public class AuthResponse : VerifyEmailResponse;
-    
+
     public class GetMeResponse
     {
         public Guid Id { get; set; }
@@ -21,23 +20,10 @@ public class Response
         public String? Avatar { get; set; }
     }
 
-    public class LogoutResponse : VerifyEmailResponse;
-
-
-
-    
     public class LoginResponse
     {
         public string? AccessToken { get; set; }
 
         public string? RefreshToken { get; set; }
-
-        public string? Message { get; set; }
-
-    }
-
-    public class MessageResponse
-    {
-        public string Message { get; set; } = null!;
     }
 }
