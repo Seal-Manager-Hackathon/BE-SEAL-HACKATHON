@@ -24,8 +24,8 @@ Public API (Hoặc Authenticated tùy theo cài đặt ẩn hiện đề thi)
     "trackId": "c4b5a6d7-e8f9-0a1b-2c3d-4e5f6a7b8c9d",
     "Title": "Hệ thống số hóa y tế",
     "description": "Xây dựng ứng dụng quản lý quy trình khám chữa bệnh.",
-    "isDisable": false,
-    "createdAt": "2026-06-21T08:00:00Z"
+    "createdAt": "2026-06-21T08:00:00Z",
+    "updatedAt": "2026-06-21T08:00:00Z"
   },
   "Error": null,
   "TraceId": "0HN1A2B3C4D5E",

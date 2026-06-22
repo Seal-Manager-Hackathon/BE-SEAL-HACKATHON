@@ -40,7 +40,7 @@ Staff hoặc Admin (Yêu cầu đăng nhập tài khoản BTC)
 ## Business rules
 - Đề thi phải tồn tại trong DB, nếu không báo lỗi `TOPIC_NOT_FOUND`.
 - `title` nếu truyền không được rỗng và không trùng tên đề thi khác trong cùng một track.
-- Việc sửa đổi nội dung đề thi cần được hệ thống logging/audit kỹ càng để tránh rủi ro gian lận.
+- Hệ thống sẽ tự động cập nhật trường `UpdatedAt`.
 
 ## Lỗi có thể xảy ra
 *Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn \`ErrorResponse\`:*
