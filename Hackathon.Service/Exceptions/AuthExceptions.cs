@@ -4,7 +4,7 @@ public class MissingAccessTokenException : AppException
 {
     public MissingAccessTokenException()
         : base("Unauthorized", 401, "MISSING_ACCESS_TOKEN", 
-            "Access token is missing.") { }
+            "ACCESS_TOKEN_IS_MISSING") { }
 }
 
 public class ExpiredAccessTokenException : AppException
@@ -18,5 +18,5 @@ public class ExpiredRefreshTokenException : AppException
 {
     public ExpiredRefreshTokenException()
         : base("Unauthorized",401,  "EXPIRED_REFRESH_TOKEN", 
-            "Refresh token has expired. Please login again.") { }
+            "REFRESH_TOKEN_HAS_EXPIRED") { }
 }
