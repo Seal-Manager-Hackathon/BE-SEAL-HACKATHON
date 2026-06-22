@@ -16,7 +16,9 @@ SYSTEM_WORKFLOW.md
 *.user
 *.userosscache
 *.sln.docstates
-
+.py
+# doc.md
+.obsidian/
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
