@@ -1,0 +1,245 @@
+{
+  "main": {
+    "id": "0bc4c3122ab12bf0",
+    "type": "split",
+    "children": [
+      {
+        "id": "81f64268a10c6839",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "fc6219cdae550817",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "RegisterTeam/48-PATCH-api-v1-staff-teams-teamId-topic.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "48-PATCH-api-v1-staff-teams-teamId-topic"
+            }
+          },
+          {
+            "id": "87eee43e8bf11921",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "doc02.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "doc02"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "148d40f7d62aec00",
+    "type": "split",
+    "children": [
+      {
+        "id": "474349702c5b233a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "1f64c444ee84bd36",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Trình duyệt tệp"
+            }
+          },
+          {
+            "id": "0cfbdccdc7e8fe3f",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Tìm kiếm"
+            }
+          },
+          {
+            "id": "8af781caf060d2e4",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Đánh dấu"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "4cc4f837f87fc4d6",
+    "type": "split",
+    "children": [
+      {
+        "id": "824c614ec7218004",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "798951416f4c441e",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "fornend/protect route.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Liên kết đến của protect route"
+            }
+          },
+          {
+            "id": "3d3e6aee1464713e",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "fornend/protect route.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Liên kết đi ra từ protect route"
+            }
+          },
+          {
+            "id": "e828462a03c93eab",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Thẻ"
+            }
+          },
+          {
+            "id": "6e2a7ab9ee9abbb5",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "Tất cả thuộc tính"
+            }
+          },
+          {
+            "id": "4b83ce6ecb85cd0d",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "fornend/protect route.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Đề cương của protect route"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Mở bộ chuyển đổi nhanh": false,
+      "graph:Mở xem biểu đồ": false,
+      "canvas:Tạo bảng mới": false,
+      "daily-notes:Mở ghi chú hôm nay": false,
+      "templates:Chèn mẫu": false,
+      "command-palette:Mở khay lệnh": false,
+      "bases:Tạo cơ sở mới": false
+    }
+  },
+  "active": "fc6219cdae550817",
+  "lastOpenFiles": [
+    "RegisterTeam/46-GET-api-v1-staff-events-eventId-teams.md",
+    "Event/GET-api-v1-events-eventId-summary.md",
+    "Event/GET-api-v1-admin-events-eventId-setup-status.md",
+    "Event/21-DELETE-api-v1-admin-events-eventId.md",
+    "Event/19-POST-api-v1-admin-events.md",
+    "Auth/POST-api-v1-auth-tokens-revoke-all.md",
+    "doc01.md.tmp.25412.e985b81fb226",
+    "Auth/05-GET-api-v1-auth-me.md",
+    "Auth/06-POST-api-v1-auth-logout.md",
+    "Auth/07-PATCH-api-v1-auth-change-password.md",
+    "Auth/08-POST-api-v1-auth-forgot-password.md",
+    "doc.md.tmp.25412.11abe4ff8981",
+    "Auth/09-POST-api-v1-auth-reset-password.md",
+    "Auth/04-POST-api-v1-auth-email-verifications.md",
+    "doc01.md.tmp.25412.d5cda92b14df",
+    "User/12-PATCH-api-v1-users-profile.md",
+    "doc01.md.tmp.25412.e14b2f2c151a",
+    "doc01.md.tmp.25412.c994309ed7fe",
+    "User/11-GET-api-v1-users-profile.md",
+    "User/13-POST-api-v1-users-system-report.md",
+    "Track/44-GET-api-v1-staff-events-eventId-tracks.md",
+    "doc.md.tmp.25412.f88777ceac43",
+    "Team/POST-api-v1-teams-teamId-leave.md",
+    "Team/PATCH-api-v1-teams-teamId-unlock.md",
+    "doc.md.tmp.25412.c6c963a71912",
+    "Team/33-GET-api-v1-teams-teamId-events-latest.md",
+    "Team/28-PUT-api-v1-teams-teamId.md",
+    "Team/26-POST-api-v1-teams.md",
+    "doc.md.tmp.25412.19fa925aa12c",
+    "Submission/GET-api-v1-submissions-submissionId.md",
+    "RegisterTeam/POST-api-v1-staff-events-eventId-draw-results-bulk.md.tmp.25412.2a0adab6b6c3",
+    "Submission/GET-api-v1-rounds-roundId-my-submissions.md",
+    "Round/53-GET-api-v1-rounds-teams-teamId.md.tmp.25412.868bb9f05e72",
+    "Submission/56-GET-api-v1-rounds-roundId-submissions.md",
+    "doc01.md",
+    "Auth/01-POST-api-v1-auth-register.md",
+    "Pasted image 20260620182223.png",
+    "Pasted image 20260617155435.png",
+    "Pasted image 20260617154811.png",
+    "Pasted image 20260603174207.png",
+    "Pasted image 20260601031037.png",
+    "Chưa đặt tên.canvas"
+  ]
+}
