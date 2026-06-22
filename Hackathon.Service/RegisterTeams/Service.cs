@@ -330,6 +330,62 @@ public class Service : IService
         };
     }
 
+    public async Task<Response.RegisterTeamRejectionReasonResponse> GetRejectionReason(Guid registerId)
+    {
+        var userId = GetCurrentUserId();
+
+        var registerTeam = await _dbContext.RegisterTeams
+            .AsNoTracking()
+            .Include(x => x.Team)
+            .Include(x => x.Event)
+            .FirstOrDefaultAsync(x => x.Id == registerId && !x.IsDisable);
+
+        if (registerTeam == null)
+        {
+            throw new NotFoundException("REGISTER_TEAM_NOT_FOUND");
+        }
+
+        if (registerTeam.Event.IsDisable)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        if (registerTeam.Team.IsDisable)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        if (!IsCurrentUserAdmin())
+        {
+            var isStaff = _httpContext.HttpContext?.User.IsInRole(RoleEnum.Staff.ToString()) == true;
+            if (isStaff)
+            {
+                await EnsureStaffAssignedToEvent(registerTeam.EventId);
+            }
+            else
+            {
+                var isMember = await _dbContext.TeamDetails.AnyAsync(x => x.TeamId == registerTeam.TeamId
+                    && x.UserId == userId
+                    && !x.IsDisable
+                    && x.Status == TeamDetailStatusEnum.Active);
+
+                if (!isMember)
+                {
+                    throw new ForbiddenException("USER_NOT_IN_TEAM");
+                }
+            }
+        }
+
+        return new Response.RegisterTeamRejectionReasonResponse
+        {
+            RegisterId = registerTeam.Id,
+            TeamId = registerTeam.TeamId,
+            EventId = registerTeam.EventId,
+            Status = registerTeam.Status ?? RegisterTeamStatusEnum.Pending,
+            RejectionReason = registerTeam.RejectionReason,
+        };
+    }
+
     public async Task<BasePaginationResponse> GetRegisterTeamsByEvent(Guid eventId, string? keyword, RegisterTeamStatusEnum? status, bool? isDisable, PaginationRequest paginationRequest)
     {
         var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);

@@ -63,6 +63,15 @@ public static class Response
         public string? RejectionReason { get; set; }
     }
 
+    public class RegisterTeamRejectionReasonResponse
+    {
+        public Guid RegisterId { get; set; }
+        public Guid TeamId { get; set; }
+        public Guid EventId { get; set; }
+        public RegisterTeamStatusEnum Status { get; set; }
+        public string? RejectionReason { get; set; }
+    }
+
     public class RegisterTeamDetailForStudentResponse
     {
         public Guid RegisterId { get; set; }

@@ -8,6 +8,7 @@ public interface IService
     Task<(Response.RegisterTeamActionResponse Data, string Message)> RegisterEvent(Request.RegisterEventRequest request);
     Task<BasePaginationResponse> GetMyRegisteredEvents(Request.GetMyRegisteredEventsRequest request, PaginationRequest paginationRequest);
     Task<Response.RegisterTeamDetailForStudentResponse> GetRegisterTeamDetailForStudent(Guid registerId);
+    Task<Response.RegisterTeamRejectionReasonResponse> GetRejectionReason(Guid registerId);
 
     Task<BasePaginationResponse> GetRegisterTeamsByEvent(Guid eventId, string? keyword, RegisterTeamStatusEnum? status, bool? isDisable, PaginationRequest paginationRequest);
     Task<Response.RegisterTeamDetailResponse> GetRegisterTeamDetail(Guid registerTeamId);
