@@ -46,7 +46,7 @@ public class Staff : ControllerBase
     public async Task<IActionResult> AssignTrackToTeam(Guid teamId, TracksService.Request.AssignTrackToTeamRequest request)
     {
         var result = await _tracksService.AssignTrackToTeam(teamId, request);
-        return Ok(ApiResponseFactory.Base(result, true,"", HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result, 200,"TRACK_ASSIGNED_TO_TEAM_SUCCESSFULLY",traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.StaffPolicy)]
@@ -54,6 +54,6 @@ public class Staff : ControllerBase
     public async Task<IActionResult> AssignTopicToTeam(Guid teamId, TracksService.Request.AssignTopicToTeamRequest request)
     {
         var result = await _tracksService.AssignTopicToTeam(teamId, request);
-        return Ok(ApiResponseFactory.Base(result, true,"", HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result, 200,"TOPIC_ASSIGNED_TO_TEAM_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 }

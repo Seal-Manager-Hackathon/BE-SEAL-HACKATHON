@@ -7,13 +7,13 @@ public interface IService
     public Task<Response.AuthResponse> RefreshToken();
     public Task<Response.VerifyEmailResponse?> VerifyEmail(Request.VerifyEmailRequest request);
     public Task<Response.GetMeResponse> GetMe();
-    public Task<Response.LogoutResponse> Logout();
+    public Task<string> Logout();
     
     public Task<Response.LoginResponse> LoginAsync(
         Request.LoginRequest request
     );
-    public Task<Response.MessageResponse> ChangePassword(Request.ChangePasswordRequest request);
-    public Task<Response.MessageResponse> ForgotPassword(Request.ForgotPasswordRequest request);
-    public Task<Response.MessageResponse> ResetPassword(Request.ResetPasswordRequest request);
-    public Task<Response.MessageResponse> ResendEmailVerification(Request.ResendEmailVerificationRequest request);
+    public Task<string> ChangePassword(Request.ChangePasswordRequest request);
+    public Task<string> ForgotPassword(Request.ForgotPasswordRequest request);
+    public Task<string> ResetPassword(Request.ResetPasswordRequest request);
+    public Task<string> ResendEmailVerification(Request.ResendEmailVerificationRequest request);
 }
