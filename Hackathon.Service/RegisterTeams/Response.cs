@@ -61,7 +61,6 @@ public static class Response
         public string EventName { get; set; } = null!;
         public RegisterTeamStatusEnum Status { get; set; }
         public string? RejectionReason { get; set; }
-        public string Message { get; set; } = null!;
     }
 
     public class RejectionReasonResponse
