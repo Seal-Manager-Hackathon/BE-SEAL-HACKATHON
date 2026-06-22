@@ -9,10 +9,16 @@ namespace Hackathon.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/events")]
-public class EventsController(EventsService.IService eventsService, TracksService.IService tracksService) : ControllerBase
+public class EventsController : ControllerBase
 {
-    private readonly EventsService.IService _eventsService = eventsService;
-    private readonly TracksService.IService _tracksService = tracksService;
+    private readonly EventsService.IService _eventsService ;
+    private readonly TracksService.IService _tracksService ;
+
+    public EventsController(EventsService.IService eventsService, TracksService.IService tracksService)
+    {
+        _eventsService = eventsService;
+        _tracksService = tracksService;
+    }
 
     [HttpGet]
     public async Task<IActionResult> GetEvents([FromQuery] EventsService.Request.GetEventsRequest request)
@@ -26,31 +32,31 @@ public class EventsController(EventsService.IService eventsService, TracksServic
     public async Task<IActionResult> CreateEvent(EventsService.Request.CreateEventRequest request)
     {
         var result = await _eventsService.CreateEvent(request);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,201,"EVENT_CREATED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
     [HttpPatch("/api/v1/admin/events/{eventId:guid}")]
     public async Task<IActionResult> UpdateEvent(Guid eventId, EventsService.Request.UpdateEventRequest request)
     {
-        var result = await _eventsService.UpdateEvent(eventId, request);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        var message = await _eventsService.UpdateEvent(eventId, request);
+        return Ok(ApiResponseFactory.Base(null,200,message, traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
     [HttpDelete("/api/v1/admin/events/{eventId:guid}")]
     public async Task<IActionResult> DeleteEvent(Guid eventId)
     {
-        var result = await _eventsService.DeleteEvent(eventId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        var message = await _eventsService.DeleteEvent(eventId);
+        return Ok(ApiResponseFactory.Base(null,200,message, traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
     [HttpPatch("/api/v1/admin/events/{eventId:guid}/publish")]
     public async Task<IActionResult> PublishEvent(Guid eventId)
     {
-        var result = await _eventsService.PublishEvent(eventId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        var message = await _eventsService.PublishEvent(eventId);
+        return Ok(ApiResponseFactory.Base(null,200,message, traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
@@ -65,14 +71,14 @@ public class EventsController(EventsService.IService eventsService, TracksServic
     public async Task<IActionResult> GetMostParticipants([FromQuery] int? limit, [FromQuery] bool? isDisable)
     {
         var result = await _eventsService.GetMostParticipants(limit, isDisable);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpGet("{eventId:guid}")]
     public async Task<IActionResult> GetEvent(Guid eventId)
     {
         var result = await _eventsService.GetEvent(eventId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpGet("{eventId:guid}/tracks")]

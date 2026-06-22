@@ -279,7 +279,6 @@ public class Service : IService
             EventId = track.EventId,
             TrackId = track.Id,
             TrackTitle = track.Title,
-            Message = "TRACK_ASSIGNED_TO_TEAM_SUCCESSFULLY",
         };
     }
 
@@ -365,7 +364,6 @@ public class Service : IService
             TrackTitle = topic.Track.Title,
             TopicId = topic.Id,
             TopicTitle = topic.Title,
-            Message = "TOPIC_ASSIGNED_TO_TEAM_SUCCESSFULLY",
         };
     }
 
