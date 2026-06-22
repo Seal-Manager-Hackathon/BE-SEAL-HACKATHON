@@ -22,7 +22,7 @@ public class RoundsController : ControllerBase
     public async Task<IActionResult> GetRounds([FromQuery, Required] Guid eventId)
     {
         var result = await _roundsService.GetRounds(eventId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpGet("teams/{teamId:guid}")]
@@ -30,7 +30,7 @@ public class RoundsController : ControllerBase
     public async Task<IActionResult> GetMyRounds(Guid teamId, [FromQuery] Guid? eventId)
     {
         var result = await _roundsService.GetMyRounds(eventId, teamId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpGet("register-teams/{registerTeamId:guid}")]
@@ -38,7 +38,7 @@ public class RoundsController : ControllerBase
     public async Task<IActionResult> GetMyRoundDetail(Guid registerTeamId)
     {
         var result = await _roundsService.GetMyRoundDetail(registerTeamId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpPost("{roundId:guid}/submit-assignment")]
@@ -46,7 +46,7 @@ public class RoundsController : ControllerBase
     public async Task<IActionResult> SubmitAssignment(Guid roundId, [FromBody] RoundsService.Request.SubmitAssignmentRequest request)
     {
         var result = await _roundsService.SubmitAssignment(roundId, request);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUBMISSION_CREATED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpGet("{roundId:guid}/submissions")]
@@ -54,14 +54,14 @@ public class RoundsController : ControllerBase
     public async Task<IActionResult> GetRoundSubmissions(Guid roundId, [FromQuery] RoundsService.Request.GetSubmissionsQuery query)
     {
         var result = await _roundsService.GetRoundSubmissions(roundId, query);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpPost("{roundId:guid}/end")]
     [Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]
     public async Task<IActionResult> EndRound(Guid roundId)
     {
-        var result = await _roundsService.EndRound(roundId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        var (data, message) = await _roundsService.EndRound(roundId);
+        return Ok(ApiResponseFactory.Base(data,200,message, traceId: HttpContext.TraceIdentifier));
     }
 }
