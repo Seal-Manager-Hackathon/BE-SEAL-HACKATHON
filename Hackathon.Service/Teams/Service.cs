@@ -172,7 +172,6 @@ public class Service : IService
             Name = team.Name,
             CanEdit = team.CanEdit,
             CreatedAt = team.CreatedAt,
-            Message = "TEAM_CREATED_SUCCESSFULLY",
             Members = new List<Response.TeamMemberResponse>
             {
                 new()
@@ -185,7 +184,7 @@ public class Service : IService
         };
     }
 
-    public async Task<Response.MessageResponse> InviteMember(Guid teamId, Request.InviteMemberRequest request)
+    public async Task<string> InviteMember(Guid teamId, Request.InviteMemberRequest request)
     {
         var leaderId = GetCurrentUserId();
         var targetEmail = request.Email?.Trim();
@@ -280,7 +279,7 @@ public class Service : IService
         await _dbContext.Notifications.AddAsync(notification);
         await _dbContext.SaveChangesAsync();
 
-        return new Response.MessageResponse { Message = "INVITATION_SENT_SUCCESSFULLY" };
+        return "INVITATION_SENT_SUCCESSFULLY";
     }
 
     public async Task<BasePaginationResponse> GetMyTeams(PaginationRequest paginationRequest)
@@ -370,7 +369,7 @@ public class Service : IService
         };
     }
 
-    public async Task<Response.MessageResponse> UpdateTeam(Guid teamId, Request.UpdateTeamRequest request)
+    public async Task<string> UpdateTeam(Guid teamId, Request.UpdateTeamRequest request)
     {
         var userId = GetCurrentUserId();
         var newTeamName = request.TeamName?.Trim();
@@ -416,10 +415,10 @@ public class Service : IService
             throw;
         }
 
-        return new Response.MessageResponse { Message = "TEAM_UPDATED_SUCCESSFULLY" };
+        return "TEAM_UPDATED_SUCCESSFULLY";
     }
 
-    public async Task<Response.MessageResponse> RemoveMembers(Guid teamId, Request.RemoveMembersRequest request)
+    public async Task<string> RemoveMembers(Guid teamId, Request.RemoveMembersRequest request)
     {
         var leaderId = GetCurrentUserId();
 
@@ -471,10 +470,10 @@ public class Service : IService
             throw;
         }
 
-        return new Response.MessageResponse { Message = "MEMBERS_REMOVED_SUCCESSFULLY" };
+        return "MEMBERS_REMOVED_SUCCESSFULLY";
     }
 
-    public async Task<Response.MessageResponse> TransferLeader(Guid teamId, Request.TransferLeaderRequest request)
+    public async Task<string> TransferLeader(Guid teamId, Request.TransferLeaderRequest request)
     {
         var leaderId = GetCurrentUserId();
 
@@ -525,7 +524,7 @@ public class Service : IService
             throw;
         }
 
-        return new Response.MessageResponse { Message = "LEADER_TRANSFERRED_SUCCESSFULLY" };
+        return "LEADER_TRANSFERRED_SUCCESSFULLY";
     }
 
     public async Task<BasePaginationResponse> GetTeamRegisteredEvents(Guid teamId, RegisterTeams.Request.GetTeamRegisteredEventsRequest request, PaginationRequest paginationRequest)

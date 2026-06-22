@@ -24,7 +24,6 @@ public static class Response
         public Guid TeamId { get; set; }
         public string? Url { get; set; }
         public DateTimeOffset SubmittedAt { get; set; }
-        public string Message { get; set; } = null!;
     }
 
     public class MyRoundResponse
@@ -77,6 +76,5 @@ public static class Response
         public Guid ClosedRoundId { get; set; }
         public Guid? NextRoundId { get; set; }
         public int TotalTeamsAdvanced { get; set; }
-        public string Message { get; set; } = null!;
     }
 }
