@@ -18,13 +18,13 @@ public class CriticalController : ControllerBase
     public async Task<IActionResult> GetCriteriaByRound(Guid roundId)
     {
         var result = await _criticalService.GetCriteriaByRound(roundId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpGet("api/v1/events/{eventId}/criteria")]
     public async Task<IActionResult> GetCriteriaByEvent(Guid eventId)
     {
         var result = await _criticalService.GetCriteriaByEvent(eventId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 }

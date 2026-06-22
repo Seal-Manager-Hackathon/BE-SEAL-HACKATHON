@@ -98,7 +98,6 @@ public class Service : IService
         return new Response.CreateEventResponse
         {
             Id = eventEntity.Id,
-            Message = "EVENT_CREATED_SUCCESSFULLY",
         };
     }
 
@@ -259,7 +258,7 @@ public class Service : IService
         {
             if (!Enum.TryParse<EventStatusEnum>(request.Status, true, out var eventStatus))
             {
-                throw new BadRequestException("BAD_REQUEST");
+                throw new BadRequestException("INVALID_EVENT_STATUS");
             }
 
             query = query.Where(x => x.Status == eventStatus);
@@ -312,7 +311,7 @@ public class Service : IService
         {
             if (!Enum.TryParse<EventStatusEnum>(request.Status, true, out var eventStatus))
             {
-                throw new BadRequestException("BAD_REQUEST");
+                throw new BadRequestException("INVALID_EVENT_STATUS");
             }
 
             query = query.Where(x => x.Status == eventStatus);
@@ -384,7 +383,7 @@ public class Service : IService
         {
             if (!Enum.TryParse<EventStatusEnum>(request.Status, true, out var eventStatus))
             {
-                throw new BadRequestException("BAD_REQUEST");
+                throw new BadRequestException("INVALID_EVENT_STATUS");
             }
 
             query = query.Where(x => x.Status == eventStatus);
@@ -417,7 +416,7 @@ public class Service : IService
         var take = limit.GetValueOrDefault(10);
         if (take < 1)
         {
-            throw new BadRequestException("BAD_REQUEST");
+            throw new BadRequestException("INVALID_LIMIT_PARAMETER");
         }
 
         return await _dbContext.Events

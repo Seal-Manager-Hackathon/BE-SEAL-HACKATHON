@@ -23,7 +23,6 @@ public static class Response
     public class CreateEventResponse
     {
         public Guid Id { get; set; }
-        public string Message { get; set; } = null!;
     }
 
     public class EventParticipantResponse : EventResponse

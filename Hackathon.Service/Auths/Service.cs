@@ -89,7 +89,7 @@ public class Service : IService
         _httpContext.HttpContext!.Request.Cookies.TryGetValue("Refresh-Token", out var check);
         if (check == null)
         {
-            throw new MissingAccessTokenException();
+            throw new BadRequestException("REFRESH_TOKEN_MISSING");
         }
 
         return check;
@@ -235,7 +235,6 @@ public class Service : IService
             {
                 AccessToken = null!,
                 RefreshToken = null!,
-                Message = "USER_ALREADY_VERIFIED"
             };
         }
 
@@ -289,7 +288,6 @@ public class Service : IService
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
-                Message = "EMAIL_VERIFICATION_SUCCESSFUL"
             };
         }
         catch
@@ -338,12 +336,12 @@ public class Service : IService
         return query;
     }
 
-    public async Task<Response.LogoutResponse> Logout()
+    public async Task<string> Logout()
     {
         var rtInCookie = CheckRefreshToken();
 
         var refreshToken = await _dbContext.RefreshTokens.FirstOrDefaultAsync(x =>
-            x.RefreshTokenHash == rtInCookie);
+            x.RefreshTokenHash == rtInCookie  && !x.IsDisable && x.RevokedAt == null);
 
         if (refreshToken == null)
         {
@@ -359,10 +357,7 @@ public class Service : IService
         _dbContext.RefreshTokens.Update(refreshToken);
         await _dbContext.SaveChangesAsync();
 
-        return new Response.LogoutResponse()
-        {
-            Message = "LOGOUT_SUCCESSFUL",
-        };
+        return "LOGOUT_SUCCESSFUL";
     }
     
     public async Task<Response.LoginResponse> LoginAsync(Request.LoginRequest request)
@@ -399,10 +394,24 @@ public class Service : IService
 
         if (user.IsVerified == false)
         {
-            // Password is correct, but unverified. Send OTP and block login.
             var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
+                var oldVerifications = await _dbContext.EmailVerifications
+                    .Where(x => x.UserId == user.Id && x.Status == EmailVerificationStatusEnum.Pending && !x.IsDisable)
+                    .ToListAsync();
+
+                if (oldVerifications.Count > 0)
+                {
+                    var now = DateTimeOffset.UtcNow;
+                    foreach (var old in oldVerifications)
+                    {
+                        old.IsDisable = true;
+                        old.UpdatedAt = now;
+                    }
+                    _dbContext.EmailVerifications.UpdateRange(oldVerifications);
+                }
+
                 await SendVerificationEmailAsync(user, email);
                 await transaction.CommitAsync();
             }
@@ -443,11 +452,10 @@ public class Service : IService
         {
             AccessToken = accessToken,
             RefreshToken = refreshToken,
-            Message = "LOGIN_SUCCESSFUL",
         };
         return result;
     }
-    public async Task<Response.MessageResponse> ChangePassword(Request.ChangePasswordRequest request)
+    public async Task<string> ChangePassword(Request.ChangePasswordRequest request)
     {
         var userId = CheckAccessToken();
         if (userId == Guid.Empty)
@@ -490,10 +498,10 @@ public class Service : IService
             throw;
         }
 
-        return new Response.MessageResponse { Message = "PASSWORD_CHANGED_SUCCESSFULLY" };
+        return "PASSWORD_CHANGED_SUCCESSFULLY";
     }
 
-    public async Task<Response.MessageResponse> ForgotPassword(Request.ForgotPasswordRequest request)
+    public async Task<string> ForgotPassword(Request.ForgotPasswordRequest request)
     {
         var email = request.Email.Trim();
 
@@ -540,10 +548,10 @@ public class Service : IService
             }
         }
 
-        return new Response.MessageResponse { Message = "FORGOT_PASSWORD_REQUEST_ACCEPTED" };
+        return "FORGOT_PASSWORD_REQUEST_ACCEPTED";
     }
 
-    public async Task<Response.MessageResponse> ResetPassword(Request.ResetPasswordRequest request)
+    public async Task<string> ResetPassword(Request.ResetPasswordRequest request)
     {
         var validateToken = _jwtService.ValidateToken(request.Token);
         if (validateToken == null)
@@ -611,10 +619,10 @@ public class Service : IService
             throw;
         }
 
-        return new Response.MessageResponse { Message = "PASSWORD_RESET_SUCCESSFULLY" };
+        return "PASSWORD_RESET_SUCCESSFULLY";
     }
 
-    public async Task<Response.MessageResponse> ResendEmailVerification(Request.ResendEmailVerificationRequest request)
+    public async Task<string> ResendEmailVerification(Request.ResendEmailVerificationRequest request)
     {
         var email = request.Email.Trim();
 
@@ -687,6 +695,6 @@ public class Service : IService
             throw;
         }
 
-        return new Response.MessageResponse { Message = "EMAIL_VERIFICATION_SENT" };
+        return "EMAIL_VERIFICATION_SENT";
     }
 }
