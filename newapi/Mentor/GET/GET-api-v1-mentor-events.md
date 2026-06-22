@@ -14,6 +14,7 @@ Lecturer với vai trò Mentor (Yêu cầu đăng nhập tài khoản Giảng vi
 
 ## Response body (Success - 200 OK)
 *Cấu trúc trả về dạng `BaseResponse`:*
+deoma
 ```json
 {
   "IsSuccess": true,
