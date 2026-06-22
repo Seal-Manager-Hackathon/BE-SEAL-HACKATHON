@@ -30,7 +30,6 @@ public static class Response
         public Guid EventId { get; set; }
         public Guid TrackId { get; set; }
         public string TrackTitle { get; set; } = null!;
-        public string Message { get; set; } = null!;
     }
 
     public class TeamTopicAssignmentResponse
@@ -42,7 +41,6 @@ public static class Response
         public string TrackTitle { get; set; } = null!;
         public Guid TopicId { get; set; }
         public string TopicTitle { get; set; } = null!;
-        public string Message { get; set; } = null!;
     }
 
     public class ApprovedTeamResponse
