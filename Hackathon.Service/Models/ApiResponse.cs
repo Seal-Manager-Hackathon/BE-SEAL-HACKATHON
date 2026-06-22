@@ -6,6 +6,7 @@ public abstract class  ApiResponse
 {
     public bool IsSuccess { get; set; }
     public bool IsFailed { get; set; }
+    public  int Status { get; set; }
     public object? Error { get; set; }
     public string? TraceId { get; set; }
     public DateTime TimestampUtc { get; set; } 
@@ -13,7 +14,8 @@ public abstract class  ApiResponse
 
 public class BaseResponse : ApiResponse
 {
-    public object? Value { get; set; }
+    public object? Data { get; set; }
+    public string? Message { get; set; }
 }
 
 public class PaginationValue
@@ -28,14 +30,14 @@ public class PaginationValue
 
 public class BasePaginationResponse : ApiResponse
 {
-    public PaginationValue Value { get; set; } = new();
+    public PaginationValue Data { get; set; } = new();
 }
 
 public class ErrorResponse
 {
     public string Title { get; set; } = null!;
     public int Status {get;set;}
-    public string Detail {get;set;} = null!;
+    public string Message {get;set;} = null!;
     public string MessageCode {get;set;} = null!;
     public object? Errors { get; set; }
     public string? TraceId { get; set; }
@@ -44,14 +46,16 @@ public class ErrorResponse
 public static class ApiResponseFactory
 {
     public static BaseResponse Base(
-        object? data, bool isSuccess = true, 
+        object? data, int status, string message, bool isSuccess = true,
         object? errorCustom = null, string? traceId = null)
     {
         return new BaseResponse
         {
             IsSuccess = isSuccess,
             IsFailed = !isSuccess,
-            Value = isSuccess ? data : null, 
+            Status = status,
+            Message = message,
+            Data = isSuccess ? data : null, 
             Error = !isSuccess ? errorCustom : null, 
             TraceId = traceId,
             TimestampUtc = DateTime.UtcNow
@@ -74,7 +78,7 @@ public static class ApiResponseFactory
             IsSuccess = true,
             IsFailed = false,
             Error = null,
-            Value = new PaginationValue 
+            Data = new PaginationValue 
             {
                 Items = newItems,       
                 PageIndex = pageIndex,
@@ -85,14 +89,14 @@ public static class ApiResponseFactory
     }
     
     public static ErrorResponse Error(
-        string title, int status, string detail,
+        string title, int status, string message,
         string messageCode, object? errors, string? traceId = null)
     {
         return new ErrorResponse
         {
             Title = title,
             Status = status,
-            Detail = detail,
+            Message = message,
             MessageCode = messageCode,
             Errors = errors,
             TraceId = traceId,
