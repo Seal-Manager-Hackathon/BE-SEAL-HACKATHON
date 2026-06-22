@@ -6,7 +6,7 @@ Tài liệu này mô tả chi tiết 3 luồng vận hành lớn của hệ th�
 - Các API **không đánh số (bắt đầu bằng `-`)** là API **đề xuất còn thiếu** để luồng hoạt động khép kín và hoàn chỉnh.
 - **Thống kê tổng số lượng API**:
   * **Đã có code (đánh số)**: **59** API
-  * **Chưa có code (đề xuất `-`)**: **116** API
+  * **Chưa có code (đề xuất `-`)**: **114** API
 
 ---
 
@@ -102,7 +102,7 @@ Luồng này mô tả hành trình của một sinh viên từ lúc tham gia h�
 *Mô tả*: Sau khi được duyệt, team được BTC bốc thăm offline để nhận track/bảng đấu và topic/đề thi trong event. Khi BTC gán xong topic, hệ thống mặc định đưa team vào vòng đầu tiên (`RoundNo = 1`).
 
 1. **Xem track & topic hiện tại của team trong event**:
-   * API 51: [`GET /api/v1/events/{eventId}/register-teams/{registerTeamId}/topic`](Events/GET/GET-api-v1-events-eventId-register-teams-registerTeamId-topic.md) — Ở ngoài màn hình event, team xem mình đang thuộc track nào và topic nào.
+   * API 51: [`GET /api/v1/events/{eventId}/register-teams/{registerTeamId}/topic`](Topics/GET/GET-api-v1-events-eventId-register-teams-registerTeamId-topic.md) — Ở ngoài màn hình event, team xem mình đang thuộc track nào và topic nào.
    * *Đếm số đội cùng bảng*: API 49: [`GET /api/v1/tracks/{trackId}/teams/count`](Tracks/GET/GET-api-v1-tracks-trackId-teams-count.md) — Đếm số team trong bảng đấu.
    * *Xem các topic trong track*: API 50: [`GET /api/v1/tracks/{trackId}/topics`](Tracks/GET/GET-api-v1-tracks-trackId-topics.md) — Lấy danh sách topic theo track.
    * *Xem chi tiết đề bài*: [`- GET /api/v1/topics/{topicId}`](Topics/GET/GET-api-v1-topics-topicId.md) — Đọc nội dung đề thi, link đính kèm, yêu cầu nộp bài.
@@ -166,16 +166,16 @@ Luồng này dành cho Admin/BTC để khởi tạo, cấu hình, phân công nh
 *Mô tả*: Admin thiết lập các thông tin cơ bản cho một giải đấu Hackathon mới.
 
 1. **Tạo Event mới (Trạng thái mặc định: Draft)**:
-   * API 19: [`POST /api/v1/admin/events`](Admin/POST/POST-api-v1-admin-events.md) — Admin tạo event mới với các thông tin: tên, mô tả, season, min/max member, thời hạn đăng ký.
+   * API 19: [`POST /api/v1/admin/events`](Events/POST/POST-api-v1-admin-events.md) — Admin tạo event mới với các thông tin: tên, mô tả, season, min/max member, thời hạn đăng ký.
 2. **Cập nhật cấu hình sự kiện**:
-   * API 20: [`PATCH /api/v1/admin/events/{eventId}`](Admin/PATCH/PATCH-api-v1-admin-events-eventId.md) — Điều chỉnh các mốc thời gian, giới hạn số lượng team tham gia.
+   * API 20: [`PATCH /api/v1/admin/events/{eventId}`](Events/PATCH/PATCH-api-v1-admin-events-eventId.md) — Điều chỉnh các mốc thời gian, giới hạn số lượng team tham gia.
 3. **Thiết lập giải thưởng (Awards)**:
    * `- POST /api/v1/admin/events/{eventId}/awards` — Tạo cơ cấu giải thưởng (Nhất, Nhì, Ba, Khuyến khích, Giải phụ) kèm số tiền thưởng tương ứng.
 4. **Quản lý trạng thái hiển thị của Event**:
-   * API 22: [`PATCH /api/v1/admin/events/{eventId}/publish`](Admin/PATCH/PATCH-api-v1-admin-events-eventId-publish.md) — Công bố event ra ngoài giao diện cho sinh viên đăng ký.
-   * [`- PATCH /api/v1/admin/events/{eventId}/unpublish`](Admin/PATCH/PATCH-api-v1-admin-events-eventId-unpublish.md) — Ẩn event về trạng thái Draft khi cần setup lại thông tin.
-   * API 23: [`GET /api/v1/admin/events`](Admin/GET/GET-api-v1-admin-events.md) — Admin xem danh sách quản lý tất cả event.
-   * API 21: [`DELETE /api/v1/admin/events/{eventId}`](Admin/DELETE/DELETE-api-v1-admin-events-eventId.md) — Xóa/Disable event (xóa mềm).
+   * API 22: [`PATCH /api/v1/admin/events/{eventId}/publish`](Events/PATCH/PATCH-api-v1-admin-events-eventId-publish.md) — Công bố event ra ngoài giao diện cho sinh viên đăng ký.
+   * [`- PATCH /api/v1/admin/events/{eventId}/unpublish`](Events/PATCH/PATCH-api-v1-admin-events-eventId-unpublish.md) — Ẩn event về trạng thái Draft khi cần setup lại thông tin.
+   * API 23: [`GET /api/v1/admin/events`](Events/GET/GET-api-v1-admin-events.md) — Admin xem danh sách quản lý tất cả event.
+   * API 21: [`DELETE /api/v1/admin/events/{eventId}`](Events/DELETE/DELETE-api-v1-admin-events-eventId.md) — Xóa/Disable event (xóa mềm).
 
 ---
 
@@ -200,12 +200,12 @@ Luồng này dành cho Admin/BTC để khởi tạo, cấu hình, phân công nh
 
 1. **Tạo bảng đấu (Tracks)**:
    * API 17: [`GET /api/v1/events/{eventId}/tracks`](Events/GET/GET-api-v1-events-eventId-tracks.md) — Lấy danh sách track của event (route này được thí sinh xem và admin kiểm tra).
-   * [`- POST /api/v1/admin/events/{eventId}/tracks`](Admin/POST/POST-api-v1-admin-events-eventId-tracks.md) — Admin tạo track mới trong event.
+   * [`- POST /api/v1/admin/events/{eventId}/tracks`](Tracks/POST/POST-api-v1-admin-events-eventId-tracks.md) — Admin tạo track mới trong event.
 2. **Tạo đề bài/Chủ đề (Topics)**:
-   * [`- POST /api/v1/admin/tracks/{trackId}/topics`](Admin/POST/POST-api-v1-admin-tracks-trackId-topics.md) — Tạo đề thi lồng trong track (topic chính là đề thi - BR-TRACK-02).
+   * [`- POST /api/v1/admin/tracks/{trackId}/topics`](Tracks/POST/POST-api-v1-admin-tracks-trackId-topics.md) — Tạo đề thi lồng trong track (topic chính là đề thi - BR-TRACK-02).
 3. **Ẩn/Hiện đề thi và bảng đấu**:
-   * [`- PATCH /api/v1/admin/tracks/{trackId}/hide`](Admin/PATCH/PATCH-api-v1-admin-tracks-trackId-visibility.md) — Ẩn bảng đấu trước giờ bốc thăm.
-   * [`- PATCH /api/v1/admin/topics/{topicId}/hide`](Admin/PATCH/PATCH-api-v1-admin-topics-topicId-visibility.md) — Khóa đề bài, ẩn đi cho tới thời điểm bắt đầu thi đấu.
+   * [`- PATCH /api/v1/admin/tracks/{trackId}/hide`](Tracks/PATCH/PATCH-api-v1-admin-tracks-trackId-visibility.md) — Ẩn bảng đấu trước giờ bốc thăm.
+   * [`- PATCH /api/v1/admin/topics/{topicId}/hide`](Topics/PATCH/PATCH-api-v1-admin-topics-topicId-visibility.md) — Khóa đề bài, ẩn đi cho tới thời điểm bắt đầu thi đấu.
 
 ---
 
@@ -215,10 +215,10 @@ Luồng này dành cho Admin/BTC để khởi tạo, cấu hình, phân công nh
 1. **Phân công Nhân viên vận hành (Staff)**:
    * `- POST /api/v1/admin/events/{eventId}/staff` — Phân công Staff vận hành sự kiện (chỉ staff được gán mới có quyền duyệt đơn đăng ký của event đó - BR-ASG-01).
 2. **Phân công Giảng viên vào Event**:
-   * [`- POST /api/v1/admin/events/{eventId}/lecturers`](Admin/POST/POST-api-v1-admin-events-eventId-lecturers.md) — Gán giảng viên làm Judge hoặc Mentor của Event (kiểm tra BR-ASG-04: một giảng viên không vừa làm Judge vừa làm Mentor trong cùng event).
+   * [`- POST /api/v1/admin/events/{eventId}/lecturers`](Events/POST/POST-api-v1-admin-events-eventId-lecturers.md) — Gán giảng viên làm Judge hoặc Mentor của Event (kiểm tra BR-ASG-04: một giảng viên không vừa làm Judge vừa làm Mentor trong cùng event).
 3. **Phân công Giám khảo/Mentor vào bảng đấu chi tiết**:
-   * [`- POST /api/v1/admin/assign-events/{assignEventId}/tracks`](Admin/POST/POST-api-v1-admin-assign-events-assignEventId-tracks.md) — Gán Mentor/Judge vào track cụ thể để phân quyền chấm thi và quản lý (BR-ASG-03).
-   * *Gỡ phân công*: [`- DELETE /api/v1/admin/assign-tracks/{assignTrackId}`](Admin/DELETE/DELETE-api-v1-admin-assign-tracks-assignTrackId.md) — Gỡ giám khảo/mentor khỏi track.
+   * [`- POST /api/v1/admin/assign-events/{assignEventId}/tracks`](Events/POST/POST-api-v1-admin-assign-events-assignEventId-tracks.md) — Gán Mentor/Judge vào track cụ thể để phân quyền chấm thi và quản lý (BR-ASG-03).
+   * *Gỡ phân công*: [`- DELETE /api/v1/admin/assign-tracks/{assignTrackId}`](Events/DELETE/DELETE-api-v1-admin-assign-tracks-assignTrackId.md) — Gỡ giám khảo/mentor khỏi track.
 
 ---
 
@@ -278,14 +278,14 @@ Luồng này dành cho Admin/BTC để khởi tạo, cấu hình, phân công nh
 *Mô tả*: BTC tính toán bảng xếp hạng chung cuộc, trao giải thưởng và khóa Read-only toàn bộ dữ liệu giải đấu.
 
 1. **Tính toán Leaderboard**:
-   * [`- POST /api/v1/admin/events/{eventId}/leaderboard/recalculate`](Admin/POST/POST-api-v1-admin-events-eventId-leaderboard-recalculate.md) — Hệ thống tính tổng điểm các vòng để ra điểm chung cuộc (BR-LB-03).
+   * [`- POST /api/v1/admin/events/{eventId}/leaderboard/recalculate`](Events/POST/POST-api-v1-admin-events-eventId-leaderboard-recalculate.md) — Hệ thống tính tổng điểm các vòng để ra điểm chung cuộc (BR-LB-03).
 2. **Gán giải thưởng**:
-   * [`- PATCH /api/v1/admin/leaderboards/{leaderBoardId}/details/{teamId}`](Admin/PATCH/PATCH-api-v1-admin-leaderboards-leaderBoardId-details-teamId.md) — BTC gán giải thưởng đạt được (`LevelAward`) cho các đội thi theo đúng cơ cấu giải.
+   * [`- PATCH /api/v1/admin/leaderboards/{leaderBoardId}/details/{teamId}`](LeaderBoards/PATCH/PATCH-api-v1-admin-leaderboards-leaderBoardId-details-teamId.md) — BTC gán giải thưởng đạt được (`LevelAward`) cho các đội thi theo đúng cơ cấu giải.
 3. **Công bố kết quả chung cuộc**:
-   * [`- PATCH /api/v1/admin/events/{eventId}/leaderboard/publish`](Admin/PATCH/PATCH-api-v1-admin-events-eventId-leaderboard-publish.md) — BTC công bố bảng vàng xếp hạng chung cuộc.
+   * [`- PATCH /api/v1/admin/events/{eventId}/leaderboard/publish`](Events/PATCH/PATCH-api-v1-admin-events-eventId-leaderboard-publish.md) — BTC công bố bảng vàng xếp hạng chung cuộc.
 4. **Khóa Read-only sự kiện**:
-   * [`- PATCH /api/v1/admin/events/{eventId}/leaderboard/lock`](Admin/PATCH/PATCH-api-v1-admin-events-eventId-leaderboard-lock.md) — BTC khóa Leaderboard.
-   * [`- PATCH /api/v1/admin/events/{eventId}/close`](Admin/PATCH/PATCH-api-v1-admin-events-eventId-close.md) — Chuyển trạng thái Event thành Closed. Kể từ thời điểm này, toàn bộ điểm số, xếp hạng và bài nộp thi của event ở trạng thái chỉ đọc (BR-SCO-07, BR-LB-06).
+   * [`- PATCH /api/v1/admin/events/{eventId}/leaderboard/lock`](Events/PATCH/PATCH-api-v1-admin-events-eventId-leaderboard-lock.md) — BTC khóa Leaderboard.
+   * [`- PATCH /api/v1/admin/events/{eventId}/close`](Events/PATCH/PATCH-api-v1-admin-events-eventId-close.md) — Chuyển trạng thái Event thành Closed. Kể từ thời điểm này, toàn bộ điểm số, xếp hạng và bài nộp thi của event ở trạng thái chỉ đọc (BR-SCO-07, BR-LB-06).
 
 ---
 ---

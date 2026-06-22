@@ -4,7 +4,7 @@ Ngày rà soát: 2026-06-22
 
 ## Quy ước & Thống kê
 - **Tổng số API đã có code (Được đánh số 1-59)**: **59** API
-- **Tổng số API đề xuất còn thiếu (Bắt đầu bằng `-`)**: **116** API
+- **Tổng số API đề xuất còn thiếu (Bắt đầu bằng `-`)**: **114** API
 - Dòng **có đánh số ở đầu**: API **đã có route/controller trong code hiện tại**.
 - Dòng **không đánh số (bắt đầu bằng `-`)**: API **chưa thấy route/controller**, được suy luận từ business logic, DBML, entity, service, request/response và docs hiện có.
 - Với API còn thiếu, mỗi dòng ghi rõ: route đề xuất, nội dung chính, quyền dự kiến, entity liên quan, lý do vì sao cần, và ghi chú nếu DB/schema hiện tại chưa đủ field.
@@ -51,16 +51,16 @@ Ngày rà soát: 2026-06-22
 15. [`GET /api/v1/events/{eventId}`](Events/GET/GET-api-v1-events-eventId.md) — Xem chi tiết event. Quyền: Public/Authenticated.
 16. [`GET /api/v1/events/most-participants`](Events/GET/GET-api-v1-events-most-participants.md) — Lấy danh sách event có nhiều participant nhất. Quyền: Public/Authenticated.
 18. [`GET /api/v1/events/events/joined`](Events/GET/GET-api-v1-events-events-joined.md) — Lấy event user/team đã tham gia. **(Chú ý: route lặp chữ events, nên chỉnh lại thành `/api/v1/events/joined`)**. Quyền: Authenticated.
-19. [`POST /api/v1/admin/events`](Admin/POST/POST-api-v1-admin-events.md) — Admin tạo event (thông tin cơ bản). Quyền: Admin.
-20. [`PATCH /api/v1/admin/events/{eventId}`](Admin/PATCH/PATCH-api-v1-admin-events-eventId.md) — Admin cập nhật cấu hình event. Quyền: Admin.
-21. [`DELETE /api/v1/admin/events/{eventId}`](Admin/DELETE/DELETE-api-v1-admin-events-eventId.md) — Admin xóa/disable event. Quyền: Admin.
-22. [`PATCH /api/v1/admin/events/{eventId}/publish`](Admin/PATCH/PATCH-api-v1-admin-events-eventId-publish.md) — Admin publish công bố event. Quyền: Admin.
-23. [`GET /api/v1/admin/events`](Admin/GET/GET-api-v1-admin-events.md) — Admin xem danh sách event bao gồm cả hidden/disabled. Quyền: Admin.
-- [`PATCH /api/v1/admin/events/{eventId}/unpublish`](Admin/PATCH/PATCH-api-v1-admin-events-eventId-unpublish.md) — Admin đưa event từ Published về Draft/Ẩn. Quyền: Admin. Entity: `Events.Status`. Lý do: Tạm ẩn giải đấu khi có thay đổi đột xuất.
-- [`PATCH /api/v1/admin/events/{eventId}/close`](Admin/PATCH/PATCH-api-v1-admin-events-eventId-close.md) — Admin đóng event khi kết thúc. Quyền: Admin. Entity: `Events.Status = Closed`. Lý do: Chuyển trạng thái kết thúc cuộc thi.
-- [`PATCH /api/v1/admin/events/{eventId}/cancel`](Admin/PATCH/PATCH-api-v1-admin-events-eventId-cancel.md) — Admin hủy event. Quyền: Admin. Entity: `Events.Status = Cancelled`. Lý do: Hủy giải đấu khi có sự cố bất khả kháng.
-- [`PATCH /api/v1/admin/events/{eventId}/restore`](Admin/PATCH/PATCH-api-v1-admin-events-eventId-restore.md) — Khôi phục event bị delete mềm (disable). Quyền: Admin. Entity: `Events.IsDisable`. Lý do: Phục hồi lại event bị xóa nhầm.
-- [`GET /api/v1/admin/events/{eventId}/setup-status`](Admin/GET/GET-api-v1-admin-events-eventId-setup-status.md) — Kiểm tra xem event đã cấu hình đầy đủ chưa (đã gán rounds, criteria, tracks, topics, awards, staff chưa). Quyền: Admin/Staff. Entity: `Events` + liên quan. Lý do: Đảm bảo event đầy đủ cấu hình trước khi công bố.
+19. [`POST /api/v1/admin/events`](Events/POST/POST-api-v1-admin-events.md) — Admin tạo event (thông tin cơ bản). Quyền: Admin.
+20. [`PATCH /api/v1/admin/events/{eventId}`](Events/PATCH/PATCH-api-v1-admin-events-eventId.md) — Admin cập nhật cấu hình event. Quyền: Admin.
+21. [`DELETE /api/v1/admin/events/{eventId}`](Events/DELETE/DELETE-api-v1-admin-events-eventId.md) — Admin xóa/disable event. Quyền: Admin.
+22. [`PATCH /api/v1/admin/events/{eventId}/publish`](Events/PATCH/PATCH-api-v1-admin-events-eventId-publish.md) — Admin publish công bố event. Quyền: Admin.
+23. [`GET /api/v1/admin/events`](Events/GET/GET-api-v1-admin-events.md) — Admin xem danh sách event bao gồm cả hidden/disabled. Quyền: Admin.
+- [`PATCH /api/v1/admin/events/{eventId}/unpublish`](Events/PATCH/PATCH-api-v1-admin-events-eventId-unpublish.md) — Admin đưa event từ Published về Draft/Ẩn. Quyền: Admin. Entity: `Events.Status`. Lý do: Tạm ẩn giải đấu khi có thay đổi đột xuất.
+- [`PATCH /api/v1/admin/events/{eventId}/close`](Events/PATCH/PATCH-api-v1-admin-events-eventId-close.md) — Admin đóng event khi kết thúc. Quyền: Admin. Entity: `Events.Status = Closed`. Lý do: Chuyển trạng thái kết thúc cuộc thi.
+- [`PATCH /api/v1/admin/events/{eventId}/cancel`](Events/PATCH/PATCH-api-v1-admin-events-eventId-cancel.md) — Admin hủy event. Quyền: Admin. Entity: `Events.Status = Cancelled`. Lý do: Hủy giải đấu khi có sự cố bất khả kháng.
+- [`PATCH /api/v1/admin/events/{eventId}/restore`](Events/PATCH/PATCH-api-v1-admin-events-eventId-restore.md) — Khôi phục event bị delete mềm (disable). Quyền: Admin. Entity: `Events.IsDisable`. Lý do: Phục hồi lại event bị xóa nhầm.
+- [`GET /api/v1/admin/events/{eventId}/setup-status`](Events/GET/GET-api-v1-admin-events-eventId-setup-status.md) — Kiểm tra xem event đã cấu hình đầy đủ chưa (đã gán rounds, criteria, tracks, topics, awards, staff chưa). Quyền: Admin/Staff. Entity: `Events` + liên quan. Lý do: Đảm bảo event đầy đủ cấu hình trước khi công bố.
 - [`GET /api/v1/events/{eventId}/summary`](Events/GET/GET-api-v1-events-eventId-summary.md) — Xem tóm tắt nhanh số lượng team đăng ký, số track, số vòng thi. Quyền: Public/Auth. Entity: `Events`. Lý do: Vẽ dashboard/card hiển thị thông tin nhanh trên FE.
 
 ## 5. Track & Topic Setup
@@ -69,23 +69,23 @@ Ngày rà soát: 2026-06-22
 45. [`GET /api/v1/staff/tracks/{trackId}/topics`](Staff/GET/GET-api-v1-staff-tracks-trackId-topics.md) — Staff xem topics của track. Quyền: Staff.
 49. [`GET /api/v1/tracks/{trackId}/teams/count`](Tracks/GET/GET-api-v1-tracks-trackId-teams-count.md) — Đếm số team trong track. Quyền: Public/Auth.
 50. [`GET /api/v1/tracks/{trackId}/topics`](Tracks/GET/GET-api-v1-tracks-trackId-topics.md) — Lấy danh sách topic theo track. Quyền: Public/Auth.
-51. [`GET /api/v1/events/{eventId}/register-teams/{registerTeamId}/topic`](Events/GET/GET-api-v1-events-eventId-register-teams-registerTeamId-topic.md) — Lấy topic đã gán cho register team trong event. Quyền: Public/Auth.
+51. [`GET /api/v1/events/{eventId}/register-teams/{registerTeamId}/topic`](Topics/GET/GET-api-v1-events-eventId-register-teams-registerTeamId-topic.md) — Lấy topic đã gán cho register team trong event. Quyền: Public/Auth.
 - [`GET /api/v1/tracks`](Tracks/GET/GET-api-v1-tracks.md) — Search và liệt kê các track toàn hệ thống (có phân trang, keyword). Quyền: Public/Auth. Entity: `Tracks`. Lý do: Tìm kiếm track độc lập.
 - [`GET /api/v1/tracks/{trackId}`](Tracks/GET/GET-api-v1-tracks-trackId.md) — Xem thông tin chi tiết một track. Quyền: Public/Auth. Entity: `Tracks`. Lý do: Xem thông tin bảng đấu và danh sách đề thi.
-- [`POST /api/v1/admin/events/{eventId}/tracks`](Admin/POST/POST-api-v1-admin-events-eventId-tracks.md) — Admin tạo track mới trong event. Quyền: Admin. Entity: `Tracks`. Lý do: Thiết lập bảng đấu.
-- [`PATCH /api/v1/admin/tracks/{trackId}`](Admin/PATCH/PATCH-api-v1-admin-tracks-trackId.md) — Admin cập nhật thông tin track (mô tả, số lượng team tối đa). Quyền: Admin. Entity: `Tracks`. Lý do: Sửa mô tả hoặc đổi số lượng team tối đa (`MaxTeam`).
-- [`DELETE /api/v1/admin/tracks/{trackId}`](Admin/DELETE/DELETE-api-v1-admin-tracks-trackId.md) — Admin disable/xóa track. Quyền: Admin. Entity: `Tracks.IsDisable`. Lý do: Loại bỏ bảng đấu.
-- [`POST /api/v1/admin/tracks/{trackId}/topics`](Admin/POST/POST-api-v1-admin-tracks-trackId-topics.md) — Admin/Staff tạo topic (đề thi) trong track. Quyền: Admin/Staff. Entity: `Topics`. Lý do: Tạo đề thi mới.
-- [`PATCH /api/v1/admin/topics/{topicId}`](Admin/PATCH/PATCH-api-v1-admin-topics-topicId.md) — Admin/Staff cập nhật đề thi. Quyền: Admin/Staff. Entity: `Topics`. Lý do: Cập nhật đề, sửa link tài liệu. Việc sửa đề thi cần được ghi nhận/audit.
-- [`DELETE /api/v1/admin/topics/{topicId}`](Admin/DELETE/DELETE-api-v1-admin-topics-topicId.md) — Admin/Staff xóa topic. Quyền: Admin/Staff. Entity: `Topics.IsDisable`.
-- [`PATCH /api/v1/admin/tracks/{trackId}/show`](Admin/PATCH/PATCH-api-v1-admin-tracks-trackId-visibility.md) và `hide` — Staff/Admin ẩn/hiện bảng đấu. Quyền: Admin/Staff. Entity: `Tracks`. Lý do: Ẩn bảng đấu khi chưa tới giờ bốc thăm. *DB hiện chưa có trường visibility.*
-- [`PATCH /api/v1/admin/topics/{topicId}/show`](Admin/PATCH/PATCH-api-v1-admin-topics-topicId-visibility.md) và `hide` — Staff/Admin ẩn/hiện đề thi. Quyền: Admin/Staff. Entity: `Topics`. Lý do: Giữ bí mật đề thi cho tới khi bắt đầu vòng làm bài.
+- [`POST /api/v1/admin/events/{eventId}/tracks`](Tracks/POST/POST-api-v1-admin-events-eventId-tracks.md) — Admin tạo track mới trong event. Quyền: Admin. Entity: `Tracks`. Lý do: Thiết lập bảng đấu.
+- [`PATCH /api/v1/admin/tracks/{trackId}`](Tracks/PATCH/PATCH-api-v1-admin-tracks-trackId.md) — Admin cập nhật thông tin track (mô tả, số lượng team tối đa). Quyền: Admin. Entity: `Tracks`. Lý do: Sửa mô tả hoặc đổi số lượng team tối đa (`MaxTeam`).
+- [`DELETE /api/v1/admin/tracks/{trackId}`](Tracks/DELETE/DELETE-api-v1-admin-tracks-trackId.md) — Admin disable/xóa track. Quyền: Admin. Entity: `Tracks.IsDisable`. Lý do: Loại bỏ bảng đấu.
+- [`POST /api/v1/admin/tracks/{trackId}/topics`](Tracks/POST/POST-api-v1-admin-tracks-trackId-topics.md) — Admin/Staff tạo topic (đề thi) trong track. Quyền: Admin/Staff. Entity: `Topics`. Lý do: Tạo đề thi mới.
+- [`PATCH /api/v1/admin/topics/{topicId}`](Topics/PATCH/PATCH-api-v1-admin-topics-topicId.md) — Admin/Staff cập nhật đề thi. Quyền: Admin/Staff. Entity: `Topics`. Lý do: Cập nhật đề, sửa link tài liệu. Việc sửa đề thi cần được ghi nhận/audit.
+- [`DELETE /api/v1/admin/topics/{topicId}`](Topics/DELETE/DELETE-api-v1-admin-topics-topicId.md) — Admin/Staff xóa topic. Quyền: Admin/Staff. Entity: `Topics.IsDisable`.
+- [`PATCH /api/v1/admin/tracks/{trackId}/show`](Tracks/PATCH/PATCH-api-v1-admin-tracks-trackId-visibility.md) và `hide` — Staff/Admin ẩn/hiện bảng đấu. Quyền: Admin/Staff. Entity: `Tracks`. Lý do: Ẩn bảng đấu khi chưa tới giờ bốc thăm. *DB hiện chưa có trường visibility.*
+- [`PATCH /api/v1/admin/topics/{topicId}/show`](Topics/PATCH/PATCH-api-v1-admin-topics-topicId-visibility.md) và `hide` — Staff/Admin ẩn/hiện đề thi. Quyền: Admin/Staff. Entity: `Topics`. Lý do: Giữ bí mật đề thi cho tới khi bắt đầu vòng làm bài.
 
 ## 6. Awards Setup
 - [`GET /api/v1/events/{eventId}/awards`](Events/GET/GET-api-v1-events-eventId-awards.md) — Xem danh sách giải thưởng của event. Quyền: Public. Entity: `Awards`. Lý do: Công bố cơ cấu giải cho thí sinh.
-- [`POST /api/v1/admin/events/{eventId}/awards`](Admin/POST/POST-api-v1-admin-events-eventId-awards.md) — Admin tạo giải thưởng mới. Quyền: Admin. Entity: `Awards`. Body: `Name`, `Description`, `LevelAward`, `NumberOfAward`, `Prize`. Lý do: Cấu hình giải thưởng cho cuộc thi.
-- [`PATCH /api/v1/admin/awards/{awardId}`](Admin/PATCH/PATCH-api-v1-admin-awards-awardId.md) — Admin cập nhật giải thưởng. Quyền: Admin. Entity: `Awards`. Lý do: Sửa đổi giá trị hoặc tên giải thưởng.
-- [`DELETE /api/v1/admin/awards/{awardId}`](Admin/DELETE/DELETE-api-v1-admin-awards-awardId.md) — Admin xóa giải thưởng. Quyền: Admin. Entity: `Awards.IsDisable`.
+- [`POST /api/v1/admin/events/{eventId}/awards`](Events/POST/POST-api-v1-admin-events-eventId-awards.md) — Admin tạo giải thưởng mới. Quyền: Admin. Entity: `Awards`. Body: `Name`, `Description`, `LevelAward`, `NumberOfAward`, `Prize`. Lý do: Cấu hình giải thưởng cho cuộc thi.
+- [`PATCH /api/v1/admin/awards/{awardId}`](Events/PATCH/PATCH-api-v1-admin-awards-awardId.md) — Admin cập nhật giải thưởng. Quyền: Admin. Entity: `Awards`. Lý do: Sửa đổi giá trị hoặc tên giải thưởng.
+- [`DELETE /api/v1/admin/awards/{awardId}`](Events/DELETE/DELETE-api-v1-admin-awards-awardId.md) — Admin xóa giải thưởng. Quyền: Admin. Entity: `Awards.IsDisable`.
 
 ## 7. Team Management
 24. [`GET /api/v1/teams/me`](Teams/GET/GET-api-v1-teams-me.md) — Lấy danh sách team của user đang đăng nhập. Quyền: Authenticated.
@@ -102,8 +102,8 @@ Ngày rà soát: 2026-06-22
 - [`POST /api/v1/teams/{teamId}/leave`](Teams/POST/POST-api-v1-teams-teamId-leave.md) — Thành viên tự rời khỏi team. Quyền: Authenticated (Member). Entity: `TeamDetails`. Lý do: User tự rút khỏi đội thi (chỉ khi team chưa khóa đăng ký).
 - [`PATCH /api/v1/teams/{teamId}/lock`](Teams/PATCH/PATCH-api-v1-teams-teamId-lock.md) — Staff/Admin khóa cứng team (không cho sửa member, đổi tên). Quyền: Staff/Admin. Entity: `Teams.CanEdit = false`. Lý do: Tự động khóa khi team được duyệt vào giải.
 - [`PATCH /api/v1/teams/{teamId}/unlock`](Teams/PATCH/PATCH-api-v1-teams-teamId-unlock.md) — Staff/Admin mở khóa team cho phép sửa đổi. Quyền: Staff/Admin. Entity: `Teams.CanEdit = true`.
-- [`GET /api/v1/admin/teams`](Admin/GET/GET-api-v1-admin-teams.md) — Admin xem và tìm kiếm tất cả các team trong hệ thống. Quyền: Admin. Entity: `Teams`.
-- [`PATCH /api/v1/admin/teams/{teamId}/disable`](Admin/PATCH/PATCH-api-v1-admin-teams-teamId-disable.md) — Admin disable team toàn cục. Quyền: Admin. Entity: `Teams.IsDisable`.
+- [`GET /api/v1/admin/teams`](Teams/GET/GET-api-v1-admin-teams.md) — Admin xem và tìm kiếm tất cả các team trong hệ thống. Quyền: Admin. Entity: `Teams`.
+- [`PATCH /api/v1/admin/teams/{teamId}/disable`](Teams/PATCH/PATCH-api-v1-admin-teams-teamId-disable.md) — Admin disable team toàn cục. Quyền: Admin. Entity: `Teams.IsDisable`.
 
 ## 8. Invitations (Mời vào Team)
 34. [`GET /api/v1/invitations/me`](Invitations/GET/GET-api-v1-invitations-me.md) — Xem danh sách invitation mời vào team gửi tới user hiện tại. Quyền: Authenticated.
@@ -178,7 +178,7 @@ Ngày rà soát: 2026-06-22
 - [`GET /api/v1/rounds/{roundId}/scores/me`](Rounds/GET/GET-api-v1-rounds-roundId-scores-me.md) — Team xem kết quả/điểm round hiện tại; nếu chưa chấm thì trả trạng thái bài chưa được chấm. Quyền: Team member. Entity: `Scores` + `RoundDetails` + `Submissions`.
 
 ## 15. Advancement & Round Results (Thăng vòng)
-- [`POST /api/v1/rounds/{roundId}/end`](Rounds/POST/POST-api-v1-rounds-roundId-end.md) — Staff/Admin kết thúc round, chốt sổ điểm và tự động tạo `RoundDetails` cho top team vào round kế tiếp theo `LimitTeam` của round sau.
+57. [`POST /api/v1/rounds/{roundId}/end`](Rounds/POST/POST-api-v1-rounds-roundId-end.md) — Staff/Admin kết thúc round, chốt sổ điểm và tự động tạo `RoundDetails` cho top team vào round kế tiếp theo `LimitTeam` của round sau.
 - [`GET /api/v1/staff/rounds/{roundId}/ranking`](Staff/GET/GET-api-v1-staff-rounds-roundId-ranking.md) — Staff/Admin xem ranking theo round để kiểm tra kết quả trước/sau khi kết thúc round; entity: `Scores`, `RoundDetails`, `RegisterTeams`.
 - [`GET /api/v1/rounds/{roundId}/ranking`](Rounds/GET/GET-api-v1-rounds-roundId-ranking.md) — User xem ranking đã công bố; quyền: Public/Auth theo rule; entity: `Scores`, `RoundDetails`.
 - [`GET /api/v1/rounds/teams/{teamId}`](Rounds/GET/GET-api-v1-rounds-teams-teamId.md) — Team xem các round mình đang/đã tham gia. Team mới vào event mặc định có `RoundNo = 1`; các round sau chỉ xuất hiện nếu team nằm trong top được chọn khi kết thúc round trước.
@@ -189,10 +189,10 @@ Ngày rà soát: 2026-06-22
 - [`GET /api/v1/events/{eventId}/leaderboard`](Events/GET/GET-api-v1-events-eventId-leaderboard.md) — Xem bảng xếp hạng chung cuộc của một event (điểm event = tổng điểm các round), bao gồm thứ hạng hiện tại của từng team trong event. Quyền: Public/Auth. Entity: `LeaderBoards` + `LeaderBoardDetails`. Lý do: Xếp hạng chung cuộc giải đấu (BR-LB-03).
 - [`GET /api/v1/leaderboards/year/{year}`](LeaderBoards/GET/GET-api-v1-leaderboards-year-year.md) — Xem bảng xếp hạng tích lũy theo năm/season. Quyền: Public/Auth. Entity: `LeaderBoards` + `LeaderBoardDetails`. Lý do: Xếp hạng tích lũy các mùa trong năm (BR-LB-04).
 - `GET /api/v1/teams/{teamId}/leaderboards` — Xem thành tích xếp hạng lịch sử của một team. Quyền: Public/Auth. Entity: `LeaderBoardDetails`.
-- [`POST /api/v1/admin/events/{eventId}/leaderboard/recalculate`](Admin/POST/POST-api-v1-admin-events-eventId-leaderboard-recalculate.md) — BTC chạy tính toán/cập nhật lại leaderboard event từ điểm số các round. Quyền: Admin/Staff. Entity: `LeaderBoards` + `LeaderBoardDetails`. Lý do: Đồng bộ thứ hạng khi điểm số thay đổi.
-- [`PATCH /api/v1/admin/leaderboards/{leaderBoardId}/details/{teamId}`](Admin/PATCH/PATCH-api-v1-admin-leaderboards-leaderBoardId-details-teamId.md) — BTC điều chỉnh điểm số leaderboard hoặc gán giải thưởng (`LevelAward`) thủ công. Quyền: Admin/Staff. Entity: `LeaderBoardDetails`. Lý do: Thiết lập danh hiệu Nhất, Nhì, Ba cho các đội (BR-LB-06).
-- [`PATCH /api/v1/admin/events/{eventId}/leaderboard/publish`](Admin/PATCH/PATCH-api-v1-admin-events-eventId-leaderboard-publish.md) — BTC công bố leaderboard sự kiện. Quyền: Admin/Staff. Entity: `LeaderBoards`.
-- [`PATCH /api/v1/admin/events/{eventId}/leaderboard/lock`](Admin/PATCH/PATCH-api-v1-admin-events-eventId-leaderboard-lock.md) — Khóa leaderboard (chuyển sang chế độ Read-only). Quyền: Admin/Staff. Entity: `LeaderBoards`. Lý do: Khóa cứng kết quả khi giải đấu kết thúc (BR-LB-06). *DB chưa có lock flag.*
+- [`POST /api/v1/admin/events/{eventId}/leaderboard/recalculate`](Events/POST/POST-api-v1-admin-events-eventId-leaderboard-recalculate.md) — BTC chạy tính toán/cập nhật lại leaderboard event từ điểm số các round. Quyền: Admin/Staff. Entity: `LeaderBoards` + `LeaderBoardDetails`. Lý do: Đồng bộ thứ hạng khi điểm số thay đổi.
+- [`PATCH /api/v1/admin/leaderboards/{leaderBoardId}/details/{teamId}`](LeaderBoards/PATCH/PATCH-api-v1-admin-leaderboards-leaderBoardId-details-teamId.md) — BTC điều chỉnh điểm số leaderboard hoặc gán giải thưởng (`LevelAward`) thủ công. Quyền: Admin/Staff. Entity: `LeaderBoardDetails`. Lý do: Thiết lập danh hiệu Nhất, Nhì, Ba cho các đội (BR-LB-06).
+- [`PATCH /api/v1/admin/events/{eventId}/leaderboard/publish`](Events/PATCH/PATCH-api-v1-admin-events-eventId-leaderboard-publish.md) — BTC công bố leaderboard sự kiện. Quyền: Admin/Staff. Entity: `LeaderBoards`.
+- [`PATCH /api/v1/admin/events/{eventId}/leaderboard/lock`](Events/PATCH/PATCH-api-v1-admin-events-eventId-leaderboard-lock.md) — Khóa leaderboard (chuyển sang chế độ Read-only). Quyền: Admin/Staff. Entity: `LeaderBoards`. Lý do: Khóa cứng kết quả khi giải đấu kết thúc (BR-LB-06). *DB chưa có lock flag.*
 - `GET /api/v1/admin/leaderboards/year/{year}/recalculate` — Tính toán lại leaderboard tích lũy năm. Quyền: Admin. Entity: `LeaderBoards`.
 
 ## 17. Reports & Regrade Management (Khiếu nại & Phúc khảo)
@@ -219,12 +219,12 @@ Ngày rà soát: 2026-06-22
 - `GET /api/v1/mentor/tracks/{trackId}/notifications` — Mentor xem lại lịch sử các thông báo mình đã gửi trong track. Quyền: Mentor assigned. Entity: `MentorNotifications`.
 
 ## 20. Staff / Lecturer Assignment Management
-- [`GET /api/v1/admin/events/{eventId}/assignments`](Admin/GET/GET-api-v1-admin-events-eventId-assignments.md) — Admin xem danh sách giảng viên/nhân sự đã được gán vào event. Quyền: Admin. Entity: `AssignEvents` + `EventRoles`.
-- [`POST /api/v1/admin/events/{eventId}/lecturers`](Admin/POST/POST-api-v1-admin-events-eventId-lecturers.md) — Admin phân công giảng viên làm Mentor hoặc Judge trong event. Quyền: Admin. Entity: `AssignEvents` + `EventRoles`. Body: `userId`, `eventRole` (Mentor/Judge). Lý do: Phân vai trò giảng viên tham gia giải đấu (BR-ASG-02).
-- [`PATCH /api/v1/admin/assign-events/{assignEventId}/role`](Admin/PATCH/PATCH-api-v1-admin-assign-events-assignEventId-role.md) — Admin thay đổi vai trò của giảng viên trong event. Quyền: Admin. Entity: `AssignEvents`.
-- [`DELETE /api/v1/admin/assign-events/{assignEventId}`](Admin/DELETE/DELETE-api-v1-admin-assign-events-assignEventId.md) — Admin gỡ giảng viên khỏi event. Quyền: Admin. Entity: `AssignEvents.IsDisable`.
-- [`POST /api/v1/admin/assign-events/{assignEventId}/tracks`](Admin/POST/POST-api-v1-admin-assign-events-assignEventId-tracks.md) — Admin/Staff gán Mentor/Judge vào track cụ thể. Quyền: Admin/Staff. Entity: `AssignTracks`. Lý do: Giới hạn phạm vi chấm thi theo phân công bảng (BR-ASG-03).
-- [`DELETE /api/v1/admin/assign-tracks/{assignTrackId}`](Admin/DELETE/DELETE-api-v1-admin-assign-tracks-assignTrackId.md) — Gỡ Mentor/Judge khỏi track. Quyền: Admin/Staff. Entity: `AssignTracks.IsDisable`.
+- [`GET /api/v1/admin/events/{eventId}/assignments`](Events/GET/GET-api-v1-admin-events-eventId-assignments.md) — Admin xem danh sách giảng viên/nhân sự đã được gán vào event. Quyền: Admin. Entity: `AssignEvents` + `EventRoles`.
+- [`POST /api/v1/admin/events/{eventId}/lecturers`](Events/POST/POST-api-v1-admin-events-eventId-lecturers.md) — Admin phân công giảng viên làm Mentor hoặc Judge trong event. Quyền: Admin. Entity: `AssignEvents` + `EventRoles`. Body: `userId`, `eventRole` (Mentor/Judge). Lý do: Phân vai trò giảng viên tham gia giải đấu (BR-ASG-02).
+- [`PATCH /api/v1/admin/assign-events/{assignEventId}/role`](Events/PATCH/PATCH-api-v1-admin-assign-events-assignEventId-role.md) — Admin thay đổi vai trò của giảng viên trong event. Quyền: Admin. Entity: `AssignEvents`.
+- [`DELETE /api/v1/admin/assign-events/{assignEventId}`](Events/DELETE/DELETE-api-v1-admin-assign-events-assignEventId.md) — Admin gỡ giảng viên khỏi event. Quyền: Admin. Entity: `AssignEvents.IsDisable`.
+- [`POST /api/v1/admin/assign-events/{assignEventId}/tracks`](Events/POST/POST-api-v1-admin-assign-events-assignEventId-tracks.md) — Admin/Staff gán Mentor/Judge vào track cụ thể. Quyền: Admin/Staff. Entity: `AssignTracks`. Lý do: Giới hạn phạm vi chấm thi theo phân công bảng (BR-ASG-03).
+- [`DELETE /api/v1/admin/assign-tracks/{assignTrackId}`](Events/DELETE/DELETE-api-v1-admin-assign-tracks-assignTrackId.md) — Gỡ Mentor/Judge khỏi track. Quyền: Admin/Staff. Entity: `AssignTracks.IsDisable`.
 - [`GET /api/v1/me/assignments`](Me/GET/GET-api-v1-me-assignments.md) — Giảng viên/Nhân sự tự xem danh sách event/track mình được phân công phụ trách. Quyền: Authenticated (Staff/Lecturer). Entity: `AssignEvents` + `AssignTracks`.
 
 ## 21. Dashboards & System Metadata
