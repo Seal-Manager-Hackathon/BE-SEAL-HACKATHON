@@ -225,7 +225,7 @@ Ngày rà soát: 2026-06-22
 - [`DELETE /api/v1/admin/assign-events/{assignEventId}`](Events/DELETE/DELETE-api-v1-admin-assign-events-assignEventId.md) — Admin gỡ giảng viên khỏi event. Quyền: Admin. Entity: `AssignEvents.IsDisable`.
 - [`POST /api/v1/admin/assign-events/{assignEventId}/tracks`](Events/POST/POST-api-v1-admin-assign-events-assignEventId-tracks.md) — Admin/Staff gán Mentor/Judge vào track cụ thể. Quyền: Admin/Staff. Entity: `AssignTracks`. Lý do: Giới hạn phạm vi chấm thi theo phân công bảng (BR-ASG-03).
 - [`DELETE /api/v1/admin/assign-tracks/{assignTrackId}`](Events/DELETE/DELETE-api-v1-admin-assign-tracks-assignTrackId.md) — Gỡ Mentor/Judge khỏi track. Quyền: Admin/Staff. Entity: `AssignTracks.IsDisable`.
-- [`GET /api/v1/me/assignments`](Me/GET/GET-api-v1-me-assignments.md) — Giảng viên/Nhân sự tự xem danh sách event/track mình được phân công phụ trách. Quyền: Authenticated (Staff/Lecturer). Entity: `AssignEvents` + `AssignTracks`.
+- [`GET /api/v1/me/assignments`](Users/GET/GET-api-v1-me-assignments.md) — Giảng viên/Nhân sự tự xem danh sách event/track mình được phân công phụ trách. Quyền: Authenticated (Staff/Lecturer). Entity: `AssignEvents` + `AssignTracks`.
 
 ## 21. Dashboards & System Metadata
 - `GET /api/v1/admin/dashboard/summary` — Thống kê nhanh toàn hệ thống. Quyền: Admin.
