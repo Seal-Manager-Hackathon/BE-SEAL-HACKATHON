@@ -14,6 +14,7 @@ Lecturer với vai trò Judge (Yêu cầu đăng nhập tài khoản Giảng vi�
 
 ## Response body (Success - 200 OK)
 *Cấu trúc trả về dạng `BaseResponse` chứa thông tin thống kê.*
+deoma
 ```json
 {
   "IsSuccess": true,
