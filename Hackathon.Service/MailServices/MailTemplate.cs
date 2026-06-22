@@ -138,7 +138,7 @@ public static class MailTemplate
 
     public static string ForgotPasswordContainToken(string token)
     {
-        var resetPasswordLink = $"http://localhost:5173/reset-password?token={token}";
+        var resetPasswordLink = $"http://localhost:5173/auth/reset-password?token={token}";
 
         var htmlBody = """
         <!DOCTYPE html>
