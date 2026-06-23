@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Hackathon.Repository;
+using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
 using Hackathon.Service.Exceptions;
 using Hackathon.Service.Models;
@@ -98,6 +99,54 @@ public class Service : IService
         return new Response.CreateEventResponse
         {
             Id = eventEntity.Id,
+        };
+    }
+
+    public async Task<Response.AssignStaffToEventResponse> AssignStaffToEvent(Guid eventId, Request.AssignStaffToEventRequest request)
+    {
+        var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
+        if (!eventExists)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        var staff = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == request.UserId && !x.IsDisable);
+        if (staff == null)
+        {
+            throw new NotFoundException("USER_NOT_FOUND");
+        }
+
+        if (staff.Role != RoleEnum.Staff)
+        {
+            throw new BadRequestException("USER_MUST_BE_STAFF");
+        }
+
+        var alreadyAssigned = await _dbContext.AssignEvents.AnyAsync(x => x.EventId == eventId
+            && x.UserId == request.UserId
+            && !x.IsDisable);
+        if (alreadyAssigned)
+        {
+            throw new ConflictException("STAFF_ALREADY_ASSIGNED_TO_EVENT");
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var assignEvent = new AssignEvents
+        {
+            Id = Guid.NewGuid(),
+            UserId = request.UserId,
+            EventId = eventId,
+            EventRoleId = null,
+            IsDisable = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        await _dbContext.AssignEvents.AddAsync(assignEvent);
+        await _dbContext.SaveChangesAsync();
+
+        return new Response.AssignStaffToEventResponse
+        {
+            Id = assignEvent.Id
         };
     }
 
