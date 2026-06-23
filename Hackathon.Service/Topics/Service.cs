@@ -16,29 +16,39 @@ public class Service : IService
     public async Task<Response.AssignedTopicResponse> GetTopic(Guid eventId, Guid registerTeamId)
     {
         var registerTeam = await _dbContext.RegisterTeams
-            .AsNoTracking()
             .Include(x => x.Track)
             .Include(x => x.Topic)
-            .Where(x => x.Id == registerTeamId && x.EventId == eventId)
-            .Select(x => new Response.AssignedTopicResponse
-            {
-                RegisterTeamId = x.Id,
-                EventId = x.EventId,
-                TrackId = x.TrackId,
-                TrackTitle = x.Track != null ? x.Track.Title : null,
-                TrackDescription = x.Track != null ? x.Track.Description : null,
-                TopicId = x.TopicId,
-                TopicTitle = x.Topic != null ? x.Topic.Title : null,
-                TopicDescription = x.Topic != null ? x.Topic.Description : null
-            })
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(x => x.Id == registerTeamId && x.EventId == eventId && !x.IsDisable);
 
         if (registerTeam == null)
         {
             throw new NotFoundException("REGISTER_TEAM_NOT_FOUND");
         }
 
-        return registerTeam;
+        // Case 1: Both are null -> Track not assigned
+        if (registerTeam.TrackId == null && registerTeam.TopicId == null)
+        {
+            throw new BadRequestException("TRACK_NOT_ASSIGNED");
+        }
+
+        // Case 2: Only one is null, the other is not null -> Assignment incomplete, report to admin/mentor/staff
+        if ((registerTeam.TrackId == null) ^ (registerTeam.TopicId == null))
+        {
+            throw new BadRequestException("TRACK_OR_TOPIC_ASSIGNMENT_INCOMPLETE_CONTACT_ADMIN");
+        }
+
+        // Case 3: Both are not null -> Return normal response
+        return new Response.AssignedTopicResponse
+        {
+            RegisterTeamId = registerTeam.Id,
+            EventId = registerTeam.EventId,
+            TrackId = registerTeam.TrackId,
+            TrackTitle = registerTeam.Track?.Title,
+            TrackDescription = registerTeam.Track?.Description,
+            TopicId = registerTeam.TopicId,
+            TopicTitle = registerTeam.Topic?.Title,
+            TopicDescription = registerTeam.Topic?.Description
+        };
     }
 
     public async Task<Response.TopicDetailResponse> GetTopicDetail(Guid topicId)
