@@ -225,6 +225,7 @@ public class Service : IService
             EventId = eventEntity.Id,
             EventName = eventEntity.Name,
             Status = registerTeam.Status.Value,
+            IsBanned = registerTeam.IsBanned
         }, "REGISTERED_SUCCESSFULLY");
     }
 
@@ -541,6 +542,7 @@ public class Service : IService
             EventId = registerTeam.EventId,
             EventName = registerTeam.Event.Name,
             Status = registerTeam.Status.Value,
+            IsBanned = registerTeam.IsBanned,
             RejectionReason = registerTeam.RejectionReason,
         };
     }
@@ -619,6 +621,97 @@ public class Service : IService
             EventName = registerTeam.Event.Name,
             Status = registerTeam.Status.Value,
             RejectionReason = registerTeam.RejectionReason,
+            IsBanned = registerTeam.IsBanned
+        };
+    }
+
+    public async Task<Response.RegisterTeamActionResponse> BanRegisterTeam(Guid registerTeamId, Request.BanTeamRequest request)
+    {
+        var registerTeam = await _dbContext.RegisterTeams
+            .Include(x => x.Event)
+            .Include(x => x.Team)
+            .FirstOrDefaultAsync(x => x.Id == registerTeamId && !x.IsDisable);
+
+        if (registerTeam == null)
+        {
+            throw new NotFoundException("REGISTER_TEAM_NOT_FOUND");
+        }
+
+        if (!IsCurrentUserAdmin())
+        {
+            await EnsureStaffAssignedToEvent(registerTeam.EventId);
+        }
+
+        if (registerTeam.IsBanned)
+        {
+            throw new ConflictException("TEAM_IS_ALREADY_BANNED");
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        registerTeam.IsBanned = true;
+        registerTeam.Status = RegisterTeamStatusEnum.Rejected;
+        registerTeam.RejectionReason = request.Reason;
+        registerTeam.UpdatedAt = now;
+
+        // Unlock team
+        registerTeam.Team.CanEdit = true;
+        registerTeam.Team.UpdatedAt = now;
+
+        _dbContext.RegisterTeams.Update(registerTeam);
+        await _dbContext.SaveChangesAsync();
+
+        return new Response.RegisterTeamActionResponse
+        {
+            Id = registerTeam.Id,
+            TeamId = registerTeam.TeamId,
+            TeamName = registerTeam.Team.Name,
+            EventId = registerTeam.EventId,
+            EventName = registerTeam.Event.Name,
+            Status = registerTeam.Status.Value,
+            RejectionReason = registerTeam.RejectionReason,
+            IsBanned = registerTeam.IsBanned
+        };
+    }
+
+    public async Task<Response.RegisterTeamActionResponse> UnbanRegisterTeam(Guid registerTeamId)
+    {
+        var registerTeam = await _dbContext.RegisterTeams
+            .Include(x => x.Event)
+            .Include(x => x.Team)
+            .FirstOrDefaultAsync(x => x.Id == registerTeamId && !x.IsDisable);
+
+        if (registerTeam == null)
+        {
+            throw new NotFoundException("REGISTER_TEAM_NOT_FOUND");
+        }
+
+        if (!IsCurrentUserAdmin())
+        {
+            await EnsureStaffAssignedToEvent(registerTeam.EventId);
+        }
+
+        if (!registerTeam.IsBanned)
+        {
+            throw new ConflictException("TEAM_IS_NOT_BANNED");
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        registerTeam.IsBanned = false;
+        registerTeam.UpdatedAt = now;
+
+        _dbContext.RegisterTeams.Update(registerTeam);
+        await _dbContext.SaveChangesAsync();
+
+        return new Response.RegisterTeamActionResponse
+        {
+            Id = registerTeam.Id,
+            TeamId = registerTeam.TeamId,
+            TeamName = registerTeam.Team.Name,
+            EventId = registerTeam.EventId,
+            EventName = registerTeam.Event.Name,
+            Status = registerTeam.Status ?? RegisterTeamStatusEnum.Pending,
+            RejectionReason = registerTeam.RejectionReason,
+            IsBanned = registerTeam.IsBanned
         };
     }
 }

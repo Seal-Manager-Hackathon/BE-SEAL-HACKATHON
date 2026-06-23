@@ -3,6 +3,8 @@ using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TracksService = Hackathon.Service.Tracks;
+using AssignEventsService = Hackathon.Service.AssignEvents;
+using AssignTracksService = Hackathon.Service.AssignTracks;
 
 namespace Hackathon.Api.Controllers;
 
@@ -12,10 +14,14 @@ namespace Hackathon.Api.Controllers;
 public class Staff : ControllerBase
 {
     private readonly TracksService.IService _tracksService;
+    private readonly AssignEventsService.IService _assignEventsService;
+    private readonly AssignTracksService.IService _assignTracksService;
 
-    public Staff(TracksService.IService tracksService)
+    public Staff(TracksService.IService tracksService, AssignEventsService.IService assignEventsService, AssignTracksService.IService assignTracksService)
     {
         _tracksService = tracksService;
+        _assignEventsService = assignEventsService;
+        _assignTracksService = assignTracksService;
     }
 
     [Authorize(Policy = JwtExtensions.StaffPolicy)]
@@ -55,5 +61,33 @@ public class Staff : ControllerBase
     {
         var result = await _tracksService.AssignTopicToTeam(teamId, request);
         return Ok(ApiResponseFactory.Base(result, 200,"TOPIC_ASSIGNED_TO_TEAM_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("events/{eventId:guid}/lecturers")]
+    public async Task<IActionResult> GetAssignedLecturersByEvent(Guid eventId, [FromQuery] Guid? eventRoleId, [FromQuery] string? keyword, [FromQuery] bool? isDisable, [FromQuery] PaginationRequest paginationRequest)
+    {
+        var result = await _assignEventsService.GetAssignedLecturersByEvent(eventId, eventRoleId, keyword, isDisable, paginationRequest);
+        return Ok(result);
+    }
+
+    [HttpPost("events/{eventId:guid}/assign-lecturers")]
+    public async Task<IActionResult> AssignLecturerToEvent(Guid eventId, [FromBody] AssignEventsService.Request.AssignLecturerRequest request)
+    {
+        var result = await _assignEventsService.AssignLecturerToEvent(eventId, request);
+        return Ok(ApiResponseFactory.Base(result, 200, "LECTURER_ASSIGNED_TO_EVENT_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpPost("tracks/{trackId:guid}/assign-judges")]
+    public async Task<IActionResult> AssignJudgeToTrack(Guid trackId, [FromBody] AssignTracksService.Request.AssignJudgeRequest request)
+    {
+        var result = await _assignTracksService.AssignJudgeToTrack(trackId, request);
+        return Ok(ApiResponseFactory.Base(result, 200, "JUDGE_ASSIGNED_TO_TRACK_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpDelete("assign-events/{id:guid}")]
+    public async Task<IActionResult> RemoveLecturerAssignment(Guid id)
+    {
+        var result = await _assignEventsService.RemoveLecturerAssignment(id);
+        return Ok(ApiResponseFactory.Base(new { id = result }, 200, "LECTURER_ASSIGNMENT_REMOVED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 }

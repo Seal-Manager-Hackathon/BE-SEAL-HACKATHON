@@ -61,6 +61,7 @@ public static class Response
         public string EventName { get; set; } = null!;
         public RegisterTeamStatusEnum Status { get; set; }
         public string? RejectionReason { get; set; }
+        public bool IsBanned { get; set; }
     }
 
     public class RejectionReasonResponse
