@@ -178,8 +178,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<AssignEvents>()
             .HasOne(assignEvent => assignEvent.EventRole)
             .WithMany(eventRole => eventRole.AssignEvents)
-            .HasForeignKey(assignEvent => assignEvent.EventRoleId)
-            .IsRequired(false);
+            .HasForeignKey(assignEvent => assignEvent.EventRoleId);
 
         modelBuilder.Entity<AssignEvents>()
             .HasOne(assignEvent => assignEvent.Event)

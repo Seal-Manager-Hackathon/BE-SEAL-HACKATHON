@@ -1,4 +1,4 @@
- # Staff/Admin get approved teams by event
+# Staff/Admin get approved teams by event
 
 ## Tác dụng
 Staff hoặc Admin lấy danh sách team đã được duyệt tham gia một event, có hỗ trợ tìm kiếm, lọc trạng thái soft-disable và phân trang theo `BasePaginationResponse`.
