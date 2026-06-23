@@ -17,12 +17,15 @@ Authenticated Team Member
     *   `roundId` (Guid, Bắt buộc): ID của round cần xem điểm.
 
 ## Response body (Success - 200 OK - đã có điểm)
-*Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Value": {
+  "isSuccess": true,
+  "isFailed": false,
+  "error": null,
+  "status": 200,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "data": {
     "roundId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
     "roundName": "Vòng loại",
     "teamId": "c4b5a6d7-e8f9-0a1b-2c3d-4e5f6a7b8c9d",
@@ -39,30 +42,31 @@ Authenticated Team Member
         "maxScore": 30.0
       }
     ]
-  },
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  }
 }
 ```
 
 ## Response body (Success - 200 OK - chưa được chấm)
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Value": {
+  "isSuccess": true,
+  "isFailed": false,
+  "error": null,
+  "status": 200,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "data": {
     "roundId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+    "roundName": "Vòng loại",
     "teamId": "c4b5a6d7-e8f9-0a1b-2c3d-4e5f6a7b8c9d",
+    "teamName": "Chiến binh công nghệ",
     "submissionId": "f7b6d5c4-129b-4e6f-adbd-2c5ea56789ff",
     "gradingStatus": "NotGraded",
     "message": "Bài chưa được chấm",
     "averageTotalScore": null,
+    "isAppealable": false,
     "criteriaScores": []
-  },
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  }
 }
 ```
 
@@ -74,21 +78,6 @@ Authenticated Team Member
 - Khi đã có điểm và còn trong thời gian/điều kiện phúc khảo, `isAppealable = true` để FE hiển thị nút khiếu nại.
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse`:*
-
-```json
-{
-  "Title": "Not Found",
-  "Status": 404,
-  "Detail": "Không tìm thấy bài nộp của đội trong vòng này.",
-  "MessageCode": "SUBMISSION_NOT_FOUND",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
-}
-```
-
-### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
 |---:|---|---|
 | 401 | UNAUTHORIZED | Access token không hợp lệ hoặc thiếu. |
