@@ -2,6 +2,7 @@ using Hackathon.Api.Extention;
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RoundsService = Hackathon.Service.Rounds;
 using TracksService = Hackathon.Service.Tracks;
 using AssignEventsService = Hackathon.Service.AssignEvents;
 using AssignTracksService = Hackathon.Service.AssignTracks;
@@ -16,10 +17,12 @@ public class Staff : ControllerBase
     private readonly TracksService.IService _tracksService;
     private readonly AssignEventsService.IService _assignEventsService;
     private readonly AssignTracksService.IService _assignTracksService;
+    private readonly RoundsService.IService _roundsService;
 
-    public Staff(TracksService.IService tracksService, AssignEventsService.IService assignEventsService, AssignTracksService.IService assignTracksService)
+    public Staff(TracksService.IService tracksService, AssignEventsService.IService assignEventsService, AssignTracksService.IService assignTracksService, RoundsService.IService roundsService)
     {
         _tracksService = tracksService;
+        _roundsService = roundsService;
         _assignEventsService = assignEventsService;
         _assignTracksService = assignTracksService;
     }
@@ -45,6 +48,20 @@ public class Staff : ControllerBase
     {
         var result = await _tracksService.GetApprovedTeamsByEvent(eventId, keyword, isDisable, paginationRequest);
         return Ok(result);
+    }
+
+    [HttpGet("rounds/{roundId:guid}/submissions")]
+    public async Task<IActionResult> GetRoundSubmissions(Guid roundId, [FromQuery] RoundsService.Request.GetStaffRoundSubmissionsQuery query)
+    {
+        var result = await _roundsService.GetStaffRoundSubmissions(roundId, query);
+        return Ok(result);
+    }
+
+    [HttpPost("submissions/{submissionId:guid}/assign-judges")]
+    public async Task<IActionResult> AssignJudgesToSubmission(Guid submissionId, RoundsService.Request.AssignJudgesToSubmissionRequest request)
+    {
+        var result = await _roundsService.AssignJudgesToSubmission(submissionId, request);
+        return Ok(ApiResponseFactory.Base(result, 200, "JUDGES_ASSIGNED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.StaffPolicy)]

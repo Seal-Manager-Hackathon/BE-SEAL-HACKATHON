@@ -86,7 +86,7 @@ public class Service : IService
             throw new ConflictException("ASSIGN_EVENT_NOT_MATCH_TRACK_EVENT");
         }
 
-        if (assignEvent.EventRole.Name != EventRoleEnum.Judge)
+        if (assignEvent.EventRole?.Name != EventRoleEnum.Judge)
         {
             throw new ConflictException("ONLY_JUDGE_CAN_BE_ASSIGNED_TO_TRACK");
         }

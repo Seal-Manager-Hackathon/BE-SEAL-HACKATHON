@@ -60,6 +60,8 @@ Trạng thái các Report/Feedback của người dùng gửi cho Admin.
 ## 10. SubmissionStatusEnum (Trạng thái nộp bài)
 Trạng thái nộp bài tập / Assignment.
 - `0`: Submitted (Đã nộp bài)
+- `1`: Unsubmitted (Chưa nộp bài)
+- `2`: Failed (Nộp thất bại)
 
 ## 11. EventRoleEnum (Vai trò trong Event)
 Vai trò cụ thể của một User (Staff/Lecturer) trong một Event.

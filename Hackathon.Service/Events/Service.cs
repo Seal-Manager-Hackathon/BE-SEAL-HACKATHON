@@ -130,7 +130,7 @@ public class Service : IService
         }
 
         var now = DateTimeOffset.UtcNow;
-        var assignEvent = new AssignEvents
+        var assignEvent = new Repository.Entity.AssignEvents()
         {
             Id = Guid.NewGuid(),
             UserId = request.UserId,
