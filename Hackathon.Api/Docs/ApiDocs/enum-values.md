@@ -66,9 +66,13 @@ File này liệt kê các enum đang dùng trong hệ thống và giá trị s�
 | 1 | Closed |
 
 ## SubmissionStatusEnum
-| Number | Name |
-|---:|---|
-| 0 | Submitted |
+*Dùng trong entity `Submissions.Status`.*
+
+| Number | Name | Mô tả |
+|---:|---|---|
+| 0 | Submitted | Đã nộp bài thành công |
+| 1 | Unsubmitted | Chưa nộp bài (hoặc đã hủy nộp) |
+| 2 | Failed | Nộp bài thất bại (lỗi hệ thống/vi phạm) |
 
 ## TeamDetailStatusEnum
 | Number | Name |
@@ -94,3 +98,14 @@ File này liệt kê các enum đang dùng trong hệ thống và giá trị s�
 | 0 | IsRetake |
 | 1 | IsMock |
 | 2 | IsDisable |
+
+## SubmissionGradingStatus
+*Trạng thái chấm điểm tổng hợp (computed status), không lưu trực tiếp trong DB. Được tính từ `Submissions`, `Scores` và danh sách judge assignment.*
+
+| Value | Ý nghĩa |
+|---:|---|
+| `NoJudgesAssigned` | Đã nộp bài nhưng chưa được phân công judge nào |
+| `PendingGrading` | Đã phân công judge nhưng chưa có ai nhập điểm |
+| `GradingInProgress` | Đang chấm dở — một số judge đã nhập điểm, một số chưa |
+| `Graded` | Tất cả judge đã nhập điểm đầy đủ nhưng chưa chốt (`isFinalized = false`) |
+| `Finalized` | Tất cả judge đã chốt điểm (`isFinalized = true`), không sửa được nữa |

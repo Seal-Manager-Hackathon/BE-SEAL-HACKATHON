@@ -1,4 +1,4 @@
-# Xem chi tiết bài nộp (Get Submission Detail)
+# Get submission detail
 
 ## Tác dụng
 Xem chi tiết một bài nộp, bao gồm URL, mô tả, trạng thái chấm điểm và điểm/kết quả nếu đã được chấm/công bố. FE dùng API này khi user bấm vào chi tiết bài nộp trong lịch sử bài nộp của round.
@@ -6,23 +6,39 @@ Xem chi tiết một bài nộp, bao gồm URL, mô tả, trạng thái chấm �
 ## URL
 `GET /api/v1/submissions/{submissionId}`
 
-## Quyền
-Authenticated User (Team owner/Staff/Admin/Judge assigned)
+## Authorization
+Yêu cầu access token hợp lệ của Team member/Staff/Admin/Judge assigned.
 
-## Request Headers
-- `Authorization: Bearer <AccessToken>`
+## Path parameters
+| Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
+|---|---|---:|---|
+| `submissionId` | `guid` | Có | ID của bài nộp cần xem. |
 
-## Request Parameters
-*   **Path Parameters:**
-    *   `submissionId` (Guid, Bắt buộc): ID của bài nộp cần xem.
+## Query parameters
+Không có.
+
+## Ví dụ request
+```http
+GET /api/v1/submissions/f7b6d5c4-129b-4e6f-adbd-2c5ea56789ff
+Authorization: Bearer {accessToken}
+```
+
+## Request body
+Không có.
 
 ## Response body (Success - 200 OK)
-*Cấu trúc trả về dạng `BaseResponse`:*
+Response dùng `ApiResponseFactory.Base(data)`.
+
+### Trường hợp đã có kết quả chấm
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Value": {
+  "isSuccess": true,
+  "isFailed": false,
+  "error": null,
+  "status": 200,
+  "traceId": "string|null",
+  "timestampUtc": "datetime",
+  "data": {
     "submissionId": "f7b6d5c4-129b-4e6f-adbd-2c5ea56789ff",
     "roundDetailId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "roundId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
@@ -31,7 +47,7 @@ Authenticated User (Team owner/Staff/Admin/Judge assigned)
     "teamName": "Chiến binh công nghệ",
     "url": "https://github.com/seal-hackathon/team-project-web",
     "description": "Bài thi hoàn chỉnh.",
-    "Status": 0,
+    "status": "Submitted",
     "submittedAt": "2026-06-22T08:00:00Z",
     "gradingStatus": "Graded",
     "message": null,
@@ -47,32 +63,34 @@ Authenticated User (Team owner/Staff/Admin/Judge assigned)
         }
       ]
     }
-  },
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  }
 }
 ```
 
 ### Trường hợp chưa có kết quả chấm
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Value": {
+  "isSuccess": true,
+  "isFailed": false,
+  "error": null,
+  "status": 200,
+  "traceId": "string|null",
+  "timestampUtc": "datetime",
+  "data": {
     "submissionId": "f7b6d5c4-129b-4e6f-adbd-2c5ea56789ff",
+    "roundDetailId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "roundId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+    "roundName": "Vòng loại",
     "teamId": "c4b5a6d7-e8f9-0a1b-2c3d-4e5f6a7b8c9d",
+    "teamName": "Chiến binh công nghệ",
     "url": "https://github.com/seal-hackathon/team-project-web",
     "description": "Bài thi hoàn chỉnh.",
+    "status": "Submitted",
     "submittedAt": "2026-06-22T08:00:00Z",
     "gradingStatus": "NotGraded",
     "message": "Bài chưa được chấm",
     "score": null
-  },
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  }
 }
 ```
 
@@ -87,26 +105,14 @@ Authenticated User (Team owner/Staff/Admin/Judge assigned)
 | Giá trị (Value) | Trạng thái (Status) | Mô tả (Description) |
 | :--- | :--- | :--- |
 | `0` | Submitted | Đã nộp bài thi thành công |
+| `1` | Unsubmitted | Chưa nộp bài (hoặc đã hủy nộp) |
+| `2` | Failed | Nộp bài thất bại (lỗi hệ thống/vi phạm) |
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse`:*
-
-```json
-{
-  "Title": "Not Found",
-  "Status": 404,
-  "Detail": "Không tìm thấy bài nộp.",
-  "MessageCode": "SUBMISSION_NOT_FOUND",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
-}
-```
-
-### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 401 | UNAUTHORIZED | Access token không hợp lệ hoặc thiếu. |
-| 403 | FORBIDDEN | User không có quyền xem bài nộp này. |
-| 404 | SUBMISSION_NOT_FOUND | Bài nộp không tồn tại. |
-| 500 | INTERNAL_SERVER_ERROR | Lỗi hệ thống phát sinh. |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
+| 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
+| 403 | FORBIDDEN | FORBIDDEN |
+| 404 | NOT_FOUND | SUBMISSION_NOT_FOUND |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

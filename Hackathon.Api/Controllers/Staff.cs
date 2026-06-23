@@ -2,6 +2,7 @@ using Hackathon.Api.Extention;
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RoundsService = Hackathon.Service.Rounds;
 using TracksService = Hackathon.Service.Tracks;
 
 namespace Hackathon.Api.Controllers;
@@ -12,10 +13,12 @@ namespace Hackathon.Api.Controllers;
 public class Staff : ControllerBase
 {
     private readonly TracksService.IService _tracksService;
+    private readonly RoundsService.IService _roundsService;
 
-    public Staff(TracksService.IService tracksService)
+    public Staff(TracksService.IService tracksService, RoundsService.IService roundsService)
     {
         _tracksService = tracksService;
+        _roundsService = roundsService;
     }
 
     [Authorize(Policy = JwtExtensions.StaffPolicy)]
@@ -39,6 +42,20 @@ public class Staff : ControllerBase
     {
         var result = await _tracksService.GetApprovedTeamsByEvent(eventId, keyword, isDisable, paginationRequest);
         return Ok(result);
+    }
+
+    [HttpGet("rounds/{roundId:guid}/submissions")]
+    public async Task<IActionResult> GetRoundSubmissions(Guid roundId, [FromQuery] RoundsService.Request.GetStaffRoundSubmissionsQuery query)
+    {
+        var result = await _roundsService.GetStaffRoundSubmissions(roundId, query);
+        return Ok(result);
+    }
+
+    [HttpPost("submissions/{submissionId:guid}/assign-judges")]
+    public async Task<IActionResult> AssignJudgesToSubmission(Guid submissionId, RoundsService.Request.AssignJudgesToSubmissionRequest request)
+    {
+        var result = await _roundsService.AssignJudgesToSubmission(submissionId, request);
+        return Ok(ApiResponseFactory.Base(result, 200, "JUDGES_ASSIGNED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.StaffPolicy)]
