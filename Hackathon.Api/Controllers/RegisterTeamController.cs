@@ -71,4 +71,20 @@ public class RegisterTeamController : ControllerBase
         var result = await _registerTeamService.RejectRegisterTeam(registerId, request);
         return Ok(ApiResponseFactory.Base(result,200,"REGISTER_TEAM_REJECTED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
+
+    [HttpPatch("staff/{registerId:guid}/ban")]
+    [Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]
+    public async Task<IActionResult> BanRegisterTeam(Guid registerId, [FromBody] RegisterTeamsService.Request.BanTeamRequest request)
+    {
+        var result = await _registerTeamService.BanRegisterTeam(registerId, request);
+        return Ok(ApiResponseFactory.Base(result, 200, "TEAM_BANNED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpPatch("staff/{registerId:guid}/unban")]
+    [Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]
+    public async Task<IActionResult> UnbanRegisterTeam(Guid registerId)
+    {
+        var result = await _registerTeamService.UnbanRegisterTeam(registerId);
+        return Ok(ApiResponseFactory.Base(result, 200, "TEAM_UNBANNED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
 }
