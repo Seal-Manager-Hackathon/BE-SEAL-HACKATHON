@@ -33,4 +33,22 @@ public static class Response
         public decimal? AverageCriteriaScore { get; set; }
         public decimal MaxScore { get; set; }
     }
+
+    public class SubmitRoundProjectResponse
+    {
+        public Guid SubmissionId { get; set; }
+        public Guid TeamId { get; set; }
+        public DateTimeOffset SubmittedAt { get; set; }
+        public string Status { get; set; } = null!;
+        public bool IsSuccess { get; set; }
+    }
+
+    public class RoundSubmissionItemResponse
+    {
+        public Guid SubmissionId { get; set; }
+        public string? Url { get; set; }
+        public string? Description { get; set; }
+        public string Status { get; set; } = null!;
+        public DateTimeOffset? SubmittedAt { get; set; }
+    }
 }

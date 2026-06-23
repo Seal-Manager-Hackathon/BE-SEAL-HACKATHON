@@ -5,7 +5,7 @@ namespace Hackathon.Service.Rounds;
 
 public static class Request
 {
-    public class SubmitAssignmentRequest
+    public class CreateSubmissionRequest
     {
         public string? Url { get; set; }
         public string? Description { get; set; }
