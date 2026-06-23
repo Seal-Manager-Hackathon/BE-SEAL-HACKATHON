@@ -23,4 +23,18 @@ public class SubmissionsController : ControllerBase
         var result = await _submissionsService.GetSubmissionDetail(submissionId);
         return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
+
+    [HttpGet("rounds/{roundId:guid}/register-teams/{registerTeamId:guid}")]
+    public async Task<IActionResult> GetSubmissions(Guid roundId, Guid registerTeamId, [FromQuery] SubmissionsService.Request.GetSubmissionsRequest request)
+    {
+        var result = await _submissionsService.GetSubmissions(roundId, registerTeamId, request);
+        return Ok(result);
+    }
+
+    [HttpPost("rounds/{roundId:guid}/register-teams/{registerTeamId:guid}")]
+    public async Task<IActionResult> SubmitRoundProject(Guid roundId, Guid registerTeamId, [FromBody] SubmissionsService.Request.SubmitRoundProjectRequest request)
+    {
+        var result = await _submissionsService.SubmitRoundProject(roundId, registerTeamId, request);
+        return Ok(ApiResponseFactory.Base(result, 200, "SUBMISSION_CREATED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
 }
