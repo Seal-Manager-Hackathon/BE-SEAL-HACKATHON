@@ -40,7 +40,6 @@
 ## Registration
 - Team leader registers team for event/topic.
 - Staff approves/rejects team.
-- Team can fix and resubmit after rejection.
 
 ## Round Participation
 - Use `RoundDetails` to place registered teams into rounds.
