@@ -347,8 +347,8 @@ public class Service : IService
             throw new ForbiddenException("FORBIDDEN");
         }
 
-        var reqPageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
-        var reqPageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
+        var reqPageIndex = request.PageIndex;
+        var reqPageSize = request.PageSize;
 
         var query = _dbContext.Submissions
             .AsNoTracking()
