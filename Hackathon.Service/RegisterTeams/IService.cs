@@ -14,4 +14,6 @@ public interface IService
     Task<Response.RegisterTeamDetailResponse> GetRegisterTeamDetail(Guid registerTeamId);
     Task<Response.RegisterTeamActionResponse> AcceptRegisterTeam(Guid registerTeamId);
     Task<Response.RegisterTeamActionResponse> RejectRegisterTeam(Guid registerTeamId, Request.RejectRegisterTeamRequest request);
+    Task<Response.RegisterTeamActionResponse> BanRegisterTeam(Guid registerTeamId, Request.BanTeamRequest request);
+    Task<Response.RegisterTeamActionResponse> UnbanRegisterTeam(Guid registerTeamId);
 }

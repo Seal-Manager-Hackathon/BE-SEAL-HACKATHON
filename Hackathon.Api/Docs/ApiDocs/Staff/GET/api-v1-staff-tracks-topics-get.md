@@ -63,11 +63,13 @@ Response dùng `ApiResponseFactory.BasePagination(...)`.
 ## Business rules
 - Chỉ Staff mới có quyền truy cập.
 - Track phải tồn tại, nếu không trả `TRACK_NOT_FOUND`.
+- Staff phải được phân công vào event chứa track (`AssignEvents`), nếu không trả `STAFF_NOT_ASSIGNED_TO_EVENT`.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
 | 401 | UNAUTHORIZED | ACCESS_TOKEN_IS_MISSING |
 | 403 | FORBIDDEN | FORBIDDEN |
+| 403 | FORBIDDEN | STAFF_NOT_ASSIGNED_TO_EVENT |
 | 404 | NOT_FOUND | TRACK_NOT_FOUND |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

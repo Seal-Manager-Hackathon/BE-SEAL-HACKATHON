@@ -89,7 +89,9 @@ Luồng này mô tả hành trình của một sinh viên từ lúc tham gia h�
    * API 37: [`POST /api/v1/register-teams`](RegisterTeams/POST/POST-api-v1-register-teams.md) — Team leader gửi đơn đăng ký team vào event. Hệ thống sẽ validate profile, số lượng thành viên, và trùng lịch tham gia.
 2. **Theo dõi trạng thái đơn đăng ký**:
    * API 38: [`GET /api/v1/register-teams/me`](RegisterTeams/GET/GET-api-v1-register-teams-me.md) — Xem trạng thái đơn đăng ký của đội mình (`Pending`, `Approved`, `Rejected`).
+   * *Thành viên xem đơn đăng ký của team*: [`- GET /api/v1/teams/me/register-teams`](Teams/GET/GET-api-v1-teams-me-register-teams.md) — Cả Leader và Member xem danh sách đơn đăng ký vào event của team mình (cả 3 trạng thái).
    * *Lấy lý do từ chối (nếu có)*: API 39: [`GET /api/v1/register-teams/{registerId}/rejection-reason`](RegisterTeams/GET/GET-api-v1-register-teams-registerId-rejection-reason.md) — Lấy lý do bị reject từ BTC.
+   * *Xem chi tiết đơn đăng ký*: [`- GET /api/v1/register-teams/{registerId}`](RegisterTeams/GET/GET-api-v1-register-teams-id-get.md) — Cả Leader và Member xem chi tiết một đơn đăng ký của team.
 3. **Xem các event mà Team tham gia & chi tiết Event**:
    * API 31: [`GET /api/v1/teams/{teamId}/events`](Teams/GET/GET-api-v1-teams-teamId-events.md) — Xem danh sách các event team đã đăng ký/tham gia.
    * API 15: [`GET /api/v1/events/{eventId}`](Events/GET/GET-api-v1-events-eventId.md) — Khi bấm vào một event trong danh sách, xem chi tiết thông tin event.
@@ -213,7 +215,7 @@ Luồng này dành cho Admin/BTC để khởi tạo, cấu hình, phân công nh
 *Mô tả*: Admin phân công Staff phụ trách vận hành event, phân công giảng viên làm Mentor hoặc Judge cho từng track.
 
 1. **Phân công Nhân viên vận hành (Staff)**:
-   * `- POST /api/v1/admin/events/{eventId}/staff` — Phân công Staff vận hành sự kiện (chỉ staff được gán mới có quyền duyệt đơn đăng ký của event đó - BR-ASG-01).
+   * [`- POST /api/v1/admin/events/{eventId}/staff`](Events/POST/POST-api-v1-admin-events-id-staff-post.md) — Phân công Staff vận hành sự kiện (chỉ staff được gán mới có quyền duyệt đơn đăng ký của event đó - BR-ASG-01).
 2. **Phân công Giảng viên vào Event**:
    * [`- POST /api/v1/admin/events/{eventId}/lecturers`](Events/POST/POST-api-v1-admin-events-eventId-lecturers.md) — Gán giảng viên làm Judge hoặc Mentor của Event (kiểm tra BR-ASG-04: một giảng viên không vừa làm Judge vừa làm Mentor trong cùng event).
 3. **Phân công Giám khảo/Mentor vào bảng đấu chi tiết**:

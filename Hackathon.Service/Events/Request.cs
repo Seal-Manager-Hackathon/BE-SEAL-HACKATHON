@@ -56,4 +56,9 @@ public static class Request
         public int? NumberRound { get; set; }
         public string? Season { get; set; }
     }
+
+    public class AssignStaffToEventRequest
+    {
+        public Guid UserId { get; set; }
+    }
 }
