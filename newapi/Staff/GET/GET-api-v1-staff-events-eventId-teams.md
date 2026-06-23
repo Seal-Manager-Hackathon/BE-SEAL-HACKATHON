@@ -1,7 +1,7 @@
 # API 46: BTC xem danh sách team chuẩn bị bốc thăm
 
 ## Tác dụng
-Cho phép Staff/Admin xem danh sách toàn bộ các team đã được BTC duyệt (`Approved`) trong event để chuẩn bị bốc thăm offline.
+Cho phép Staff/Admin xem danh sách các team tham gia event (mặc định lấy tất cả 3 trạng thái Pending, Approved, Rejected nếu không truyền status; lọc theo status truyền vào nếu có) để chuẩn bị bốc thăm offline.
 
 ## URL
 `GET /api/v1/staff/events/{eventId}/teams`
@@ -17,6 +17,7 @@ Staff hoặc Admin (Yêu cầu đăng nhập tài khoản BTC)
     *   `eventId` (Guid, Bắt buộc): ID của event thi đấu.
 *   **Query Parameters:**
     *   `keyword` (string, Không bắt buộc): Tìm kiếm team theo tên.
+    *   `status` (int, Không bắt buộc): Lọc theo trạng thái đăng ký của team. Giá trị: `0`: Pending, `1`: Approved, `2`: Rejected.
     *   `isDisable` (bool, Không bắt buộc): Lọc theo disable status.
     *   `pageIndex` (int, Không bắt buộc, mặc định: 1): Trang hiện tại.
     *   `pageSize` (int, Không bắt buộc, mặc định: 10): Số phần tử trên mỗi trang.
@@ -50,8 +51,8 @@ Staff hoặc Admin (Yêu cầu đăng nhập tài khoản BTC)
 ```
 
 ## Business rules
-- BTC chọn event trước, sau đó API trả về danh sách team đã `Approved` trong event để chuẩn bị bốc thăm offline.
-- Chỉ hiển thị các team có `RegisterTeams.Status = Approved` (đơn đăng ký đã duyệt) và chưa bị soft-disable.
+- BTC chọn event trước, sau đó API trả về danh sách team tham gia event.
+- Mặc định trả về các team ở bất kì trạng thái nào (Pending, Approved, Rejected) và chưa bị soft-disable. Nếu có truyền `status` thì lọc theo trạng thái đó.
 - Response có `trackId` và `topicId` để FE biết team nào đã được gán kết quả bốc thăm, team nào còn `null` cần gán tiếp.
 - Giúp BTC rà soát danh sách trước khi chạy luồng bốc thăm chia đề/chia bảng thi đấu (BR-TRACK-03).
 - Sắp xếp mặc định theo `RegisterTeams.UpdatedAt` tăng dần.

@@ -1,3 +1,5 @@
+using Hackathon.Repository.Enum;
+
 namespace Hackathon.Service.Tracks;
 
 public static class Response
@@ -53,6 +55,7 @@ public static class Response
         public string? TopicTitle { get; set; }
         public List<ApprovedTeamMemberResponse> Members { get; set; } = new();
         public bool IsBanned { get; set; }
+        public RegisterTeamStatusEnum Status { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }
 

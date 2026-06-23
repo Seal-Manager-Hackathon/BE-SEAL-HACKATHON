@@ -1,4 +1,5 @@
 using Hackathon.Api.Extention;
+using Hackathon.Repository.Enum;
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -44,9 +45,9 @@ public class Staff : ControllerBase
     }
 
     [HttpGet("events/{eventId:guid}/teams")]
-    public async Task<IActionResult> GetApprovedTeamsByEvent(Guid eventId, [FromQuery] string? keyword, [FromQuery] bool? isDisable, [FromQuery] PaginationRequest paginationRequest)
+    public async Task<IActionResult> GetApprovedTeamsByEvent(Guid eventId, [FromQuery] string? keyword, [FromQuery] RegisterTeamStatusEnum? status, [FromQuery] bool? isDisable, [FromQuery] PaginationRequest paginationRequest)
     {
-        var result = await _tracksService.GetApprovedTeamsByEvent(eventId, keyword, isDisable, paginationRequest);
+        var result = await _tracksService.GetApprovedTeamsByEvent(eventId, keyword, status, isDisable, paginationRequest);
         return Ok(result);
     }
 
