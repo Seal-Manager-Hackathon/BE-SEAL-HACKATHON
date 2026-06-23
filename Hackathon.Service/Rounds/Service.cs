@@ -359,7 +359,7 @@ public class Service : IService
                 .FirstOrDefault();
             var trackAssignTracks = roundDetail.RegisterTeam.TrackId.HasValue
                 ? assignTracks.Where(x => x.TrackId == roundDetail.RegisterTeam.TrackId.Value).ToList()
-                : new List<AssignTracks>();
+                : new List<Hackathon.Repository.Entity.AssignTracks>();
 
             if (submission == null)
             {
@@ -460,6 +460,7 @@ public class Service : IService
                 .Include(x => x.EventRole)
                 .Where(x => !x.IsDisable
                     && x.EventId == submission.RoundDetail.Round.EventId
+                    && x.EventRole != null
                     && x.EventRole.Name == EventRoleEnum.Judge
                     && x.User.Role == RoleEnum.Lecturer
                     && judgeIds.Contains(x.UserId))
@@ -481,7 +482,7 @@ public class Service : IService
         };
     }
 
-    private async Task<List<AssignTracks>> GetJudgeAssignTracks(Guid eventId, List<Guid> trackIds, List<Guid>? judgeIds = null)
+    private async Task<List<Hackathon.Repository.Entity.AssignTracks>> GetJudgeAssignTracks(Guid eventId, List<Guid> trackIds, List<Guid>? judgeIds = null)
     {
         var query = _dbContext.AssignTracks
             .Include(x => x.AssignEvent).ThenInclude(x => x.EventRole)
@@ -490,6 +491,7 @@ public class Service : IService
                 && trackIds.Contains(x.TrackId)
                 && !x.AssignEvent.IsDisable
                 && x.AssignEvent.EventId == eventId
+                && x.AssignEvent.EventRole != null
                 && x.AssignEvent.EventRole.Name == EventRoleEnum.Judge
                 && x.AssignEvent.User.Role == RoleEnum.Lecturer);
 
@@ -501,7 +503,7 @@ public class Service : IService
         return await query.ToListAsync();
     }
 
-    private static List<Response.AssignedJudgeResponse> BuildAssignedJudges(Hackathon.Repository.Entity.Submissions? submission, List<AssignTracks> assignTracks)
+    private static List<Response.AssignedJudgeResponse> BuildAssignedJudges(Hackathon.Repository.Entity.Submissions? submission, List<Hackathon.Repository.Entity.AssignTracks> assignTracks)
     {
         return assignTracks.Select(assignTrack =>
         {

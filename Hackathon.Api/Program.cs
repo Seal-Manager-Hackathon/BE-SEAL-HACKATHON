@@ -105,6 +105,8 @@ builder.Services.AddScoped<TracksService.IService, TracksService.Service>();
 builder.Services.AddScoped<CriticalsService.IService, CriticalsService.Service>();
 builder.Services.AddScoped<UserService.IService, UserService.Service>();
 builder.Services.AddScoped<Hackathon.Service.Topics.IService, Hackathon.Service.Topics.Service>();
+builder.Services.AddScoped<Hackathon.Service.AssignEvents.IService, Hackathon.Service.AssignEvents.Service>();
+builder.Services.AddScoped<Hackathon.Service.AssignTracks.IService, Hackathon.Service.AssignTracks.Service>();
 
 
 builder.Services.AddCors(options =>

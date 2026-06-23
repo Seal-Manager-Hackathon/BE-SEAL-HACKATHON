@@ -98,6 +98,7 @@ Ngày rà soát: 2026-06-22
 31. [`GET /api/v1/teams/{teamId}/events`](Teams/GET/GET-api-v1-teams-teamId-events.md) — Xem danh sách các event team đã đăng ký/tham gia; bấm vào event thì dùng API 15 để xem chi tiết event. Quyền: Authenticated.
 32. [`GET /api/v1/teams/{teamId}/events/approved-count`](Teams/GET/GET-api-v1-teams-teamId-events-approved-count.md) — Đếm số event team đã được approve tham gia thi đấu. Quyền: Authenticated.
 33. [`GET /api/v1/teams/{teamId}/events/latest`](Teams/GET/GET-api-v1-teams-teamId-events-latest.md) — Lấy event đăng ký mới nhất của team. Quyền: Authenticated.
+- [`GET /api/v1/teams/me/register-teams`](Teams/GET/GET-api-v1-teams-me-register-teams.md) — Thành viên trong team (cả Leader và Member) xem danh sách đơn đăng ký vào event của team mình (cả 3 trạng thái Pending/Approved/Rejected). Quyền: Authenticated (Team member). Entity: `RegisterTeams`. Lý do: Thành viên cần theo dõi tiến độ xét duyệt đơn đăng ký của team.
 - [`GET /api/v1/teams/{teamId}/members`](Teams/GET/GET-api-v1-teams-teamId-members.md) — Xem danh sách chi tiết thành viên của team kèm trạng thái (Active/Inactive). Quyền: Authenticated. Entity: `TeamDetails` + `Users`. Lý do: FE hiển thị danh sách thành viên ở trang quản lý team độc lập.
 - [`POST /api/v1/teams/{teamId}/leave`](Teams/POST/POST-api-v1-teams-teamId-leave.md) — Thành viên tự rời khỏi team. Quyền: Authenticated (Member). Entity: `TeamDetails`. Lý do: User tự rút khỏi đội thi (chỉ khi team chưa khóa đăng ký).
 - [`PATCH /api/v1/teams/{teamId}/lock`](Teams/PATCH/PATCH-api-v1-teams-teamId-lock.md) — Staff/Admin khóa cứng team (không cho sửa member, đổi tên). Quyền: Staff/Admin. Entity: `Teams.CanEdit = false`. Lý do: Tự động khóa khi team được duyệt vào giải.
@@ -116,6 +117,7 @@ Ngày rà soát: 2026-06-22
 37. [`POST /api/v1/register-teams`](RegisterTeams/POST/POST-api-v1-register-teams.md) — Team leader đăng ký team tham gia event. Quyền: Authenticated (Leader).
 38. [`GET /api/v1/register-teams/me`](RegisterTeams/GET/GET-api-v1-register-teams-me.md) — Xem các đăng ký event của team/user hiện tại. Quyền: Authenticated.
 39. [`GET /api/v1/register-teams/{registerId}/rejection-reason`](RegisterTeams/GET/GET-api-v1-register-teams-registerId-rejection-reason.md) — Xem lý do bị reject của đơn đăng ký. Quyền: Authenticated (Team).
+- [`GET /api/v1/register-teams/{registerId}`](RegisterTeams/GET/GET-api-v1-register-teams-id-get.md) — Thành viên trong team xem chi tiết đơn đăng ký của team theo registerId. Quyền: Authenticated (Team member). Entity: `RegisterTeams`. Lý do: Xem thông tin cụ thể của một đơn đăng ký, phù hợp khi user click vào một item trong danh sách.
 40. [`GET /api/v1/register-teams/staff/events/{eventId}`](RegisterTeams/GET/GET-api-v1-register-teams-staff-events-eventId.md) — Staff/Admin xem danh sách team đăng ký tham gia một event. Quyền: Staff/Admin.
 41. [`GET /api/v1/register-teams/staff/{registerTeamId}`](RegisterTeams/GET/GET-api-v1-register-teams-staff-registerTeamId.md) — Staff/Admin xem chi tiết đơn đăng ký team (kèm thông tin profile của từng member). Quyền: Staff/Admin.
 42. [`PUT /api/v1/register-teams/staff/{registerId}/approve`](RegisterTeams/PUT/PUT-api-v1-register-teams-staff-registerId-approve.md) — Staff/Admin duyệt cho team tham gia event. Quyền: Staff/Admin (Assigned).
@@ -221,6 +223,7 @@ Ngày rà soát: 2026-06-22
 - `GET /api/v1/mentor/tracks/{trackId}/notifications` — Mentor xem lại lịch sử các thông báo mình đã gửi trong track. Quyền: Mentor assigned. Entity: `MentorNotifications`.
 
 ## 20. Staff / Lecturer Assignment Management
+- [`POST /api/v1/admin/events/{eventId}/staff`](Events/POST/POST-api-v1-admin-events-id-staff-post.md) — Admin phân công Staff vận hành event. Quyền: Admin. Entity: `AssignEvents`. Body: `userId`. Lý do: Gán nhân viên vận hành vào event (chỉ staff được gán mới có quyền duyệt đơn).
 - [`GET /api/v1/admin/events/{eventId}/assignments`](Events/GET/GET-api-v1-admin-events-eventId-assignments.md) — Admin xem danh sách giảng viên/nhân sự đã được gán vào event. Quyền: Admin. Entity: `AssignEvents` + `EventRoles`.
 - [`POST /api/v1/admin/events/{eventId}/lecturers`](Events/POST/POST-api-v1-admin-events-eventId-lecturers.md) — Admin phân công giảng viên làm Mentor hoặc Judge trong event. Quyền: Admin. Entity: `AssignEvents` + `EventRoles`. Body: `userId`, `eventRole` (Mentor/Judge). Lý do: Phân vai trò giảng viên tham gia giải đấu (BR-ASG-02).
 - [`PATCH /api/v1/admin/assign-events/{assignEventId}/role`](Events/PATCH/PATCH-api-v1-admin-assign-events-assignEventId-role.md) — Admin thay đổi vai trò của giảng viên trong event. Quyền: Admin. Entity: `AssignEvents`.

@@ -25,6 +25,11 @@ public static class Response
         public Guid Id { get; set; }
     }
 
+    public class AssignStaffToEventResponse
+    {
+        public Guid Id { get; set; }
+    }
+
     public class EventParticipantResponse : EventResponse
     {
         public int TeamCount { get; set; }

@@ -123,6 +123,7 @@ public class Service : IService
                     && !x.AssignEvent.IsDisable
                     && x.AssignEvent.UserId == userId
                     && x.AssignEvent.EventId == eventId
+                    && x.AssignEvent.EventRole != null
                     && x.AssignEvent.EventRole.Name == EventRoleEnum.Judge);
 
             if (isAssignedJudge)
