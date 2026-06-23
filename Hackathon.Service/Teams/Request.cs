@@ -42,4 +42,16 @@ public static class Request
     {
         public string? Status { get; set; }
     }
+
+    public class GetMyRegistrationsByEventRequest
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "EVENT_ID_REQUIRED")]
+        public Guid EventId { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Range(1, int.MaxValue, ErrorMessage = "PAGE_INDEX_MUST_BE_GREATER_THAN_ZERO")]
+        public int PageIndex { get; set; } = 1;
+
+        [System.ComponentModel.DataAnnotations.Range(1, int.MaxValue, ErrorMessage = "PAGE_SIZE_MUST_BE_GREATER_THAN_ZERO")]
+        public int PageSize { get; set; } = 10;
+    }
 }

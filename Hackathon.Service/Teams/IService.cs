@@ -13,6 +13,7 @@ public interface IService
     Task<string> RemoveMembers(Guid teamId, Request.RemoveMembersRequest request);
     Task<string> TransferLeader(Guid teamId, Request.TransferLeaderRequest request);
     Task<BasePaginationResponse> GetTeamRegisteredEvents(Guid teamId, RegisterTeams.Request.GetTeamRegisteredEventsRequest request, PaginationRequest paginationRequest);
+    Task<BasePaginationResponse> GetMyRegistrationsByEvent(Request.GetMyRegistrationsByEventRequest request);
     Task<Response.CountResponse> GetApprovedEventsCount(Guid teamId);
     Task<Response.LatestRegisteredEventResponse?> GetLatestRegisteredEvent(Guid teamId);
 }
