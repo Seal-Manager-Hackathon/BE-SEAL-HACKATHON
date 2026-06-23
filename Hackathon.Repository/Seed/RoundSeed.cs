@@ -18,7 +18,7 @@ public static class RoundSeed
                 StartTime = SeedConstants.CreatedAt.AddDays(10),
                 EndTime = SeedConstants.CreatedAt.AddDays(11),
                 StartSubmission = SeedConstants.CreatedAt.AddDays(10),
-                EndSubmission = SeedConstants.CreatedAt.AddDays(10).AddHours(12),
+                EndSubmission = new DateTimeOffset(2026, 6, 23, 23, 59, 59, TimeSpan.Zero),
                 LimitTeam = 20,
                 IsDisable = false,
                 CreatedAt = SeedConstants.CreatedAt,

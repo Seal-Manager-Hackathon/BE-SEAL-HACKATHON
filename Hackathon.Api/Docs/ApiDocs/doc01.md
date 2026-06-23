@@ -50,11 +50,11 @@ Luồng này mô tả hành trình của một sinh viên từ lúc tham gia h�
    * API 17: [`GET /api/v1/events/{eventId}/tracks`](Events/GET/GET-api-v1-events-eventId-tracks.md) — Từ event lấy danh sách track/bảng đấu của event.
    * [`- GET /api/v1/events/{eventId}/summary`](Events/GET/GET-api-v1-events-eventId-summary.md) — Thống kê số team đã duyệt, số track, số round.
 3. **Xem chi tiết Round trong Event**:
-   * [`- GET /api/v1/rounds/{roundId}`](Rounds/GET/GET-api-v1-rounds-roundId.md) — Khi bấm vào chi tiết round, lấy thông tin timeline, hạn nộp bài và cấu hình của round.
+   * [`- GET /api/v1/rounds/{roundId}`](Rounds/GET/api-v1-rounds-id-get.md) — Khi bấm vào chi tiết round, lấy thông tin timeline, hạn nộp bài và cấu hình của round.
    * API 58: [`GET /api/v1/rounds/{roundId}/criteria`](Rounds/GET/GET-api-v1-rounds-roundId-criteria.md) — Trong chi tiết round, hiển thị tiêu chí chấm điểm của round đó.
    * API 50: [`GET /api/v1/tracks/{trackId}/topics`](Tracks/GET/GET-api-v1-tracks-trackId-topics.md) — Khi bấm vào một track, lấy danh sách topic/đề bài của track.
 4. **Xem bảng xếp hạng khi khám phá event**:
-   * [`- GET /api/v1/rounds/{roundId}/ranking`](Rounds/GET/GET-api-v1-rounds-roundId-ranking.md) — Từ round xem bảng xếp hạng theo điểm trung bình submission của round đó.
+   * [`- GET /api/v1/rounds/{roundId}/ranking`](Rounds/GET/api-v1-rounds-id-ranking-get.md) — Từ round xem bảng xếp hạng theo điểm trung bình submission của round đó.
    * [`- GET /api/v1/events/{eventId}/leaderboard`](Events/GET/GET-api-v1-events-eventId-leaderboard.md) — Từ event xem bảng xếp hạng chung của event, trả về `teamId` và tổng điểm của từng team.
    * [`- GET /api/v1/events/{eventId}/teams/{teamId}/scores`](Events/GET/GET-api-v1-events-eventId-teams-teamId-scores.md) — Khi bấm vào một team trong leaderboard, xem điểm của team đó theo từng round và điểm chi tiết của từng tiêu chí.
 5. **Xem cơ cấu giải thưởng**:
@@ -119,13 +119,13 @@ Luồng này mô tả hành trình của một sinh viên từ lúc tham gia h�
    * API 53: [`GET /api/v1/rounds/teams/{teamId}`](Rounds/GET/GET-api-v1-rounds-teams-teamId.md) — Lấy danh sách các round mà team được quyền tham gia thi đấu, có thể lọc theo event. Team mới được gán Track + Topic sẽ mặc định thấy `RoundNo = 1`; các round sau chỉ xuất hiện nếu team được chọn đi tiếp khi kết thúc round trước.
    * API 58: [`GET /api/v1/rounds/{roundId}/criteria`](Rounds/GET/GET-api-v1-rounds-roundId-criteria.md) — Xem tiêu chí chấm điểm của round.
 2. **Xem chi tiết round và danh sách bài nộp**:
-   * [`- GET /api/v1/rounds/{roundId}`](Rounds/GET/GET-api-v1-rounds-roundId.md) — Khi bấm vào chi tiết round, xem timeline, hạn nộp và cấu hình round.
-   * [`- GET /api/v1/rounds/{roundId}/my-submissions`](Rounds/GET/GET-api-v1-rounds-roundId-my-submissions.md) — Trong chi tiết round có nút/thẻ "Bài nộp" để xem lịch sử bài nộp của team trong round; hệ thống lấy bài nộp cuối cùng để chấm khi đến thời gian kết thúc.
+   * [`- GET /api/v1/rounds/{roundId}`](Rounds/GET/api-v1-rounds-id-get.md) — Khi bấm vào chi tiết round, xem timeline, hạn nộp và cấu hình round.
+   * [`- GET /api/v1/rounds/{roundId}/my-submissions`](Rounds/GET/api-v1-rounds-id-my-submissions-get.md) — Trong chi tiết round có nút/thẻ "Bài nộp" để xem lịch sử bài nộp của team trong round; hệ thống lấy bài nộp cuối cùng để chấm khi đến thời gian kết thúc.
    * [`- GET /api/v1/submissions/{submissionId}`](Submissions/GET/GET-api-v1-submissions-submissionId.md) — Xem chi tiết một bài nộp trong lịch sử.
 3. **Nộp bài thi cho round (Chỉ dành cho Team Leader)**:
    * API 55: [`POST /api/v1/rounds/{roundId}/submit-assignment`](Rounds/POST/POST-api-v1-rounds-roundId-submit-assignment.md) — Phần nộp bài của round, ghi nhận link sản phẩm và mô tả bài làm.
 4. **Xem kết quả bài nộp**:
-   * [`- GET /api/v1/rounds/{roundId}/scores/me`](Rounds/GET/GET-api-v1-rounds-roundId-scores-me.md) — Xem kết quả/điểm của team trong round; nếu chưa có kết quả thì hiển thị "Bài chưa được chấm".
+   * [`- GET /api/v1/rounds/{roundId}/scores/me`](Rounds/GET/api-v1-rounds-id-scores-me-get.md) — Xem kết quả/điểm của team trong round; nếu chưa có kết quả thì hiển thị "Bài chưa được chấm".
    * [`- GET /api/v1/submissions/{submissionId}`](Submissions/GET/GET-api-v1-submissions-submissionId.md) — Xem chi tiết bài nộp kèm trạng thái `NotGraded` hoặc điểm đã chấm nếu có.
 
 ---
@@ -135,9 +135,9 @@ Luồng này mô tả hành trình của một sinh viên từ lúc tham gia h�
 
 1. **Xem điểm số của đội mình**:
    * [`- GET /api/v1/events/{eventId}/teams/{teamId}/scores`](Events/GET/GET-api-v1-events-eventId-teams-teamId-scores.md) — Khi bấm chi tiết điểm, xem điểm của team trong event theo từng round và điểm chi tiết của từng tiêu chí.
-   * [`- GET /api/v1/rounds/{roundId}/scores/me`](Rounds/GET/GET-api-v1-rounds-roundId-scores-me.md) — Xem điểm/kết quả của team ở round đang chọn.
+   * [`- GET /api/v1/rounds/{roundId}/scores/me`](Rounds/GET/api-v1-rounds-id-scores-me-get.md) — Xem điểm/kết quả của team ở round đang chọn.
 2. **Xem bảng xếp hạng**:
-   * [`- GET /api/v1/rounds/{roundId}/ranking`](Rounds/GET/GET-api-v1-rounds-roundId-ranking.md) — Xem bảng xếp hạng theo round.
+   * [`- GET /api/v1/rounds/{roundId}/ranking`](Rounds/GET/api-v1-rounds-id-ranking-get.md) — Xem bảng xếp hạng theo round.
    * [`- GET /api/v1/events/{eventId}/leaderboard`](Events/GET/GET-api-v1-events-eventId-leaderboard.md) — Xem bảng xếp hạng event; trong danh sách này team biết mình đang đứng hạng thứ mấy trong event.
    * `- GET /api/v1/teams/{teamId}/round-results` — Xem kết quả tổng hợp của team qua từng vòng (Đi tiếp - Advanced / Dừng lại - Stopped).
 3. **Gửi khiếu nại/phúc khảo khi bài đã có kết quả**:

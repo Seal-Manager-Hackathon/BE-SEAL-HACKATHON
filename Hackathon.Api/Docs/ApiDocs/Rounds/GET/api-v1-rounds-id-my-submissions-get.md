@@ -20,13 +20,16 @@ Authenticated Team Member
     *   `pageSize` (int, Không bắt buộc, mặc định: 10): Số item mỗi trang.
 
 ## Response body (Success - 200 OK)
-*Cấu trúc trả về dạng `BasePaginationResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Value": {
-    "Items": [
+  "isSuccess": true,
+  "isFailed": false,
+  "error": null,
+  "status": 200,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "data": {
+    "items": [
       {
         "submissionId": "f7b6d5c4-129b-4e6f-adbd-2c5ea56789ff",
         "roundId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
@@ -34,21 +37,18 @@ Authenticated Team Member
         "roundDetailId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         "url": "https://github.com/seal-hackathon/team-project-web",
         "description": "Bài thi hoàn chỉnh.",
-        "Status": 0,
+        "status": 0, /* Submitted */
         "submittedAt": "2026-06-22T08:00:00Z",
         "isLatest": true,
         "gradingStatus": "NotGraded"
       }
     ],
-    "PageIndex": 1,
-    "PageSize": 10,
-    "TotalCount": 1,
-    "HasNextPage": false,
-    "HasPreviousPage": false
-  },
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+    "pageIndex": 1,
+    "pageSize": 10,
+    "totalCount": 1,
+    "hasNextPage": false,
+    "hasPreviousPage": false
+  }
 }
 ```
 
@@ -57,29 +57,16 @@ Authenticated Team Member
 - Trả về các submission của team trong round, sắp xếp `submittedAt` giảm dần.
 - Submission đầu tiên sau khi sort giảm dần được đánh dấu `isLatest = true` và là bài cuối cùng hệ thống dùng để chấm khi đã hết hạn nộp bài.
 - Nếu submission chưa có score chính thức thì `gradingStatus = "NotGraded"` để FE hiển thị "Bài chưa được chấm".
-- Nếu đã có score/điểm được công bố thì `gradingStatus = "Graded"` và FE có thể mở chi tiết bằng [`GET /api/v1/submissions/{submissionId}`](./GET-api-v1-submissions-submissionId.md).
+- Nếu đã có score/điểm được công bố thì `gradingStatus = "Graded"` và FE có thể mở chi tiết bằng [`GET /api/v1/submissions/{submissionId}`](Submissions/GET/GET-api-v1-submissions-submissionId.md).
 
 ### Bảng trạng thái SubmissionStatusEnum
-| Giá trị (Value) | Trạng thái (Status) | Mô tả (Description) |
-| :--- | :--- | :--- |
+| Giá trị | Trạng thái | Mô tả |
+|---|---|---:|---|
 | `0` | Submitted | Đã nộp bài thi thành công |
+| `1` | Unsubmitted | Chưa nộp bài |
+| `2` | Failed | Nộp bài thất bại |
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse`:*
-
-```json
-{
-  "Title": "Not Found",
-  "Status": 404,
-  "Detail": "Không tìm thấy vòng thi hoặc team không tham gia vòng này.",
-  "MessageCode": "ROUND_DETAIL_NOT_FOUND",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
-}
-```
-
-### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
 |---:|---|---|
 | 401 | UNAUTHORIZED | Access token không hợp lệ hoặc thiếu. |

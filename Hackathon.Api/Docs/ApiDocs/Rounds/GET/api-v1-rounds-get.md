@@ -1,7 +1,7 @@
 # Get rounds
 
 ## Tác dụng
-Lấy danh sách round, có thể lọc theo event.
+Lấy danh sách round, lọc theo event.
 
 ## URL
 `GET /api/v1/rounds`
@@ -11,13 +11,12 @@ Không yêu cầu Access Token (Public API).
 
 ## Query parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
-|---|---|---:|---|
-| `eventId` | `guid` | Không | Lọc round thuộc một event cụ thể. |
-| `isDisable` | `bool` | Không | Lọc theo trạng thái soft-disable. Nếu không truyền, mặc định chỉ trả round chưa bị disable (`IsDisable = false`). |
+|---|---|---|---:|---|
+| `eventId` | `guid` | Có | Lọc round thuộc một event cụ thể. |
 
 ## Ví dụ request
 ```http
-GET /api/v1/rounds?eventId=00000000-0000-0000-0000-000000000000&isDisable=false
+GET /api/v1/rounds?eventId=00000000-0000-0000-0000-000000000000
 ```
 
 ## Request body
@@ -38,6 +37,7 @@ Không có.
       "eventId": "guid",
       "name": "string",
       "description": "string|null",
+      "roundNo": 0,
       "startTime": "datetimeoffset|null",
       "endTime": "datetimeoffset|null",
       "startSubmission": "datetimeoffset|null",
@@ -52,12 +52,12 @@ Không có.
 ```
 
 ## Business rules
-- Nếu truyền `eventId`, chỉ trả round thuộc event đó.
-- Nếu không truyền `isDisable`, mặc định chỉ trả round chưa bị soft-disable.
-- Round thuộc event bị disable không nên được trả về, trừ khi nghiệp vụ cho phép lấy dữ liệu disable bằng query riêng.
-- Kết quả sắp xếp theo `StartTime` tăng dần, sau đó `CreatedAt` tăng dần.
+- `eventId` là bắt buộc, event phải tồn tại và không bị disable.
+- Chỉ trả về các round thuộc event đó, chưa bị disable.
+- Kết quả sắp xếp theo `RoundNo` tăng dần, sau đó `CreatedAt` tăng dần.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
+| 404 | NOT_FOUND | EVENT_NOT_FOUND |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

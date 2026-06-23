@@ -136,7 +136,7 @@ Ngày rà soát: 2026-06-22
 52. [`GET /api/v1/rounds`](Rounds/GET/GET-api-v1-rounds.md) — Lấy danh sách round của event (ví dụ: Vòng loại, Vòng bán kết, Chung kết), sắp theo `RoundNo`; team mới vào event bắt đầu ở `RoundNo = 1`. Quyền: Public/Auth. **(Chú ý: route dùng query string `?eventId={eventId}`)**.
 53. [`GET /api/v1/rounds/teams/{teamId}`](Rounds/GET/GET-api-v1-rounds-teams-teamId.md) — Lấy danh sách các vòng đấu của team, có thể filter theo eventId; round sau chỉ xuất hiện khi team được chọn top sau khi kết thúc round trước. Quyền: Authenticated.
 54. [`GET /api/v1/rounds/register-teams/{registerTeamId}`](Rounds/GET/GET-api-v1-rounds-register-teams-registerTeamId.md) — Lấy thông tin round detail của register team (trạng thái đi tiếp/dừng lại). Quyền: Authenticated.
-- [`GET /api/v1/rounds/{roundId}`](Rounds/GET/GET-api-v1-rounds-roundId.md) — Xem chi tiết round khi user bấm vào một vòng thi. Quyền: Public/Auth. Entity: `Rounds`. Lý do: FE cần màn hình chi tiết round trước khi xem tiêu chí, track và ranking theo round.
+- [`GET /api/v1/rounds/{roundId}`](Rounds/GET/api-v1-rounds-id-get.md) — Xem chi tiết round khi user bấm vào một vòng thi. Quyền: Public/Auth. Entity: `Rounds`. Lý do: FE cần màn hình chi tiết round trước khi xem tiêu chí, track và ranking theo round.
 58. [`GET /api/v1/rounds/{roundId}/criteria`](Rounds/GET/GET-api-v1-rounds-roundId-criteria.md) — Lấy danh sách criteria (tiêu chí chấm điểm) theo round. Quyền: Public/Auth.
 59. [`GET /api/v1/events/{eventId}/criteria`](Events/GET/GET-api-v1-events-eventId-criteria.md) — Lấy toàn bộ tiêu chí chấm điểm của event. Quyền: Public/Auth.
 - `POST /api/v1/admin/events/{eventId}/rounds` — Admin tạo round thi đấu mới. Quyền: Admin. Entity: `Rounds`. Body: `Name`, `Description`, `RoundNo`, `StartTime`, `EndTime`, `StartSubmission`, `EndSubmission`, `LimitTeam`. Lý do: Thiết lập các vòng đấu cho giải.
@@ -151,8 +151,8 @@ Ngày rà soát: 2026-06-22
 
 ## 12. Submission Management
 55. [`POST /api/v1/rounds/{roundId}/submit-assignment`](Rounds/POST/POST-api-v1-rounds-roundId-submit-assignment.md) — Team leader nộp bài thi cho round. Quyền: Authenticated (Leader).
-56. [`GET /api/v1/rounds/{roundId}/submissions`](Rounds/GET/GET-api-v1-rounds-roundId-submissions.md) — Xem danh sách submissions của round. Quyền: Authenticated. **(Chú ý: route này hiện mở cho mọi user, cần check phân quyền tại service)**.
-- [`GET /api/v1/rounds/{roundId}/my-submissions`](Rounds/GET/GET-api-v1-rounds-roundId-my-submissions.md) — Team xem lịch sử các lần nộp bài trong round; submission mới nhất được dùng để chấm khi hết hạn nộp. Quyền: Authenticated (Team member). Entity: `Submissions` + `RoundDetails`. Lý do: Màn hình chi tiết round có thẻ/nút "Bài nộp" để xem lịch sử bài nộp (BR-SUB-04/05).
+56. [`GET /api/v1/rounds/{roundId}/submissions`](Rounds/GET/api-v1-rounds-id-submissions-get.md) — Xem danh sách submissions của round. Quyền: Authenticated. **(Chú ý: route này hiện mở cho mọi user, cần check phân quyền tại service)**.
+- [`GET /api/v1/rounds/{roundId}/my-submissions`](Rounds/GET/api-v1-rounds-id-my-submissions-get.md) — Team xem lịch sử các lần nộp bài trong round; submission mới nhất được dùng để chấm khi hết hạn nộp. Quyền: Authenticated (Team member). Entity: `Submissions` + `RoundDetails`. Lý do: Màn hình chi tiết round có thẻ/nút "Bài nộp" để xem lịch sử bài nộp (BR-SUB-04/05).
 - [`GET /api/v1/submissions/{submissionId}`](Submissions/GET/GET-api-v1-submissions-submissionId.md) — Xem chi tiết bài nộp, trạng thái `NotGraded` nếu chưa có điểm, hoặc điểm/kết quả nếu đã chấm. Quyền: Authenticated (Team/BTC/Judge). Entity: `Submissions` + `Scores`. Lý do: FE hiển thị chi tiết bài nộp và nút khiếu nại khi bài đã có kết quả.
 - `DELETE /api/v1/submissions/{submissionId}` — Disable bài nộp thi. Quyền: Authenticated (Leader)/Staff. Entity: `Submissions.IsDisable`.
 - `PATCH /api/v1/staff/submissions/{submissionId}/status` — Staff cập nhật trạng thái bài nộp (nộp muộn, bài thi không hợp lệ). Quyền: Staff/Admin. Entity: `Submissions.Status`.
@@ -179,12 +179,12 @@ Ngày rà soát: 2026-06-22
 - `PATCH /api/v1/staff/scores/{scoreId}/reopen` — Staff mở lại điểm thi cho phép Judge chỉnh sửa. Quyền: Staff/Admin. Entity: `Scores`. Lý do: Sửa điểm khi có lỗi nhập liệu được duyệt.
 - `PATCH /api/v1/staff/rounds/{roundId}/scores/reveal` — BTC công bố điểm số của vòng thi cho thí sinh biết. Quyền: Staff/Admin. Entity: `Rounds`. Lý do: Cho phép thí sinh xem điểm. Trước thời điểm này, judge không được xem điểm judge khác (BR-SCO-05). *DB chưa có ScoreRevealAt.*
 - [`GET /api/v1/events/{eventId}/teams/{teamId}/scores`](Events/GET/GET-api-v1-events-eventId-teams-teamId-scores.md) — Xem chi tiết điểm của một team trong event theo từng round và từng tiêu chí chấm điểm. Quyền: Public/Auth tùy thời điểm reveal. Entity: `Scores` + `ScoreItems` + `CriteriaItems`. Lý do: Từ leaderboard event, user bấm vào một team để xem breakdown điểm theo round/criteria.
-- [`GET /api/v1/rounds/{roundId}/scores/me`](Rounds/GET/GET-api-v1-rounds-roundId-scores-me.md) — Team xem kết quả/điểm round hiện tại; nếu chưa chấm thì trả trạng thái bài chưa được chấm. Quyền: Team member. Entity: `Scores` + `RoundDetails` + `Submissions`.
+- [`GET /api/v1/rounds/{roundId}/scores/me`](Rounds/GET/api-v1-rounds-id-scores-me-get.md) — Team xem kết quả/điểm round hiện tại; nếu chưa chấm thì trả trạng thái bài chưa được chấm. Quyền: Team member. Entity: `Scores` + `RoundDetails` + `Submissions`.
 
 ## 15. Advancement & Round Results (Thăng vòng)
 57. [`POST /api/v1/rounds/{roundId}/end`](Rounds/POST/POST-api-v1-rounds-roundId-end.md) — Staff/Admin kết thúc round, chốt sổ điểm và tự động tạo `RoundDetails` cho top team vào round kế tiếp theo `LimitTeam` của round sau.
 - [`GET /api/v1/staff/rounds/{roundId}/ranking`](Staff/GET/GET-api-v1-staff-rounds-roundId-ranking.md) — Staff/Admin xem ranking theo round để kiểm tra kết quả trước/sau khi kết thúc round; entity: `Scores`, `RoundDetails`, `RegisterTeams`.
-- [`GET /api/v1/rounds/{roundId}/ranking`](Rounds/GET/GET-api-v1-rounds-roundId-ranking.md) — User xem ranking đã công bố; quyền: Public/Auth theo rule; entity: `Scores`, `RoundDetails`.
+- [`GET /api/v1/rounds/{roundId}/ranking`](Rounds/GET/api-v1-rounds-id-ranking-get.md) — User xem ranking đã công bố; quyền: Public/Auth theo rule; entity: `Scores`, `RoundDetails`.
 - [`GET /api/v1/rounds/teams/{teamId}`](Rounds/GET/GET-api-v1-rounds-teams-teamId.md) — Team xem các round mình đang/đã tham gia. Team mới vào event mặc định có `RoundNo = 1`; các round sau chỉ xuất hiện nếu team nằm trong top được chọn khi kết thúc round trước.
 
 > Ghi chú: Các API đề xuất `advance`, `advance/top`, `round-details/{id}/stopped`, `results/publish` là dư thừa với flow hiện tại vì logic thăng vòng đã gộp vào API 57 `EndRound`. Không đưa các API đó vào luồng chính.
