@@ -33,6 +33,13 @@ public class RegisterTeamController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("{registerId:guid}")]
+    public async Task<IActionResult> GetRegisterTeamDetailForStudent(Guid registerId)
+    {
+        var result = await _registerTeamService.GetRegisterTeamDetailForStudent(registerId);
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
+
     [HttpGet("{registerId:guid}/rejection-reason")]
     public async Task<IActionResult> GetRejectionReason(Guid registerId)
     {

@@ -1,13 +1,13 @@
-# Team leader xem danh sách đơn đăng ký vào event của team
+# Team member xem danh sách đơn đăng ký vào event của team
 
 ## Tác dụng
-API dùng cho `Team Leader` xem toàn bộ đơn đăng ký tham gia event của team mình, bao gồm cả 3 trạng thái: `Pending`, `Approved`, `Rejected`. API tự động xác định team dựa trên user hiện tại (người dùng phải là leader của team).
+API dùng cho thành viên trong team (cả Leader và Member) xem toàn bộ đơn đăng ký tham gia event của team mình, bao gồm cả 3 trạng thái: `Pending`, `Approved`, `Rejected`. API tự động xác định team dựa trên user hiện tại.
 
 ## URL
 `GET /api/v1/teams/me/register-teams`
 
 ## Authorization
-Yêu cầu access token hợp lệ với role `Student` và user hiện tại phải là `Leader` của một team (có `IsLeader = true` trong `TeamDetails`).
+Yêu cầu access token hợp lệ với role `Student` và user hiện tại phải là thành viên đang active của một team (có `Status = Active` trong `TeamDetails`).
 
 ## Query parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
@@ -62,18 +62,18 @@ Response dùng `ApiResponseFactory.BasePagination(...)`.
 
 ## Business rules
 - User phải đăng nhập và có role `Student`.
-- User phải là leader (`IsLeader = true`) của một team đang active (`IsDisable = false`) trong `TeamDetails`.
-- Mỗi user chỉ có thể là leader của tối đa một team tại một thời điểm.
+- User phải là thành viên đang active (`Status = Active`) của một team (`IsDisable = false`) trong `TeamDetails`.
+- Nếu user thuộc nhiều team, ưu tiên team mà user là leader; nếu không phải leader của team nào, lấy team đầu tiên user tham gia.
 - Trả về toàn bộ các đơn đăng ký (`RegisterTeams`) của team đó bất kể trạng thái duyệt (`Pending`/`Approved`/`Rejected`).
 - Nếu truyền `status`, chỉ lọc các đơn có trạng thái tương ứng.
 - Danh sách được sắp xếp mới nhất lên trước (`CreatedAt` giảm dần).
-- Nếu user không phải leader của team nào, trả về lỗi `FORBIDDEN`.
+- Nếu user không phải thành viên của team nào, trả về lỗi `FORBIDDEN`.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | CURRENT_USER_MUST_BE_STUDENT |
-| 403 | FORBIDDEN | NOT_TEAM_LEADER |
+| 403 | FORBIDDEN | NOT_TEAM_MEMBER |
 | 400 | BAD_REQUEST | INVALID_STATUS |
 | 404 | NOT_FOUND | TEAM_NOT_FOUND |
