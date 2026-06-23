@@ -34,7 +34,7 @@ namespace Hackathon.Repository.Migrations
                     b.Property<Guid>("EventId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("EventRoleId")
+                    b.Property<Guid?>("EventRoleId")
                         .HasColumnType("uuid");
 
                     b.Property<bool>("IsDisable")
@@ -5009,9 +5009,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasOne("Hackathon.Repository.Entity.EventRoles", "EventRole")
                         .WithMany("AssignEvents")
-                        .HasForeignKey("EventRoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("EventRoleId");
 
                     b.HasOne("Hackathon.Repository.Entity.Users", "User")
                         .WithMany("AssignEvents")

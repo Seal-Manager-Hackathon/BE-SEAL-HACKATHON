@@ -7,6 +7,7 @@ public interface IService
     Task<BasePaginationResponse> GetEvents(Request.GetEventsRequest request);
     Task<BasePaginationResponse> GetEventsForAdmin(Request.GetEventsForAdminRequest request);
     Task<Response.CreateEventResponse> CreateEvent(Request.CreateEventRequest request);
+    Task<Response.AssignStaffToEventResponse> AssignStaffToEvent(Guid eventId, Request.AssignStaffToEventRequest request);
     Task<string> UpdateEvent(Guid eventId, Request.UpdateEventRequest request);
     Task<string> DeleteEvent(Guid eventId);
     Task<string> PublishEvent(Guid eventId);

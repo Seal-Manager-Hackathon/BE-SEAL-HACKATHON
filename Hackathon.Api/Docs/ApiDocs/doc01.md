@@ -89,7 +89,9 @@ Luồng này mô tả hành trình của một sinh viên từ lúc tham gia h�
    * API 37: [`POST /api/v1/register-teams`](RegisterTeams/POST/POST-api-v1-register-teams.md) — Team leader gửi đơn đăng ký team vào event. Hệ thống sẽ validate profile, số lượng thành viên, và trùng lịch tham gia.
 2. **Theo dõi trạng thái đơn đăng ký**:
    * API 38: [`GET /api/v1/register-teams/me`](RegisterTeams/GET/GET-api-v1-register-teams-me.md) — Xem trạng thái đơn đăng ký của đội mình (`Pending`, `Approved`, `Rejected`).
+   * *Thành viên xem đơn đăng ký của team*: [`- GET /api/v1/teams/me/register-teams`](Teams/GET/GET-api-v1-teams-me-register-teams.md) — Cả Leader và Member xem danh sách đơn đăng ký vào event của team mình (cả 3 trạng thái).
    * *Lấy lý do từ chối (nếu có)*: API 39: [`GET /api/v1/register-teams/{registerId}/rejection-reason`](RegisterTeams/GET/GET-api-v1-register-teams-registerId-rejection-reason.md) — Lấy lý do bị reject từ BTC.
+   * *Xem chi tiết đơn đăng ký*: [`- GET /api/v1/register-teams/{registerId}`](RegisterTeams/GET/GET-api-v1-register-teams-id-get.md) — Cả Leader và Member xem chi tiết một đơn đăng ký của team.
 3. **Xem các event mà Team tham gia & chi tiết Event**:
    * API 31: [`GET /api/v1/teams/{teamId}/events`](Teams/GET/GET-api-v1-teams-teamId-events.md) — Xem danh sách các event team đã đăng ký/tham gia.
    * API 15: [`GET /api/v1/events/{eventId}`](Events/GET/GET-api-v1-events-eventId.md) — Khi bấm vào một event trong danh sách, xem chi tiết thông tin event.
@@ -213,7 +215,7 @@ Luồng này dành cho Admin/BTC để khởi tạo, cấu hình, phân công nh
 *Mô tả*: Admin phân công Staff phụ trách vận hành event, phân công giảng viên làm Mentor hoặc Judge cho từng track.
 
 1. **Phân công Nhân viên vận hành (Staff)**:
-   * `- POST /api/v1/admin/events/{eventId}/staff` — Phân công Staff vận hành sự kiện (chỉ staff được gán mới có quyền duyệt đơn đăng ký của event đó - BR-ASG-01).
+   * [`- POST /api/v1/admin/events/{eventId}/staff`](Events/POST/POST-api-v1-admin-events-id-staff-post.md) — Phân công Staff vận hành sự kiện (chỉ staff được gán mới có quyền duyệt đơn đăng ký của event đó - BR-ASG-01).
 2. **Phân công Giảng viên vào Event**:
    * [`- POST /api/v1/admin/events/{eventId}/lecturers`](Events/POST/POST-api-v1-admin-events-eventId-lecturers.md) — Gán giảng viên làm Judge hoặc Mentor của Event (kiểm tra BR-ASG-04: một giảng viên không vừa làm Judge vừa làm Mentor trong cùng event).
 3. **Phân công Giám khảo/Mentor vào bảng đấu chi tiết**:
@@ -242,7 +244,19 @@ Luồng này dành cho Admin/BTC để khởi tạo, cấu hình, phân công nh
 
 ---
 
-## Luồng 2.6: Theo dõi và Điều phối thăng vòng (Round End & Advancement)
+## Luồng 2.6: Phân công Giám khảo chấm bài & Theo dõi tiến độ
+*Mô tả*: Sau khi các đội đã nộp bài, BTC xem danh sách bài nộp phân loại theo track/topic và chủ động phân công giám khảo phù hợp cho từng bài thi.
+
+1. **Xem danh sách bài nộp phân loại theo track/topic**:
+   * [`- GET /api/v1/staff/rounds/{roundId}/submissions`](Staff/GET/GET-api-v1-staff-rounds-id-submissions.md) — Staff/Admin xem danh sách bài nộp của vòng thi, lọc theo `trackId`, `topicId`, `gradingStatus`, có kèm thông tin judge đã phân công và điểm nếu có.
+2. **Phân công giám khảo chấm bài**:
+   * [`- POST /api/v1/staff/submissions/{submissionId}/assign-judges`](Staff/POST/GET-api-v1-staff-submissions-id-assign-judges.md) — Staff/Admin chọn một bài nộp và gán một hoặc nhiều judge chấm bài đó, giúp BTC chủ động phân công theo chuyên môn thay vì gán judge theo track toàn bộ.
+3. **Gỡ giám khảo khỏi bài nộp**:
+   * Gọi API assign-judges với mảng `judgeIds: []` rỗng để gỡ toàn bộ judge khỏi bài nộp.
+
+---
+
+## Luồng 2.7: Theo dõi và Điều phối thăng vòng (Round End & Advancement)
 *Mô tả*: Hết giờ làm bài, BTC kết thúc vòng thi, rà soát bảng điểm tổng hợp từ các giám khảo, chọn các đội xuất sắc nhất để thăng vòng đấu tiếp theo.
 
 1. **Khóa cổng nộp bài thi**:
@@ -261,7 +275,7 @@ Luồng này dành cho Admin/BTC để khởi tạo, cấu hình, phân công nh
 
 ---
 
-## Luồng 2.7: Giải quyết phúc khảo (Regrade Workflow)
+## Luồng 2.8: Giải quyết phúc khảo (Regrade Workflow)
 *Mô tả*: BTC tiếp nhận đơn khiếu nại điểm số từ thí sinh, phê duyệt chấm lại và chỉ định giám khảo thực hiện chấm lại.
 
 1. **Xem danh sách và chi tiết khiếu nại**:
@@ -274,7 +288,7 @@ Luồng này dành cho Admin/BTC để khởi tạo, cấu hình, phân công nh
 
 ---
 
-## Luồng 2.8: Tổng kết & Khóa giải đấu (Leaderboard & Lock)
+## Luồng 2.9: Tổng kết & Khóa giải đấu (Leaderboard & Lock)
 *Mô tả*: BTC tính toán bảng xếp hạng chung cuộc, trao giải thưởng và khóa Read-only toàn bộ dữ liệu giải đấu.
 
 1. **Tính toán Leaderboard**:
