@@ -42,7 +42,8 @@ Authenticated User (Yêu cầu đăng nhập, dành cho thành viên của team)
 ## Business rules
 - Trả về Track và Topic của team đã được assign trong bảng `RegisterTeams`.
 - `registerTeamId` and `eventId` phải khớp với bản ghi thực tế, nếu không trả `REGISTER_TEAM_NOT_FOUND`.
-- Nếu chưa được assign Topic hay Track nào, các trường Id/Title sẽ là `null`.
+- Nếu cả Track và Topic của đơn đăng ký đều chưa được assign (bằng `null`) -> trả lỗi `400 BadRequest` với mã lỗi `TRACK_NOT_ASSIGNED`.
+- Nếu một trong hai trường Track hoặc Topic bị `null` (gặp lỗi phân công chưa hoàn thiện) -> trả lỗi `400 BadRequest` với mã lỗi `TRACK_OR_TOPIC_ASSIGNMENT_INCOMPLETE_CONTACT_ADMIN` để báo người dùng liên hệ ban tổ chức/admin hỗ trợ.
 
 ## Lỗi có thể xảy ra
 *Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn \`ErrorResponse\`:*
@@ -62,6 +63,8 @@ Authenticated User (Yêu cầu đăng nhập, dành cho thành viên của team)
 ### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
 |---:|---|---|
+| 400 | TRACK_NOT_ASSIGNED | Đội thi chưa được phân công ban thi đấu (Track). |
+| 400 | TRACK_OR_TOPIC_ASSIGNMENT_INCOMPLETE_CONTACT_ADMIN | Quá trình phân ban hoặc đề tài chưa hoàn tất. Vui lòng liên hệ Admin/Staff. |
 | 401 | UNAUTHORIZED | Access token không hợp lệ hoặc thiếu. |
 | 404 | REGISTER_TEAM_NOT_FOUND | Đơn đăng ký không tồn tại. |
 | 500 | INTERNAL_SERVER_ERROR | Gặp lỗi hệ thống. |
