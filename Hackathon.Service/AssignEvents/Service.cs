@@ -77,6 +77,8 @@ public class Service : IService
             .Include(x => x.EventRole)
             .AsNoTracking()
             .Where(x => x.EventId == eventId
+                     && x.EventRoleId != null
+                     && x.EventRole != null
                      && x.IsDisable == (isDisable ?? false)
                      && x.User.Role == RoleEnum.Lecturer);
 

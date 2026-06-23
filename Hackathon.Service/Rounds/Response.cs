@@ -71,6 +71,43 @@ public static class Response
         public decimal? TotalScore { get; set; }
     }
 
+    public class StaffRoundSubmissionResponse
+    {
+        public Guid? SubmissionId { get; set; }
+        public Guid RoundDetailId { get; set; }
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = null!;
+        public Guid? TrackId { get; set; }
+        public string? TrackTitle { get; set; }
+        public Guid? TopicId { get; set; }
+        public string? TopicTitle { get; set; }
+        public string? Url { get; set; }
+        public string? Description { get; set; }
+        public string SubmissionStatus { get; set; } = null!;
+        public DateTimeOffset? SubmittedAt { get; set; }
+        public string? GradingStatus { get; set; }
+        public List<AssignedJudgeResponse> AssignedJudges { get; set; } = new();
+        public decimal? AverageScore { get; set; }
+        public decimal? MinScore { get; set; }
+        public decimal? MaxScore { get; set; }
+    }
+
+    public class AssignedJudgeResponse
+    {
+        public Guid JudgeId { get; set; }
+        public string JudgeName { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public bool HasScored { get; set; }
+        public decimal? TotalScore { get; set; }
+        public bool IsFinalized { get; set; }
+    }
+
+    public class AssignJudgesToSubmissionResponse
+    {
+        public Guid SubmissionId { get; set; }
+        public List<AssignedJudgeResponse> AssignedJudges { get; set; } = new();
+    }
+
     public class EndRoundResponse
     {
         public Guid ClosedRoundId { get; set; }

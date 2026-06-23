@@ -170,8 +170,10 @@ Ngày rà soát: 2026-06-22
 - [`POST /api/v1/judge/submissions/{submissionId}/scores/mock`](Judge/POST/POST-api-v1-judge-submissions-submissionId-scores-mock.md) — Lưu điểm chấm thử/chấm nháp. Quyền: Judge/Admin. Entity: `Scores.IsMock = true`.
 - [`GET /api/v1/judge/scores/me`](Judge/GET/GET-api-v1-judge-scores-me.md) — Judge xem lịch sử tất cả các bài thi mình đã chấm trong event. Quyền: Lecturer + Judge Role. Entity: `Scores`.
 
-## 14. Staff Scoring, Reveal & Regrade
+## 14. Staff Scoring, Reveal & Judge Assignment
 57. [`POST /api/v1/rounds/{roundId}/end`](Rounds/POST/POST-api-v1-rounds-roundId-end.md) — Staff/Admin kết thúc round (tự động tính điểm trung bình cho các team). Quyền: Staff/Admin.
+- [`GET /api/v1/staff/rounds/{roundId}/submissions`](Staff/GET/GET-api-v1-staff-rounds-id-submissions.md) — Staff/Admin xem danh sách bài nộp của vòng thi, phân loại theo track/topic, kèm trạng thái chấm điểm và judge được phân công. Quyền: Staff/Admin. Entity: `Submissions` + `AssignTracks`. Filter: `trackId`, `topicId`, `gradingStatus`. Lý do: Theo dõi tiến độ chấm bài và phân công judge.
+- [`POST /api/v1/staff/submissions/{submissionId}/assign-judges`](Staff/POST/GET-api-v1-staff-submissions-id-assign-judges.md) — Staff/Admin phân công judge chấm cho một bài nộp cụ thể. Quyền: Staff/Admin. Entity: `AssignTracks` + `Submissions`. Body: `judgeIds[]`. Lý do: Phân công giám khảo phù hợp cho từng bài thi.
 - `GET /api/v1/staff/submissions/{submissionId}/scores` — Staff xem toàn bộ điểm chi tiết của tất cả các judge chấm bài thi này. Quyền: Staff/Admin. Entity: `Scores` + `ScoreItems`. Lý do: Phát hiện giám khảo lệch điểm bất thường.
 - `GET /api/v1/staff/rounds/{roundId}/scores` — Staff xem bảng điểm tổng hợp của vòng đấu. Quyền: Staff/Admin. Entity: `Scores` + `Submissions` + `RoundDetails`. Lý do: Xem thứ tự tổng sắp điểm số.
 - `PATCH /api/v1/staff/scores/{scoreId}/reopen` — Staff mở lại điểm thi cho phép Judge chỉnh sửa. Quyền: Staff/Admin. Entity: `Scores`. Lý do: Sửa điểm khi có lỗi nhập liệu được duyệt.

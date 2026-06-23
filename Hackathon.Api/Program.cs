@@ -20,6 +20,7 @@ using RegisterTeamsService = Hackathon.Service.RegisterTeams;
 using TracksService = Hackathon.Service.Tracks;
 using CriticalsService = Hackathon.Service.Criticals;
 using UserService = Hackathon.Service.Users;
+using SubmissionsService = Hackathon.Service.Submissions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -97,6 +98,7 @@ builder.Services.AddScoped<MailServices.IService, MailServices.Service>();
 builder.Services.AddScoped<EventsService.IService, EventsService.Service>();
 builder.Services.AddScoped<InvitationsService.IService, InvitationsService.Service>();
 builder.Services.AddScoped<RoundsService.IService, RoundsService.Service>();
+builder.Services.AddScoped<SubmissionsService.IService, SubmissionsService.Service>();
 builder.Services.AddScoped<TeamsService.IService, TeamsService.Service>();
 builder.Services.AddScoped<RegisterTeamsService.IService, RegisterTeamsService.Service>();
 builder.Services.AddScoped<TracksService.IService, TracksService.Service>();
