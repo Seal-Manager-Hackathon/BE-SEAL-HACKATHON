@@ -70,7 +70,7 @@ public class Service : IService
             LimitTeam = eventEntity.LimitTeam,
             MinMember = eventEntity.MinMember,
             MaxMember = eventEntity.MaxMember,
-            Status = eventEntity.Status?.ToString(),
+            Status = eventEntity.Status,
             NumberRound = eventEntity.NumberRound,
             Season = eventEntity.Season,
             IsDisable = eventEntity.IsDisable,
@@ -101,7 +101,7 @@ public class Service : IService
                 FullName = x.User.FirstName + " " + x.User.LastName,
                 Email = x.User.Email,
                 EventRoleId = x.EventRoleId,
-                EventRoleName = x.EventRole != null ? x.EventRole.Name.ToString() : null,
+                EventRoleName = x.EventRole != null ? x.EventRole.Name : null,
                 AssignedTracks = x.AssignTracks
                     .Where(at => !at.IsDisable)
                     .Select(at => new Response.AssignedTrackResponse
@@ -1058,7 +1058,7 @@ public class Service : IService
                 Name = x.Name,
                 StartTime = x.StartTime,
                 EndTime = x.EndTime,
-                Status = x.Status.ToString(),
+                Status = x.Status,
                 Season = x.Season,
                 CreatedAt = x.CreatedAt,
             })
@@ -1111,7 +1111,7 @@ public class Service : IService
                 Name = x.Name,
                 StartTime = x.StartTime,
                 EndTime = x.EndTime,
-                Status = x.Status.ToString(),
+                Status = x.Status,
                 Season = x.Season,
                 IsDisable = x.IsDisable,
                 CreatedAt = x.CreatedAt,
@@ -1184,7 +1184,7 @@ public class Service : IService
                 Name = x.Name,
                 StartTime = x.StartTime,
                 EndTime = x.EndTime,
-                Status = x.Status.ToString(),
+                Status = x.Status,
                 Season = x.Season,
                 CreatedAt = x.CreatedAt,
             })
@@ -1215,7 +1215,7 @@ public class Service : IService
                 LimitTeam = x.LimitTeam,
                 MinMember = x.MinMember,
                 MaxMember = x.MaxMember,
-                Status = x.Status.ToString(),
+                Status = x.Status,
                 NumberRound = x.NumberRound,
                 Season = x.Season,
                 IsDisable = x.IsDisable,
