@@ -20,8 +20,8 @@ Mentor phụ trách team (Yêu cầu đăng nhập tài khoản Giảng viên đ
 *Cấu trúc trả về dạng `BaseResponse` chứa thông tin tiến trình và bài làm nộp.*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
+  "isSuccess": true,
+  "isFailed": false,
   "Value": {
     "teamId": "c4b5a6d7-e8f9-0a1b-2c3d-4e5f6a7b8c9d",
     "teamName": "Chiến binh công nghệ",
@@ -38,9 +38,9 @@ Mentor phụ trách team (Yêu cầu đăng nhập tài khoản Giảng viên đ
       }
     ]
   },
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
@@ -55,13 +55,13 @@ Mentor phụ trách team (Yêu cầu đăng nhập tài khoản Giảng viên đ
 
 ```json
 {
-  "Title": "Forbidden",
-  "Status": 403,
+  "title": "Forbidden",
+  "status": 403,
   "Detail": "Đội thi này không thuộc bảng đấu do bạn hướng dẫn.",
-  "MessageCode": "FORBIDDEN",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "messageCode": "FORBIDDEN",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 

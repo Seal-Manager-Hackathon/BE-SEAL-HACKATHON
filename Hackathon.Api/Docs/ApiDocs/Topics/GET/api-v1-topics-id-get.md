@@ -17,19 +17,19 @@ Public API (Hoặc Authenticated tùy theo cài đặt ẩn hiện đề thi)
 *Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
+  "isSuccess": true,
+  "isFailed": false,
   "Value": {
     "id": "e5f6a7b8-c9d0-e1f2-a3b4-c5d6e7f8a9b0",
     "trackId": "c4b5a6d7-e8f9-0a1b-2c3d-4e5f6a7b8c9d",
-    "Title": "Hệ thống số hóa y tế",
+    "title": "Hệ thống số hóa y tế",
     "description": "Xây dựng ứng dụng quản lý quy trình khám chữa bệnh.",
     "createdAt": "2026-06-21T08:00:00Z",
     "updatedAt": "2026-06-21T08:00:00Z"
   },
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
@@ -42,13 +42,13 @@ Public API (Hoặc Authenticated tùy theo cài đặt ẩn hiện đề thi)
 
 ```json
 {
-  "Title": "Not Found",
-  "Status": 404,
+  "title": "Not Found",
+  "status": 404,
   "Detail": "Không tìm thấy đề bài thi đấu.",
-  "MessageCode": "TOPIC_NOT_FOUND",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "messageCode": "TOPIC_NOT_FOUND",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 

@@ -19,7 +19,7 @@ Mentor phụ trách track (Yêu cầu đăng nhập tài khoản Giảng viên �
 ## Request Body
 ```json
 {
-  "Title": "Nhắc nhở kỹ thuật Vòng 1",
+  "title": "Nhắc nhở kỹ thuật Vòng 1",
   "description": "Các nhóm chú ý validate kỹ các API đầu vào và đính kèm file database migration vào Project."
 }
 ```
@@ -28,15 +28,15 @@ Mentor phụ trách track (Yêu cầu đăng nhập tài khoản Giảng viên �
 *Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
+  "isSuccess": true,
+  "isFailed": false,
   "Value": {
     "mentorNotificationId": "e5f6a7b8-c9d0-e1f2-a3b4-c5d6e7f8a9b0",
     "message": "MENTOR_NOTIFICATION_SENT"
   },
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
@@ -52,13 +52,13 @@ Mentor phụ trách track (Yêu cầu đăng nhập tài khoản Giảng viên �
 
 ```json
 {
-  "Title": "Forbidden",
-  "Status": 403,
+  "title": "Forbidden",
+  "status": 403,
   "Detail": "Bạn không được phân công hướng dẫn bảng đấu này để phát thông báo.",
-  "MessageCode": "FORBIDDEN",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "messageCode": "FORBIDDEN",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 

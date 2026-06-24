@@ -34,14 +34,14 @@ Student là Leader của team (Yêu cầu đăng nhập tài khoản sinh viên)
 *Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Status": 200,
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z",
-  "Message": "SUBMISSION_CREATED_SUCCESSFULLY",
-  "Data": {
+  "isSuccess": true,
+  "isFailed": false,
+  "status": 200,
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "message": "SUBMISSION_CREATED_SUCCESSFULLY",
+  "data": {
     "submissionId": "f9b8c7d6-e5a4-3210-9c0d-1e2f3a4b5c6d",
     "teamId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "submittedAt": "2026-06-22T08:00:00Z",

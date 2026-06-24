@@ -18,14 +18,14 @@ Yêu cầu access token hợp lệ với role `Admin`.
 *Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Status": 200,
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z",
-  "Message": "SUCCESS",
-  "Data": [
+  "isSuccess": true,
+  "isFailed": false,
+  "status": 200,
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "message": "SUCCESS",
+  "data": [
     {
       "assignEventId": "b1a7d6c2-4821-4f9b-bd5e-3c2fa56789e0",
       "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -60,13 +60,13 @@ Yêu cầu access token hợp lệ với role `Admin`.
 
 ```json
 {
-  "Title": "Not Found",
-  "Status": 404,
-  "Message": "Event không tồn tại hoặc đã bị ẩn.",
-  "MessageCode": "EVENT_NOT_FOUND",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "title": "Not Found",
+  "status": 404,
+  "message": "Event không tồn tại hoặc đã bị ẩn.",
+  "messageCode": "EVENT_NOT_FOUND",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
