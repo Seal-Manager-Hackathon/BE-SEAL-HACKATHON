@@ -20,36 +20,37 @@ GET /api/v1/events/most-participants?limit=10&isDisable=false
 ## Request body
 Không có.
 
-## Response body
+## Response body (Success - 200 OK)
+*Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "isSuccess": true,
-  "isFailed": false,
-  "error": null,
-  "status": 200,
-  "traceId": "string",
-  "timestampUtc": "datetime",
-  "data": [
+  "IsSuccess": true,
+  "IsFailed": false,
+  "Status": 200,
+  "Error": null,
+  "TraceId": "0HN1A2B3C4D5E",
+  "TimestampUtc": "2026-06-22T08:00:00Z",
+  "Message": "SUCCESS",
+  "Data": [
     {
-      "id": "guid",
-      "name": "string",
-      "description": "string|null",
-      "startTime": "datetimeoffset|null",
-      "endTime": "datetimeoffset|null",
-      "registerLimitTime": "datetimeoffset|null",
-      "limitTeam": 0,
-      "minMember": 0,
-      "maxMember": 0,
-      "status": "Draft"
-      "numberRound": 0,
-      "season": "string|null",
+      "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+      "name": "SEAL Hackathon 2026",
+      "description": "Cuộc thi lập trình SEAL Hackathon mùa hè 2026.",
+      "startTime": "2026-07-01T08:00:00Z",
+      "endTime": "2026-07-10T17:00:00Z",
+      "registerLimitTime": "2026-06-30T23:59:59Z",
+      "limitTeam": 50,
+      "minMember": 3,
+      "maxMember": 5,
+      "status": 0, /* 0: Draft, 1: Published, 2: Closed, 3: Cancelled */
+      "numberRound": 3,
+      "season": "Mùa hè 2026",
       "isDisable": false,
-      "createdAt": "datetimeoffset",
-      "teamCount": 0,
-      "participantCount": 0
+      "createdAt": "2026-06-22T08:00:00Z",
+      "teamCount": 10,
+      "participantCount": 45
     }
-  ],
-  "message": "SUCCESS"
+  ]
 }
 ```
 
@@ -63,7 +64,17 @@ Không có.
 - Kết quả sắp xếp theo `participantCount` giảm dần, sau đó `teamCount` giảm dần.
 - Nếu không truyền `isDisable`, mặc định chỉ trả event chưa bị soft-disable.
 
+### Bảng trạng thái EventStatusEnum
+| Giá trị (Value) | Trạng thái (Status) | Mô tả (Description) |
+| :--- | :--- | :--- |
+| `0` | Draft | Sự kiện đang nháp, chưa công bố |
+| `1` | Published | Sự kiện đã công bố và hoạt động |
+| `2` | Closed | Sự kiện đã kết thúc và đóng lại |
+| `3` | Cancelled | Sự kiện đã bị hủy bỏ |
+
 ## Lỗi có thể xảy ra
+*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
+
 | HTTP | messageCode | message/detail |
 |---:|---|---|
 | 400 | BAD_REQUEST | INVALID_LIMIT_PARAMETER |

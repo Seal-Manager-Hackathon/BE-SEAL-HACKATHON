@@ -80,7 +80,7 @@ public static class Response
         public string TeamName { get; set; } = null!;
         public Guid EventId { get; set; }
         public string EventName { get; set; } = null!;
-        public string Status { get; set; } = null!;
+        public RegisterTeamStatusEnum? Status { get; set; }
         public string? Description { get; set; }
         public string? RejectionReason { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
@@ -93,7 +93,7 @@ public static class Response
         public string TeamName { get; set; } = null!;
         public Guid EventId { get; set; }
         public string EventName { get; set; } = null!;
-        public string Status { get; set; } = null!;
+        public RegisterTeamStatusEnum? Status { get; set; }
         public string? Description { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }

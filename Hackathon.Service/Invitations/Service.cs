@@ -73,7 +73,7 @@ public class Service : IService
                 Id = x.Id,
                 TeamId = x.TeamId,
                 TeamName = x.Team.Name,
-                Status = x.Status.ToString(),
+                Status = x.Status,
                 Description = x.Description,
                 LimitTime = x.LimitTime,
                 CreatedAt = x.CreatedAt,
@@ -94,7 +94,7 @@ public class Service : IService
             Id = x.Id,
             TeamId = x.TeamId,
             TeamName = x.Team?.Name ?? string.Empty,
-            Status = x.Status.ToString(),
+            Status = x.Status,
             Description = x.Description,
             LimitTime = x.LimitTime,
             CreatedAt = x.CreatedAt
