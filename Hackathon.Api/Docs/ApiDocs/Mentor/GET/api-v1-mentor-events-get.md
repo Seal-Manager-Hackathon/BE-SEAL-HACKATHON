@@ -56,6 +56,7 @@ Lecturer đã được phân công trong sự kiện (Yêu cầu đăng nhập t
 | :--- | :--- | :--- |
 | `0` | Mentor | Người hướng dẫn chuyên môn cho đội thi |
 | `1` | Judge | Giám khảo chấm điểm bài thi |
+| `2` | Staff | Nhân viên vận hành sự kiện |
 
 ## Lỗi có thể xảy ra
 *Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*

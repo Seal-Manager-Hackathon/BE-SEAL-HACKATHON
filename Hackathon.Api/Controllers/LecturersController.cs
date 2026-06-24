@@ -29,4 +29,11 @@ public class LecturersController : ControllerBase
         var result = await _lecturersService.SearchLecturerEvents(request);
         return Ok(result);
     }
+
+    [HttpGet("events/current")]
+    public async Task<IActionResult> GetCurrentLecturerEvents()
+    {
+        var result = await _lecturersService.GetCurrentLecturerEvents();
+        return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
 }

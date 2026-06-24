@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace Hackathon.Service.Lecturers;
+namespace Hackathon.Service.Staff;
 
 public class Service : IService
 {
@@ -40,132 +41,18 @@ public class Service : IService
         return userId;
     }
 
-    public async Task<BasePaginationResponse> GetLecturerEvents(PaginationRequest request)
+    public async Task<List<Response.StaffEventResponse>> GetCurrentStaffEvents()
     {
         var userId = GetCurrentUserId();
 
-        // 1. Check if user exists and is a Lecturer (Enum comparison)
         var user = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
-        if (user == null || user.Role != RoleEnum.Lecturer)
-        {
-            throw new ForbiddenException("FORBIDDEN");
-        }
-
-        var pageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
-        var pageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
-
-        // 2. Build Query joining AssignEvents, Events and EventRoles
-        var query = _dbContext.AssignEvents
-            .AsNoTracking()
-            .Include(x => x.Event)
-            .Include(x => x.EventRole)
-            .Where(x => x.UserId == userId
-                        && !x.IsDisable
-                        && !x.Event.IsDisable);
-
-        var totalCount = await query.CountAsync();
-
-        // 5. Paginate and map to Response DTO
-        var items = await query
-            .OrderByDescending(x => x.CreatedAt)
-            .Skip((pageIndex - 1) * pageSize)
-            .Take(pageSize)
-            .Select(x => new Response.LecturerEventResponse
-            {
-                AssignEventId = x.Id,
-                EventId = x.EventId,
-                EventName = x.Event.Name,
-                Season = x.Event.Season,
-                StartTime = x.Event.StartTime,
-                EndTime = x.Event.EndTime,
-                Role = x.EventRole != null ? (EventRoleEnum?)x.EventRole.Name : null,
-                EventStatus = x.Event.Status
-            })
-            .ToListAsync();
-
-        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
-    }
-
-    public async Task<BasePaginationResponse> SearchLecturerEvents(Request.SearchLecturerEventsRequest request)
-    {
-        var userId = GetCurrentUserId();
-
-        // 1. Check if user exists and is a Lecturer (Enum comparison)
-        var user = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
-        if (user == null || user.Role != RoleEnum.Lecturer)
-        {
-            throw new ForbiddenException("FORBIDDEN");
-        }
-
-        var pageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
-        var pageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
-
-        // 2. Build base query
-        var query = _dbContext.AssignEvents
-            .AsNoTracking()
-            .Include(x => x.Event)
-            .Include(x => x.EventRole)
-            .Where(x => x.UserId == userId
-                        && !x.IsDisable
-                        && !x.Event.IsDisable);
-
-        // 3. Filter by Keyword (Event.Name)
-        if (!string.IsNullOrWhiteSpace(request.Keyword))
-        {
-            var normKeyword = request.Keyword.Trim().ToLower();
-            query = query.Where(x => x.Event.Name.ToLower().Contains(normKeyword));
-        }
-
-        // 4. Filter by Year (Event.StartTime.Year)
-        if (request.Year.HasValue)
-        {
-            query = query.Where(x => x.Event.StartTime.HasValue && x.Event.StartTime.Value.Year == request.Year.Value);
-        }
-
-        // 5. Filter by EventRole if provided
-        if (request.EventRole.HasValue)
-        {
-            query = query.Where(x => x.EventRole != null && x.EventRole.Name == request.EventRole.Value);
-        }
-
-        var totalCount = await query.CountAsync();
-
-        // 6. Sort by StartTime desc, then Event.Name asc, then paginate
-        var items = await query
-            .OrderByDescending(x => x.Event.StartTime)
-            .ThenBy(x => x.Event.Name)
-            .Skip((pageIndex - 1) * pageSize)
-            .Take(pageSize)
-            .Select(x => new Response.LecturerEventResponse
-            {
-                AssignEventId = x.Id,
-                EventId = x.EventId,
-                EventName = x.Event.Name,
-                Season = x.Event.Season,
-                StartTime = x.Event.StartTime,
-                EndTime = x.Event.EndTime,
-                Role = x.EventRole != null ? (EventRoleEnum?)x.EventRole.Name : null,
-                EventStatus = x.Event.Status
-            })
-            .ToListAsync();
-
-        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
-    }
-
-    public async Task<List<Response.LecturerEventResponse>> GetCurrentLecturerEvents()
-    {
-        var userId = GetCurrentUserId();
-
-        // 1. Check if user exists and is a Lecturer (Enum comparison)
-        var user = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
-        if (user == null || user.Role != RoleEnum.Lecturer)
+        if (user == null || user.Role != RoleEnum.Staff)
         {
             throw new ForbiddenException("FORBIDDEN");
         }
 
         var now = DateTimeOffset.UtcNow;
 
-        // 2. Query AssignEvents where Event.StartTime <= now <= Event.EndTime
         var items = await _dbContext.AssignEvents
             .AsNoTracking()
             .Include(x => x.Event)
@@ -178,7 +65,7 @@ public class Service : IService
                         && x.Event.EndTime.HasValue
                         && x.Event.EndTime.Value >= now)
             .OrderByDescending(x => x.CreatedAt)
-            .Select(x => new Response.LecturerEventResponse
+            .Select(x => new Response.StaffEventResponse
             {
                 AssignEventId = x.Id,
                 EventId = x.EventId,
@@ -197,5 +84,108 @@ public class Service : IService
         }
 
         return items;
+    }
+
+    public async Task<BasePaginationResponse> GetStaffEvents(PaginationRequest request)
+    {
+        var userId = GetCurrentUserId();
+
+        var user = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
+        if (user == null || user.Role != RoleEnum.Staff)
+        {
+            throw new ForbiddenException("FORBIDDEN");
+        }
+
+        var pageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
+        var pageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
+
+        var query = _dbContext.AssignEvents
+            .AsNoTracking()
+            .Include(x => x.Event)
+            .Include(x => x.EventRole)
+            .Where(x => x.UserId == userId
+                        && !x.IsDisable
+                        && !x.Event.IsDisable);
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new Response.StaffEventResponse
+            {
+                AssignEventId = x.Id,
+                EventId = x.EventId,
+                EventName = x.Event.Name,
+                Season = x.Event.Season,
+                StartTime = x.Event.StartTime,
+                EndTime = x.Event.EndTime,
+                Role = x.EventRole != null ? (EventRoleEnum?)x.EventRole.Name : null,
+                EventStatus = x.Event.Status
+            })
+            .ToListAsync();
+
+        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
+    }
+
+    public async Task<BasePaginationResponse> SearchStaffEvents(Request.SearchStaffEventsRequest request)
+    {
+        var userId = GetCurrentUserId();
+
+        var user = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
+        if (user == null || user.Role != RoleEnum.Staff)
+        {
+            throw new ForbiddenException("FORBIDDEN");
+        }
+
+        var pageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
+        var pageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
+
+        var query = _dbContext.AssignEvents
+            .AsNoTracking()
+            .Include(x => x.Event)
+            .Include(x => x.EventRole)
+            .Where(x => x.UserId == userId
+                        && !x.IsDisable
+                        && !x.Event.IsDisable);
+
+        if (!string.IsNullOrWhiteSpace(request.Keyword))
+        {
+            var normKeyword = request.Keyword.Trim().ToLower();
+            query = query.Where(x => x.Event.Name.ToLower().Contains(normKeyword));
+        }
+
+        if (request.StartTime.HasValue)
+        {
+            query = query.Where(x => x.Event.StartTime.HasValue && x.Event.StartTime.Value >= request.StartTime.Value);
+        }
+
+        if (request.EndTime.HasValue)
+        {
+            query = query.Where(x => x.Event.EndTime.HasValue && x.Event.EndTime.Value <= request.EndTime.Value);
+        }
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(x => x.Event.StartTime)
+            .ThenBy(x => x.Event.Name)
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new Response.StaffEventResponse
+            {
+                AssignEventId = x.Id,
+                EventId = x.EventId,
+                EventName = x.Event.Name,
+                Season = x.Event.Season,
+                StartTime = x.Event.StartTime,
+                EndTime = x.Event.EndTime,
+                Role = x.EventRole != null ? (EventRoleEnum?)x.EventRole.Name : null,
+                EventStatus = x.Event.Status
+            })
+            .ToListAsync();
+
+        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
     }
 }

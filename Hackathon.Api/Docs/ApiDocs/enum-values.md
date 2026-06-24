@@ -67,6 +67,7 @@ Trạng thái nộp bài tập / Assignment.
 Vai trò cụ thể của một User (Staff/Lecturer) trong một Event.
 - `0`: Mentor (Người hướng dẫn)
 - `1`: Judge (Giám khảo)
+- `2`: Staff (Nhân viên vận hành)
 
 ## 12. LeaderBoardsStatusEnum / ScoresStatusEnum
 Các cờ trạng thái dùng trong Bảng xếp hạng và Chấm điểm.

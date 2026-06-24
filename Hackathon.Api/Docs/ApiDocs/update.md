@@ -45,6 +45,7 @@ Thay vì hứng dữ liệu dạng chuỗi như trước, Frontend cần đổi 
 ### 7. Vai trò trong Sự kiện (EventRoleEnum)
 - `0` $\rightarrow$ **Mentor** (Người hướng dẫn chuyên môn)
 - `1` $\rightarrow$ **Judge** (Ban giám khảo)
+- `2` $\rightarrow$ **Staff** (Nhân viên vận hành)
 
 ---
 

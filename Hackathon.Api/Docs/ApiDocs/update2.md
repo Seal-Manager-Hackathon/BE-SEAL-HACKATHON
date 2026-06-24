@@ -14,7 +14,7 @@ Tài liệu này tổng hợp toàn bộ 26 thay đổi/thêm mới API trong h�
 | **TeamDetailStatusEnum** | `0`: Pending, `1`: Active, `2`: Rejected |
 | **SubmissionStatusEnum** | `0`: Submitted, `1`: Unsubmitted, `2`: Failed |
 | **InvitationStatusEnum** | `0`: Pending, `1`: Accepted, `2`: Rejected, `3`: Expired |
-| **EventRoleEnum** | `0`: Mentor, `1`: Judge |
+| **EventRoleEnum** | `0`: Mentor, `1`: Judge, `2`: Staff |
 
 ---
 
