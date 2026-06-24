@@ -622,4 +622,47 @@ public class Service : IService
 
         return latestRegistration;
     }
+
+    public async Task<BasePaginationResponse> GetMyRegistrationsByEvent(Request.GetMyRegistrationsByEventRequest request)
+    {
+        var userId = GetCurrentUserId();
+
+        var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == request.EventId && !x.IsDisable);
+        if (!eventExists)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        var reqPageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
+        var reqPageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
+
+        // Teams that user is an active member of
+        var myTeamIds = await _dbContext.TeamDetails
+            .Where(x => x.UserId == userId && !x.IsDisable && x.Status == TeamDetailStatusEnum.Active)
+            .Select(x => x.TeamId)
+            .ToListAsync();
+
+        var query = _dbContext.RegisterTeams
+            .AsNoTracking()
+            .Include(x => x.Team)
+            .Where(x => x.EventId == request.EventId && !x.IsDisable && myTeamIds.Contains(x.TeamId));
+
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((reqPageIndex - 1) * reqPageSize)
+            .Take(reqPageSize)
+            .Select(x => new Response.MyRegistrationByEventResponse
+            {
+                RegisterTeamId = x.Id,
+                TeamId = x.TeamId,
+                TeamName = x.Team.Name,
+                Status = x.Status.ToString()!,
+                RejectionReason = x.RejectionReason,
+                CreatedAt = x.CreatedAt
+            })
+            .ToListAsync();
+
+        return ApiResponseFactory.BasePagination(items, reqPageIndex, reqPageSize, totalCount);
+    }
 }

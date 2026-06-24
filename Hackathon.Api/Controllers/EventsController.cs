@@ -36,6 +36,14 @@ public class EventsController : ControllerBase
     }
 
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    [HttpPost("/api/v1/admin/events/{eventId:guid}/staff")]
+    public async Task<IActionResult> AssignStaffToEvent(Guid eventId, EventsService.Request.AssignStaffToEventRequest request)
+    {
+        var result = await _eventsService.AssignStaffToEvent(eventId, request);
+        return Ok(ApiResponseFactory.Base(result,201,"STAFF_ASSIGNED_TO_EVENT_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
     [HttpPatch("/api/v1/admin/events/{eventId:guid}")]
     public async Task<IActionResult> UpdateEvent(Guid eventId, EventsService.Request.UpdateEventRequest request)
     {

@@ -27,4 +27,10 @@ public static class Request
     {
         public required string Reason { get; set; }
     }
+
+    public class BanTeamRequest
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "REASON_IS_REQUIRED")]
+        public required string Reason { get; set; }
+    }
 }

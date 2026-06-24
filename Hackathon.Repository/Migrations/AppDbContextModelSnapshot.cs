@@ -34,7 +34,7 @@ namespace Hackathon.Repository.Migrations
                     b.Property<Guid>("EventId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("EventRoleId")
+                    b.Property<Guid?>("EventRoleId")
                         .HasColumnType("uuid");
 
                     b.Property<bool>("IsDisable")
@@ -2499,6 +2499,76 @@ namespace Hackathon.Repository.Migrations
                             Status = "Approved",
                             TeamId = new Guid("30000000-0000-0000-0000-000000000019"),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("31000000-0000-0000-0000-000000000020"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Description = "AI Mavericks registration for SEAL Hackathon 2026",
+                            EventId = new Guid("20000000-0000-0000-0000-000000000001"),
+                            IsBanned = false,
+                            IsDisable = false,
+                            Status = "Approved",
+                            TeamId = new Guid("30000000-0000-0000-0000-000000000020"),
+                            TopicId = new Guid("25000000-0000-0000-0000-000000000001"),
+                            TrackId = new Guid("24000000-0000-0000-0000-000000000001"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("31000000-0000-0000-0000-000000000021"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Description = "Eco Guardians registration for SEAL Hackathon 2026",
+                            EventId = new Guid("20000000-0000-0000-0000-000000000001"),
+                            IsBanned = false,
+                            IsDisable = false,
+                            Status = "Approved",
+                            TeamId = new Guid("30000000-0000-0000-0000-000000000021"),
+                            TopicId = new Guid("25000000-0000-0000-0000-000000000002"),
+                            TrackId = new Guid("24000000-0000-0000-0000-000000000002"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("31000000-0000-0000-0000-000000000022"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Description = "Code Visionaries registration for SEAL Hackathon 2026",
+                            EventId = new Guid("20000000-0000-0000-0000-000000000001"),
+                            IsBanned = false,
+                            IsDisable = false,
+                            Status = "Approved",
+                            TeamId = new Guid("30000000-0000-0000-0000-000000000022"),
+                            TopicId = new Guid("25000000-0000-0000-0000-000000000001"),
+                            TrackId = new Guid("24000000-0000-0000-0000-000000000001"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("31000000-0000-0000-0000-000000000023"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Description = "GreenTech Solutions registration for SEAL Hackathon 2026",
+                            EventId = new Guid("20000000-0000-0000-0000-000000000001"),
+                            IsBanned = false,
+                            IsDisable = false,
+                            Status = "Approved",
+                            TeamId = new Guid("30000000-0000-0000-0000-000000000023"),
+                            TopicId = new Guid("25000000-0000-0000-0000-000000000002"),
+                            TrackId = new Guid("24000000-0000-0000-0000-000000000002"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("31000000-0000-0000-0000-000000000024"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Description = "AI Builders registration for SEAL Hackathon 2026",
+                            EventId = new Guid("20000000-0000-0000-0000-000000000001"),
+                            IsBanned = false,
+                            IsDisable = false,
+                            Status = "Approved",
+                            TeamId = new Guid("30000000-0000-0000-0000-000000000024"),
+                            TopicId = new Guid("25000000-0000-0000-0000-000000000001"),
+                            TrackId = new Guid("24000000-0000-0000-0000-000000000001"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         });
                 });
 
@@ -3061,6 +3131,51 @@ namespace Hackathon.Repository.Migrations
                             RegisterTeamId = new Guid("31000000-0000-0000-0000-000000000019"),
                             RoundId = new Guid("21000000-0000-0000-0000-000000000019"),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("32000000-0000-0000-0000-000000000020"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            RegisterTeamId = new Guid("31000000-0000-0000-0000-000000000020"),
+                            RoundId = new Guid("21000000-0000-0000-0000-000000000001"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("32000000-0000-0000-0000-000000000021"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            RegisterTeamId = new Guid("31000000-0000-0000-0000-000000000021"),
+                            RoundId = new Guid("21000000-0000-0000-0000-000000000001"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("32000000-0000-0000-0000-000000000022"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            RegisterTeamId = new Guid("31000000-0000-0000-0000-000000000022"),
+                            RoundId = new Guid("21000000-0000-0000-0000-000000000001"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("32000000-0000-0000-0000-000000000023"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            RegisterTeamId = new Guid("31000000-0000-0000-0000-000000000023"),
+                            RoundId = new Guid("21000000-0000-0000-0000-000000000001"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("32000000-0000-0000-0000-000000000024"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            RegisterTeamId = new Guid("31000000-0000-0000-0000-000000000024"),
+                            RoundId = new Guid("21000000-0000-0000-0000-000000000001"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         });
                 });
 
@@ -3119,7 +3234,7 @@ namespace Hackathon.Repository.Migrations
                             Id = new Guid("21000000-0000-0000-0000-000000000001"),
                             CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Submit and validate the idea",
-                            EndSubmission = new DateTimeOffset(new DateTime(2026, 6, 21, 12, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            EndSubmission = new DateTimeOffset(new DateTime(2026, 6, 23, 23, 59, 59, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new DateTimeOffset(new DateTime(2026, 6, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EventId = new Guid("20000000-0000-0000-0000-000000000001"),
                             IsDisable = false,
@@ -3921,6 +4036,138 @@ namespace Hackathon.Repository.Migrations
                             TeamId = new Guid("30000000-0000-0000-0000-000000000019"),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UserId = new Guid("10000000-0000-0000-0000-000000000019")
+                        },
+                        new
+                        {
+                            Id = new Guid("30100000-0000-0000-0000-000000000020"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            IsLeader = true,
+                            Status = "Active",
+                            TeamId = new Guid("30000000-0000-0000-0000-000000000020"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            UserId = new Guid("10000000-0000-0000-0000-000000000030")
+                        },
+                        new
+                        {
+                            Id = new Guid("30100000-0000-0000-0000-000000000021"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            IsLeader = false,
+                            Status = "Active",
+                            TeamId = new Guid("30000000-0000-0000-0000-000000000020"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            UserId = new Guid("10000000-0000-0000-0000-000000000031")
+                        },
+                        new
+                        {
+                            Id = new Guid("30100000-0000-0000-0000-000000000022"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            IsLeader = true,
+                            Status = "Active",
+                            TeamId = new Guid("30000000-0000-0000-0000-000000000021"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            UserId = new Guid("10000000-0000-0000-0000-000000000032")
+                        },
+                        new
+                        {
+                            Id = new Guid("30100000-0000-0000-0000-000000000023"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            IsLeader = false,
+                            Status = "Active",
+                            TeamId = new Guid("30000000-0000-0000-0000-000000000021"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            UserId = new Guid("10000000-0000-0000-0000-000000000033")
+                        },
+                        new
+                        {
+                            Id = new Guid("30100000-0000-0000-0000-000000000024"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            IsLeader = false,
+                            Status = "Active",
+                            TeamId = new Guid("30000000-0000-0000-0000-000000000021"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            UserId = new Guid("10000000-0000-0000-0000-000000000034")
+                        },
+                        new
+                        {
+                            Id = new Guid("30100000-0000-0000-0000-000000000025"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            IsLeader = true,
+                            Status = "Active",
+                            TeamId = new Guid("30000000-0000-0000-0000-000000000022"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            UserId = new Guid("10000000-0000-0000-0000-000000000035")
+                        },
+                        new
+                        {
+                            Id = new Guid("30100000-0000-0000-0000-000000000026"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            IsLeader = false,
+                            Status = "Active",
+                            TeamId = new Guid("30000000-0000-0000-0000-000000000022"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            UserId = new Guid("10000000-0000-0000-0000-000000000036")
+                        },
+                        new
+                        {
+                            Id = new Guid("30100000-0000-0000-0000-000000000027"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            IsLeader = true,
+                            Status = "Active",
+                            TeamId = new Guid("30000000-0000-0000-0000-000000000023"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            UserId = new Guid("10000000-0000-0000-0000-000000000037")
+                        },
+                        new
+                        {
+                            Id = new Guid("30100000-0000-0000-0000-000000000028"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            IsLeader = false,
+                            Status = "Active",
+                            TeamId = new Guid("30000000-0000-0000-0000-000000000023"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            UserId = new Guid("10000000-0000-0000-0000-000000000038")
+                        },
+                        new
+                        {
+                            Id = new Guid("30100000-0000-0000-0000-000000000029"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            IsLeader = false,
+                            Status = "Active",
+                            TeamId = new Guid("30000000-0000-0000-0000-000000000023"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            UserId = new Guid("10000000-0000-0000-0000-000000000039")
+                        },
+                        new
+                        {
+                            Id = new Guid("30100000-0000-0000-0000-000000000030"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            IsLeader = true,
+                            Status = "Active",
+                            TeamId = new Guid("30000000-0000-0000-0000-000000000024"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            UserId = new Guid("10000000-0000-0000-0000-000000000040")
+                        },
+                        new
+                        {
+                            Id = new Guid("30100000-0000-0000-0000-000000000031"),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            IsLeader = false,
+                            Status = "Active",
+                            TeamId = new Guid("30000000-0000-0000-0000-000000000024"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            UserId = new Guid("10000000-0000-0000-0000-000000000041")
                         });
                 });
 
@@ -4057,6 +4304,51 @@ namespace Hackathon.Repository.Migrations
                             CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDisable = false,
                             Name = "Robotics Pathfinder Team",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("30000000-0000-0000-0000-000000000020"),
+                            CanEdit = true,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            Name = "AI Mavericks",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("30000000-0000-0000-0000-000000000021"),
+                            CanEdit = true,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            Name = "Eco Guardians",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("30000000-0000-0000-0000-000000000022"),
+                            CanEdit = true,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            Name = "Code Visionaries",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("30000000-0000-0000-0000-000000000023"),
+                            CanEdit = true,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            Name = "GreenTech Solutions",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("30000000-0000-0000-0000-000000000024"),
+                            CanEdit = true,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsDisable = false,
+                            Name = "AI Builders",
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         });
                 });
@@ -4996,6 +5288,294 @@ namespace Hackathon.Repository.Migrations
                             StudentId = "LECT005",
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             VerifyEmailAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000030"),
+                            Address = "Demo address",
+                            AvatarUrl = "https://robohash.org/thanh.nguyen@demo.local",
+                            Bio = "Demo user",
+                            College = "SEAL University",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DateOfBirth = new DateTimeOffset(new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Email = "thanh.nguyen@demo.local",
+                            FirstName = "Thanh",
+                            HashPassword = "$2a$11$ELUlXu.C3Yh0miS3.dAZaO17ER/stLENq.EWnMYmPBiwZ14X8g1i6",
+                            ImgUrl = "https://robohash.org/thanh.nguyen@demo.local",
+                            IsDisable = false,
+                            IsVerified = true,
+                            LastName = "Nguyen",
+                            LinkUrl = "",
+                            PhoneNumber = "0900000000",
+                            Role = 2,
+                            Status = "Active",
+                            StudentId = "SEAL030",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            VerifyEmailAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000031"),
+                            Address = "Demo address",
+                            AvatarUrl = "https://robohash.org/anh.pham@demo.local",
+                            Bio = "Demo user",
+                            College = "SEAL University",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DateOfBirth = new DateTimeOffset(new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Email = "anh.pham@demo.local",
+                            FirstName = "Anh",
+                            HashPassword = "$2a$11$ELUlXu.C3Yh0miS3.dAZaO17ER/stLENq.EWnMYmPBiwZ14X8g1i6",
+                            ImgUrl = "https://robohash.org/anh.pham@demo.local",
+                            IsDisable = false,
+                            IsVerified = true,
+                            LastName = "Pham",
+                            LinkUrl = "",
+                            PhoneNumber = "0900000000",
+                            Role = 2,
+                            Status = "Active",
+                            StudentId = "SEAL031",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            VerifyEmailAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000032"),
+                            Address = "Demo address",
+                            AvatarUrl = "https://robohash.org/minh.tran@demo.local",
+                            Bio = "Demo user",
+                            College = "SEAL University",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DateOfBirth = new DateTimeOffset(new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Email = "minh.tran@demo.local",
+                            FirstName = "Minh",
+                            HashPassword = "$2a$11$ELUlXu.C3Yh0miS3.dAZaO17ER/stLENq.EWnMYmPBiwZ14X8g1i6",
+                            ImgUrl = "https://robohash.org/minh.tran@demo.local",
+                            IsDisable = false,
+                            IsVerified = true,
+                            LastName = "Tran",
+                            LinkUrl = "",
+                            PhoneNumber = "0900000000",
+                            Role = 2,
+                            Status = "Active",
+                            StudentId = "SEAL032",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            VerifyEmailAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000033"),
+                            Address = "Demo address",
+                            AvatarUrl = "https://robohash.org/hoa.le@demo.local",
+                            Bio = "Demo user",
+                            College = "SEAL University",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DateOfBirth = new DateTimeOffset(new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Email = "hoa.le@demo.local",
+                            FirstName = "Hoa",
+                            HashPassword = "$2a$11$ELUlXu.C3Yh0miS3.dAZaO17ER/stLENq.EWnMYmPBiwZ14X8g1i6",
+                            ImgUrl = "https://robohash.org/hoa.le@demo.local",
+                            IsDisable = false,
+                            IsVerified = true,
+                            LastName = "Le",
+                            LinkUrl = "",
+                            PhoneNumber = "0900000000",
+                            Role = 2,
+                            Status = "Active",
+                            StudentId = "SEAL033",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            VerifyEmailAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000034"),
+                            Address = "Demo address",
+                            AvatarUrl = "https://robohash.org/binh.hoang@demo.local",
+                            Bio = "Demo user",
+                            College = "SEAL University",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DateOfBirth = new DateTimeOffset(new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Email = "binh.hoang@demo.local",
+                            FirstName = "Binh",
+                            HashPassword = "$2a$11$ELUlXu.C3Yh0miS3.dAZaO17ER/stLENq.EWnMYmPBiwZ14X8g1i6",
+                            ImgUrl = "https://robohash.org/binh.hoang@demo.local",
+                            IsDisable = false,
+                            IsVerified = true,
+                            LastName = "Hoang",
+                            LinkUrl = "",
+                            PhoneNumber = "0900000000",
+                            Role = 2,
+                            Status = "Active",
+                            StudentId = "SEAL034",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            VerifyEmailAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000035"),
+                            Address = "Demo address",
+                            AvatarUrl = "https://robohash.org/lan.vu@demo.local",
+                            Bio = "Demo user",
+                            College = "SEAL University",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DateOfBirth = new DateTimeOffset(new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Email = "lan.vu@demo.local",
+                            FirstName = "Lan",
+                            HashPassword = "$2a$11$ELUlXu.C3Yh0miS3.dAZaO17ER/stLENq.EWnMYmPBiwZ14X8g1i6",
+                            ImgUrl = "https://robohash.org/lan.vu@demo.local",
+                            IsDisable = false,
+                            IsVerified = true,
+                            LastName = "Vu",
+                            LinkUrl = "",
+                            PhoneNumber = "0900000000",
+                            Role = 2,
+                            Status = "Active",
+                            StudentId = "SEAL035",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            VerifyEmailAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000036"),
+                            Address = "Demo address",
+                            AvatarUrl = "https://robohash.org/tuan.do@demo.local",
+                            Bio = "Demo user",
+                            College = "SEAL University",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DateOfBirth = new DateTimeOffset(new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Email = "tuan.do@demo.local",
+                            FirstName = "Tuan",
+                            HashPassword = "$2a$11$ELUlXu.C3Yh0miS3.dAZaO17ER/stLENq.EWnMYmPBiwZ14X8g1i6",
+                            ImgUrl = "https://robohash.org/tuan.do@demo.local",
+                            IsDisable = false,
+                            IsVerified = true,
+                            LastName = "Do",
+                            LinkUrl = "",
+                            PhoneNumber = "0900000000",
+                            Role = 2,
+                            Status = "Active",
+                            StudentId = "SEAL036",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            VerifyEmailAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000037"),
+                            Address = "Demo address",
+                            AvatarUrl = "https://robohash.org/hieu.nguyen@demo.local",
+                            Bio = "Demo user",
+                            College = "SEAL University",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DateOfBirth = new DateTimeOffset(new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Email = "hieu.nguyen@demo.local",
+                            FirstName = "Hieu",
+                            HashPassword = "$2a$11$ELUlXu.C3Yh0miS3.dAZaO17ER/stLENq.EWnMYmPBiwZ14X8g1i6",
+                            ImgUrl = "https://robohash.org/hieu.nguyen@demo.local",
+                            IsDisable = false,
+                            IsVerified = true,
+                            LastName = "Nguyen",
+                            LinkUrl = "",
+                            PhoneNumber = "0900000000",
+                            Role = 2,
+                            Status = "Active",
+                            StudentId = "SEAL037",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            VerifyEmailAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000038"),
+                            Address = "Demo address",
+                            AvatarUrl = "https://robohash.org/quynh.pham@demo.local",
+                            Bio = "Demo user",
+                            College = "SEAL University",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DateOfBirth = new DateTimeOffset(new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Email = "quynh.pham@demo.local",
+                            FirstName = "Quynh",
+                            HashPassword = "$2a$11$ELUlXu.C3Yh0miS3.dAZaO17ER/stLENq.EWnMYmPBiwZ14X8g1i6",
+                            ImgUrl = "https://robohash.org/quynh.pham@demo.local",
+                            IsDisable = false,
+                            IsVerified = true,
+                            LastName = "Pham",
+                            LinkUrl = "",
+                            PhoneNumber = "0900000000",
+                            Role = 2,
+                            Status = "Active",
+                            StudentId = "SEAL038",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            VerifyEmailAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000039"),
+                            Address = "Demo address",
+                            AvatarUrl = "https://robohash.org/nam.hoang@demo.local",
+                            Bio = "Demo user",
+                            College = "SEAL University",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DateOfBirth = new DateTimeOffset(new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Email = "nam.hoang@demo.local",
+                            FirstName = "Nam",
+                            HashPassword = "$2a$11$ELUlXu.C3Yh0miS3.dAZaO17ER/stLENq.EWnMYmPBiwZ14X8g1i6",
+                            ImgUrl = "https://robohash.org/nam.hoang@demo.local",
+                            IsDisable = false,
+                            IsVerified = true,
+                            LastName = "Hoang",
+                            LinkUrl = "",
+                            PhoneNumber = "0900000000",
+                            Role = 2,
+                            Status = "Active",
+                            StudentId = "SEAL039",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            VerifyEmailAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000040"),
+                            Address = "Demo address",
+                            AvatarUrl = "https://robohash.org/khoa.le@demo.local",
+                            Bio = "Demo user",
+                            College = "SEAL University",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DateOfBirth = new DateTimeOffset(new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Email = "khoa.le@demo.local",
+                            FirstName = "Khoa",
+                            HashPassword = "$2a$11$ELUlXu.C3Yh0miS3.dAZaO17ER/stLENq.EWnMYmPBiwZ14X8g1i6",
+                            ImgUrl = "https://robohash.org/khoa.le@demo.local",
+                            IsDisable = false,
+                            IsVerified = true,
+                            LastName = "Le",
+                            LinkUrl = "",
+                            PhoneNumber = "0900000000",
+                            Role = 2,
+                            Status = "Active",
+                            StudentId = "SEAL040",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            VerifyEmailAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000041"),
+                            Address = "Demo address",
+                            AvatarUrl = "https://robohash.org/thu.tran@demo.local",
+                            Bio = "Demo user",
+                            College = "SEAL University",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DateOfBirth = new DateTimeOffset(new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Email = "thu.tran@demo.local",
+                            FirstName = "Thu",
+                            HashPassword = "$2a$11$ELUlXu.C3Yh0miS3.dAZaO17ER/stLENq.EWnMYmPBiwZ14X8g1i6",
+                            ImgUrl = "https://robohash.org/thu.tran@demo.local",
+                            IsDisable = false,
+                            IsVerified = true,
+                            LastName = "Tran",
+                            LinkUrl = "",
+                            PhoneNumber = "0900000000",
+                            Role = 2,
+                            Status = "Active",
+                            StudentId = "SEAL041",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            VerifyEmailAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         });
                 });
 
@@ -5009,9 +5589,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasOne("Hackathon.Repository.Entity.EventRoles", "EventRole")
                         .WithMany("AssignEvents")
-                        .HasForeignKey("EventRoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("EventRoleId");
 
                     b.HasOne("Hackathon.Repository.Entity.Users", "User")
                         .WithMany("AssignEvents")

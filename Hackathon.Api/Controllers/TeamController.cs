@@ -93,4 +93,12 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
         var result = await _teamService.GetLatestRegisteredEvent(teamId);
         return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
+
+    [Authorize(Policy = JwtExtensions.StudentPolicy)]
+    [HttpGet("my-registrations")]
+    public async Task<IActionResult> GetMyRegistrationsByEvent([FromQuery] TeamsService.Request.GetMyRegistrationsByEventRequest request)
+    {
+        var result = await _teamService.GetMyRegistrationsByEvent(request);
+        return Ok(result);
+    }
 }

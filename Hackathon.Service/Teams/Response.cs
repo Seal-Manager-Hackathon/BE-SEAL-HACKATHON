@@ -56,4 +56,14 @@ public static class Response
         public string Status { get; set; } = null!;
         public DateTimeOffset CreatedAt { get; set; }
     }
+
+    public class MyRegistrationByEventResponse
+    {
+        public Guid RegisterTeamId { get; set; }
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = null!;
+        public string Status { get; set; } = null!;
+        public string? RejectionReason { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+    }
 }
