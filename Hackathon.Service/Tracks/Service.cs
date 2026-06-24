@@ -215,10 +215,24 @@ public class Service : IService
 
     public async Task<Response.TeamTrackAssignmentResponse> AssignTrackToTeam(Guid teamId, Request.AssignTrackToTeamRequest request)
     {
+        if (request.EventId == Guid.Empty)
+        {
+            throw new BadRequestException("EVENT_ID_REQUIRED");
+        }
+
         if (request.TrackId == Guid.Empty)
         {
             throw new BadRequestException("TRACK_ID_REQUIRED");
         }
+
+        var staffId = GetCurrentUserId();
+        var staffUser = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == staffId && !x.IsDisable);
+        if (staffUser == null || staffUser.Role != RoleEnum.Staff)
+        {
+            throw new ForbiddenException("FORBIDDEN");
+        }
+
+        await EnsureStaffAssignedToEvent(request.EventId);
 
         var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
         if (team == null)
@@ -234,19 +248,27 @@ public class Service : IService
             throw new NotFoundException("TRACK_NOT_FOUND");
         }
 
+        if (track.EventId != request.EventId)
+        {
+            throw new ConflictException("TRACK_NOT_IN_EVENT");
+        }
+
         if (track.Event.IsDisable)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
 
-        await EnsureStaffAssignedToEvent(track.EventId);
-
         var registerTeam = await _dbContext.RegisterTeams.FirstOrDefaultAsync(x => x.TeamId == teamId
-            && x.EventId == track.EventId
+            && x.EventId == request.EventId
             && !x.IsDisable);
         if (registerTeam == null)
         {
             throw new NotFoundException("REGISTER_TEAM_NOT_FOUND");
+        }
+
+        if (registerTeam.TrackId == track.Id)
+        {
+            throw new ConflictException("TRACK_ALREADY_ASSIGNED");
         }
 
         if (registerTeam.Status != RegisterTeamStatusEnum.Approved)
@@ -289,10 +311,24 @@ public class Service : IService
 
     public async Task<Response.TeamTopicAssignmentResponse> AssignTopicToTeam(Guid teamId, Request.AssignTopicToTeamRequest request)
     {
+        if (request.EventId == Guid.Empty)
+        {
+            throw new BadRequestException("EVENT_ID_REQUIRED");
+        }
+
         if (request.TopicId == Guid.Empty)
         {
             throw new BadRequestException("TOPIC_ID_REQUIRED");
         }
+
+        var staffId = GetCurrentUserId();
+        var staffUser = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == staffId && !x.IsDisable);
+        if (staffUser == null || staffUser.Role != RoleEnum.Staff)
+        {
+            throw new ForbiddenException("FORBIDDEN");
+        }
+
+        await EnsureStaffAssignedToEvent(request.EventId);
 
         var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
         if (team == null)
@@ -308,19 +344,27 @@ public class Service : IService
             throw new NotFoundException("TOPIC_NOT_FOUND");
         }
 
+        if (topic.Track.EventId != request.EventId)
+        {
+            throw new ConflictException("TOPIC_NOT_IN_EVENT");
+        }
+
         if (topic.Track.IsDisable)
         {
             throw new NotFoundException("TRACK_NOT_FOUND");
         }
 
-        await EnsureStaffAssignedToEvent(topic.Track.EventId);
-
         var registerTeam = await _dbContext.RegisterTeams.FirstOrDefaultAsync(x => x.TeamId == teamId
-            && x.EventId == topic.Track.EventId
+            && x.EventId == request.EventId
             && !x.IsDisable);
         if (registerTeam == null)
         {
             throw new NotFoundException("REGISTER_TEAM_NOT_FOUND");
+        }
+
+        if (registerTeam.TopicId == topic.Id)
+        {
+            throw new ConflictException("TOPIC_ALREADY_ASSIGNED");
         }
 
         if (registerTeam.Status != RegisterTeamStatusEnum.Approved)
