@@ -7,7 +7,7 @@ Lấy danh sách các bài nộp (submissions) của một vòng thi cụ thể 
 `GET /api/v1/rounds/{roundId}/submissions`
 
 ## Authorization
-Yêu cầu access token hợp lệ.
+Yêu cầu access token hợp lệ. Chỉ trả về các bài nộp của team mà user là thành viên active.
 
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
@@ -60,14 +60,13 @@ Không có.
     "totalCount": 2,
     "hasNextPage": false,
     "hasPreviousPage": false
-  },
-  "message": "SUCCESS"
+  }
 }
 ```
 
 ## Business rules
 - Vòng thi (`roundId`) phải tồn tại và chưa bị vô hiệu hóa (`IsDisable = false`).
-- Chỉ trả về các bài nộp thuộc vòng thi được chỉ định và chưa bị vô hiệu hóa.
+- Chỉ trả về các bài nộp thuộc vòng thi được chỉ định, chưa bị vô hiệu hóa và thuộc team mà user là thành viên active.
 - Danh sách trả về được sắp xếp theo thời gian nộp bài (`SubmittedAt`) giảm dần (mới nhất lên đầu).
 - Thuộc tính `totalScore` sẽ lấy tổng điểm từ bảng điểm (`Scores`) mới nhất liên quan đến bài nộp. Có thể `null` nếu bài nộp chưa được chấm điểm.
 

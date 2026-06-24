@@ -21,6 +21,8 @@ using TracksService = Hackathon.Service.Tracks;
 using CriticalsService = Hackathon.Service.Criticals;
 using UserService = Hackathon.Service.Users;
 using LeaderBoardsService = Hackathon.Service.LeaderBoards;
+using SubmissionsService = Hackathon.Service.Submissions;
+using MentorsService = Hackathon.Service.Mentors;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -98,6 +100,7 @@ builder.Services.AddScoped<MailServices.IService, MailServices.Service>();
 builder.Services.AddScoped<EventsService.IService, EventsService.Service>();
 builder.Services.AddScoped<InvitationsService.IService, InvitationsService.Service>();
 builder.Services.AddScoped<RoundsService.IService, RoundsService.Service>();
+builder.Services.AddScoped<SubmissionsService.IService, SubmissionsService.Service>();
 builder.Services.AddScoped<TeamsService.IService, TeamsService.Service>();
 builder.Services.AddScoped<RegisterTeamsService.IService, RegisterTeamsService.Service>();
 builder.Services.AddScoped<TracksService.IService, TracksService.Service>();
@@ -105,6 +108,9 @@ builder.Services.AddScoped<CriticalsService.IService, CriticalsService.Service>(
 builder.Services.AddScoped<UserService.IService, UserService.Service>();
 builder.Services.AddScoped<Hackathon.Service.Topics.IService, Hackathon.Service.Topics.Service>();
 builder.Services.AddScoped<LeaderBoardsService.IService, LeaderBoardsService.Service>();
+builder.Services.AddScoped<Hackathon.Service.AssignEvents.IService, Hackathon.Service.AssignEvents.Service>();
+builder.Services.AddScoped<Hackathon.Service.AssignTracks.IService, Hackathon.Service.AssignTracks.Service>();
+builder.Services.AddScoped<MentorsService.IService, MentorsService.Service>();
 
 
 builder.Services.AddCors(options =>

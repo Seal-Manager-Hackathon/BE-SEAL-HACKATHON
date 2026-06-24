@@ -1,62 +1,95 @@
-# Register team for event
+# Đăng ký tham gia Event (Team nộp đơn)
 
 ## Tác dụng
-Cho phép team đăng ký tham gia một event. Sau khi đăng ký, đơn sẽ ở trạng thái `Pending` chờ Staff/Admin duyệt.
+Cho phép Student (phải là Nhóm trưởng - Leader) nộp đơn đăng ký tham gia một sự kiện (Event) thay mặt cho Team của mình.
 
 ## URL
 `POST /api/v1/register-teams`
 
 ## Authorization
-Yêu cầu access token hợp lệ (Student đã đăng nhập).
+Yêu cầu Access Token của người dùng với Role `Student`.
+
+## Path parameters
+Không có.
+
+## Query parameters
+Không có.
 
 ## Request body
 ```json
 {
+  "teamId": "guid",
   "eventId": "guid",
-  "teamId": "guid"
+  "description": "string (Tùy chọn - Lời nhắn gửi tới Ban tổ chức)"
 }
 ```
 
-| Field | Kiểu dữ liệu | Bắt buộc | Mô tả |
-|---|---|---:|---|
-| `eventId` | `guid` | Có | Id của event muốn đăng ký. |
-| `teamId` | `guid` | Có | Id của team sẽ tham gia event. |
+| Field | Type | Bắt buộc | Mô tả |
+|---|---|---|---|
+| `teamId` | `guid` | Có | ID của Team mà User đang là nhóm trưởng. |
+| `eventId` | `guid` | Có | ID của Event mà Team muốn tham gia. |
+| `description` | `string` | Không | Mô tả, định hướng hoặc lời giới thiệu của nhóm. |
+
+## Ví dụ request
+```http
+POST /api/v1/register-teams
+Content-Type: application/json
+
+{
+  "teamId": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+  "eventId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+  "description": "Chúng em rất mong được tham gia cuộc thi này."
+}
+```
 
 ## Response body
-Response dùng `ApiResponseFactory.Base(data)`.
+Response dùng `ApiResponseFactory.Base(...)`.
 
 ```json
 {
   "isSuccess": true,
   "isFailed": false,
   "error": null,
-  "status": 200,
-  "traceId": "string|null",
-  "timestampUtc": "datetime",
-  "data": {
-    "id": "guid",
-    "teamId": "guid",
-    "eventId": "guid",
-    "status": 0
-  },
-  "message": "REGISTERED_SUCCESSFULLY"
+  "traceId": "...",
+  "timestampUtc": "2026-06-19T10:00:00.0000000Z",
+  "value": {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "teamId": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+    "teamName": "Tên team",
+    "eventId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+    "eventName": "Tên sự kiện",
+    "status": 0 /* Pending */,
+    "rejectionReason": null,
+    "message": "Đăng ký thành công, ban tổ chức đang xét duyệt bạn."
+  }
 }
 ```
 
 ## Business rules
-- Student phải đăng nhập và là leader của team.
-- Event phải tồn tại, không bị disable và đang ở trạng thái `Published`.
-- Team không được đăng ký event đã tham gia trước đó.
-- Mỗi team chỉ được đăng ký một event một lần.
-- Nếu team đã bị khóa (`CanEdit = false`) tức đang tham gia một event khác, không thể đăng ký thêm.
+- User phải có Role `Student` và tài khoản không bị khóa, đã xác minh.
+- User hiện tại bắt buộc phải là **Nhóm trưởng (Leader)** của cái `teamId` truyền vào.
+- Event phải tồn tại, đang mở đăng ký (`IsDisable = false`), và hiện tại phải nhỏ hơn `RegisterLimitTime` (nếu có).
+- Số lượng thành viên Active của Team phải thỏa mãn điều kiện `MinMember` và `MaxMember` của Event.
+- Nếu Event có giới hạn số đội (`LimitTeam`), hệ thống sẽ kiểm tra xem đã đủ số lượng đội (Pending + Approved) chưa. Nếu đã đủ, sẽ báo lỗi `EVENT_REACHED_MAX_TEAMS_LIMIT`.
+- Nếu Team đã từng nộp đơn vào Event này:
+  - Nếu đang ở trạng thái `Pending` hoặc `Approved`: Trả lỗi `TEAM_ALREADY_REGISTERED_FOR_EVENT`.
+  - Nếu đã bị từ chối (`Rejected`): Chấp nhận cho gửi lại đơn mới, cập nhật trạng thái đơn đó thành `Pending` và ghi lại mô tả mới.
+- Nếu Team đã từng nộp đơn và được `Approved` ở MỘT Event KHÁC, họ sẽ KHÔNG được phép đăng ký thêm Event này nữa (báo lỗi `TEAM_ALREADY_APPROVED_FOR_AN_EVENT`).
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
-|---:|---|---|
-| 401 | UNAUTHORIZED | ACCESS_TOKEN_IS_MISSING |
-| 404 | NOT_FOUND | EVENT_NOT_FOUND |
-| 404 | NOT_FOUND | TEAM_NOT_FOUND |
-| 400 | BAD_REQUEST | TEAM_ALREADY_REGISTERED |
-| 400 | BAD_REQUEST | EVENT_NOT_PUBLISHED |
-| 400 | BAD_REQUEST | TEAM_CANNOT_REGISTER |
-| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
+|---|---|---|
+| 400 | BAD_REQUEST | TEAM_ID_REQUIRED, EVENT_ID_REQUIRED |
+| 400 | BAD_REQUEST | EVENT_REGISTRATION_CLOSED |
+| 400 | BAD_REQUEST | TEAM_DOES_NOT_MEET_MIN_MEMBERS_X |
+| 400 | BAD_REQUEST | TEAM_EXCEEDS_MAX_MEMBERS_X |
+| 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
+| 403 | FORBIDDEN | CURRENT_USER_MUST_BE_STUDENT |
+| 403 | FORBIDDEN | ONLY_TEAM_LEADER_CAN_REGISTER_EVENT |
+| 403 | FORBIDDEN | TEAM_ALREADY_APPROVED_FOR_AN_EVENT |
+| 404 | NOT_FOUND | TEAM_NOT_FOUND, EVENT_NOT_FOUND, USER_NOT_FOUND |
+| 409 | CONFLICT | TEAM_ALREADY_REGISTERED_FOR_EVENT |
+| 409 | CONFLICT | EVENT_REACHED_MAX_TEAMS_LIMIT |
+
+## Ghi chú Enum
+Tham chiếu file [00-enum-values.md](00-enum-values.md) để biết chi tiết các giá trị số (int) trả về cho các trường Trạng thái (Status).
