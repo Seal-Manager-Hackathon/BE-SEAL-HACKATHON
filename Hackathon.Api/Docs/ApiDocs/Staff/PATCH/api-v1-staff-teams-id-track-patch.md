@@ -4,7 +4,7 @@
 Staff gán một track cho team đã đăng ký event, để xác định team thuộc track nào trong event đó.
 
 ## URL
-`PATCH /api/v1/staff/teams/{teamId}/track`
+`PATCH /api/v1/staff/events/{eventId}/teams/{teamId}/track`
 
 ## Authorization
 Yêu cầu access token hợp lệ với role `Staff`.
@@ -12,12 +12,12 @@ Yêu cầu access token hợp lệ với role `Staff`.
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
 |---|---|---:|---|
+| `eventId` | `guid` | Có | Id của event diễn ra. |
 | `teamId` | `guid` | Có | Id của team cần được gán track. |
 
 ## Request body
 ```json
 {
-  "eventId": "guid",
   "trackId": "guid"
 }
 ```
@@ -64,7 +64,7 @@ Yêu cầu access token hợp lệ với role `Staff`.
 | 400 | BAD_REQUEST | TRACK_ID_REQUIRED |
 | 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
-| 403 | FORBIDDEN | FORBIDDEN (khi gọi không có quyền Staff) |
+| 403 | FORBIDDEN | FORBIDDEN |
 | 403 | FORBIDDEN | STAFF_NOT_ASSIGNED_TO_EVENT |
 | 403 | FORBIDDEN | REGISTER_TEAM_NOT_APPROVED |
 | 404 | NOT_FOUND | TEAM_NOT_FOUND |

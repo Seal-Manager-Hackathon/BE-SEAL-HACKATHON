@@ -213,9 +213,9 @@ public class Service : IService
         return ApiResponseFactory.BasePagination(items, paginationRequest.PageIndex, paginationRequest.PageSize, totalCount);
     }
 
-    public async Task<Response.TeamTrackAssignmentResponse> AssignTrackToTeam(Guid teamId, Request.AssignTrackToTeamRequest request)
+    public async Task<Response.TeamTrackAssignmentResponse> AssignTrackToTeam(Guid eventId, Guid teamId, Request.AssignTrackToTeamRequest request)
     {
-        if (request.EventId == Guid.Empty)
+        if (eventId == Guid.Empty)
         {
             throw new BadRequestException("EVENT_ID_REQUIRED");
         }
@@ -232,7 +232,7 @@ public class Service : IService
             throw new ForbiddenException("FORBIDDEN");
         }
 
-        await EnsureStaffAssignedToEvent(request.EventId);
+        await EnsureStaffAssignedToEvent(eventId);
 
         var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
         if (team == null)
@@ -248,7 +248,7 @@ public class Service : IService
             throw new NotFoundException("TRACK_NOT_FOUND");
         }
 
-        if (track.EventId != request.EventId)
+        if (track.EventId != eventId)
         {
             throw new ConflictException("TRACK_NOT_IN_EVENT");
         }
@@ -259,7 +259,7 @@ public class Service : IService
         }
 
         var registerTeam = await _dbContext.RegisterTeams.FirstOrDefaultAsync(x => x.TeamId == teamId
-            && x.EventId == request.EventId
+            && x.EventId == eventId
             && !x.IsDisable);
         if (registerTeam == null)
         {
@@ -309,9 +309,9 @@ public class Service : IService
         };
     }
 
-    public async Task<Response.TeamTopicAssignmentResponse> AssignTopicToTeam(Guid teamId, Request.AssignTopicToTeamRequest request)
+    public async Task<Response.TeamTopicAssignmentResponse> AssignTopicToTeam(Guid eventId, Guid teamId, Request.AssignTopicToTeamRequest request)
     {
-        if (request.EventId == Guid.Empty)
+        if (eventId == Guid.Empty)
         {
             throw new BadRequestException("EVENT_ID_REQUIRED");
         }
@@ -328,7 +328,7 @@ public class Service : IService
             throw new ForbiddenException("FORBIDDEN");
         }
 
-        await EnsureStaffAssignedToEvent(request.EventId);
+        await EnsureStaffAssignedToEvent(eventId);
 
         var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
         if (team == null)
@@ -344,7 +344,7 @@ public class Service : IService
             throw new NotFoundException("TOPIC_NOT_FOUND");
         }
 
-        if (topic.Track.EventId != request.EventId)
+        if (topic.Track.EventId != eventId)
         {
             throw new ConflictException("TOPIC_NOT_IN_EVENT");
         }
@@ -355,7 +355,7 @@ public class Service : IService
         }
 
         var registerTeam = await _dbContext.RegisterTeams.FirstOrDefaultAsync(x => x.TeamId == teamId
-            && x.EventId == request.EventId
+            && x.EventId == eventId
             && !x.IsDisable);
         if (registerTeam == null)
         {

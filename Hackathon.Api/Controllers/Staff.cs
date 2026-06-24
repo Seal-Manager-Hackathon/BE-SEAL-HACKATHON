@@ -66,18 +66,18 @@ public class Staff : ControllerBase
     }
 
     [Authorize(Policy = JwtExtensions.StaffPolicy)]
-    [HttpPatch("teams/{teamId:guid}/track")]
-    public async Task<IActionResult> AssignTrackToTeam(Guid teamId, TracksService.Request.AssignTrackToTeamRequest request)
+    [HttpPatch("events/{eventId:guid}/teams/{teamId:guid}/track")]
+    public async Task<IActionResult> AssignTrackToTeam(Guid eventId, Guid teamId, TracksService.Request.AssignTrackToTeamRequest request)
     {
-        var result = await _tracksService.AssignTrackToTeam(teamId, request);
+        var result = await _tracksService.AssignTrackToTeam(eventId, teamId, request);
         return Ok(ApiResponseFactory.Base(result, 200,"TRACK_ASSIGNED_TO_TEAM_SUCCESSFULLY",traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.StaffPolicy)]
-    [HttpPatch("teams/{teamId:guid}/topic")]
-    public async Task<IActionResult> AssignTopicToTeam(Guid teamId, TracksService.Request.AssignTopicToTeamRequest request)
+    [HttpPatch("events/{eventId:guid}/teams/{teamId:guid}/topic")]
+    public async Task<IActionResult> AssignTopicToTeam(Guid eventId, Guid teamId, TracksService.Request.AssignTopicToTeamRequest request)
     {
-        var result = await _tracksService.AssignTopicToTeam(teamId, request);
+        var result = await _tracksService.AssignTopicToTeam(eventId, teamId, request);
         return Ok(ApiResponseFactory.Base(result, 200,"TOPIC_ASSIGNED_TO_TEAM_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
