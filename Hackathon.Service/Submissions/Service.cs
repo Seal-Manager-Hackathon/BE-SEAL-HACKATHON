@@ -52,7 +52,7 @@ public class Service : IService
             Status = submission.Status?.ToString(),
             SubmittedAt = submission.SubmittedAt,
             GradingStatus = scoreResponse == null ? "NotGraded" : "Graded",
-            Message = scoreResponse == null ? "Bài chưa được chấm" : null,
+            Message = scoreResponse == null ? "NOT_GRADED" : null,
             Score = scoreResponse,
         };
     }
