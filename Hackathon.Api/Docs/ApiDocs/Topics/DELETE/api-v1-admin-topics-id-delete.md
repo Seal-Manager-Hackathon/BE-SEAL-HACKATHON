@@ -20,12 +20,12 @@ Staff hoặc Admin (Yêu cầu đăng nhập tài khoản BTC)
 *Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
+  "isSuccess": true,
+  "isFailed": false,
   "Value": "TOPIC_DELETED_SUCCESSFULLY",
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
@@ -39,13 +39,13 @@ Staff hoặc Admin (Yêu cầu đăng nhập tài khoản BTC)
 
 ```json
 {
-  "Title": "Not Found",
-  "Status": 404,
+  "title": "Not Found",
+  "status": 404,
   "Detail": "Không tìm thấy đề thi.",
-  "MessageCode": "TOPIC_NOT_FOUND",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "messageCode": "TOPIC_NOT_FOUND",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 

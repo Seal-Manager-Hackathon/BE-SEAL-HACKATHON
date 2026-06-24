@@ -20,8 +20,8 @@ Mentor phụ trách track (Yêu cầu đăng nhập tài khoản Giảng viên �
 *Cấu trúc trả về dạng `BaseResponse` chứa danh sách team thi đấu.*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
+  "isSuccess": true,
+  "isFailed": false,
   "Value": [
     {
       "teamId": "c4b5a6d7-e8f9-0a1b-2c3d-4e5f6a7b8c9d",
@@ -32,9 +32,9 @@ Mentor phụ trách track (Yêu cầu đăng nhập tài khoản Giảng viên �
       "memberCount": 5
     }
   ],
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
@@ -48,13 +48,13 @@ Mentor phụ trách track (Yêu cầu đăng nhập tài khoản Giảng viên �
 
 ```json
 {
-  "Title": "Forbidden",
-  "Status": 403,
+  "title": "Forbidden",
+  "status": 403,
   "Detail": "Bạn không được phân công hướng dẫn bảng đấu này.",
-  "MessageCode": "FORBIDDEN",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "messageCode": "FORBIDDEN",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 

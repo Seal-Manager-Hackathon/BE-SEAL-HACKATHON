@@ -19,7 +19,7 @@ Staff hoặc Admin (Yêu cầu đăng nhập tài khoản BTC)
 ## Request Body
 ```json
 {
-  "Title": "Hệ thống số hóa y tế - Cập nhật",
+  "title": "Hệ thống số hóa y tế - Cập nhật",
   "description": "Mô tả đề thi cập nhật mới."
 }
 ```
@@ -28,12 +28,12 @@ Staff hoặc Admin (Yêu cầu đăng nhập tài khoản BTC)
 *Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
+  "isSuccess": true,
+  "isFailed": false,
   "Value": "TOPIC_UPDATED_SUCCESSFULLY",
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
@@ -47,13 +47,13 @@ Staff hoặc Admin (Yêu cầu đăng nhập tài khoản BTC)
 
 ```json
 {
-  "Title": "Not Found",
-  "Status": 404,
+  "title": "Not Found",
+  "status": 404,
   "Detail": "Không tìm thấy đề bài thi đấu để chỉnh sửa.",
-  "MessageCode": "TOPIC_NOT_FOUND",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "messageCode": "TOPIC_NOT_FOUND",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 

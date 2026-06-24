@@ -32,14 +32,14 @@ Không có.
 ### Trường hợp đã có kết quả chấm
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Status": 200,
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z",
-  "Message": "SUCCESS",
-  "Data": {
+  "isSuccess": true,
+  "isFailed": false,
+  "status": 200,
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "message": "SUCCESS",
+  "data": {
     "submissionId": "f7b6d5c4-129b-4e6f-adbd-2c5ea56789ff",
     "roundDetailId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "roundId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
@@ -71,14 +71,14 @@ Không có.
 ### Trường hợp chưa có kết quả chấm
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Status": 200,
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z",
-  "Message": "NOT_GRADED",
-  "Data": {
+  "isSuccess": true,
+  "isFailed": false,
+  "status": 200,
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "message": "NOT_GRADED",
+  "data": {
     "submissionId": "f7b6d5c4-129b-4e6f-adbd-2c5ea56789ff",
     "roundDetailId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "roundId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
