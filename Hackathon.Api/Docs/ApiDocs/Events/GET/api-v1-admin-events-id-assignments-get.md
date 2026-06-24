@@ -6,23 +6,24 @@ Cho phép Admin xem danh sách toàn bộ các nhân sự (Staff, Giảng viên)
 ## URL
 `GET /api/v1/admin/events/{eventId}/assignments`
 
-## Quyền
-Admin-only (Yêu cầu đăng nhập tài khoản Admin)
+## Authorization
+Yêu cầu access token hợp lệ với role `Admin`.
 
-## Request Headers
-- \`Authorization: Bearer <AccessToken>\`
+## Path parameters
+| Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
+|---|---|---:|---|
+| `eventId` | `guid` | Có | ID của sự kiện. |
 
-## Request Parameters
-*   **Path Parameters:**
-    *   `eventId` (Guid, Bắt buộc): ID của sự kiện.
-
-## Response body (Success - 200 OK)
-*Cấu trúc trả về dạng `BaseResponse` chứa danh sách các bản ghi phân công.*
+## Response body
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Value": [
+  "isSuccess": true,
+  "isFailed": false,
+  "error": null,
+  "status": 200,
+  "traceId": "string|null",
+  "timestampUtc": "datetime",
+  "data": [
     {
       "assignEventId": "b1a7d6c2-4821-4f9b-bd5e-3c2fa56789e0",
       "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -39,9 +40,7 @@ Admin-only (Yêu cầu đăng nhập tài khoản Admin)
       ]
     }
   ],
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "message": "SUCCESS"
 }
 ```
 
@@ -56,24 +55,13 @@ Admin-only (Yêu cầu đăng nhập tài khoản Admin)
 | `1` | Judge | Giám khảo chấm điểm bài thi |
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn \`ErrorResponse\`:*
-
-```json
-{
-  "Title": "Forbidden",
-  "Status": 403,
-  "Detail": "Không có quyền quản lý danh sách phân công.",
-  "MessageCode": "FORBIDDEN",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
-}
-```
-
-### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 401 | UNAUTHORIZED | Access token không hợp lệ hoặc thiếu. |
-| 403 | FORBIDDEN | Người gọi không phải Admin toàn cục. |
-| 404 | EVENT_NOT_FOUND | Event không tồn tại. |
-| 500 | INTERNAL_SERVER_ERROR | Lỗi máy chủ phát sinh. |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
+| 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
+| 403 | FORBIDDEN | FORBIDDEN |
+| 404 | NOT_FOUND | EVENT_NOT_FOUND |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
+
+## Trạng thái implement
+- ⏳ **Đề xuất**: Chưa implement trong code hiện tại. Entity: `AssignEvents` + `EventRoles`.

@@ -6,23 +6,24 @@ Xem danh sách cơ cấu giải thưởng của một event thi đấu (hạng m
 ## URL
 `GET /api/v1/events/{eventId}/awards`
 
-## Quyền
-Public API (Không yêu cầu đăng nhập)
+## Authorization
+Public (không yêu cầu access token).
 
-## Request Parameters
-*   **Path Parameters:**
-    *   `eventId` (Guid, Bắt buộc): ID của event.
+## Path parameters
+| Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
+|---|---|---:|---|
+| `eventId` | `guid` | Có | ID của event. |
 
-## Response body (Success - 200 OK)
-*Cấu trúc trả về dạng `BaseResponse` chứa danh sách giải thưởng.*
+## Response body
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z",
-  "Value": [
+  "isSuccess": true,
+  "isFailed": false,
+  "error": null,
+  "status": 200,
+  "traceId": "string|null",
+  "timestampUtc": "datetime",
+  "data": [
     {
       "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
       "name": "Giải Nhất",
@@ -31,7 +32,8 @@ Public API (Không yêu cầu đăng nhập)
       "numberOfAward": 1,
       "prize": 10000000
     }
-  ]
+  ],
+  "message": "SUCCESS"
 }
 ```
 
@@ -41,22 +43,10 @@ Public API (Không yêu cầu đăng nhập)
 - Public: không yêu cầu xác thực.
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse`:*
-
-```json
-{
-  "Title": "Not Found",
-  "Status": 404,
-  "Detail": "Không tìm thấy sự kiện.",
-  "MessageCode": "EVENT_NOT_FOUND",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
-}
-```
-
-### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 404 | EVENT_NOT_FOUND | Event không tồn tại. |
-| 500 | INTERNAL_SERVER_ERROR | Lỗi hệ thống phát sinh. |
+| 404 | NOT_FOUND | EVENT_NOT_FOUND |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
+
+## Trạng thái implement
+- ⏳ **Đề xuất**: Chưa implement trong code hiện tại. Entity: `Awards`.

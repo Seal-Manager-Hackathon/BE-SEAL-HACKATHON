@@ -60,6 +60,22 @@ public class EventsController : ControllerBase
     }
 
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    [HttpDelete("/api/v1/admin/awards/{id:guid}")]
+    public async Task<IActionResult> DeleteAward(Guid id)
+    {
+        var message = await _eventsService.DeleteAward(id);
+        return Ok(ApiResponseFactory.Base(null, 200, message, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]
+    [HttpDelete("/api/v1/admin/assign-tracks/{id:guid}")]
+    public async Task<IActionResult> RemoveTrackAssignment(Guid id)
+    {
+        var result = await _eventsService.RemoveTrackAssignment(id);
+        return Ok(ApiResponseFactory.Base(new { id = result }, 200, "TRACK_ASSIGNMENT_REMOVED", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
     [HttpPatch("/api/v1/admin/events/{eventId:guid}/publish")]
     public async Task<IActionResult> PublishEvent(Guid eventId)
     {

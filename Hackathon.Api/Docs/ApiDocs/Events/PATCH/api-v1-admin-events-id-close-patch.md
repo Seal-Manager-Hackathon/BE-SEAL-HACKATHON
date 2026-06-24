@@ -6,26 +6,25 @@ Chuyển trạng thái sự kiện sang `Closed` (Đã đóng) sau khi kết th�
 ## URL
 `PATCH /api/v1/admin/events/{eventId}/close`
 
-## Quyền
-Admin-only (Yêu cầu đăng nhập tài khoản có quyền Admin)
+## Authorization
+Yêu cầu access token hợp lệ với role `Admin`.
 
-## Request Headers
-- \`Authorization: Bearer <AccessToken>\`
+## Path parameters
+| Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
+|---|---|---:|---|
+| `eventId` | `guid` | Có | ID của event cần đóng. |
 
-## Request Parameters
-*   **Path Parameters:**
-    *   `eventId` (Guid, Bắt buộc): ID của event cần đóng.
-
-## Response body (Success - 200 OK)
-*Cấu trúc trả về dạng `BaseResponse`:*
+## Response body
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Value": "EVENT_CLOSED_SUCCESSFULLY",
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "isSuccess": true,
+  "isFailed": false,
+  "error": null,
+  "status": 200,
+  "traceId": "string|null",
+  "timestampUtc": "datetime",
+  "data": null,
+  "message": "EVENT_CLOSED_SUCCESSFULLY"
 }
 ```
 
@@ -43,24 +42,13 @@ Admin-only (Yêu cầu đăng nhập tài khoản có quyền Admin)
 | `3` | Cancelled | Đã hủy |
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn \`ErrorResponse\`:*
-
-```json
-{
-  "Title": "Not Found",
-  "Status": 404,
-  "Detail": "Không tìm thấy sự kiện cần đóng.",
-  "MessageCode": "EVENT_NOT_FOUND",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
-}
-```
-
-### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 401 | UNAUTHORIZED | Access token không hợp lệ hoặc thiếu. |
-| 403 | FORBIDDEN | Quyền truy cập bị từ chối do thiếu role Admin. |
-| 404 | EVENT_NOT_FOUND | Event không tồn tại. |
-| 500 | INTERNAL_SERVER_ERROR | Gặp lỗi hệ thống. |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
+| 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
+| 403 | FORBIDDEN | FORBIDDEN |
+| 404 | NOT_FOUND | EVENT_NOT_FOUND |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
+
+## Trạng thái implement
+- ⏳ **Đề xuất**: Chưa implement trong code hiện tại. Entity: `Events.Status = Closed`.

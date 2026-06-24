@@ -10,6 +10,8 @@ public interface IService
     Task<Response.AssignStaffToEventResponse> AssignStaffToEvent(Guid eventId, Request.AssignStaffToEventRequest request);
     Task<string> UpdateEvent(Guid eventId, Request.UpdateEventRequest request);
     Task<string> DeleteEvent(Guid eventId);
+    Task<string> DeleteAward(Guid awardId);
+    Task<Guid> RemoveTrackAssignment(Guid assignTrackId);
     Task<string> PublishEvent(Guid eventId);
     Task<Response.EventResponse> GetEvent(Guid eventId);
     Task<BasePaginationResponse> GetJoinedEvents(Request.GetJoinedEventsRequest request);

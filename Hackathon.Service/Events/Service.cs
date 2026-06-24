@@ -38,6 +38,25 @@ public class Service : IService
         return userId;
     }
 
+    private bool IsCurrentUserAdmin()
+    {
+        return _httpContext.HttpContext?.User.IsInRole(RoleEnum.Admin.ToString()) == true;
+    }
+
+    private async Task EnsureStaffAssignedToEvent(Guid eventId)
+    {
+        var staffId = GetCurrentUserId();
+        var isAssigned = await _dbContext.AssignEvents.AnyAsync(x => x.UserId == staffId
+            && x.EventId == eventId
+            && !x.IsDisable
+            && !x.Event.IsDisable);
+
+        if (!isAssigned)
+        {
+            throw new ForbiddenException("STAFF_NOT_ASSIGNED_TO_EVENT");
+        }
+    }
+
     private static Response.EventResponse ToResponse(Repository.Entity.Events eventEntity)
     {
         return new Response.EventResponse
@@ -262,6 +281,48 @@ public class Service : IService
         await _dbContext.SaveChangesAsync();
 
         return "EVENT_DELETED_SUCCESSFULLY";
+    }
+
+    public async Task<string> DeleteAward(Guid awardId)
+    {
+        var award = await _dbContext.Awards.FirstOrDefaultAsync(x => x.Id == awardId && !x.IsDisable);
+        if (award == null)
+        {
+            throw new NotFoundException("AWARD_NOT_FOUND");
+        }
+
+        award.IsDisable = true;
+        award.UpdatedAt = DateTimeOffset.UtcNow;
+
+        _dbContext.Awards.Update(award);
+        await _dbContext.SaveChangesAsync();
+
+        return "AWARD_DELETED_SUCCESSFULLY";
+    }
+
+    public async Task<Guid> RemoveTrackAssignment(Guid assignTrackId)
+    {
+        var assignTrack = await _dbContext.AssignTracks
+            .Include(x => x.AssignEvent)
+            .FirstOrDefaultAsync(x => x.Id == assignTrackId && !x.IsDisable);
+
+        if (assignTrack == null)
+        {
+            throw new NotFoundException("ASSIGN_TRACK_NOT_FOUND");
+        }
+
+        if (!IsCurrentUserAdmin())
+        {
+            await EnsureStaffAssignedToEvent(assignTrack.AssignEvent.EventId);
+        }
+
+        assignTrack.IsDisable = true;
+        assignTrack.UpdatedAt = DateTimeOffset.UtcNow;
+
+        _dbContext.AssignTracks.Update(assignTrack);
+        await _dbContext.SaveChangesAsync();
+
+        return assignTrack.Id;
     }
 
     public async Task<string> PublishEvent(Guid eventId)
