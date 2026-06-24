@@ -36,7 +36,7 @@ Authorization: Bearer <token>
         "name": "string",
         "startTime": "datetime|null",
         "endTime": "datetime|null",
-        "status": 0, /* Draft */
+        "status": "Draft"
         "season": "string|null",
         "isDisable": false,
         "createdAt": "datetime"
@@ -52,7 +52,7 @@ Authorization: Bearer <token>
 ```
 
 ## Business rules
-- Yêu cầu xác thực qua Access Token với vai trò Admin hoặc Staff (Admin/Staff Policy).
+- Yêu cầu xác thực qua Access Token với vai trò Admin.
 - Hỗ trợ xem cả các event đã bị soft-disable (`IsDisable = true`) thông qua query parameter `isDisable`.
 - Sắp xếp danh sách mặc định theo thời gian bắt đầu của event tăng dần (`StartTime` tăng dần), sau đó theo thời gian tạo (`CreatedAt` tăng dần).
 - Lọc theo keyword (tìm kiếm không phân biệt chữ hoa thường trên `Name`, `Description`, `Season`).

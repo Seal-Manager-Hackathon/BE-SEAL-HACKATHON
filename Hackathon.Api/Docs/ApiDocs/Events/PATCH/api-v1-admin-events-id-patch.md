@@ -27,7 +27,7 @@ Chỉ cần truyền các field muốn cập nhật.
   "limitTeam": 0,
   "minMember": 0,
   "maxMember": 0,
-  "status": 1, /* Published */
+  "status": "Published",
   "numberRound": 0,
   "season": "string|null"
 }
@@ -43,7 +43,7 @@ Chỉ cần truyền các field muốn cập nhật.
 | `limitTeam` | `int` | Không | Số lượng team tối đa có thể đăng ký. |
 | `minMember` | `int` | Không | Số lượng thành viên tối thiểu mỗi team. |
 | `maxMember` | `int` | Không | Số lượng thành viên tối đa mỗi team. |
-| `status` | `enum` | Không | Trạng thái của event. Giá trị: `Draft`, `Published`, `Closed`, `Cancelled`. Nếu không truyền sẽ giữ nguyên trạng thái hiện tại. | // 0: Draft, 1: Published, 2: Closed, 3: Cancelled
+| `status` | `string` | Không | Trạng thái của event. Giá trị: `Draft`, `Published`, `Closed`, `Cancelled`. Nếu không truyền sẽ giữ nguyên trạng thái hiện tại. |
 | `numberRound` | `int` | Không | Số vòng thi của event. |
 | `season` | `string` | Không | Mùa/mùa giải của event. |
 
@@ -69,7 +69,7 @@ Chỉ cần truyền các field muốn cập nhật.
 - API là partial update: field nào không truyền thì giữ nguyên giá trị hiện tại.
 - `name` không bắt buộc. Nếu truyền thì không được để trống hoặc chỉ chứa khoảng trắng, nếu không trả `EVENT_NAME_REQUIRED`.
 - Nếu truyền `name`, tên mới không được trùng với event khác (không phân biệt hoa thường), nếu không trả `EVENT_NAME_ALREADY_EXISTS`.
-- `status` nếu truyền được bind trực tiếp vào `EventStatusEnum` (`Draft`, `Published`, `Closed`, `Cancelled`). Nếu không truyền hoặc truyền `null`, sẽ giữ nguyên trạng thái hiện tại của event. // 0: Draft, 1: Published, 2: Closed, 3: Cancelled
+- `status` nếu truyền được bind trực tiếp vào `EventStatusEnum` (`Draft`, `Published`, `Closed`, `Cancelled`). Nếu không truyền hoặc truyền `null`, sẽ giữ nguyên trạng thái hiện tại của event.
 - `UpdatedAt` được cập nhật theo thời gian hiện tại (`DateTimeOffset.UtcNow`).
 - `startTime` phải diễn ra trước `endTime` (so với giá trị mới nếu truyền, hoặc so với giá trị cũ nếu giữ nguyên), nếu không trả lỗi `START_TIME_MUST_BE_BEFORE_END_TIME`.
 - `registerLimitTime` phải diễn ra trước `startTime` (so với giá trị mới nếu truyền, hoặc so với giá trị cũ nếu giữ nguyên), nếu không trả lỗi `REGISTER_LIMIT_TIME_MUST_BE_BEFORE_START_TIME`.
@@ -99,4 +99,4 @@ Chỉ cần truyền các field muốn cập nhật.
 
 
 ## Ghi chú Enum
-Tham chiếu file [00-enum-values.md](00-enum-values.md) để biết chi tiết các giá trị số (int) trả về cho các trường Trạng thái (Status).
+API dùng dạng `string` cho trường `status` (`Draft`, `Published`, `Closed`, `Cancelled`). Tham chiếu file [00-enum-values.md](00-enum-values.md) để biết mapping giữa tên enum và giá trị DB int.

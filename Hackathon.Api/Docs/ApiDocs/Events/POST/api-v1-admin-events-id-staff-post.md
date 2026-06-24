@@ -63,3 +63,9 @@ Yêu cầu access token hợp lệ với role `Admin`.
 | 400 | BAD_REQUEST | USER_MUST_BE_STAFF |
 | 409 | CONFLICT | STAFF_ALREADY_ASSIGNED_TO_EVENT |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
+
+## Trạng thái implement
+- ✅ Đã implement trong `Hackathon.Api.Controllers.EventsController` (`EventsController.cs:39`).
+- Route: `POST /api/v1/admin/events/{eventId}/staff`.
+- Sử dụng policy `AdminPolicy`.
+- Message: `STAFF_ASSIGNED_TO_EVENT_SUCCESSFULLY`.
