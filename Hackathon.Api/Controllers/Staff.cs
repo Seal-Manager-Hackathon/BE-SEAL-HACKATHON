@@ -8,6 +8,7 @@ using TracksService = Hackathon.Service.Tracks;
 using AssignEventsService = Hackathon.Service.AssignEvents;
 using AssignTracksService = Hackathon.Service.AssignTracks;
 using StaffService = Hackathon.Service.Staff;
+using RegisterTeamsService = Hackathon.Service.RegisterTeams;
 
 namespace Hackathon.Api.Controllers;
 
@@ -21,14 +22,16 @@ public class Staff : ControllerBase
     private readonly AssignTracksService.IService _assignTracksService;
     private readonly RoundsService.IService _roundsService;
     private readonly StaffService.IService _staffService;
+    private readonly RegisterTeamsService.IService _registerTeamsService;
 
-    public Staff(TracksService.IService tracksService, AssignEventsService.IService assignEventsService, AssignTracksService.IService assignTracksService, RoundsService.IService roundsService, StaffService.IService staffService)
+    public Staff(TracksService.IService tracksService, AssignEventsService.IService assignEventsService, AssignTracksService.IService assignTracksService, RoundsService.IService roundsService, StaffService.IService staffService, RegisterTeamsService.IService registerTeamsService)
     {
         _tracksService = tracksService;
         _roundsService = roundsService;
         _assignEventsService = assignEventsService;
         _assignTracksService = assignTracksService;
         _staffService = staffService;
+        _registerTeamsService = registerTeamsService;
     }
 
     [Authorize(Policy = JwtExtensions.StaffPolicy)]
@@ -134,5 +137,12 @@ public class Staff : ControllerBase
     {
         var result = await _staffService.GetCurrentStaffEvents();
         return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("events/{eventId:guid}/register-teams")]
+    public async Task<IActionResult> GetRegisterTeamsByEvent(Guid eventId, [FromQuery] string? keyword, [FromQuery] RegisterTeamStatusEnum? status, [FromQuery] PaginationRequest paginationRequest)
+    {
+        var result = await _registerTeamsService.GetRegisterTeamsByEvent(eventId, keyword, status, null, paginationRequest);
+        return Ok(result);
     }
 }
