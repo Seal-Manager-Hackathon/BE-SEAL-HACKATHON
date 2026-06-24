@@ -40,7 +40,8 @@ public class Service : IService
             ImgUrl = user.ImgUrl,
             LinkUrl = user.LinkUrl,
             Status = user.Status,
-            BanReason = user.BanReason
+            BanReason = user.BanReason,
+            Role = user.Role
         };
     }
 

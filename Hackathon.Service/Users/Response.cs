@@ -19,5 +19,6 @@ public static class Reponse
         public string? LinkUrl { get; set; }
         public Hackathon.Repository.Enum.UserStatusEnum? Status { get; set; }
         public string? BanReason { get; set; }
+        public Hackathon.Repository.Enum.RoleEnum Role { get; set; }
     }
 }

@@ -13,7 +13,7 @@ public static class Response
         public int? LimitTeam { get; set; }
         public int? MinMember { get; set; }
         public int? MaxMember { get; set; }
-        public string? Status { get; set; }
+        public Hackathon.Repository.Enum.EventStatusEnum? Status { get; set; }
         public int? NumberRound { get; set; }
         public string? Season { get; set; }
         public bool IsDisable { get; set; }
@@ -52,7 +52,7 @@ public static class Response
         public string Name { get; set; } = null!;
         public DateTimeOffset? StartTime { get; set; }
         public DateTimeOffset? EndTime { get; set; }
-        public string? Status { get; set; }
+        public Hackathon.Repository.Enum.EventStatusEnum? Status { get; set; }
         public string? Season { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }
@@ -63,7 +63,7 @@ public static class Response
         public string Name { get; set; } = null!;
         public DateTimeOffset? StartTime { get; set; }
         public DateTimeOffset? EndTime { get; set; }
-        public string? Status { get; set; }
+        public Hackathon.Repository.Enum.EventStatusEnum? Status { get; set; }
         public string? Season { get; set; }
         public bool IsDisable { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
@@ -76,7 +76,7 @@ public static class Response
         public string FullName { get; set; } = null!;
         public string Email { get; set; } = null!;
         public Guid? EventRoleId { get; set; }
-        public string? EventRoleName { get; set; }
+        public Hackathon.Repository.Enum.EventRoleEnum? EventRoleName { get; set; }
         public List<AssignedTrackResponse> AssignedTracks { get; set; } = new();
     }
 
