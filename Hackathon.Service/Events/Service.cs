@@ -537,7 +537,7 @@ public class Service : IService
         var leaderboard = await _dbContext.LeaderBoards.FirstOrDefaultAsync(x => x.EventId == eventId && !x.IsDisable);
         if (leaderboard == null)
         {
-            leaderboard = new LeaderBoards
+            leaderboard = new Repository.Entity.LeaderBoards()
             {
                 Id = Guid.NewGuid(),
                 EventId = eventId,
