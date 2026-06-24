@@ -16,13 +16,13 @@ Lecturer đã được phân công trong sự kiện (Yêu cầu đăng nhập t
 *Cấu trúc trả về dạng `BasePaginationResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Status": 200,
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z",
-  "Data": {
+  "isSuccess": true,
+  "isFailed": false,
+  "status": 200,
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "data": {
     "Items": [
       {
         "assignEventId": "b1a7d6c2-4821-4f9b-bd5e-3c2fa56789e0",
@@ -62,13 +62,13 @@ Lecturer đã được phân công trong sự kiện (Yêu cầu đăng nhập t
 
 ```json
 {
-  "Title": "Forbidden",
-  "Status": 403,
-  "Message": "FORBIDDEN",
-  "MessageCode": "FORBIDDEN",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "title": "Forbidden",
+  "status": 403,
+  "message": "FORBIDDEN",
+  "messageCode": "FORBIDDEN",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 

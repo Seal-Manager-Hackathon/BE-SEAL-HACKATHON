@@ -21,8 +21,8 @@ Authenticated User (Yêu cầu đăng nhập, dành cho thành viên của team)
 *Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
+  "isSuccess": true,
+  "isFailed": false,
   "Value": {
     "registerTeamId": "d1e2f3a4-b5c6-d7e8-f9a0-b1c2d3e4f5a6",
     "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -33,9 +33,9 @@ Authenticated User (Yêu cầu đăng nhập, dành cho thành viên của team)
     "topicTitle": "Quản lý Bệnh viện",
     "topicDescription": "Xây dựng hệ thống số hóa quy trình khám chữa bệnh"
   },
-  "Error": null,
-  "TraceId": "00-84a1e9df64619d8...",
-  "TimestampUtc": "2026-06-19T10:00:00.0000000Z"
+  "error": null,
+  "traceId": "00-84a1e9df64619d8...",
+  "timestampUtc": "2026-06-19T10:00:00.0000000Z"
 }
 ```
 
@@ -50,13 +50,13 @@ Authenticated User (Yêu cầu đăng nhập, dành cho thành viên của team)
 
 ```json
 {
-  "Title": "Not Found",
-  "Status": 404,
+  "title": "Not Found",
+  "status": 404,
   "Detail": "Không tìm thấy thông tin đơn đăng ký của đội.",
-  "MessageCode": "REGISTER_TEAM_NOT_FOUND",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "messageCode": "REGISTER_TEAM_NOT_FOUND",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 

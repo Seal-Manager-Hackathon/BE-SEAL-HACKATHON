@@ -28,8 +28,8 @@ Staff hoặc Admin (Yêu cầu đăng nhập tài khoản BTC, có quyền quả
 *Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
+  "isSuccess": true,
+  "isFailed": false,
   "Value": {
     "id": "e5f6a7b8-c9d0-e1f2-a3b4-c5d6e7f8a9b0",
     "trackId": "c4b5a6d7-e8f9-0a1b-2c3d-4e5f6a7b8c9d",
@@ -39,9 +39,9 @@ Staff hoặc Admin (Yêu cầu đăng nhập tài khoản BTC, có quyền quả
     "createdAt": "2026-06-23T08:00:00Z",
     "updatedAt": "2026-06-23T08:00:00Z"
   },
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-23T08:00:00Z"
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-23T08:00:00Z"
 }
 ```
 
@@ -56,13 +56,13 @@ Staff hoặc Admin (Yêu cầu đăng nhập tài khoản BTC, có quyền quả
 
 ```json
 {
-  "Title": "Bad Request",
-  "Status": 400,
+  "title": "Bad Request",
+  "status": 400,
   "Detail": "Tên đề thi không được để trống.",
-  "MessageCode": "TOPIC_TITLE_REQUIRED",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-23T08:00:00Z"
+  "messageCode": "TOPIC_TITLE_REQUIRED",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-23T08:00:00Z"
 }
 ```
 
