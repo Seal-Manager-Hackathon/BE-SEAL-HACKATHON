@@ -24,6 +24,8 @@ When auditing API changes, verify each of the following points:
 - **Response Wrapper**: 
   - Regular APIs: Action must wrap the service result in `ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier)`.
   - Paginated APIs: Action must return `Ok(result)` directly.
+- **PascalCase Response Envelope**: The root wrapper properties of both success responses and error responses must be PascalCase (e.g. `IsSuccess`, `IsFailed`, `Status`, `Error`, `TraceId`, `TimestampUtc`, `Data`, `Message`). Middleware error response properties are exactly: `Title`, `Status`, `Message` (not `Detail`), `MessageCode`, `Errors`, `TraceId`, `TimestampUtc`.
+- **Documentation Error Codes Table**: Ensure markdown API specification documents standard tables for error codes. `messageCode` must contain the exact C# custom exception `MessageCode` value, and `message/detail` must contain the exact string returned in the exception `Message` instead of arbitrary localized translations.
 - **GUID Constraints**: Any route parameter representing GUID must include the `:guid` constraint (e.g. `[HttpGet("{id:guid}")]`).
 
 ### 2. Service & Interface Layer Standards
@@ -34,8 +36,8 @@ When auditing API changes, verify each of the following points:
 
 ### 3. Request & Response DTOs
 - **Entity Exposure**: Never return Entity Framework database models directly to the controller or client. Always project them to a specific DTO in `Response.cs`.
-- **DataAnnotations Validation**: Request validation must be performed directly on DTO model properties in `Request.cs` using **DataAnnotations** (e.g. `[Required]`, `[EmailAddress]`, `[Range]`, `[Compare]`).
-- **No IValidatableObject/FluentValidation**: Do not use `IValidatableObject` or FluentValidation unless explicitly requested. Cross-field validations like password comparison must use `[Compare]`.
+- **FluentValidation**: Request validation must be performed in dedicated validator classes under `Hackathon.Service/Validations/<Module>/` using **FluentValidation** (e.g. `ChangePasswordRequestValidator.cs` or similar validators inheriting from `AbstractValidator<T>`).
+- **No DataAnnotations Validation**: Do not use validation attributes (like `[Required]`, `[EmailAddress]`, `[Range]`, `[Compare]`) directly on Request DTO classes. Request DTO properties should remain clean.
 
 ### 4. Pagination Standards
 - **Use PaginationRequest Class**: All paginated APIs and endpoints must utilize the shared `PaginationRequest` class (defined in `Hackathon.Service.Models`).
@@ -59,8 +61,8 @@ When auditing API changes, verify each of the following points:
 
 Use these files in the repository to compare patterns:
 - **Controller Template**: `Hackathon.Api/Controllers/AuthController.cs`
-- **Paging Implementation**: `Hackathon.Service/Tracks/Service.cs` (GetTracks method)
-- **Validation DTO**: `Hackathon.Service/Auth/Request.cs` (ResetPasswordRequest class)
+- **Service Template**: `Hackathon.Service/Auths/Service.cs` (ChangePassword method)
+- **Validation Reference**: `Hackathon.Service/Validations/Auth/ChangePasswordRequestValidator.cs`
 
 ---
 
@@ -70,7 +72,7 @@ Use these files in the repository to compare patterns:
 | --- | --- |
 | Controller calling `_dbContext.Users` or `_dbContext.EmailVerifications` | Instruct to move query logic to `Service.cs` and inject service interface in controller |
 | Controller wrapping paginated response in `BasePagination` again | Change controller return to `Ok(result)` and wrap inside the Service instead |
-| Request DTO using `IValidatableObject` to compare passwords | Replace with `[Compare(nameof(Password), ErrorMessage = "...")]` attribute |
+| Request DTO classes containing DataAnnotations validation attributes | Request DTO properties must be clean. Suggest moving the validation rules to a dedicated FluentValidation class under `Hackathon.Service/Validations/<Module>/` |
 | Service method mutating DB state without `BeginTransactionAsync()` | Wrap the save operations in `try-catch` block with transaction commit & rollback |
 | Route parameter `[HttpGet("events/{eventId}")]` missing guid check | Suggest changing to `[HttpGet("events/{eventId:guid}")]` |
 | Service registering is missing in DI | Add `builder.Services.AddScoped<IService, Service>();` in `Program.cs` |

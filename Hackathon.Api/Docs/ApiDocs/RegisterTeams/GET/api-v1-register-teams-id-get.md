@@ -43,7 +43,7 @@ Response dùng `ApiResponseFactory.Base(data)`.
     "teamName": "Tên team",
     "eventId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
     "eventName": "Hackathon ABC",
-    "status": "Approved",
+    "status": 1 /* Approved */,
     "description": "Mô tả đơn đăng ký",
     "rejectionReason": null,
     "createdAt": "2026-06-19T10:00:00.0000000Z"

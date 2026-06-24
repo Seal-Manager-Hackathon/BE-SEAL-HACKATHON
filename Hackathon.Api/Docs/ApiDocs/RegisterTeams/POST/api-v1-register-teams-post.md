@@ -50,9 +50,10 @@ Response dùng `ApiResponseFactory.Base(...)`.
   "isSuccess": true,
   "isFailed": false,
   "error": null,
+  "status": 200,
   "traceId": "...",
   "timestampUtc": "2026-06-19T10:00:00.0000000Z",
-  "value": {
+  "data": {
     "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "teamId": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
     "teamName": "Tên team",
@@ -60,8 +61,9 @@ Response dùng `ApiResponseFactory.Base(...)`.
     "eventName": "Tên sự kiện",
     "status": 0 /* Pending */,
     "rejectionReason": null,
-    "message": "Đăng ký thành công, ban tổ chức đang xét duyệt bạn."
-  }
+    "isBanned": false
+  },
+  "message": "REGISTERED_SUCCESSFULLY"
 }
 ```
 

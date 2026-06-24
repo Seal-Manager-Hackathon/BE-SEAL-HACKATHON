@@ -14,16 +14,18 @@ Yêu cầu access token hợp lệ với role `Admin`.
 |---|---|---:|---|
 | `eventId` | `guid` | Có | ID của sự kiện. |
 
-## Response body
+## Response body (Success - 200 OK)
+*Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "isSuccess": true,
-  "isFailed": false,
-  "error": null,
-  "status": 200,
-  "traceId": "string|null",
-  "timestampUtc": "datetime",
-  "data": [
+  "IsSuccess": true,
+  "IsFailed": false,
+  "Status": 200,
+  "Error": null,
+  "TraceId": "0HN1A2B3C4D5E",
+  "TimestampUtc": "2026-06-22T08:00:00Z",
+  "Message": "SUCCESS",
+  "Data": [
     {
       "assignEventId": "b1a7d6c2-4821-4f9b-bd5e-3c2fa56789e0",
       "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -39,8 +41,7 @@ Yêu cầu access token hợp lệ với role `Admin`.
         }
       ]
     }
-  ],
-  "message": "SUCCESS"
+  ]
 }
 ```
 
@@ -55,12 +56,27 @@ Yêu cầu access token hợp lệ với role `Admin`.
 | `1` | Judge | Giám khảo chấm điểm bài thi |
 
 ## Lỗi có thể xảy ra
+*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
+
+```json
+{
+  "Title": "Not Found",
+  "Status": 404,
+  "Message": "Event không tồn tại hoặc đã bị ẩn.",
+  "MessageCode": "EVENT_NOT_FOUND",
+  "Errors": null,
+  "TraceId": "0HN1A2B3C4D5E",
+  "TimestampUtc": "2026-06-22T08:00:00Z"
+}
+```
+
+### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
 |---:|---|---|
 | 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | FORBIDDEN |
-| 404 | NOT_FOUND | EVENT_NOT_FOUND |
+| 404 | EVENT_NOT_FOUND | Event không tồn tại. |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement

@@ -17,7 +17,7 @@ Không có
 ## Query parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
 |---|---|---|---|
-| `status` | string | Có | Truyền cứng `Approved` để lấy các team đã được duyệt. |
+| `status` | string | Không | Lọc theo trạng thái đơn đăng ký (Approved, Pending, Rejected). Nếu không truyền, mặc định trả về tất cả đơn đăng ký. |
 | `pageIndex` | `int` | Không | Trang hiện tại (mặc định 1) |
 | `pageSize` | `int` | Không | Số lượng item trên mỗi trang (mặc định 10) |
 
@@ -65,7 +65,7 @@ Response dùng `ApiResponseFactory.BasePagination(...)`.
 ## Business rules
 - Tài khoản phải là `Student` hợp lệ.
 - User đang thuộc về những team nào (trạng thái member `Active` và team `IsDisable = false`), API sẽ tìm kiếm các đơn đăng ký của các team đó.
-- Lọc theo điều kiện truyền vào `status = Approved` để chỉ trả về các team **đã được staff duyệt chấp nhận**.
+- Lọc theo điều kiện truyền vào `status` (ví dụ `status = Approved` để chỉ trả về các team **đã được staff duyệt chấp nhận**). Nếu không truyền `status`, mặc định trả về tất cả đơn đăng ký và được sắp xếp theo thứ tự trạng thái ưu tiên: `Pending` trước, đến `Approved`, rồi đến `Rejected`. Trong cùng một nhóm trạng thái hoặc khi lọc cụ thể, kết quả sắp xếp theo `CreatedAt` giảm dần.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |

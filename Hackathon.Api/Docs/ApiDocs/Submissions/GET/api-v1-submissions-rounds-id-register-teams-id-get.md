@@ -31,18 +31,18 @@ Authorization: Bearer {accessToken}
 Không có.
 
 ## Response body (Success - 200 OK)
-Response dùng `BasePaginationResponse`.
+*Cấu trúc trả về dạng `BasePaginationResponse`:*
 
 ```json
 {
-  "isSuccess": true,
-  "isFailed": false,
-  "error": null,
-  "status": 200,
-  "traceId": "string|null",
-  "timestampUtc": "datetime",
-  "data": {
-    "items": [
+  "IsSuccess": true,
+  "IsFailed": false,
+  "Status": 200,
+  "Error": null,
+  "TraceId": "0HN1A2B3C4D5E",
+  "TimestampUtc": "2026-06-22T08:00:00Z",
+  "Data": {
+    "Items": [
       {
         "submissionId": "f7b6d5c4-129b-4e6f-adbd-2c5ea56789ff",
         "url": "https://github.com/seal-hackathon/team-project-web",
@@ -51,16 +51,17 @@ Response dùng `BasePaginationResponse`.
         "submittedAt": "2026-06-22T08:00:00Z"
       }
     ],
-    "pageIndex": 1,
-    "pageSize": 10,
-    "totalCount": 1,
-    "totalPages": 1
+    "PageIndex": 1,
+    "PageSize": 10,
+    "TotalCount": 1,
+    "HasNextPage": false,
+    "HasPreviousPage": false
   }
 }
 ```
 
 ## Business rules
-- `RoundDetails` theo `roundId` và `registerTeamId` phải tồn tại và chưa bị disable. Nếu không tồn tại, trả lỗi `ROUND_DETAIL_NOT_FOUND`.
+- `RoundDetails` theo `roundId` và `registerTeamId` phải tồn tại và chưa bị disable. Nếu không tồn tại, trả lỗi `404 Not Found` với message `ROUND_DETAIL_NOT_FOUND`.
 - Admin được xem.
 - Staff được xem nếu được assign vào event của round.
 - Team member được xem nếu user là thành viên active của team.
@@ -69,11 +70,15 @@ Response dùng `BasePaginationResponse`.
 - Chỉ lấy các submission chưa bị disable.
 
 ## Lỗi có thể xảy ra
+*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
+
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | VALIDATION_FAILED | `pageIndex` hoặc `pageSize` không hợp lệ. |
+| 400 | BAD_REQUEST | PAGE_INDEX_MUST_BE_GREATER_THAN_ZERO |
+| 400 | BAD_REQUEST | PAGE_SIZE_MUST_BE_GREATER_THAN_ZERO |
+| 400 | BAD_REQUEST | PAGE_SIZE_MUST_BE_LESS_THAN_OR_EQUAL_TO_100 |
 | 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
-| 401 | INVALID_ACCESS_TOKEN | INVALID_ACCESS_TOKEN |
-| 403 | FORBIDDEN | User không có quyền xem danh sách bài nộp này. |
-| 404 | ROUND_DETAIL_NOT_FOUND | Không tìm thấy round detail theo `roundId` và `registerTeamId`. |
-| 500 | INTERNAL_SERVER_ERROR | Gặp lỗi hệ thống. |
+| 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
+| 403 | FORBIDDEN | FORBIDDEN |
+| 404 | NOT_FOUND | ROUND_DETAIL_NOT_FOUND |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
