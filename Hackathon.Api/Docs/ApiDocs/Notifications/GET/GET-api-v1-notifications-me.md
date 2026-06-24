@@ -21,26 +21,27 @@ Authenticated User (Yêu cầu đăng nhập)
 *Cấu trúc trả về dạng `BasePaginationResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z",
-  "Value": {
-    "Items": [
+  "isSuccess": true,
+  "isFailed": false,
+  "error": null,
+  "status": 200,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "data": {
+    "items": [
       {
         "id": "e5f6a7b8-c9d0-e1f2-a3b4-c5d6e7f8a9b0",
-        "Title": "Lời mời vào nhóm",
+        "title": "Lời mời vào nhóm",
         "description": "Bạn có lời mời mới từ team Chiến binh công nghệ.",
-        "Status": 1, /* Unread */
+        "status": 1 /* Unread */,
         "createdAt": "2026-06-22T08:00:00Z"
       }
     ],
-    "PageIndex": 1,
-    "PageSize": 10,
-    "TotalCount": 1,
-    "HasNextPage": false,
-    "HasPreviousPage": false
+    "pageIndex": 1,
+    "pageSize": 10,
+    "totalCount": 1,
+    "hasNextPage": false,
+    "hasPreviousPage": false
   }
 }
 ```
@@ -57,22 +58,6 @@ Authenticated User (Yêu cầu đăng nhập)
 | `2` | Read | Đã đọc |
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn \`ErrorResponse\`:*
-
-```json
-{
-  "Title": "Unauthorized",
-  "Status": 401,
-  "Detail": "Vui lòng xác thực tài khoản.",
-  "MessageCode": "UNAUTHORIZED",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
-}
-```
-
-### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
-|---:|---|---|
-| 401 | UNAUTHORIZED | Access token không hợp lệ hoặc thiếu. |
-| 500 | INTERNAL_SERVER_ERROR | Gặp lỗi hệ thống. |
+|---|---|---|
+| 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |

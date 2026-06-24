@@ -20,12 +20,14 @@ Authenticated User (Yêu cầu đăng nhập, là người sở hữu thông bá
 *Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Value": "NOTIFICATION_MARKED_AS_READ",
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "isSuccess": true,
+  "isFailed": false,
+  "error": null,
+  "status": 200,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "data": null,
+  "message": "NOTIFICATION_MARKED_AS_READ"
 }
 ```
 
@@ -42,24 +44,8 @@ Authenticated User (Yêu cầu đăng nhập, là người sở hữu thông bá
 | `2` | Read | Đã đọc |
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn \`ErrorResponse\`:*
-
-```json
-{
-  "Title": "Not Found",
-  "Status": 404,
-  "Detail": "Không tìm thấy thông báo.",
-  "MessageCode": "NOTIFICATION_NOT_FOUND",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
-}
-```
-
-### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
-|---:|---|---|
-| 401 | UNAUTHORIZED | Access token không hợp lệ. |
-| 403 | FORBIDDEN | Bạn không sở hữu thông báo này. |
-| 404 | NOT_FOUND | Thông báo không tồn tại trong hệ thống. |
-| 500 | INTERNAL_SERVER_ERROR | Gặp lỗi hệ thống. |
+|---|---|---|
+| 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
+| 403 | FORBIDDEN | NOTIFICATION_NOT_FOR_CURRENT_USER |
+| 404 | NOT_FOUND | NOTIFICATION_NOT_FOUND |
