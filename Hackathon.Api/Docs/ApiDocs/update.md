@@ -45,61 +45,41 @@ Thay vì hứng dữ liệu dạng chuỗi như trước, Frontend cần đổi 
 ### 7. Vai trò trong Sự kiện (EventRoleEnum)
 - `0` $\rightarrow$ **Mentor** (Người hướng dẫn chuyên môn)
 - `1` $\rightarrow$ **Judge** (Ban giám khảo)
+- `2` $\rightarrow$ **Staff** (Nhân viên vận hành)
 
 ---
 
-## II. Thay Đổi Cấu Trúc Vỏ Bọc Response (Success & Error Envelopes)
+## II. Quy Chuẩn Định Dạng Response (camelCase)
 
-Toàn bộ các API đã được chuyển từ định dạng vỏ bọc camelCase sang **PascalCase** cho các trường ngoài cùng.
+Tất cả các API trong hệ thống đều trả về cấu trúc JSON định dạng **camelCase** (chữ cái đầu viết thường) cho cả vỏ bọc ngoài cùng (`ApiResponse`) và dữ liệu thực tế bên trong.
 
-### 1. Phản hồi Thành công (Success)
-- **CŨ (camelCase)**:
+### 1. Phản hồi Thành công (Success Response)
+- **Response dạng camelCase**:
   ```json
   {
     "isSuccess": true,
     "isFailed": false,
-    "error": null,
     "status": 200,
-    "traceId": "string",
+    "error": null,
+    "traceId": "0HN1A2B3C4D5E",
     "timestampUtc": "2026-06-22T08:00:00Z",
+    "message": "SUCCESS",
     "data": { ... }
-  }
-  ```
-- **MỚI (PascalCase)**:
-  ```json
-  {
-    "IsSuccess": true,
-    "IsFailed": false,
-    "Status": 200,
-    "Error": null,
-    "TraceId": "0HN1A2B3C4D5E",
-    "TimestampUtc": "2026-06-22T08:00:00Z",
-    "Message": "SUCCESS",
-    "Data": { ... }
   }
   ```
 
 ### 2. Phản hồi Lỗi (Error Response từ Middleware)
-Khi xảy ra lỗi (400, 401, 403, 404, 500), API trả về cấu trúc lỗi phẳng của Middleware. Trường `Message` chứa mô tả chi tiết / mã lỗi viết hoa.
-- **CŨ**:
+Khi xảy ra lỗi (400, 401, 403, 404, 500), API trả về cấu trúc lỗi phẳng của Middleware:
+- **Response dạng camelCase**:
   ```json
   {
     "title": "Forbidden",
     "status": 403,
-    "detail": "Bạn không có quyền.",
-    "messageCode": "FORBIDDEN"
-  }
-  ```
-- **MỚI**:
-  ```json
-  {
-    "Title": "Forbidden",
-    "Status": 403,
-    "Message": "Mã lỗi viết hoa hoặc chi tiết lỗi",
-    "MessageCode": "FORBIDDEN",
-    "Errors": null,
-    "TraceId": "0HN1A2B3C4D5E",
-    "TimestampUtc": "2026-06-22T08:00:00Z"
+    "message": "Mã lỗi viết hoa hoặc chi tiết lỗi",
+    "messageCode": "FORBIDDEN",
+    "errors": null,
+    "traceId": "0HN1A2B3C4D5E",
+    "timestampUtc": "2026-06-22T08:00:00Z"
   }
   ```
 
@@ -107,31 +87,77 @@ Khi xảy ra lỗi (400, 401, 403, 404, 500), API trả về cấu trúc lỗi p
 
 ## III. Chi Tiết Thay Đổi Trên Từng API Router
 
-Dưới đây là chi tiết so sánh Request và Response Cũ vs Mới của các API bị ảnh hưởng.
+Dưới đây là chi tiết so sánh cấu trúc response cũ vs mới của các API bị ảnh hưởng.
 
 ### 1. GET /api/v1/submissions/{submissionId}
-- **Tác dụng**: Lấy chi tiết bài nộp của round.
-- **Request**: Không đổi.
 - **Response CŨ**: `"status": "Submitted"` (chuỗi), `"message": "Bài chưa được chấm"`.
-- **Response MỚI**: `"status": 0` (Enum số), `"message": "NOT_GRADED"`.
-
-### 2. GET /api/v1/submissions/rounds/{roundId}/register-teams/{registerTeamId}
-- **Tác dụng**: Lấy danh sách lịch sử bài nộp của team theo round (API mới).
-- **Response MỚI**: Phân trang dạng PascalCase, `status` dạng số Enum (`0 = Submitted`).
-
-### 3. POST /api/v1/submissions/rounds/{roundId}/register-teams/{registerTeamId}
-- **Tác dụng**: Nộp bài thi vòng đấu (API mới).
-- **Request Body**:
+- **Response MỚI**:
   ```json
   {
-    "url": "https://github.com/myteam/project-repo",
-    "description": "Mô tả bài nộp"
+    "isSuccess": true,
+    "isFailed": false,
+    "status": 200,
+    "error": null,
+    "traceId": "0HN1A2B3C4D5E",
+    "timestampUtc": "2026-06-22T08:00:00Z",
+    "message": "SUCCESS",
+    "data": {
+      "submissionId": "f7b6d5c4-129b-4e6f-adbd-2c5ea56789ff",
+      "status": 0, // Số nguyên Enum (0 = Submitted)
+      "gradingStatus": "NotGraded",
+      "message": "NOT_GRADED"
+    }
   }
   ```
-- **Response MỚI**: `"status": 0`, chuẩn hóa envelope thành PascalCase.
+
+### 2. GET /api/v1/submissions/rounds/{roundId}/register-teams/{registerTeamId} (API mới)
+- **Response MỚI** (Phân trang dạng camelCase, status dạng số):
+  ```json
+  {
+    "isSuccess": true,
+    "isFailed": false,
+    "status": 200,
+    "error": null,
+    "traceId": "0HN1A2B3C4D5E",
+    "timestampUtc": "2026-06-22T08:00:00Z",
+    "data": {
+      "items": [
+        {
+          "submissionId": "f7b6d5c4-129b-4e6f-adbd-2c5ea56789ff",
+          "url": "https://github.com/project",
+          "description": "Bài làm",
+          "status": 0, // Số nguyên (0 = Submitted)
+          "submittedAt": "2026-06-22T08:00:00Z"
+        }
+      ],
+      "pageIndex": 1,
+      "pageSize": 10,
+      "totalCount": 1,
+      "hasNextPage": false,
+      "hasPreviousPage": false
+    }
+  }
+  ```
+
+### 3. POST /api/v1/submissions/rounds/{roundId}/register-teams/{registerTeamId} (API mới)
+- **Response MỚI**:
+  ```json
+  {
+    "isSuccess": true,
+    "isFailed": false,
+    "status": 200,
+    "message": "SUBMISSION_CREATED_SUCCESSFULLY",
+    "data": {
+      "submissionId": "f9b8c7d6-e5a4-3210-9c0d-1e2f3a4b5c6d",
+      "teamId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "submittedAt": "2026-06-22T08:00:00Z",
+      "status": 0, // Số nguyên
+      "isSuccess": true
+    }
+  }
+  ```
 
 ### 4. GET /api/v1/users/profile
-- **Response CŨ**: Không có trường `role`.
 - **Response MỚI**: Bổ sung trường `role`: `2` (Student) hoặc `3` (Lecturer).
 
 ### 5. GET /api/v1/auth/me
@@ -139,7 +165,6 @@ Dưới đây là chi tiết so sánh Request và Response Cũ vs Mới của c�
 - **Response MỚI**: `"role": 2` (Số nguyên)
 
 ### 6. GET /api/v1/mentor/events
-- **Response CŨ**: Trả về thô trong `"Value"` và `role` là chuỗi.
 - **Response MỚI**: Trả về phân trang, `role` dạng số nguyên `0` (Mentor) hoặc `1` (Judge). Lấy tất cả sự kiện phân công.
 
 ### 7. GET /api/v1/invitations/me
@@ -175,15 +200,15 @@ Dưới đây là chi tiết so sánh Request và Response Cũ vs Mới của c�
 - **Response MỚI**: Trong mảng `members`, trường `"status": 1` (Số nguyên)
 
 ### 15. GET /api/v1/rounds/{roundId}/submissions
-- **Response MỚI**: Đồng bộ envelope thành PascalCase, `status` giữ nguyên `0`.
+- **Response MỚI**: Đồng bộ envelope thành camelCase, `status` giữ nguyên `0`.
 
 ### 16. GET /api/v1/rounds/{roundId}/my-submissions
-- **Response CŨ**: `"status": 0` (Thành công nộp), envelope camelCase.
-- **Response MỚI**: `"status": 0`, đồng bộ envelope thành PascalCase.
+- **Response CŨ**: `"status": 0` (Thành công nộp)
+- **Response MỚI**: `"status": 0`, đồng bộ envelope thành camelCase.
 
 ### 17. GET /api/v1/rounds/{roundId}/scores/me
 - **Response CŨ**: `"message": "Bài chưa được chấm"`.
-- **Response MỚI**: `"message": "NOT_GRADED"`, sửa envelope thành PascalCase.
+- **Response MỚI**: `"message": "NOT_GRADED"`, sửa envelope thành camelCase.
 
 ### 18. GET /api/v1/events
 - **Response CŨ**: `"status": "Draft"`
@@ -209,34 +234,35 @@ Dưới đây là chi tiết so sánh Request và Response Cũ vs Mới của c�
 - **Response CŨ**: `"eventRoleName": "Judge"`
 - **Response MỚI**: `"eventRoleName": 1` (Số nguyên)
 
+### 24. GET /api/v1/lecturers/events (API mới hoàn toàn)
+- **Tác dụng**: Giảng viên lấy danh sách các sự kiện mình được phân công.
+- **Request**: Query params: `pageIndex`, `pageSize` (chỉ có phân trang chuẩn, không có bộ lọc thêm).
+- **Response MỚI**: Trả về `BasePaginationResponse` dạng camelCase, trường `role` dạng số Enum (`0 = Mentor, 1 = Judge`), `eventStatus` dạng số Enum.
+
 ---
 
-## IV. API Gán Track & Topic Của Staff (Thay Đổi Request Body)
+## IV. API Gán Track & Topic Của Staff (Truyền EventId qua URL Route)
 
-Bổ sung trường `eventId` (Guid) vào Request body của cả hai endpoint dưới đây để đảm bảo kiểm tra nghiệp vụ và phân quyền chính xác cho Staff:
-
-### 1. PATCH /api/v1/staff/teams/{teamId}/track
-- **Tác dụng**: Staff gán track cho team.
-- **Request Body (CŨ)**:
+### 1. PATCH /api/v1/staff/events/{eventId}/teams/{teamId}/track
+- **Đường dẫn CŨ**: `PATCH /api/v1/staff/teams/{teamId}/track`
+- **Đường dẫn MỚI**: `PATCH /api/v1/staff/events/{eventId}/teams/{teamId}/track`
+- **Request Body**:
   ```json
   {
     "trackId": "guid"
   }
   ```
-- **Request Body (MỚI)**:
+- **Response MỚI (camelCase)**:
   ```json
   {
-    "eventId": "guid", // Bổ sung mới
-    "trackId": "guid"
-  }
-  ```
-- **Response MỚI (PascalCase)**:
-  ```json
-  {
-    "IsSuccess": true,
-    "Status": 200,
-    "Message": "TRACK_ASSIGNED_TO_TEAM_SUCCESSFULLY",
-    "Data": {
+    "isSuccess": true,
+    "isFailed": false,
+    "status": 200,
+    "error": null,
+    "traceId": "0HN1A2B3C4D5E",
+    "timestampUtc": "2026-06-22T08:00:00Z",
+    "message": "TRACK_ASSIGNED_TO_TEAM_SUCCESSFULLY",
+    "data": {
       "teamId": "guid",
       "teamName": "string",
       "eventId": "guid",
@@ -246,28 +272,26 @@ Bổ sung trường `eventId` (Guid) vào Request body của cả hai endpoint d
   }
   ```
 
-### 2. PATCH /api/v1/staff/teams/{teamId}/topic
-- **Tác dụng**: Staff gán topic cho team.
-- **Request Body (CŨ)**:
+### 2. PATCH /api/v1/staff/events/{eventId}/teams/{teamId}/topic
+- **Đường dẫn CŨ**: `PATCH /api/v1/staff/teams/{teamId}/topic`
+- **Đường dẫn MỚI**: `PATCH /api/v1/staff/events/{eventId}/teams/{teamId}/topic`
+- **Request Body**:
   ```json
   {
     "topicId": "guid"
   }
   ```
-- **Request Body (MỚI)**:
+- **Response MỚI (camelCase)**:
   ```json
   {
-    "eventId": "guid", // Bổ sung mới
-    "topicId": "guid"
-  }
-  ```
-- **Response MỚI (PascalCase)**:
-  ```json
-  {
-    "IsSuccess": true,
-    "Status": 200,
-    "Message": "TOPIC_ASSIGNED_TO_TEAM_SUCCESSFULLY",
-    "Data": {
+    "isSuccess": true,
+    "isFailed": false,
+    "status": 200,
+    "error": null,
+    "traceId": "0HN1A2B3C4D5E",
+    "timestampUtc": "2026-06-22T08:00:00Z",
+    "message": "TOPIC_ASSIGNED_TO_TEAM_SUCCESSFULLY",
+    "data": {
       "teamId": "guid",
       "teamName": "string",
       "eventId": "guid",
@@ -277,4 +301,5 @@ Bổ sung trường `eventId` (Guid) vào Request body của cả hai endpoint d
       "topicTitle": "string"
     }
   }
-  ```
+}
+```

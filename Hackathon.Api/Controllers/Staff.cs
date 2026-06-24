@@ -7,6 +7,7 @@ using RoundsService = Hackathon.Service.Rounds;
 using TracksService = Hackathon.Service.Tracks;
 using AssignEventsService = Hackathon.Service.AssignEvents;
 using AssignTracksService = Hackathon.Service.AssignTracks;
+using StaffService = Hackathon.Service.Staff;
 
 namespace Hackathon.Api.Controllers;
 
@@ -19,13 +20,15 @@ public class Staff : ControllerBase
     private readonly AssignEventsService.IService _assignEventsService;
     private readonly AssignTracksService.IService _assignTracksService;
     private readonly RoundsService.IService _roundsService;
+    private readonly StaffService.IService _staffService;
 
-    public Staff(TracksService.IService tracksService, AssignEventsService.IService assignEventsService, AssignTracksService.IService assignTracksService, RoundsService.IService roundsService)
+    public Staff(TracksService.IService tracksService, AssignEventsService.IService assignEventsService, AssignTracksService.IService assignTracksService, RoundsService.IService roundsService, StaffService.IService staffService)
     {
         _tracksService = tracksService;
         _roundsService = roundsService;
         _assignEventsService = assignEventsService;
         _assignTracksService = assignTracksService;
+        _staffService = staffService;
     }
 
     [Authorize(Policy = JwtExtensions.StaffPolicy)]
@@ -107,5 +110,29 @@ public class Staff : ControllerBase
     {
         var result = await _assignEventsService.RemoveLecturerAssignment(id);
         return Ok(ApiResponseFactory.Base(new { id = result }, 200, "LECTURER_ASSIGNMENT_REMOVED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [Authorize(Policy = JwtExtensions.StaffPolicy)]
+    [HttpGet("events")]
+    public async Task<IActionResult> GetStaffEvents([FromQuery] PaginationRequest request)
+    {
+        var result = await _staffService.GetStaffEvents(request);
+        return Ok(result);
+    }
+
+    [Authorize(Policy = JwtExtensions.StaffPolicy)]
+    [HttpGet("events/search")]
+    public async Task<IActionResult> SearchStaffEvents([FromQuery] StaffService.Request.SearchStaffEventsRequest request)
+    {
+        var result = await _staffService.SearchStaffEvents(request);
+        return Ok(result);
+    }
+
+    [Authorize(Policy = JwtExtensions.StaffPolicy)]
+    [HttpGet("events/current")]
+    public async Task<IActionResult> GetCurrentStaffEvents()
+    {
+        var result = await _staffService.GetCurrentStaffEvents();
+        return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 }
