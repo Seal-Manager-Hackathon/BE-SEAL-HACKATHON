@@ -43,5 +43,8 @@ Yêu cầu access token hợp lệ với role `Admin`.
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- ⏳ **Đề xuất**: Chưa implement trong code hiện tại. Entity: `Awards.IsDisable`.
-- Cần tạo controller, service method, và soft delete logic.
+- ✅ Đã implement trong `Hackathon.Api.Controllers.EventsController` (`EventsController.cs:62`).
+- Route: `DELETE /api/v1/admin/awards/{id:guid}`.
+- Sử dụng policy `AdminPolicy`.
+- Soft delete: đặt `IsDisable = true` trên bảng `Awards`.
+- Message: `AWARD_DELETED_SUCCESSFULLY`.

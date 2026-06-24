@@ -64,4 +64,7 @@ Yêu cầu access token hợp lệ với role `Admin`.
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- ⏳ **Đề xuất**: Chưa implement trong code hiện tại. Entity: `AssignEvents` + `EventRoles`.
+- ✅ Đã implement trong `Hackathon.Api.Controllers.EventsController`.
+- Route: `GET /api/v1/admin/events/{eventId}/assignments`.
+- Sử dụng policy `AdminPolicy`.
+- Entity: `AssignEvents` + `EventRoles`.

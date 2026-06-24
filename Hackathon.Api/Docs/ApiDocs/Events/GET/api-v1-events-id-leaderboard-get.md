@@ -7,7 +7,7 @@ Xem bảng xếp hạng chung cuộc của một event thi đấu (điểm chung
 `GET /api/v1/events/{eventId}/leaderboard`
 
 ## Authorization
-Public (không yêu cầu access token). Chỉ hiển thị khi leaderboard đã được BTC công bố.
+Public (không yêu cầu access token). Chỉ trả về danh sách các team đã được tính điểm (nếu leaderboard chưa được khởi tạo, trả về mảng rỗng).
 
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
@@ -38,17 +38,18 @@ Public (không yêu cầu access token). Chỉ hiển thị khi leaderboard đã
 
 ## Business rules
 - Event phải tồn tại trong DB và không bị soft-disable.
-- Chỉ hiển thị khi leaderboard đã được BTC công bố công khai (published).
 - Xếp hạng được sắp xếp theo tổng điểm (`totalScore`) giảm dần.
-- Trường `rank` cho biết team đang đứng hạng thứ mấy trong event.
+- Trường `rank` cho biết team đang đứng hạng thứ mấy trong event (bắt đầu từ 1).
 - `levelAward` hiển thị danh hiệu đạt được (Nhất, Nhì, Ba, Khuyến khích) nếu BTC đã gán.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 403 | FORBIDDEN | LEADERBOARD_NOT_PUBLISHED_YET |
 | 404 | NOT_FOUND | EVENT_NOT_FOUND |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- ⏳ **Đề xuất**: Chưa implement trong code hiện tại. Entity: `LeaderBoards` + `LeaderBoardDetails`.
+- ✅ Đã implement trong `Hackathon.Api.Controllers.EventsController`.
+- Route: `GET /api/v1/events/{eventId}/leaderboard`.
+- Public endpoint.
+- Entity: `LeaderBoards` + `LeaderBoardDetails`.

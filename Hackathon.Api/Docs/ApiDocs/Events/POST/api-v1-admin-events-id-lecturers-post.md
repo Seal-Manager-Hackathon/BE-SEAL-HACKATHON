@@ -17,15 +17,15 @@ Yêu cầu access token hợp lệ với role `Admin` hoặc `Staff`.
 ## Request body
 ```json
 {
-  "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "eventRole": "Judge"
+  "lecturerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "eventRoleId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
 }
 ```
 
 | Field | Kiểu | Bắt buộc | Mô tả |
 |---|---|---|---|
-| `userId` | `guid` | Có | ID của giảng viên cần phân công. |
-| `eventRole` | `string` | Có | Vai trò trong event: `Mentor` hoặc `Judge`. |
+| `lecturerId` | `guid` | Có | ID của giảng viên cần phân công. |
+| `eventRoleId` | `guid` | Có | ID của vai trò trong event (tham chiếu bảng `EventRoles`). |
 
 ## Response body
 ```json
@@ -37,7 +37,10 @@ Yêu cầu access token hợp lệ với role `Admin` hoặc `Staff`.
   "traceId": "string|null",
   "timestampUtc": "datetime",
   "data": {
-    "assignEventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "eventRoleId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
   },
   "message": "LECTURER_ASSIGNED_TO_EVENT_SUCCESSFULLY"
 }
@@ -45,28 +48,26 @@ Yêu cầu access token hợp lệ với role `Admin` hoặc `Staff`.
 
 ## Business rules
 - Event phải tồn tại trong DB, không bị soft-disable.
-- User `userId` được gán phải tồn tại và có global role là Giảng viên (`Role = Lecturer` trong `Users`).
-- `eventRole` phải là một trong hai giá trị enum: `Mentor` (giá trị 0) hoặc `Judge` (giá trị 1).
-- Ràng buộc nghiệp vụ: Một giảng viên KHÔNG được vừa làm Mentor vừa làm Judge trong cùng một giải đấu (nếu đã có bản ghi phân công của giảng viên này trong event đó, từ chối và báo lỗi `LECTURER_ALREADY_ASSIGNED_IN_EVENT`).
+- User `lecturerId` được gán phải tồn tại và có global role là Giảng viên (`Role = Lecturer` trong `Users`), nếu không trả `LECTURER_NOT_FOUND`.
+- `eventRoleId` phải tồn tại trong bảng `EventRoles`, nếu không trả `EVENT_ROLE_NOT_FOUND`.
+- Một giảng viên không được phân công trùng role (cùng `LecturerId` + `EventId` + `EventRoleId`), nếu không trả `LECTURER_ALREADY_ASSIGNED_THIS_ROLE`.
+- Một giảng viên không được vừa làm Mentor vừa làm Judge trong cùng một giải đấu, nếu không trả `LECTURER_CANNOT_BE_BOTH_MENTOR_AND_JUDGE`.
 - Tạo bản ghi mới trong bảng `AssignEvents` liên kết `UserId`, `EventId` và `EventRoleId`.
 - Endpoint này nằm ở `Staff` controller với policy `StaffOrAdminPolicy` nên cả Admin và Staff đều có thể gọi.
-
-### Bảng vai trò EventRoleEnum
-| Giá trị (Value) | Vai trò (Role) | Mô tả (Description) |
-| :--- | :--- | :--- |
-| `0` | Mentor | Người hướng dẫn chuyên môn cho đội thi |
-| `1` | Judge | Giám khảo chấm điểm bài thi |
+- Nếu caller là Staff, kiểm tra quyền qua `EnsureStaffAssignedToEvent`.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | BAD_REQUEST | INVALID_EVENT_ROLE |
 | 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | FORBIDDEN |
+| 403 | FORBIDDEN | STAFF_NOT_ASSIGNED_TO_EVENT |
 | 404 | NOT_FOUND | EVENT_NOT_FOUND |
-| 404 | NOT_FOUND | USER_NOT_FOUND |
-| 409 | CONFLICT | LECTURER_ALREADY_ASSIGNED_IN_EVENT |
+| 404 | NOT_FOUND | LECTURER_NOT_FOUND |
+| 404 | NOT_FOUND | EVENT_ROLE_NOT_FOUND |
+| 409 | CONFLICT | LECTURER_ALREADY_ASSIGNED_THIS_ROLE |
+| 409 | CONFLICT | LECTURER_CANNOT_BE_BOTH_MENTOR_AND_JUDGE |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement

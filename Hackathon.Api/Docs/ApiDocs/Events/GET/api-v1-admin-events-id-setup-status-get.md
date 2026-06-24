@@ -33,7 +33,7 @@ Yêu cầu access token hợp lệ với role `Admin` hoặc `Staff` phụ trác
       "hasAwards": true,
       "hasAssignedStaff": true
     },
-    "message": "CRITERIA_NOT_FOUND_FOR_SOME_ROUNDS"
+    "message": "NO_CRITERIA"
   },
   "message": "SUCCESS"
 }
@@ -54,8 +54,12 @@ Yêu cầu access token hợp lệ với role `Admin` hoặc `Staff` phụ trác
 | 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | FORBIDDEN |
+| 403 | FORBIDDEN | STAFF_NOT_ASSIGNED_TO_EVENT |
 | 404 | NOT_FOUND | EVENT_NOT_FOUND |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- ⏳ **Đề xuất**: Chưa implement trong code hiện tại. Cần kiểm tra các entity: `Rounds`, `CriteriaTemplates`, `CriteriaItems`, `Tracks`, `Topics`, `Awards`, `AssignEvents`.
+- ✅ Đã implement trong `Hackathon.Api.Controllers.EventsController`.
+- Route: `GET /api/v1/admin/events/{eventId}/setup-status`.
+- Sử dụng policy `StaffOrAdminPolicy`.
+- Kiểm tra 6 điều kiện: `Rounds`, `Criteria`, `Tracks`, `Topics`, `Awards`, `AssignEvents`.

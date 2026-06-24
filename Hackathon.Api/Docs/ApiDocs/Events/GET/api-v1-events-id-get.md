@@ -32,7 +32,7 @@ Không yêu cầu Access Token (Public API).
     "limitTeam": 0,
     "minMember": 0,
     "maxMember": 0,
-    "status": 0, /* Draft */
+    "status": "Draft"
     "numberRound": 0,
     "season": "string|null",
     "isDisable": false,

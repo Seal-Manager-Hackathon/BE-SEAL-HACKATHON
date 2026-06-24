@@ -52,4 +52,7 @@ Yêu cầu access token hợp lệ với role `Admin`.
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- ⏳ **Đề xuất**: Chưa implement trong code hiện tại. Entity: `Events.Status`.
+- Đã implement endpoint trong `Hackathon.Api.Controllers.EventsController`.
+- Đã thêm method `UnpublishEvent(Guid eventId)` trong `Hackathon.Service.Events.IService`.
+- Đã implement logic trong `Hackathon.Service.Events.Service`.
+- Endpoint dùng route `PATCH /api/v1/admin/events/{eventId}/unpublish` và `AdminPolicy`.

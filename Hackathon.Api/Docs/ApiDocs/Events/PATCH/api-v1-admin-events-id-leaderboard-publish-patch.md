@@ -31,8 +31,8 @@ Yêu cầu access token hợp lệ với role `Admin` hoặc `Staff`.
 ## Business rules
 - Event phải tồn tại trong DB.
 - BTC kiểm tra quyền của Staff.
-- Đánh dấu cờ đã công bố bảng xếp hạng chung cuộc trong DB.
-- *DB hiện chưa có published flag cho Leaderboards.*
+- Đánh dấu cờ đã công bố bảng xếp hạng chung cuộc (`IsPublished = true`).
+- Nếu chưa có leaderboard cho event, trả lỗi `LEADERBOARD_NOT_FOUND`.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
@@ -41,7 +41,12 @@ Yêu cầu access token hợp lệ với role `Admin` hoặc `Staff`.
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | FORBIDDEN |
 | 404 | NOT_FOUND | EVENT_NOT_FOUND |
+| 404 | NOT_FOUND | LEADERBOARD_NOT_FOUND |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- ⏳ **Đề xuất**: Chưa implement trong code hiện tại. Entity: `LeaderBoards`. *DB chưa có published flag.*
+- Đã implement endpoint trong `Hackathon.Api.Controllers.EventsController`.
+- Đã thêm method `PublishLeaderboard(Guid eventId)` trong `Hackathon.Service.Events.IService`.
+- Đã implement logic trong `Hackathon.Service.Events.Service`.
+- Endpoint dùng route `PATCH /api/v1/admin/events/{eventId}/leaderboard/publish` và `StaffOrAdminPolicy`.
+- Đã thêm cột `IsPublished` trong entity `LeaderBoards` qua migration `add_leaderboard_flags`.

@@ -23,7 +23,9 @@ Yêu cầu access token hợp lệ với role `Admin` hoặc `Staff`.
   "status": 200,
   "traceId": "string|null",
   "timestampUtc": "datetime",
-  "data": null,
+  "data": {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+  },
   "message": "TRACK_ASSIGNMENT_REMOVED"
 }
 ```
@@ -39,10 +41,14 @@ Yêu cầu access token hợp lệ với role `Admin` hoặc `Staff`.
 | 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | FORBIDDEN |
+| 403 | FORBIDDEN | STAFF_NOT_ASSIGNED_TO_EVENT |
 | 404 | NOT_FOUND | ASSIGN_TRACK_NOT_FOUND |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- Đã implement trong `Staff.cs` với route `DELETE /api/v1/staff/assign-events/{id}` (gỡ lecturer khỏi event, cascade gỡ tracks).
-- ⏳ **Route riêng `admin/assign-tracks/{assignTrackId}` đề xuất**: Chưa có code riêng cho gỡ track độc lập.
+- ✅ Đã implement trong `Hackathon.Api.Controllers.EventsController` (`EventsController.cs:70`).
+- Route: `DELETE /api/v1/admin/assign-tracks/{id:guid}`.
+- Sử dụng policy `StaffOrAdminPolicy`.
+- Nếu caller là Staff, kiểm tra quyền qua `EnsureStaffAssignedToEvent`.
 - Soft delete: đặt `IsDisable = true` trên bản ghi `AssignTracks`.
+- Message: `TRACK_ASSIGNMENT_REMOVED`.

@@ -28,7 +28,7 @@ Public (không yêu cầu access token).
       "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
       "name": "Giải Nhất",
       "description": "Đội thi xuất sắc nhất toàn giải.",
-      "levelAward": 1,
+      "levelAward": "First",
       "numberOfAward": 1,
       "prize": 10000000
     }
@@ -39,7 +39,7 @@ Public (không yêu cầu access token).
 
 ## Business rules
 - Event phải tồn tại trong DB, không bị soft-disable.
-- Trả ra danh sách các giải thưởng chưa bị disable, sắp xếp theo `LevelAward` tăng dần (1: Nhất, 2: Nhì, 3: Ba, 4: Khuyến khích, v.v.).
+- Trả ra danh sách các giải thưởng chưa bị disable, sắp xếp theo `LevelAward` tăng dần.
 - Public: không yêu cầu xác thực.
 
 ## Lỗi có thể xảy ra
@@ -49,4 +49,7 @@ Public (không yêu cầu access token).
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- ⏳ **Đề xuất**: Chưa implement trong code hiện tại. Entity: `Awards`.
+- ✅ Đã implement trong `Hackathon.Api.Controllers.EventsController`.
+- Route: `GET /api/v1/events/{eventId}/awards`.
+- Public endpoint.
+- Entity: `Awards`.

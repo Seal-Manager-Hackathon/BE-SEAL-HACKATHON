@@ -7,7 +7,7 @@ Cho phép xem chi tiết bảng điểm của một team cụ thể qua từng v
 `GET /api/v1/events/{eventId}/teams/{teamId}/scores`
 
 ## Authorization
-Public hoặc Authenticated tùy theo thời điểm BTC reveal điểm số.
+Public (không yêu cầu access token). Trả về điểm chi tiết của team trong event nếu có dữ liệu.
 
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
@@ -52,19 +52,18 @@ Public hoặc Authenticated tùy theo thời điểm BTC reveal điểm số.
 
 ## Business rules
 - Event và Team phải tồn tại trong DB và chưa bị soft-disable.
-- Chỉ hiển thị điểm số chi tiết khi sự kiện đã được công bố điểm (hoặc kết quả round đấu tương ứng đã được publish).
 - Điểm trung bình của từng tiêu chí (`averageCriteriaScore`) được tính bằng trung bình cộng điểm số của các giám khảo chấm trên tiêu chí đó (`ScoreItems.Score`).
 - Điểm trung bình tổng của round (`averageTotalScore`) bằng trung bình cộng tổng điểm chấm của các giám khảo (`Scores.TotalScore`).
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
-| 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
-| 403 | FORBIDDEN | SCORES_NOT_REVEALED_YET |
 | 404 | NOT_FOUND | EVENT_NOT_FOUND |
 | 404 | NOT_FOUND | TEAM_NOT_FOUND |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- ⏳ **Đề xuất**: Chưa implement trong code hiện tại. Entity: `Scores` + `ScoreItems` + `CriteriaItems`.
+- ✅ Đã implement trong `Hackathon.Api.Controllers.EventsController`.
+- Route: `GET /api/v1/events/{eventId}/teams/{teamId}/scores`.
+- Public endpoint.
+- Entity: `Scores` + `ScoreItems` + `CriteriaItems`.

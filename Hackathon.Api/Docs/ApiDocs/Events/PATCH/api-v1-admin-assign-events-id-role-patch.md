@@ -57,8 +57,12 @@ Yêu cầu access token hợp lệ với role `Admin`.
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | FORBIDDEN |
 | 400 | BAD_REQUEST | INVALID_EVENT_ROLE |
-| 404 | NOT_FOUND | ASSIGNMENT_NOT_FOUND |
+| 404 | NOT_FOUND | ASSIGN_EVENT_NOT_FOUND |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- ⏳ **Đề xuất**: Chưa implement trong code hiện tại. Entity: `AssignEvents` + `EventRoles`.
+- Đã implement endpoint trong `Hackathon.Api.Controllers.EventsController`.
+- Đã thêm method `UpdateLecturerRole(Guid id, UpdateLecturerRoleRequest request)` trong `Hackathon.Service.Events.IService`.
+- Request dùng `eventRole` (string: `Mentor`/`Judge`), tự động lookup `EventRoles` để gán `EventRoleId`.
+- Khi đổi role, tự động soft-delete toàn bộ `AssignTracks` cũ của assignment đó.
+- Endpoint dùng route `PATCH /api/v1/admin/assign-events/{id}/role` và `AdminPolicy`.

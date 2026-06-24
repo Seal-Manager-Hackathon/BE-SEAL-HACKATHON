@@ -29,9 +29,9 @@ Yêu cầu access token hợp lệ với role `Admin`.
 |---|---|---|---|
 | `name` | `string` | Có | Tên giải thưởng. |
 | `description` | `string` | Không | Mô tả chi tiết giải thưởng. |
-| `levelAward` | `int` | Có | Thứ hạng giải thưởng (1: Nhất, 2: Nhì, 3: Ba, ...). |
-| `numberOfAward` | `int` | Có | Số lượng giải cho hạng mục này. |
-| `prize` | `decimal` | Có | Giá trị giải thưởng (VND). |
+| `levelAward` | `string` | Không | Thứ hạng giải thưởng (Nhất, Nhì, Ba, ...). |
+| `numberOfAward` | `int` | Không | Số lượng giải cho hạng mục này. |
+| `prize` | `decimal` | Không | Giá trị giải thưởng (VND). |
 
 ## Response body
 ```json
@@ -68,4 +68,8 @@ Yêu cầu access token hợp lệ với role `Admin`.
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- ⏳ **Đề xuất**: Chưa implement trong code hiện tại. Entity: `Awards`.
+- ✅ Đã implement trong `Hackathon.Api.Controllers.EventsController`.
+- Route: `POST /api/v1/admin/events/{eventId}/awards`.
+- Sử dụng policy `AdminPolicy`.
+- Message: `AWARD_CREATED_SUCCESSFULLY`.
+- Entity: `Awards`.

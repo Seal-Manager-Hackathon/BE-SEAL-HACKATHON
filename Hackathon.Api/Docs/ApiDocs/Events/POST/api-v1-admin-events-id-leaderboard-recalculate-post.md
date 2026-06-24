@@ -41,8 +41,13 @@ Yêu cầu access token hợp lệ với role `Admin` hoặc `Staff`.
 | 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | FORBIDDEN |
+| 403 | FORBIDDEN | STAFF_NOT_ASSIGNED_TO_EVENT |
 | 404 | NOT_FOUND | EVENT_NOT_FOUND |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- ⏳ **Đề xuất**: Chưa implement trong code hiện tại. Entity: `LeaderBoards`, `LeaderBoardDetails`.
+- ✅ Đã implement trong `Hackathon.Api.Controllers.EventsController`.
+- Route: `POST /api/v1/admin/events/{eventId}/leaderboard/recalculate`.
+- Sử dụng policy `StaffOrAdminPolicy`.
+- Message: `LEADERBOARD_RECALCULATED`.
+- Entity: `LeaderBoards`, `LeaderBoardDetails`.

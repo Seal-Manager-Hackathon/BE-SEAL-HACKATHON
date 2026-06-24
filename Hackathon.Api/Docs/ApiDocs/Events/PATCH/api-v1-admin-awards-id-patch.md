@@ -4,7 +4,7 @@
 Cho phép Admin cập nhật thông tin một hạng mục giải thưởng.
 
 ## URL
-`PATCH /api/v1/admin/awards/{awardId}`
+`PATCH /api/v1/admin/awards/{id}`
 
 ## Authorization
 Yêu cầu access token hợp lệ với role `Admin`.
@@ -12,17 +12,17 @@ Yêu cầu access token hợp lệ với role `Admin`.
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
 |---|---|---:|---|
-| `awardId` | `guid` | Có | ID của giải thưởng cần cập nhật. |
+| `id` | `guid` | Có | ID của giải thưởng cần cập nhật. |
 
 ## Request body
 API hỗ trợ partial update (chỉ cập nhật các trường được truyền khác null).
 ```json
 {
-  "name": "Giải Nhất Cuộc Thi",
-  "description": "Đội thi xuất sắc nhất giải đấu.",
-  "levelAward": 1,
-  "numberOfAward": 1,
-  "prize": 15000000
+  "name": "string",
+  "description": "string|null",
+  "levelAward": "string",
+  "numberOfAward": 0,
+  "prize": 0
 }
 ```
 
@@ -30,7 +30,7 @@ API hỗ trợ partial update (chỉ cập nhật các trường được truy�
 |---|---|---|---|
 | `name` | `string` | Không | Tên giải thưởng. |
 | `description` | `string` | Không | Mô tả giải thưởng. |
-| `levelAward` | `int` | Không | Cấp giải (1: Nhất, 2: Nhì, ...). |
+| `levelAward` | `string` | Không | Cấp giải ("1", "2", ...). |
 | `numberOfAward` | `int` | Không | Số lượng giải. |
 | `prize` | `decimal` | Không | Giá trị giải thưởng (VND). |
 
@@ -64,4 +64,8 @@ API hỗ trợ partial update (chỉ cập nhật các trường được truy�
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- ⏳ **Đề xuất**: Chưa implement trong code hiện tại. Entity: `Awards`.
+- Đã implement endpoint trong `Hackathon.Api.Controllers.EventsController`.
+- Đã thêm method `UpdateAward(Guid id, UpdateAwardRequest request)` trong `Hackathon.Service.Events.IService`.
+- Đã thêm request model `UpdateAwardRequest` trong `Hackathon.Service.Events.Request`.
+- Đã implement logic partial update trong `Hackathon.Service.Events.Service`.
+- Endpoint dùng route `PATCH /api/v1/admin/awards/{id}` và `AdminPolicy`.

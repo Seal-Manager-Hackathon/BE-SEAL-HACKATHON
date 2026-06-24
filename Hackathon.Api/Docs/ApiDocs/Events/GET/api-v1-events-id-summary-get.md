@@ -44,9 +44,10 @@ Public (không yêu cầu access token).
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | BAD_REQUEST | INVALID_EVENT_ID |
 | 404 | NOT_FOUND | EVENT_NOT_FOUND |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- ⏳ **Đề xuất**: Chưa implement trong code hiện tại. Entity: `RegisterTeams`, `Tracks`, `Rounds`, `Awards`.
+- ✅ Đã implement trong `Hackathon.Api.Controllers.EventsController`.
+- Route: `GET /api/v1/events/{eventId}/summary`.
+- Public endpoint.

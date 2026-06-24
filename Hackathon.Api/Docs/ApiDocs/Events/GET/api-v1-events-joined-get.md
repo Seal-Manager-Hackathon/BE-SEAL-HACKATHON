@@ -35,7 +35,7 @@ Authorization: Bearer <token>
         "name": "string",
         "startTime": "datetime|null",
         "endTime": "datetime|null",
-        "status": 0, /* Draft */
+        "status": "Draft"
         "season": "string|null",
         "createdAt": "datetime"
       }

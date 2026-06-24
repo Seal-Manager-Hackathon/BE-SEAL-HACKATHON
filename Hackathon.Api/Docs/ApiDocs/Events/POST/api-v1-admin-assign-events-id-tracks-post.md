@@ -45,13 +45,18 @@ Yêu cầu access token hợp lệ với role `Admin` hoặc `Staff`.
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
+| 400 | BAD_REQUEST | INVALID_EVENT_ROLE |
 | 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | FORBIDDEN |
 | 404 | NOT_FOUND | ASSIGNMENT_NOT_FOUND |
 | 404 | NOT_FOUND | TRACK_NOT_FOUND |
 | 409 | CONFLICT | TRACK_ALREADY_ASSIGNED |
+| 409 | CONFLICT | TRACK_NOT_IN_ASSIGNMENT_EVENT |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- ⏳ **Đề xuất**: Chưa implement trong code hiện tại.
+- ✅ Đã implement trong `Hackathon.Api.Controllers.EventsController`.
+- Route: `POST /api/v1/admin/assign-events/{id}/tracks`.
+- Sử dụng policy `StaffOrAdminPolicy`.
+- Message: `TRACK_ASSIGNED`.
