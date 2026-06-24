@@ -40,7 +40,7 @@ Không có.
       "limitTeam": 0,
       "minMember": 0,
       "maxMember": 0,
-      "status": 0, /* Draft */
+      "status": "Draft"
       "numberRound": 0,
       "season": "string|null",
       "isDisable": false,
@@ -66,5 +66,5 @@ Không có.
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | BAD_REQUEST | QUERY_PARAMETER_INVALID |
+| 400 | BAD_REQUEST | INVALID_LIMIT_PARAMETER |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

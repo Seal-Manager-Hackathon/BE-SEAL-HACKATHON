@@ -2,5 +2,7 @@ namespace Hackathon.Repository.Enum;
 
 public enum SubmissionStatusEnum
 {
-    Submitted
+    Submitted,
+    Unsubmitted,
+    Failed
 }

@@ -12,7 +12,7 @@ Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
 |---|---|---|---:|---|
-| `registerTeamId` | `guid` | Có | Id của đơn đăng ký cần từ chối. |
+| `registerId` | `guid` | Có | Id của đơn đăng ký cần từ chối. |
 
 ## Query parameters
 Không có.

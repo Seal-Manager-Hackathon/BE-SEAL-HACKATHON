@@ -25,7 +25,7 @@ Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
 
 ## Ví dụ request
 ```http
-GET /api/v1/register-teams/staff/events/00000000-0000-0000-0000-000000000000?keyword=abc&status=Approved&isDisable=false&pageIndex=1&pageSize=10
+GET /api/v1/register-teams/staff/events/00000000-0000-0000-0000-000000000000?keyword=abc&status=1&isDisable=false&pageIndex=1&pageSize=10
 Authorization: Bearer {accessToken}
 ```
 

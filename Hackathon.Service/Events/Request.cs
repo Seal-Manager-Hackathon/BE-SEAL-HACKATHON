@@ -56,4 +56,37 @@ public static class Request
         public int? NumberRound { get; set; }
         public string? Season { get; set; }
     }
+
+    public class AssignStaffToEventRequest
+    {
+        public Guid UserId { get; set; }
+    }
+
+    public class CreateAwardRequest
+    {
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+        public string? LevelAward { get; set; }
+        public int? NumberOfAward { get; set; }
+        public decimal? Prize { get; set; }
+    }
+
+    public class AssignEventToTrackRequest
+    {
+        public Guid TrackId { get; set; }
+    }
+
+    public class UpdateAwardRequest
+    {
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+        public string? LevelAward { get; set; }
+        public int? NumberOfAward { get; set; }
+        public decimal? Prize { get; set; }
+    }
+
+    public class UpdateLecturerRoleRequest
+    {
+        public string? EventRole { get; set; }
+    }
 }

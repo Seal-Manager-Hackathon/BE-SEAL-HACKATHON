@@ -1,4 +1,4 @@
-# Lấy Topic và Track cho Team
+# API 51: Xem đề bài của nhóm (Get Assigned Topic)
 
 ## Tác dụng
 Lấy thông tin chủ đề (Topic) và phân ban (Track) của một Team (đơn đăng ký) trong phạm vi sự kiện.
@@ -6,39 +6,24 @@ Lấy thông tin chủ đề (Topic) và phân ban (Track) của một Team (đ�
 ## URL
 `GET /api/v1/events/{eventId}/register-teams/{registerTeamId}/topic`
 
-## Authorization
-Không yêu cầu Access Token (Public API).
+## Quyền
+Authenticated User (Yêu cầu đăng nhập, dành cho thành viên của team)
 
-## Path parameters
-| Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
-|---|---|---|---|
-| `eventId` | `guid` | Có | ID của sự kiện. |
-| `registerTeamId` | `guid` | Có | ID đơn đăng ký của team vào sự kiện đó. |
+## Request Headers
+- \`Authorization: Bearer <AccessToken>\`
 
-## Query parameters
-Không có.
+## Request Parameters
+*   **Path Parameters:**
+    *   `eventId` (Guid, Bắt buộc): ID của sự kiện.
+    *   `registerTeamId` (Guid, Bắt buộc): ID đơn đăng ký của team vào sự kiện đó.
 
-## Ví dụ request
-```http
-GET /api/v1/events/3fa85f64-5717-4562-b3fc-2c963f66afa6/register-teams/d1e2f3a4-b5c6-d7e8-f9a0-b1c2d3e4f5a6/topic
-Authorization: Bearer {accessToken}
-```
-
-## Request body
-Không có.
-
-## Response body
-Response dùng `ApiResponseFactory.Base(result)`.
-
+## Response body (Success - 200 OK)
+*Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
   "isSuccess": true,
   "isFailed": false,
-  "error": null,
-  "status": 200,
-  "traceId": "00-84a1e9df64619d8...",
-  "timestampUtc": "2026-06-19T10:00:00.0000000Z",
-  "data": {
+  "Value": {
     "registerTeamId": "d1e2f3a4-b5c6-d7e8-f9a0-b1c2d3e4f5a6",
     "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "trackId": "c4b5a6d7-e8f9-0a1b-2c3d-4e5f6a7b8c9d",
@@ -48,17 +33,38 @@ Response dùng `ApiResponseFactory.Base(result)`.
     "topicTitle": "Quản lý Bệnh viện",
     "topicDescription": "Xây dựng hệ thống số hóa quy trình khám chữa bệnh"
   },
-  "message": "SUCCESS"
+  "error": null,
+  "traceId": "00-84a1e9df64619d8...",
+  "timestampUtc": "2026-06-19T10:00:00.0000000Z"
 }
 ```
 
 ## Business rules
 - Trả về Track và Topic của team đã được assign trong bảng `RegisterTeams`.
-- `registerTeamId` và `eventId` phải khớp với bản ghi thực tế, nếu không trả `REGISTER_TEAM_NOT_FOUND`.
-- Nếu chưa được assign Topic hay Track nào, các trường Id/Title sẽ là `null`.
+- `registerTeamId` and `eventId` phải khớp với bản ghi thực tế, nếu không trả `REGISTER_TEAM_NOT_FOUND`.
+- Nếu cả Track và Topic của đơn đăng ký đều chưa được assign (bằng `null`) -> trả lỗi `400 BadRequest` với mã lỗi `TRACK_NOT_ASSIGNED`.
+- Nếu một trong hai trường Track hoặc Topic bị `null` (gặp lỗi phân công chưa hoàn thiện) -> trả lỗi `400 BadRequest` với mã lỗi `TRACK_OR_TOPIC_ASSIGNMENT_INCOMPLETE_CONTACT_ADMIN` để báo người dùng liên hệ ban tổ chức/admin hỗ trợ.
 
 ## Lỗi có thể xảy ra
+*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn \`ErrorResponse\`:*
+
+```json
+{
+  "title": "Not Found",
+  "status": 404,
+  "Detail": "Không tìm thấy thông tin đơn đăng ký của đội.",
+  "messageCode": "REGISTER_TEAM_NOT_FOUND",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
+}
+```
+
+### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
-|---|---|---|
-| 404 | NOT_FOUND | REGISTER_TEAM_NOT_FOUND |
-| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
+|---:|---|---|
+| 400 | TRACK_NOT_ASSIGNED | Đội thi chưa được phân công ban thi đấu (Track). |
+| 400 | TRACK_OR_TOPIC_ASSIGNMENT_INCOMPLETE_CONTACT_ADMIN | Quá trình phân ban hoặc đề tài chưa hoàn tất. Vui lòng liên hệ Admin/Staff. |
+| 401 | UNAUTHORIZED | Access token không hợp lệ hoặc thiếu. |
+| 404 | REGISTER_TEAM_NOT_FOUND | Đơn đăng ký không tồn tại. |
+| 500 | INTERNAL_SERVER_ERROR | Gặp lỗi hệ thống. |

@@ -178,7 +178,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<AssignEvents>()
             .HasOne(assignEvent => assignEvent.EventRole)
             .WithMany(eventRole => eventRole.AssignEvents)
-            .HasForeignKey(assignEvent => assignEvent.EventRoleId);
+            .HasForeignKey(assignEvent => assignEvent.EventRoleId)
+            .IsRequired(false);
 
         modelBuilder.Entity<AssignEvents>()
             .HasOne(assignEvent => assignEvent.Event)
@@ -265,5 +266,6 @@ public class AppDbContext : DbContext
         modelBuilder.SeedNotifications();
         modelBuilder.SeedReports();
         modelBuilder.SeedLeaderBoards();
+        modelBuilder.SeedDemoData();
     }
 }
