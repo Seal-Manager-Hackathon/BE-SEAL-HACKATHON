@@ -87,6 +87,19 @@ public class Service : IService
         return ApiResponseFactory.BasePagination(items, paginationRequest.PageIndex, paginationRequest.PageSize, totalCount);
     }
 
+    public async Task<int> GetPendingInvitationsCount()
+    {
+        var userId = GetCurrentUserId();
+
+        var count = await _dbContext.Invitations
+            .AsNoTracking()
+            .CountAsync(x => x.UserId == userId
+                             && !x.IsDisable
+                             && x.Status == InvitationStatusEnum.Pending);
+
+        return count;
+    }
+
     private static Response.InvitationItemResponse MapToResponse(Repository.Entity.Invitations x)
     {
         return new Response.InvitationItemResponse
