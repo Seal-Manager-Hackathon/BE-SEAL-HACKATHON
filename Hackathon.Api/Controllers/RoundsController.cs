@@ -25,6 +25,38 @@ public class RoundsController : ControllerBase
         return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
+    [HttpGet("{roundId:guid}")]
+    public async Task<IActionResult> GetRound(Guid roundId)
+    {
+        var result = await _roundsService.GetRound(roundId);
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("{roundId:guid}/my-submissions")]
+    [Authorize]
+    public async Task<IActionResult> GetMyRoundSubmissions(Guid roundId, [FromQuery] RoundsService.Request.GetSubmissionsQuery query)
+    {
+        var result = await _roundsService.GetMyRoundSubmissions(roundId, query);
+        result.TraceId = HttpContext.TraceIdentifier;
+        return Ok(result);
+    }
+
+    [HttpGet("{roundId:guid}/ranking")]
+    public async Task<IActionResult> GetRoundRanking(Guid roundId, [FromQuery] RoundsService.Request.GetSubmissionsQuery query)
+    {
+        var result = await _roundsService.GetRoundRanking(roundId, query);
+        result.TraceId = HttpContext.TraceIdentifier;
+        return Ok(result);
+    }
+
+    [HttpGet("{roundId:guid}/scores/me")]
+    [Authorize]
+    public async Task<IActionResult> GetMyRoundScore(Guid roundId)
+    {
+        var result = await _roundsService.GetMyRoundScore(roundId);
+        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
+
     [HttpGet("teams/{teamId:guid}")]
     [Authorize]
     public async Task<IActionResult> GetMyRounds(Guid teamId, [FromQuery] Guid? eventId)
@@ -43,9 +75,9 @@ public class RoundsController : ControllerBase
 
     [HttpPost("{roundId:guid}/submit-assignment")]
     [Authorize]
-    public async Task<IActionResult> SubmitAssignment(Guid roundId, [FromBody] RoundsService.Request.SubmitAssignmentRequest request)
+    public async Task<IActionResult> CreateSubmission(Guid roundId, [FromBody] RoundsService.Request.CreateSubmissionRequest request)
     {
-        var result = await _roundsService.SubmitAssignment(roundId, request);
+        var result = await _roundsService.CreateSubmission(roundId, request);
         return Ok(ApiResponseFactory.Base(result,200,"SUBMISSION_CREATED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
@@ -54,7 +86,8 @@ public class RoundsController : ControllerBase
     public async Task<IActionResult> GetRoundSubmissions(Guid roundId, [FromQuery] RoundsService.Request.GetSubmissionsQuery query)
     {
         var result = await _roundsService.GetRoundSubmissions(roundId, query);
-        return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
+        result.TraceId = HttpContext.TraceIdentifier;
+        return Ok(result);
     }
 
     [HttpPost("{roundId:guid}/end")]

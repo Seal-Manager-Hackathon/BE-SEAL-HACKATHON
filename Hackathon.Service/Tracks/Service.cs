@@ -146,7 +146,7 @@ public class Service : IService
         return ApiResponseFactory.BasePagination(items, paginationRequest.PageIndex, paginationRequest.PageSize, totalCount);
     }
 
-    public async Task<BasePaginationResponse> GetApprovedTeamsByEvent(Guid eventId, string? keyword, bool? isDisable, PaginationRequest paginationRequest)
+    public async Task<BasePaginationResponse> GetApprovedTeamsByEvent(Guid eventId, string? keyword, RegisterTeamStatusEnum? status, bool? isDisable, PaginationRequest paginationRequest)
     {
         var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
         if (!eventExists)
@@ -163,8 +163,12 @@ public class Service : IService
             .AsNoTracking()
             .Where(x => x.EventId == eventId
                         && x.IsDisable == (isDisable ?? false)
-                        && x.Status == RegisterTeamStatusEnum.Approved
                         && !x.Team.IsDisable);
+
+        if (status.HasValue)
+        {
+            query = query.Where(x => x.Status == status.Value);
+        }
 
         if (!string.IsNullOrWhiteSpace(keyword))
         {
@@ -201,6 +205,7 @@ public class Service : IService
                     })
                     .ToList(),
                 IsBanned = x.IsBanned,
+                Status = x.Status ?? RegisterTeamStatusEnum.Pending,
                 CreatedAt = x.CreatedAt,
             })
             .ToListAsync();

@@ -96,3 +96,7 @@ Chỉ cần truyền các field muốn cập nhật.
 - Đã implement logic partial update trong `Hackathon.Service.Events.Service`.
 - Endpoint dùng route `PATCH /api/v1/admin/events/{eventId}` và `AdminPolicy`.
 - Response thành công chỉ trả message `EVENT_UPDATED_SUCCESSFULLY`.
+
+
+## Ghi chú Enum
+Tham chiếu file [00-enum-values.md](00-enum-values.md) để biết chi tiết các giá trị số (int) trả về cho các trường Trạng thái (Status).
