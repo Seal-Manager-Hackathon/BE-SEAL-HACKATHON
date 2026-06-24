@@ -45,19 +45,18 @@ public class Service : IService
         var user = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
         if (user == null || user.Role != RoleEnum.Lecturer)
         {
-            throw new ForbiddenException("Bạn không phải Mentor hoặc không được phân công hỗ trợ sự kiện nào.");
+            throw new ForbiddenException("FORBIDDEN");
         }
 
-        var reqPageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
-        var reqPageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
+        var pageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
+        var pageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
 
-        // 2. Query assignments for this user where role is Mentor (value 0 in EventRoleEnum)
+        // 2. Query assignments for this user in AssignEvents
         var query = _dbContext.AssignEvents
             .AsNoTracking()
             .Include(x => x.Event)
             .Include(x => x.EventRole)
             .Where(x => x.UserId == userId
-                        && x.EventRole.Name == EventRoleEnum.Mentor
                         && !x.IsDisable
                         && !x.Event.IsDisable);
 
@@ -65,22 +64,22 @@ public class Service : IService
 
         if (totalCount == 0)
         {
-            throw new ForbiddenException("Bạn không phải Mentor hoặc không được phân công hỗ trợ sự kiện nào.");
+            throw new ForbiddenException("FORBIDDEN");
         }
 
         var items = await query
             .OrderByDescending(x => x.CreatedAt)
-            .Skip((reqPageIndex - 1) * reqPageSize)
-            .Take(reqPageSize)
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
             .Select(x => new Response.MentorEventResponse
             {
                 AssignEventId = x.Id,
                 EventId = x.EventId,
                 EventName = x.Event.Name,
-                Role = x.EventRole.Name.ToString()
+                Role = x.EventRole != null ? x.EventRole.Name.ToString() : string.Empty
             })
             .ToListAsync();
 
-        return ApiResponseFactory.BasePagination(items, reqPageIndex, reqPageSize, totalCount);
+        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
     }
 }
