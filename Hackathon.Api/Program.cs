@@ -113,6 +113,7 @@ builder.Services.AddScoped<Hackathon.Service.AssignEvents.IService, Hackathon.Se
 builder.Services.AddScoped<Hackathon.Service.AssignTracks.IService, Hackathon.Service.AssignTracks.Service>();
 builder.Services.AddScoped<MentorsService.IService, MentorsService.Service>();
 builder.Services.AddScoped<NotificationsService.IService, NotificationsService.Service>();
+builder.Services.AddScoped<Hackathon.Service.Lecturers.IService, Hackathon.Service.Lecturers.Service>();
 
 
 builder.Services.AddCors(options =>

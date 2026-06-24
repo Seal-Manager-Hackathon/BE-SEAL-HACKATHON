@@ -1,0 +1,10 @@
+using System.Threading.Tasks;
+using Hackathon.Service.Models;
+
+namespace Hackathon.Service.Lecturers;
+
+public interface IService
+{
+    Task<BasePaginationResponse> GetLecturerEvents(PaginationRequest request);
+    Task<BasePaginationResponse> SearchLecturerEvents(Request.SearchLecturerEventsRequest request);
+}
