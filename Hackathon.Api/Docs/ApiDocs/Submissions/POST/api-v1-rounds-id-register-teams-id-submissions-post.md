@@ -34,13 +34,14 @@ Student là Leader của team (Yêu cầu đăng nhập tài khoản sinh viên)
 *Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "isSuccess": true,
-  "isFailed": false,
-  "error": null,
-  "status": 200,
-  "traceId": "0HN1A2B3C4D5E",
-  "timestampUtc": "2026-06-22T08:00:00Z",
-  "data": {
+  "IsSuccess": true,
+  "IsFailed": false,
+  "Status": 200,
+  "Error": null,
+  "TraceId": "0HN1A2B3C4D5E",
+  "TimestampUtc": "2026-06-22T08:00:00Z",
+  "Message": "SUBMISSION_CREATED_SUCCESSFULLY",
+  "Data": {
     "submissionId": "f9b8c7d6-e5a4-3210-9c0d-1e2f3a4b5c6d",
     "teamId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "submittedAt": "2026-06-22T08:00:00Z",
@@ -60,15 +61,16 @@ Student là Leader của team (Yêu cầu đăng nhập tài khoản sinh viên)
 - Bọc toàn bộ quá trình cập nhật vào database transaction.
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse`:*
+*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
 
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | VALIDATION_FAILED | Dữ liệu đầu vào không hợp lệ (ví dụ: url sai định dạng) |
-| 400 | ROUND_SUBMISSION_CLOSED | Vòng thi chưa mở hoặc đã kết thúc thời gian nộp bài. |
+| 400 | BAD_REQUEST | URL_REQUIRED |
+| 400 | BAD_REQUEST | INVALID_URL_FORMAT |
+| 400 | BAD_REQUEST | ROUND_SUBMISSION_CLOSED |
 | 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
-| 401 | INVALID_ACCESS_TOKEN | INVALID_ACCESS_TOKEN |
-| 403 | ONLY_TEAM_LEADER_CAN_SUBMIT | Chỉ có Trưởng nhóm mới có quyền nộp bài. |
-| 404 | REGISTER_TEAM_NOT_FOUND | Đơn đăng ký đội thi không tồn tại hoặc bị disable. |
-| 404 | ROUND_NOT_FOUND | Vòng thi không tồn tại hoặc không khớp với sự kiện của đội. |
-| 500 | INTERNAL_SERVER_ERROR | Gặp lỗi hệ thống. |
+| 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
+| 403 | FORBIDDEN | ONLY_TEAM_LEADER_CAN_SUBMIT |
+| 404 | NOT_FOUND | REGISTER_TEAM_NOT_FOUND |
+| 404 | NOT_FOUND | ROUND_NOT_FOUND |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
