@@ -14,7 +14,7 @@ public static class AwardSeed
                 EventId = SeedConstants.SealHackathonEventId,
                 Name = "Champion",
                 Description = "First place award",
-                LevelAward = "First",
+                LevelAward = 1,
                 NumberOfAward = 1,
                 Prize = 1000m,
                 IsDisable = false,
@@ -27,7 +27,7 @@ public static class AwardSeed
                 EventId = SeedConstants.SealHackathonEventId,
                 Name = "Runner Up",
                 Description = "Second place award",
-                LevelAward = "Second",
+                LevelAward = 2,
                 NumberOfAward = 1,
                 Prize = 500m,
                 IsDisable = false,
@@ -36,20 +36,20 @@ public static class AwardSeed
             },
 
             // 10 New Awards for 10 new Events
-            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000010"), Guid.Parse("20000000-0000-0000-0000-000000000010"), "First Prize", "First place award", "First", 1, 1000m),
-            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000011"), Guid.Parse("20000000-0000-0000-0000-000000000011"), "First Prize", "First place award", "First", 1, 1200m),
-            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000012"), Guid.Parse("20000000-0000-0000-0000-000000000012"), "First Prize", "First place award", "First", 1, 1500m),
-            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000013"), Guid.Parse("20000000-0000-0000-0000-000000000013"), "First Prize", "First place award", "First", 1, 1000m),
-            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000014"), Guid.Parse("20000000-0000-0000-0000-000000000014"), "First Prize", "First place award", "First", 1, 1100m),
-            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000015"), Guid.Parse("20000000-0000-0000-0000-000000000015"), "First Prize", "First place award", "First", 1, 2000m),
-            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000016"), Guid.Parse("20000000-0000-0000-0000-000000000016"), "First Prize", "First place award", "First", 1, 1500m),
-            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000017"), Guid.Parse("20000000-0000-0000-0000-000000000017"), "First Prize", "First place award", "First", 1, 1000m),
-            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000018"), Guid.Parse("20000000-0000-0000-0000-000000000018"), "First Prize", "First place award", "First", 1, 1300m),
-            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000019"), Guid.Parse("20000000-0000-0000-0000-000000000019"), "First Prize", "First place award", "First", 1, 2500m)
+            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000010"), Guid.Parse("20000000-0000-0000-0000-000000000010"), "First Prize", "First place award", 1, 1, 1000m),
+            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000011"), Guid.Parse("20000000-0000-0000-0000-000000000011"), "First Prize", "First place award", 1, 1, 1200m),
+            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000012"), Guid.Parse("20000000-0000-0000-0000-000000000012"), "First Prize", "First place award", 1, 1, 1500m),
+            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000013"), Guid.Parse("20000000-0000-0000-0000-000000000013"), "First Prize", "First place award", 1, 1, 1000m),
+            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000014"), Guid.Parse("20000000-0000-0000-0000-000000000014"), "First Prize", "First place award", 1, 1, 1100m),
+            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000015"), Guid.Parse("20000000-0000-0000-0000-000000000015"), "First Prize", "First place award", 1, 1, 2000m),
+            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000016"), Guid.Parse("20000000-0000-0000-0000-000000000016"), "First Prize", "First place award", 1, 1, 1500m),
+            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000017"), Guid.Parse("20000000-0000-0000-0000-000000000017"), "First Prize", "First place award", 1, 1, 1000m),
+            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000018"), Guid.Parse("20000000-0000-0000-0000-000000000018"), "First Prize", "First place award", 1, 1, 1300m),
+            CreateAward(Guid.Parse("26000000-0000-0000-0000-000000000019"), Guid.Parse("20000000-0000-0000-0000-000000000019"), "First Prize", "First place award", 1, 1, 2500m)
         );
     }
 
-    private static Awards CreateAward(Guid id, Guid eventId, string name, string description, string levelAward, int numberOfAward, decimal prize)
+    private static Awards CreateAward(Guid id, Guid eventId, string name, string description, int levelAward, int numberOfAward, decimal prize)
     {
         return new Awards
         {

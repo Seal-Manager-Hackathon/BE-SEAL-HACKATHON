@@ -29,7 +29,7 @@ Yêu cầu access token hợp lệ với role `Admin`.
 |---|---|---|---|
 | `name` | `string` | Có | Tên giải thưởng. |
 | `description` | `string` | Không | Mô tả chi tiết giải thưởng. |
-| `levelAward` | `string` | Không | Thứ hạng giải thưởng (Nhất, Nhì, Ba, ...). |
+| `levelAward` | `int` | Không | Thứ hạng giải thưởng (1, 2, 3, ...). |
 | `numberOfAward` | `int` | Không | Số lượng giải cho hạng mục này. |
 | `prize` | `decimal` | Không | Giá trị giải thưởng (VND). |
 

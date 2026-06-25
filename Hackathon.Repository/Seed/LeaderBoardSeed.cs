@@ -38,7 +38,7 @@ public static class LeaderBoardSeed
                 LeaderBoardId = SeedConstants.LeaderBoardId,
                 TeamId = SeedConstants.SeedInnovatorsTeamId,
                 Score = 90m,
-                LevelAward = "First",
+                LevelAward = 1,
                 IsDisable = false,
                 CreatedAt = SeedConstants.CreatedAt,
                 UpdatedAt = SeedConstants.CreatedAt
@@ -49,23 +49,23 @@ public static class LeaderBoardSeed
                 LeaderBoardId = SeedConstants.LeaderBoardId,
                 TeamId = SeedConstants.GreenCodersTeamId,
                 Score = 82m,
-                LevelAward = "Second",
+                LevelAward = 2,
                 IsDisable = false,
                 CreatedAt = SeedConstants.CreatedAt,
                 UpdatedAt = SeedConstants.CreatedAt
             },
 
             // 10 New LeaderBoardDetails connecting new teams to new leaderboards
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000010"), Guid.Parse("60000000-0000-0000-0000-000000000010"), Guid.Parse("30000000-0000-0000-0000-000000000010"), 85m, "First"),
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000011"), Guid.Parse("60000000-0000-0000-0000-000000000011"), Guid.Parse("30000000-0000-0000-0000-000000000011"), 89m, "First"),
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000012"), Guid.Parse("60000000-0000-0000-0000-000000000012"), Guid.Parse("30000000-0000-0000-0000-000000000012"), 91m, "First"),
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000013"), Guid.Parse("60000000-0000-0000-0000-000000000013"), Guid.Parse("30000000-0000-0000-0000-000000000013"), 78m, "Second"),
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000014"), Guid.Parse("60000000-0000-0000-0000-000000000014"), Guid.Parse("30000000-0000-0000-0000-000000000014"), 88m, "First"),
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000015"), Guid.Parse("60000000-0000-0000-0000-000000000015"), Guid.Parse("30000000-0000-0000-0000-000000000015"), 92m, "First"),
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000016"), Guid.Parse("60000000-0000-0000-0000-000000000016"), Guid.Parse("30000000-0000-0000-0000-000000000016"), 87m, "First"),
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000017"), Guid.Parse("60000000-0000-0000-0000-000000000017"), Guid.Parse("30000000-0000-0000-0000-000000000017"), 83m, "Second"),
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000018"), Guid.Parse("60000000-0000-0000-0000-000000000018"), Guid.Parse("30000000-0000-0000-0000-000000000018"), 95m, "First"),
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000019"), Guid.Parse("60000000-0000-0000-0000-000000000019"), Guid.Parse("30000000-0000-0000-0000-000000000019"), 94m, "First")
+            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000010"), Guid.Parse("60000000-0000-0000-0000-000000000010"), Guid.Parse("30000000-0000-0000-0000-000000000010"), 85m, 1),
+            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000011"), Guid.Parse("60000000-0000-0000-0000-000000000011"), Guid.Parse("30000000-0000-0000-0000-000000000011"), 89m, 1),
+            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000012"), Guid.Parse("60000000-0000-0000-0000-000000000012"), Guid.Parse("30000000-0000-0000-0000-000000000012"), 91m, 1),
+            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000013"), Guid.Parse("60000000-0000-0000-0000-000000000013"), Guid.Parse("30000000-0000-0000-0000-000000000013"), 78m, 2),
+            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000014"), Guid.Parse("60000000-0000-0000-0000-000000000014"), Guid.Parse("30000000-0000-0000-0000-000000000014"), 88m, 1),
+            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000015"), Guid.Parse("60000000-0000-0000-0000-000000000015"), Guid.Parse("30000000-0000-0000-0000-000000000015"), 92m, 1),
+            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000016"), Guid.Parse("60000000-0000-0000-0000-000000000016"), Guid.Parse("30000000-0000-0000-0000-000000000016"), 87m, 1),
+            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000017"), Guid.Parse("60000000-0000-0000-0000-000000000017"), Guid.Parse("30000000-0000-0000-0000-000000000017"), 83m, 2),
+            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000018"), Guid.Parse("60000000-0000-0000-0000-000000000018"), Guid.Parse("30000000-0000-0000-0000-000000000018"), 95m, 1),
+            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000019"), Guid.Parse("60000000-0000-0000-0000-000000000019"), Guid.Parse("30000000-0000-0000-0000-000000000019"), 94m, 1)
         );
     }
 
@@ -82,7 +82,7 @@ public static class LeaderBoardSeed
         };
     }
 
-    private static LeaderBoardDetails CreateLeaderBoardDetail(Guid id, Guid leaderBoardId, Guid teamId, decimal score, string levelAward)
+    private static LeaderBoardDetails CreateLeaderBoardDetail(Guid id, Guid leaderBoardId, Guid teamId, decimal score, int levelAward)
     {
         return new LeaderBoardDetails
         {

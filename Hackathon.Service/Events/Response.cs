@@ -109,7 +109,7 @@ public static class Response
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
         public string? Description { get; set; }
-        public string? LevelAward { get; set; }
+        public int? LevelAward { get; set; }
         public int? NumberOfAward { get; set; }
         public decimal? Prize { get; set; }
     }
@@ -120,7 +120,7 @@ public static class Response
         public Guid TeamId { get; set; }
         public string TeamName { get; set; } = null!;
         public decimal? TotalScore { get; set; }
-        public string? LevelAward { get; set; }
+        public int? LevelAward { get; set; }
     }
 
     public class EventSummaryResponse
