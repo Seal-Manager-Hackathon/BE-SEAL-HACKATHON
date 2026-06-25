@@ -10,7 +10,7 @@ Cho phép người dùng đã đăng nhập xem chi tiết tiến độ giải q
 Authenticated User (Yêu cầu đăng nhập, là người gửi báo cáo)
 
 ## Request Headers
-- \`Authorization: Bearer <AccessToken>\`
+- `Authorization: Bearer <AccessToken>`
 
 ## Request Parameters
 *   **Path Parameters:**
@@ -20,22 +20,23 @@ Authenticated User (Yêu cầu đăng nhập, là người gửi báo cáo)
 *Cấu trúc trả về dạng `BaseResponse` chứa chi tiết bản ghi báo cáo.*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z",
-  "Value": {
+  "isSuccess": true,
+  "isFailed": false,
+  "error": null,
+  "status": 200,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "data": {
     "id": "e5f6a7b8-c9d0-e1f2-a3b4-c5d6e7f8a9b0",
     "assignEventId": "b1a7d6c2-4821-4f9b-bd5e-3c2fa56789e0",
     "submissionId": "f7b6d5c4-129b-4e6f-adbd-2c5ea56789ff",
-    "Title": "Báo cáo vấn đề chấm điểm lệch",
+    "title": "Báo cáo vấn đề chấm điểm lệch",
     "description": "Giám khảo chấm bảng A cho điểm không khớp tiêu chí.",
     "imgUrl": "https://example.com/evidence.jpg",
     "fileUrl": "https://example.com/evidence.pdf",
     "typeReport": "Phúc khảo",
-    "Status": 0, /* Open */
-    "reason": null, // Nội dung giải quyết từ BTC
+    "status": 0,
+    "reason": null,
     "createdAt": "2026-06-22T08:00:00Z",
     "updatedAt": "2026-06-22T08:00:00Z"
   }
@@ -54,23 +55,8 @@ Authenticated User (Yêu cầu đăng nhập, là người gửi báo cáo)
 | `1` | Closed | Đã đóng / Đã giải quyết xong |
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn \`ErrorResponse\`:*
-
-```json
-{
-  "Title": "Forbidden",
-  "Status": 403,
-  "Detail": "Bạn không có quyền xem báo cáo của người khác.",
-  "MessageCode": "FORBIDDEN",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
-}
-```
-
-### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
-|---:|---|---|
+|---|---|---|
 | 401 | UNAUTHORIZED | Access token không hợp lệ hoặc thiếu. |
 | 403 | FORBIDDEN | Người gọi không phải là người tạo báo cáo này. |
 | 404 | REPORT_NOT_FOUND | Báo cáo không tồn tại. |

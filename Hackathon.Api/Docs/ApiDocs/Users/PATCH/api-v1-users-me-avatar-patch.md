@@ -10,7 +10,7 @@ Cho phép người dùng đã đăng nhập cập nhật trực tiếp đường
 Authenticated User (Yêu cầu đăng nhập)
 
 ## Request Headers
-- \`Authorization: Bearer <AccessToken>\`
+- `Authorization: Bearer <AccessToken>`
 
 ## Request Body
 ```json
@@ -23,15 +23,16 @@ Authenticated User (Yêu cầu đăng nhập)
 *Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Value": {
-    "avatarUrl": "https://cdn.seal-hackathon.vn/uploads/avatars/user-123.jpg",
-    "message": "AVATAR_UPDATED_SUCCESSFULLY"
+  "isSuccess": true,
+  "isFailed": false,
+  "error": null,
+  "status": 200,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "data": {
+    "avatarUrl": "https://cdn.seal-hackathon.vn/uploads/avatars/user-123.jpg"
   },
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "message": "AVATAR_UPDATED_SUCCESSFULLY"
 }
 ```
 
@@ -40,24 +41,9 @@ Authenticated User (Yêu cầu đăng nhập)
 - Cập nhật đồng thời trường `AvatarUrl` và `ImgUrl` (nếu dự án dùng song song cả 2 trường trong bảng `Users`).
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn \`ErrorResponse\`:*
-
-```json
-{
-  "Title": "Bad Request",
-  "Status": 400,
-  "Detail": "Trường avatarUrl không được bỏ trống và phải là URL hợp lệ.",
-  "MessageCode": "INVALID_AVATAR_URL",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
-}
-```
-
-### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
-|---:|---|---|
-| 400 | INVALID_AVATAR_URL | Dữ liệu avatarUrl gửi lên không đúng định dạng. |
+|---|---|---|
+| 400 | VALIDATION_FAILED | Dữ liệu avatarUrl gửi lên không đúng định dạng. |
 | 401 | UNAUTHORIZED | Access token không hợp lệ hoặc hết hạn. |
 | 404 | USER_NOT_FOUND | Người dùng không tồn tại. |
 | 500 | INTERNAL_SERVER_ERROR | Lỗi máy chủ khi lưu DB. |

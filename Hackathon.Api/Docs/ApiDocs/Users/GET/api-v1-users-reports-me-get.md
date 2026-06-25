@@ -10,7 +10,7 @@ Cho phép người dùng đã đăng nhập xem danh sách tất cả các báo 
 Authenticated User (Yêu cầu đăng nhập, chỉ xem các báo cáo do mình gửi)
 
 ## Request Headers
-- \`Authorization: Bearer <"AccessToken">\`
+- `Authorization: Bearer <AccessToken>`
 
 ## Request Parameters
 *   **Query Parameters:**
@@ -21,26 +21,27 @@ Authenticated User (Yêu cầu đăng nhập, chỉ xem các báo cáo do mình 
 *Cấu trúc trả về dạng `BasePaginationResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z",
-  "Value": {
-    "Items": [
+  "isSuccess": true,
+  "isFailed": false,
+  "error": null,
+  "status": 200,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "data": {
+    "items": [
       {
         "id": "e5f6a7b8-c9d0-e1f2-a3b4-c5d6e7f8a9b0",
-        "Title": "Báo cáo vấn đề chấm điểm lệch",
+        "title": "Báo cáo vấn đề chấm điểm lệch",
         "typeReport": "Phúc khảo",
-        "Status": 0, /* Open */
+        "status": 0,
         "createdAt": "2026-06-22T08:00:00Z"
       }
     ],
-    "PageIndex": 1,
-    "PageSize": 10,
-    "TotalCount": 1,
-    "HasNextPage": false,
-    "HasPreviousPage": false
+    "pageIndex": 1,
+    "pageSize": 10,
+    "totalCount": 1,
+    "hasNextPage": false,
+    "hasPreviousPage": false
   }
 }
 ```
@@ -56,22 +57,7 @@ Authenticated User (Yêu cầu đăng nhập, chỉ xem các báo cáo do mình 
 | `1` | Closed | Đã đóng / Đã giải quyết xong |
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn \`ErrorResponse\`:*
-
-```json
-{
-  "Title": "Unauthorized",
-  "Status": 401,
-  "Detail": "Vui lòng đăng nhập để xem danh sách báo cáo.",
-  "MessageCode": "UNAUTHORIZED",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
-}
-```
-
-### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
-|---:|---|---|
+|---|---|---|
 | 401 | UNAUTHORIZED | Access token không hợp lệ hoặc thiếu. |
 | 500 | INTERNAL_SERVER_ERROR | Lỗi máy chủ phát sinh. |

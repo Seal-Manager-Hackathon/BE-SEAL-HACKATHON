@@ -10,6 +10,9 @@ public class NotFoundException : AppException
 {
     public NotFoundException(string message)
         : base("Not Found",404, "NOT_FOUND", message) { }
+
+    public NotFoundException(string messageCode, string message)
+        : base("Not Found", 404, messageCode, message) { }
 }
 
 public class ForbiddenException : AppException
