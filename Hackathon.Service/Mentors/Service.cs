@@ -76,7 +76,7 @@ public class Service : IService
                 AssignEventId = x.Id,
                 EventId = x.EventId,
                 EventName = x.Event.Name,
-                Role = x.EventRole != null ? x.EventRole.Name.ToString() : string.Empty
+                Role = x.EventRole != null ? x.EventRole.Name : null
             })
             .ToListAsync();
 

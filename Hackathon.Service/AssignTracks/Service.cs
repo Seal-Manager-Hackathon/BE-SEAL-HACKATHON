@@ -41,7 +41,8 @@ public class Service : IService
 
     private bool IsCurrentUserAdmin()
     {
-        return _httpContext.HttpContext?.User.IsInRole(RoleEnum.Admin.ToString()) == true;
+        var role = _httpContext.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
+        return Enum.TryParse<RoleEnum>(role, true, out var userRole) && userRole == RoleEnum.Admin;
     }
 
     private async Task EnsureStaffAssignedToEvent(Guid eventId)

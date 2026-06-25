@@ -32,7 +32,7 @@ Yêu cầu access token hợp lệ với role `Admin`.
       "fullName": "Nguyễn Văn A",
       "email": "lecturerA@college.edu.vn",
       "eventRoleId": "f7b6d5c4-129b-4e6f-adbd-2c5ea56789ff",
-      "eventRoleName": "Judge",
+      "eventRoleName": 1,
       "assignedTracks": [
         {
           "assignTrackId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",

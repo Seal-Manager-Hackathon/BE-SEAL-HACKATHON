@@ -83,7 +83,7 @@ public static class Response
         public Guid SubmissionId { get; set; }
         public string? Url { get; set; }
         public DateTimeOffset? SubmittedAt { get; set; }
-        public int? Status { get; set; }
+        public Hackathon.Repository.Enum.SubmissionStatusEnum? Status { get; set; }
         public decimal? TotalScore { get; set; }
     }
 
@@ -95,7 +95,7 @@ public static class Response
         public Guid RoundDetailId { get; set; }
         public string? Url { get; set; }
         public string? Description { get; set; }
-        public int? Status { get; set; }
+        public Hackathon.Repository.Enum.SubmissionStatusEnum? Status { get; set; }
         public DateTimeOffset? SubmittedAt { get; set; }
         public bool IsLatest { get; set; }
         public string GradingStatus { get; set; } = null!;
@@ -144,7 +144,7 @@ public static class Response
         public string? TopicTitle { get; set; }
         public string? Url { get; set; }
         public string? Description { get; set; }
-        public string SubmissionStatus { get; set; } = null!;
+        public Hackathon.Repository.Enum.SubmissionStatusEnum? SubmissionStatus { get; set; }
         public DateTimeOffset? SubmittedAt { get; set; }
         public string? GradingStatus { get; set; }
         public List<AssignedJudgeResponse> AssignedJudges { get; set; } = new();
