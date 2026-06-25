@@ -6,28 +6,26 @@ Giúp Judge xem danh sách thống kê toàn bộ các bài thi mình đã chấ
 ## URL
 `GET /api/v1/judge/scores/me`
 
-## Quyền
-Lecturer với vai trò Judge (Yêu cầu đăng nhập tài khoản Giảng viên)
-
-## Request Headers
-- \`Authorization: Bearer <AccessToken>\`
+## Authorization
+Yêu cầu access token hợp lệ của tài khoản Giảng viên với vai trò Judge.
 
 ## Response body (Success - 200 OK)
-*Cấu trúc trả về dạng `BaseResponse` chứa thông tin thống kê.*
-deoma
+*Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Value": {
+  "isSuccess": true,
+  "isFailed": false,
+  "status": 200,
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "message": "SUCCESS",
+  "data": {
     "totalAssignedSubmissions": 15,
     "totalGradedSubmissions": 10,
     "totalPendingSubmissions": 5,
     "gradedPercentage": 66.67
-  },
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  }
 }
 ```
 
@@ -37,19 +35,20 @@ deoma
   - `totalAssignedSubmissions`: Đếm số bài thi của các team thuộc các track Judge được gán.
   - `totalGradedSubmissions`: Đếm số bài thi Judge đã chấm (`Scores` tồn tại).
   - `totalPendingSubmissions`: Đếm số bài thi Judge chưa chấm (`Scores` chưa có).
+- **Edge case**: Nếu `totalAssignedSubmissions = 0` → `gradedPercentage = 0` (không tính division để tránh lỗi).
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn \`ErrorResponse\`:*
+*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
 
 ```json
 {
-  "Title": "Unauthorized",
-  "Status": 401,
-  "Detail": "Vui lòng xác thực tài khoản.",
-  "MessageCode": "UNAUTHORIZED",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "title": "Unauthorized",
+  "status": 401,
+  "message": "Vui lòng xác thực tài khoản.",
+  "messageCode": "UNAUTHORIZED",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
@@ -57,5 +56,9 @@ deoma
 | HTTP | messageCode | message/detail |
 |---:|---|---|
 | 401 | UNAUTHORIZED | Access token không hợp lệ hoặc thiếu. |
-| 403 | FORBIDDEN | Giảng viên chưa được phân công làm Judge trong bảng đấu nào. |
 | 500 | INTERNAL_SERVER_ERROR | Gặp lỗi hệ thống. |
+
+## Trạng thái implement
+- ✅ Đã implement trong `Hackathon.Api.Controllers.JudgeController`.
+- Route: `GET /api/v1/judge/scores/me`.
+- Sử dụng policy `LecturerPolicy`.
