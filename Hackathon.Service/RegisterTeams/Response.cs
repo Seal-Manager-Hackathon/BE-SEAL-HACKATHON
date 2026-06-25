@@ -130,4 +130,61 @@ public static class Response
         public int? CurrentRoundNo { get; set; }
         public bool IsEliminated { get; set; }
     }
+
+    public class RegisterTeamByRoundResponse
+    {
+        public Guid RegisterTeamId { get; set; }
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = string.Empty;
+        public Guid? TrackId { get; set; }
+        public string? TrackTitle { get; set; }
+        public Guid? TopicId { get; set; }
+        public string? TopicTitle { get; set; }
+        public RegisterTeamStatusEnum Status { get; set; }
+        public bool IsBanned { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+    }
+
+    public class TeamRoundSubmissionResponse
+    {
+        public Guid RegisterTeamId { get; set; }
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = string.Empty;
+        public Guid? TrackId { get; set; }
+        public string? TrackTitle { get; set; }
+        public List<SubmissionDetailDto> Submissions { get; set; } = new();
+    }
+
+    public class SubmissionDetailDto
+    {
+        public Guid SubmissionId { get; set; }
+        public Guid RoundId { get; set; }
+        public int? RoundNo { get; set; }
+        public string? Url { get; set; }
+        public string? Description { get; set; }
+        public Repository.Enum.SubmissionStatusEnum? Status { get; set; }
+        public DateTimeOffset? SubmittedAt { get; set; }
+        public bool IsLatest { get; set; }
+        public string GradingStatus { get; set; } = "NotGraded";
+        public SubmissionScoreDto? Score { get; set; }
+    }
+
+    public class SubmissionScoreDto
+    {
+        public Guid ScoreId { get; set; }
+        public decimal? TotalScore { get; set; }
+        public bool IsRetake { get; set; }
+        public bool IsMock { get; set; }
+        public List<ScoreItemDto> ScoreItems { get; set; } = new();
+    }
+
+    public class ScoreItemDto
+    {
+        public Guid ScoreItemId { get; set; }
+        public Guid CriteriaItemId { get; set; }
+        public string CriteriaItemName { get; set; } = string.Empty;
+        public decimal? Score { get; set; }
+        public decimal MaxScore { get; set; }
+        public string? Comment { get; set; }
+    }
 }
