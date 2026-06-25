@@ -6,23 +6,26 @@ Giúp Judge xem danh sách các bài thi đã nộp của các team thuộc bả
 ## URL
 `GET /api/v1/judge/tracks/{trackId}/submissions`
 
-## Quyền
-Judge phụ trách track (Yêu cầu đăng nhập tài khoản Giảng viên được phân công)
+## Authorization
+Yêu cầu access token hợp lệ của tài khoản Giảng viên được phân công Judge phụ trách track.
 
-## Request Headers
-- \`Authorization: Bearer <AccessToken>\`
-
-## Request Parameters
-*   **Path Parameters:**
-    *   `trackId` (Guid, Bắt buộc): ID của bảng đấu cần lấy bài thi.
+## Path parameters
+| Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
+|---|---|---:|---|
+| `trackId` | `guid` | Có | ID của bảng đấu cần lấy bài thi. |
 
 ## Response body (Success - 200 OK)
 *Cấu trúc trả về dạng `BaseResponse` chứa danh sách bài nộp.*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Value": [
+  "isSuccess": true,
+  "isFailed": false,
+  "status": 200,
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "message": "SUCCESS",
+  "data": [
     {
       "submissionId": "f7b6d5c4-129b-4e6f-adbd-2c5ea56789ff",
       "roundDetailId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -32,13 +35,13 @@ Judge phụ trách track (Yêu cầu đăng nhập tài khoản Giảng viên đ
       "teamName": "Chiến binh công nghệ",
       "url": "https://github.com/seal-hackathon/team-project-web",
       "description": "Bài thi hoàn thiện.",
+      "status": "Submitted",
       "submittedAt": "2026-06-22T08:00:00Z",
-      "isGraded": false
+      "isGraded": false,
+      "scoreId": null,
+      "totalScore": null
     }
-  ],
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  ]
 }
 ```
 
@@ -49,17 +52,17 @@ Judge phụ trách track (Yêu cầu đăng nhập tài khoản Giảng viên đ
 - `isGraded` báo xem giám khảo hiện tại đã cho điểm bài thi này chưa.
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn \`ErrorResponse\`:*
+*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
 
 ```json
 {
-  "Title": "Forbidden",
-  "Status": 403,
-  "Detail": "Bạn không được phân công chấm bảng đấu này.",
-  "MessageCode": "FORBIDDEN",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "title": "Forbidden",
+  "status": 403,
+  "message": "Bạn không được phân công chấm bảng đấu này.",
+  "messageCode": "FORBIDDEN",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
@@ -70,3 +73,8 @@ Judge phụ trách track (Yêu cầu đăng nhập tài khoản Giảng viên đ
 | 403 | FORBIDDEN | Không có quyền chấm bảng đấu này (check BR-ASG-03). |
 | 404 | TRACK_NOT_FOUND | Bảng đấu không tồn tại trong DB. |
 | 500 | INTERNAL_SERVER_ERROR | Lỗi máy chủ phát sinh. |
+
+## Trạng thái implement
+- ✅ Đã implement trong `Hackathon.Api.Controllers.JudgeController`.
+- Route: `GET /api/v1/judge/tracks/{trackId}/submissions`.
+- Sử dụng policy `LecturerPolicy`.

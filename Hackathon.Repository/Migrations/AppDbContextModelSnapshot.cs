@@ -54,7 +54,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AssignEvents");
+                    b.ToTable("AssignEvents", (string)null);
 
                     b.HasData(
                         new
@@ -206,7 +206,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("TrackId");
 
-                    b.ToTable("AssignTracks");
+                    b.ToTable("AssignTracks", (string)null);
 
                     b.HasData(
                         new
@@ -366,7 +366,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("Awards");
+                    b.ToTable("Awards", (string)null);
 
                     b.HasData(
                         new
@@ -559,7 +559,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("CriteriaTemplateId");
 
-                    b.ToTable("CriteriaItems");
+                    b.ToTable("CriteriaItems", (string)null);
 
                     b.HasData(
                         new
@@ -747,7 +747,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("RoundId");
 
-                    b.ToTable("CriteriaTemplates");
+                    b.ToTable("CriteriaTemplates", (string)null);
 
                     b.HasData(
                         new
@@ -904,7 +904,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("EmailVerifications");
+                    b.ToTable("EmailVerifications", (string)null);
 
                     b.HasData(
                         new
@@ -1051,7 +1051,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EventRoles");
+                    b.ToTable("EventRoles", (string)null);
 
                     b.HasData(
                         new
@@ -1123,7 +1123,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
 
                     b.HasData(
                         new
@@ -1362,7 +1362,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Invitations");
+                    b.ToTable("Invitations", (string)null);
 
                     b.HasData(
                         new
@@ -1532,7 +1532,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("TeamId");
 
-                    b.ToTable("LeaderBoardDetails");
+                    b.ToTable("LeaderBoardDetails", (string)null);
 
                     b.HasData(
                         new
@@ -1701,7 +1701,7 @@ namespace Hackathon.Repository.Migrations
                     b.HasIndex("EventId")
                         .IsUnique();
 
-                    b.ToTable("LeaderBoards");
+                    b.ToTable("LeaderBoards", (string)null);
 
                     b.HasData(
                         new
@@ -1855,7 +1855,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("AssignTrackId");
 
-                    b.ToTable("MentorNotifications");
+                    b.ToTable("MentorNotifications", (string)null);
 
                     b.HasData(
                         new
@@ -2006,7 +2006,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
 
                     b.HasData(
                         new
@@ -2184,7 +2184,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
 
                     b.HasData(
                         new
@@ -2381,7 +2381,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("TrackId");
 
-                    b.ToTable("RegisterTeams");
+                    b.ToTable("RegisterTeams", (string)null);
 
                     b.HasData(
                         new
@@ -2654,7 +2654,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reports");
+                    b.ToTable("Reports", (string)null);
 
                     b.HasData(
                         new
@@ -2878,7 +2878,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ResetPasswords");
+                    b.ToTable("ResetPasswords", (string)null);
 
                     b.HasData(
                         new
@@ -3031,7 +3031,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("RoundId");
 
-                    b.ToTable("RoundDetails");
+                    b.ToTable("RoundDetails", (string)null);
 
                     b.HasData(
                         new
@@ -3254,7 +3254,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("Rounds");
+                    b.ToTable("Rounds", (string)null);
 
                     b.HasData(
                         new
@@ -3489,7 +3489,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("ScoreId");
 
-                    b.ToTable("ScoreItems");
+                    b.ToTable("ScoreItems", (string)null);
 
                     b.HasData(
                         new
@@ -3626,7 +3626,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("SubmissionId");
 
-                    b.ToTable("Scores");
+                    b.ToTable("Scores", (string)null);
 
                     b.HasData(
                         new
@@ -3713,7 +3713,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("RoundDetailId");
 
-                    b.ToTable("Submissions");
+                    b.ToTable("Submissions", (string)null);
 
                     b.HasData(
                         new
@@ -3919,7 +3919,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TeamDetails");
+                    b.ToTable("TeamDetails", (string)null);
 
                     b.HasData(
                         new
@@ -4223,7 +4223,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Teams");
+                    b.ToTable("Teams", (string)null);
 
                     b.HasData(
                         new
@@ -4410,7 +4410,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("TrackId");
 
-                    b.ToTable("Topics");
+                    b.ToTable("Topics", (string)null);
 
                     b.HasData(
                         new
@@ -4567,7 +4567,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("Tracks");
+                    b.ToTable("Tracks", (string)null);
 
                     b.HasData(
                         new
@@ -4786,7 +4786,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
 
                     b.HasData(
                         new
