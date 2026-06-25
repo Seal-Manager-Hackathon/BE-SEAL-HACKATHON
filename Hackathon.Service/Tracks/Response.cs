@@ -13,6 +13,7 @@ public static class Response
         public int? MaxTeam { get; set; }
         public bool IsDisable { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset UpdatedAt { get; set; }
     }
 
     public class TopicResponse
