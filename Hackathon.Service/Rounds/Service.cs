@@ -40,7 +40,8 @@ public class Service : IService
 
     private bool IsCurrentUserAdmin()
     {
-        return _httpContext.HttpContext?.User.IsInRole(RoleEnum.Admin.ToString()) == true;
+        var role = _httpContext.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
+        return Enum.TryParse<RoleEnum>(role, true, out var userRole) && userRole == RoleEnum.Admin;
     }
 
     private async Task EnsureStaffAssignedToEvent(Guid eventId)
@@ -335,7 +336,7 @@ public class Service : IService
                 SubmissionId = x.Id,
                 Url = x.Url,
                 SubmittedAt = x.SubmittedAt,
-                Status = x.Status.HasValue ? (int)x.Status.Value : null,
+                Status = x.Status,
                 TotalScore = x.Scores.Where(s => !s.IsDisable).OrderByDescending(s => s.CreatedAt).Select(s => s.TotalScore).FirstOrDefault()
             })
             .ToListAsync();
@@ -414,7 +415,7 @@ public class Service : IService
                 RoundDetailId = x.RoundDetailId,
                 Url = x.Url,
                 Description = x.Description,
-                Status = x.Status.HasValue ? (int)x.Status.Value : null,
+                Status = x.Status,
                 SubmittedAt = x.SubmittedAt,
                 IsLatest = latestSubmissionId.HasValue && x.Id == latestSubmissionId.Value,
                 GradingStatus = x.Scores.Any(s => !s.IsDisable && s.TotalScore.HasValue) ? "Graded" : "NotGraded"
@@ -491,7 +492,7 @@ public class Service : IService
                 TeamName = roundDetail.RegisterTeam.Team.Name,
                 SubmissionId = submission.Id,
                 GradingStatus = "NotGraded",
-                Message = "Bài chưa được chấm",
+                Message = "NOT_GRADED",
                 AverageTotalScore = null,
                 IsAppealable = false,
                 CriteriaScores = new List<Response.MyRoundCriteriaScoreResponse>()
@@ -659,7 +660,7 @@ public class Service : IService
                     TrackTitle = roundDetail.RegisterTeam.Track?.Title,
                     TopicId = roundDetail.RegisterTeam.TopicId,
                     TopicTitle = roundDetail.RegisterTeam.Topic?.Title,
-                    SubmissionStatus = SubmissionStatusEnum.Unsubmitted.ToString(),
+                    SubmissionStatus = SubmissionStatusEnum.Unsubmitted,
                     GradingStatus = null,
                     AssignedJudges = BuildAssignedJudges(null, trackAssignTracks),
                 };
@@ -683,7 +684,7 @@ public class Service : IService
                 TopicTitle = roundDetail.RegisterTeam.Topic?.Title,
                 Url = submission.Url,
                 Description = submission.Description,
-                SubmissionStatus = submission.Status?.ToString() ?? SubmissionStatusEnum.Unsubmitted.ToString(),
+                SubmissionStatus = submission.Status ?? SubmissionStatusEnum.Unsubmitted,
                 SubmittedAt = submission.SubmittedAt,
                 GradingStatus = GetGradingStatus(submission, assignedJudges),
                 AssignedJudges = assignedJudges,
@@ -695,7 +696,10 @@ public class Service : IService
 
         if (!string.IsNullOrWhiteSpace(query.SubmissionStatus) && !query.SubmissionStatus.Equals("All", StringComparison.OrdinalIgnoreCase))
         {
-            items = items.Where(x => x.SubmissionStatus.Equals(query.SubmissionStatus, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (Enum.TryParse<SubmissionStatusEnum>(query.SubmissionStatus, true, out var filterStatus))
+            {
+                items = items.Where(x => x.SubmissionStatus == filterStatus).ToList();
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(query.GradingStatus) && !query.GradingStatus.Equals("All", StringComparison.OrdinalIgnoreCase))

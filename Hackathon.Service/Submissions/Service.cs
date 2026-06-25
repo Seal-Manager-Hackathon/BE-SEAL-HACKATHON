@@ -49,7 +49,7 @@ public class Service : IService
             TeamName = submission.RoundDetail.RegisterTeam.Team.Name,
             Url = submission.Url,
             Description = submission.Description,
-            Status = submission.Status?.ToString(),
+            Status = submission.Status,
             SubmittedAt = submission.SubmittedAt,
             GradingStatus = scoreResponse == null ? "NotGraded" : "Graded",
             Message = scoreResponse == null ? "NOT_GRADED" : null,
@@ -83,12 +83,14 @@ public class Service : IService
         var teamId = submission.RoundDetail.RegisterTeam.TeamId;
         var trackId = submission.RoundDetail.RegisterTeam.TrackId;
 
-        if (role == RoleEnum.Admin.ToString())
+        Enum.TryParse<RoleEnum>(role, true, out var userRole);
+
+        if (userRole == RoleEnum.Admin)
         {
             return;
         }
 
-        if (role == RoleEnum.Staff.ToString())
+        if (userRole == RoleEnum.Staff)
         {
             var isAssignedStaff = await _dbContext.AssignEvents
                 .AsNoTracking()
@@ -254,7 +256,7 @@ public class Service : IService
                 SubmissionId = submission.Id,
                 TeamId = registerTeam.TeamId,
                 SubmittedAt = now,
-                Status = submission.Status.ToString()!,
+                Status = submission.Status,
                 IsSuccess = true
             };
         }
@@ -289,12 +291,13 @@ public class Service : IService
         var trackId = roundDetail.RegisterTeam.TrackId;
 
         bool hasAccess = false;
+        Enum.TryParse<RoleEnum>(role, true, out var userRole);
 
-        if (role == RoleEnum.Admin.ToString())
+        if (userRole == RoleEnum.Admin)
         {
             hasAccess = true;
         }
-        else if (role == RoleEnum.Staff.ToString())
+        else if (userRole == RoleEnum.Staff)
         {
             var isAssignedStaff = await _dbContext.AssignEvents
                 .AsNoTracking()
@@ -364,7 +367,7 @@ public class Service : IService
                 SubmissionId = x.Id,
                 Url = x.Url,
                 Description = x.Description,
-                Status = x.Status.ToString() ?? string.Empty,
+                Status = x.Status,
                 SubmittedAt = x.SubmittedAt
             })
             .ToListAsync();

@@ -16,24 +16,25 @@ Authorization: Bearer <token>
 ```
 
 ## Response body (Success - 200 OK)
+*Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "isSuccess": true,
-  "isFailed": false,
-  "error": null,
-  "status": 200,
-  "traceId": "string|null",
-  "timestampUtc": "datetime",
-  "data": {
-    "id": "guid",
-    "teamId": "guid",
-    "teamName": "string",
-    "status": 1, /* Accepted */
-    "description": "string|null",
-    "limitTime": "datetime|null",
-    "createdAt": "datetime"
-  },
-  "message": "INVITATION_ACCEPTED"
+  "IsSuccess": true,
+  "IsFailed": false,
+  "Status": 200,
+  "Error": null,
+  "TraceId": "0HN1A2B3C4D5E",
+  "TimestampUtc": "2026-06-22T08:00:00Z",
+  "Message": "INVITATION_ACCEPTED",
+  "Data": {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "teamId": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+    "teamName": "Chiến binh công nghệ",
+    "status": 1, /* 0: Pending, 1: Accepted, 2: Rejected, 3: Expired */
+    "description": "Chào bạn, hãy tham gia team của mình nhé!",
+    "limitTime": "2026-06-30T23:59:59Z",
+    "createdAt": "2026-06-22T08:00:00Z"
+  }
 }
 ```
 
@@ -51,23 +52,31 @@ Authorization: Bearer <token>
   - Một bản ghi thông báo mới được thêm vào bảng `Notifications` gửi đến Leader của team để thông báo.
   - Quá trình này được bọc trong cùng một Database Transaction. Các thao tác đọc/kiểm tra trước đó không chạy trong transaction.
 
+### Bảng trạng thái lời mời InvitationStatusEnum
+| Giá trị (Value) | Trạng thái (Status) | Mô tả (Description) |
+| :--- | :--- | :--- |
+| `0` | Pending | Lời mời đang chờ phản hồi |
+| `1` | Accepted | Lời mời đã được chấp nhận |
+| `2` | Rejected | Lời mời bị từ chối |
+| `3` | Expired | Lời mời đã hết hạn phản hồi |
+
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse`:*
+*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
 
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | BAD_REQUEST | INVITATION_EXPIRED (lời mời đã hết hạn) |
-| 400 | BAD_REQUEST | USER_PROFILE_NOT_COMPLETED (profile người dùng chưa hoàn thành) |
+| 400 | BAD_REQUEST | INVITATION_EXPIRED |
+| 400 | BAD_REQUEST | USER_PROFILE_NOT_COMPLETED |
 | 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
-| 401 | INVALID_ACCESS_TOKEN | INVALID_ACCESS_TOKEN |
-| 403 | FORBIDDEN | CURRENT_USER_MUST_BE_STUDENT (người gọi không phải học sinh) |
-| 403 | FORBIDDEN | INVITATION_NOT_FOR_CURRENT_USER (lời mời không thuộc về học sinh này) |
-| 403 | FORBIDDEN | TEAM_MEMBER_LOCKED (team đã bị khóa thành viên) |
-| 404 | NOT_FOUND | USER_NOT_FOUND (tài khoản không tồn tại hoặc bị khóa) |
+| 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
+| 403 | FORBIDDEN | CURRENT_USER_MUST_BE_STUDENT |
+| 403 | FORBIDDEN | INVITATION_NOT_FOR_CURRENT_USER |
+| 403 | FORBIDDEN | TEAM_MEMBER_LOCKED |
+| 404 | NOT_FOUND | USER_NOT_FOUND |
 | 404 | NOT_FOUND | INVITATION_NOT_FOUND |
-| 404 | NOT_FOUND | TEAM_NOT_FOUND (team không tồn tại) |
+| 404 | NOT_FOUND | TEAM_NOT_FOUND |
 | 404 | NOT_FOUND | TEAM_LEADER_NOT_FOUND |
-| 409 | CONFLICT | INVITATION_ALREADY_RESPONDED (lời mời đã được chấp nhận/từ chối trước đó) |
-| 409 | CONFLICT | USER_ALREADY_IN_TEAM (đã là thành viên của team) |
-| 409 | CONFLICT | TEAM_MEMBER_LIMIT_EXCEEDED (team đã đạt giới hạn 50 thành viên) |
+| 409 | CONFLICT | INVITATION_ALREADY_RESPONDED |
+| 409 | CONFLICT | USER_ALREADY_IN_TEAM |
+| 409 | CONFLICT | TEAM_MEMBER_LIMIT_EXCEEDED |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

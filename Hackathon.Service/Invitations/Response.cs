@@ -9,7 +9,7 @@ public static class Response
         public Guid Id { get; set; }
         public Guid TeamId { get; set; }
         public string TeamName { get; set; } = null!;
-        public string? Status { get; set; }
+        public Hackathon.Repository.Enum.InvitationStatusEnum? Status { get; set; }
         public string? Description { get; set; }
         public DateTimeOffset? LimitTime { get; set; }
         public DateTimeOffset CreatedAt { get; set; }

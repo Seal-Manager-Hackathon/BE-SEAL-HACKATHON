@@ -321,7 +321,7 @@ public class Service : IService
             .Select(y => new Response.GetMeResponse()
             {
                 Id = y.Id,
-                Role = y.Role.ToString(),
+                Role = y.Role,
                 Email = y.Email,
                 FirstName = y.FirstName,
                 LastName = y.LastName,

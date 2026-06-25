@@ -11,7 +11,7 @@ public static class Response
         public string StudentId { get; set; } = string.Empty;
         public string College { get; set; } = string.Empty;
         public bool IsLeader { get; set; }
-        public string? Status { get; set; }
+        public Hackathon.Repository.Enum.TeamDetailStatusEnum? Status { get; set; }
     }
 
     public class CreateTeamResponse
@@ -29,7 +29,7 @@ public static class Response
         public string TeamName { get; set; } = null!;
         public bool CanEdit { get; set; }
         public bool IsLeader { get; set; }
-        public string? MemberStatus { get; set; }
+        public Hackathon.Repository.Enum.TeamDetailStatusEnum? MemberStatus { get; set; }
         public DateTimeOffset JoinedAt { get; set; }
     }
 
@@ -53,7 +53,7 @@ public static class Response
         public Guid RegisterId { get; set; }
         public Guid EventId { get; set; }
         public string EventName { get; set; } = null!;
-        public string Status { get; set; } = null!;
+        public Hackathon.Repository.Enum.RegisterTeamStatusEnum? Status { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }
 
@@ -62,7 +62,7 @@ public static class Response
         public Guid RegisterTeamId { get; set; }
         public Guid TeamId { get; set; }
         public string TeamName { get; set; } = null!;
-        public string Status { get; set; } = null!;
+        public Hackathon.Repository.Enum.RegisterTeamStatusEnum? Status { get; set; }
         public string? RejectionReason { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }

@@ -178,7 +178,7 @@ public class Service : IService
                 {
                     UserId = leader.UserId,
                     IsLeader = leader.IsLeader,
-                    Status = leader.Status?.ToString(),
+                    Status = leader.Status,
                 }
             }
         };
@@ -306,7 +306,7 @@ public class Service : IService
                 TeamName = x.Team.Name,
                 CanEdit = x.Team.CanEdit,
                 IsLeader = x.IsLeader,
-                MemberStatus = x.Status.ToString(),
+                MemberStatus = x.Status,
                 JoinedAt = x.CreatedAt
             })
             .ToListAsync();
@@ -329,8 +329,11 @@ public class Service : IService
         }
 
         var isMember = team.TeamDetails.Any(x => x.UserId == userId && !x.IsDisable);
-        var isStaff = _httpContext.HttpContext?.User.IsInRole(RoleEnum.Staff.ToString()) == true
-                      || _httpContext.HttpContext?.User.IsInRole(RoleEnum.Admin.ToString()) == true;
+
+        var userRoleClaim = _httpContext.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
+        Enum.TryParse<RoleEnum>(userRoleClaim, true, out var userRole);
+        var isStaff = userRole == RoleEnum.Staff || userRole == RoleEnum.Admin;
+
         if (!isMember && !isStaff)
         {
             throw new ForbiddenException("TEAM_NOT_VISIBLE_TO_USER");
@@ -363,7 +366,7 @@ public class Service : IService
                     StudentId = x.User.StudentId,
                     College = x.User.College,
                     IsLeader = x.IsLeader,
-                    Status = x.Status?.ToString()
+                    Status = x.Status
                 })
                 .ToList()
         };
@@ -571,7 +574,7 @@ public class Service : IService
                 TeamName = team.Name,
                 EventId = x.EventId,
                 EventName = x.Event.Name,
-                Status = x.Status.ToString() ?? string.Empty,
+                Status = x.Status,
                 Description = x.Description,
                 CreatedAt = x.CreatedAt
             })
@@ -615,7 +618,7 @@ public class Service : IService
                 RegisterId = x.Id,
                 EventId = x.EventId,
                 EventName = x.Event.Name,
-                Status = x.Status.ToString()!,
+                Status = x.Status,
                 CreatedAt = x.CreatedAt
             })
             .FirstOrDefaultAsync();
@@ -657,7 +660,7 @@ public class Service : IService
                 RegisterTeamId = x.Id,
                 TeamId = x.TeamId,
                 TeamName = x.Team.Name,
-                Status = x.Status.ToString()!,
+                Status = x.Status,
                 RejectionReason = x.RejectionReason,
                 CreatedAt = x.CreatedAt
             })

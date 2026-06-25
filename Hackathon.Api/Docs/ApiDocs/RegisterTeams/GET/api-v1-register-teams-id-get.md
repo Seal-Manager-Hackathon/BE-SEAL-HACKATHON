@@ -26,29 +26,29 @@ Authorization: Bearer {accessToken}
 ## Request body
 Không có.
 
-## Response body
-Response dùng `ApiResponseFactory.Base(data)`.
+## Response body (Success - 200 OK)
+*Cấu trúc trả về dạng `BaseResponse`:*
 
 ```json
 {
-  "isSuccess": true,
-  "isFailed": false,
-  "error": null,
-  "status": 200,
-  "traceId": "string|null",
-  "timestampUtc": "datetime",
-  "data": {
+  "IsSuccess": true,
+  "IsFailed": false,
+  "Status": 200,
+  "Error": null,
+  "TraceId": "0HN1A2B3C4D5E",
+  "TimestampUtc": "2026-06-22T08:00:00Z",
+  "Message": "SUCCESS",
+  "Data": {
     "registerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "teamId": "c4b5a6d7-e8f9-0a1b-2c3d-4e5f6a7b8c9d",
-    "teamName": "Tên team",
+    "teamName": "Chiến binh công nghệ",
     "eventId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
-    "eventName": "Hackathon ABC",
-    "status": 1 /* Approved */,
-    "description": "Mô tả đơn đăng ký",
-    "rejectionReason": null,
-    "createdAt": "2026-06-19T10:00:00.0000000Z"
-  },
-  "message": "SUCCESS"
+    "eventName": "SEAL Hackathon 2026",
+    "status": 1, /* 0: Pending, 1: Approved, 2: Rejected, 3: Banned */
+    "description": "Dự án xe tự hành thông minh",
+    "rejectionReason": "Đã được đồng ý",
+    "createdAt": "2026-06-19T10:00:00Z"
+  }
 }
 ```
 
@@ -60,9 +60,20 @@ Response dùng `ApiResponseFactory.Base(data)`.
 - Nếu đơn đăng ký ở trạng thái `Approved`, field `rejectionReason` trả về "Đã được đồng ý".
 - Nếu đơn đăng ký ở trạng thái `Rejected`, field `rejectionReason` trả về lý do từ chối từ BTC.
 
+### Bảng trạng thái RegisterTeamStatusEnum
+| Giá trị (Value) | Trạng thái (Status) | Mô tả (Description) |
+| :--- | :--- | :--- |
+| `0` | Pending | Đang chờ Staff duyệt đơn |
+| `1` | Approved | Đơn đăng ký đã được chấp nhận tham gia sự kiện |
+| `2` | Rejected | Đơn đăng ký bị từ chối |
+| `3` | Banned | Đội thi bị cấm thi đấu trong sự kiện |
+
 ## Lỗi có thể xảy ra
+*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
+
 | HTTP | messageCode | message/detail |
 |---:|---|---|
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | CURRENT_USER_MUST_BE_STUDENT |
 | 403 | FORBIDDEN | USER_NOT_IN_TEAM |

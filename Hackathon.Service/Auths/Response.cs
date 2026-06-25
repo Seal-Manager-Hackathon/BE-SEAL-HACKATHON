@@ -13,7 +13,7 @@ public class Response
     public class GetMeResponse
     {
         public Guid Id { get; set; }
-        public string Role { get; set; } = null!;
+        public Hackathon.Repository.Enum.RoleEnum Role { get; set; }
         public required String FirstName { get; set; }
         public required String LastName { get; set; }
         public required String Email { get; set; }

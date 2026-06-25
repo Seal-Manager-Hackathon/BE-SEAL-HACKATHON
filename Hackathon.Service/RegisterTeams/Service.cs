@@ -53,7 +53,8 @@ public class Service : IService
 
     private bool IsCurrentUserAdmin()
     {
-        return _httpContext.HttpContext?.User.IsInRole(RoleEnum.Admin.ToString()) == true;
+        var role = _httpContext.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
+        return Enum.TryParse<RoleEnum>(role, true, out var userRole) && userRole == RoleEnum.Admin;
     }
 
     public async Task<(Response.RegisterTeamActionResponse Data, string Message)> RegisterEvent(Request.RegisterEventRequest request)
@@ -276,7 +277,7 @@ public class Service : IService
                 TeamName = x.Team.Name,
                 EventId = x.EventId,
                 EventName = x.Event.Name,
-                Status = x.Status.ToString()!,
+                Status = x.Status,
                 Description = x.Description,
                 CreatedAt = x.CreatedAt
             })
@@ -324,7 +325,7 @@ public class Service : IService
             TeamName = registerTeam.Team.Name,
             EventId = registerTeam.EventId,
             EventName = registerTeam.Event.Name,
-            Status = registerTeam.Status.ToString()!,
+            Status = registerTeam.Status,
             Description = registerTeam.Description,
             RejectionReason = rejectionReason,
             CreatedAt = registerTeam.CreatedAt
@@ -358,7 +359,10 @@ public class Service : IService
 
         if (!IsCurrentUserAdmin())
         {
-            var isStaff = _httpContext.HttpContext?.User.IsInRole(RoleEnum.Staff.ToString()) == true;
+            var userRoleClaim = _httpContext.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
+            Enum.TryParse<RoleEnum>(userRoleClaim, true, out var userRole);
+            var isStaff = userRole == RoleEnum.Staff;
+
             if (isStaff)
             {
                 await EnsureStaffAssignedToEvent(registerTeam.EventId);
