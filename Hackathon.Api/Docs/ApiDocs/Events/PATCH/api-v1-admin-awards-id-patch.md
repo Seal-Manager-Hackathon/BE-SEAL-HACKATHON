@@ -20,7 +20,7 @@ API hỗ trợ partial update (chỉ cập nhật các trường được truy�
 {
   "name": "string",
   "description": "string|null",
-  "levelAward": "string",
+  "levelAward": 1,
   "numberOfAward": 0,
   "prize": 0
 }
@@ -30,7 +30,7 @@ API hỗ trợ partial update (chỉ cập nhật các trường được truy�
 |---|---|---|---|
 | `name` | `string` | Không | Tên giải thưởng. |
 | `description` | `string` | Không | Mô tả giải thưởng. |
-| `levelAward` | `string` | Không | Cấp giải ("1", "2", ...). |
+| `levelAward` | `int` | Không | Cấp giải (1, 2, ...). |
 | `numberOfAward` | `int` | Không | Số lượng giải. |
 | `prize` | `decimal` | Không | Giá trị giải thưởng (VND). |
 

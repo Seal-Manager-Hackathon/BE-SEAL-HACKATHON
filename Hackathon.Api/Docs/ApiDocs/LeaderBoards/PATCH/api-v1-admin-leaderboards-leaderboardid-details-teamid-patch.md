@@ -29,7 +29,7 @@ Content-Type: application/json
 ```json
 {
   "score": 0.0,
-  "levelAward": "string"
+  "levelAward": 1
 }
 ```
 

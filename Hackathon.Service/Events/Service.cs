@@ -443,7 +443,7 @@ public class Service : IService
             EventId = eventId,
             Name = request.Name.Trim(),
             Description = request.Description,
-            LevelAward = request.LevelAward,
+            LevelAward = request.LevelAward ?? 0,
             NumberOfAward = request.NumberOfAward,
             Prize = request.Prize,
             IsDisable = false,
@@ -862,7 +862,7 @@ public class Service : IService
 
         if (request.LevelAward != null)
         {
-            award.LevelAward = request.LevelAward;
+            award.LevelAward = request.LevelAward.Value;
         }
 
         if (request.NumberOfAward.HasValue)
@@ -1049,8 +1049,8 @@ public class Service : IService
 
         var totalCount = await query.CountAsync();
         var items = await query
-            .OrderBy(x => x.StartTime)
-            .ThenBy(x => x.CreatedAt)
+            .OrderByDescending(x => x.CreatedAt)
+            .ThenByDescending(x => x.StartTime)
             .Skip((request.PageIndex - 1) * request.PageSize)
             .Take(request.PageSize)
             .Select(x => new Response.StudentEventResponse

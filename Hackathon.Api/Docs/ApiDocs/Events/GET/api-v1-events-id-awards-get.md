@@ -28,7 +28,7 @@ Public (không yêu cầu access token).
       "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
       "name": "Giải Nhất",
       "description": "Đội thi xuất sắc nhất toàn giải.",
-      "levelAward": "First",
+      "levelAward": 1,
       "numberOfAward": 1,
       "prize": 10000000
     }
