@@ -48,4 +48,10 @@ public static class Request
         public string? Keyword { get; set; }
         public bool? IsEliminated { get; set; }
     }
+
+    public class GetTeamsByRoundRequest
+    {
+        public Guid? RoundId { get; set; }
+        public Guid? TrackId { get; set; }
+    }
 }

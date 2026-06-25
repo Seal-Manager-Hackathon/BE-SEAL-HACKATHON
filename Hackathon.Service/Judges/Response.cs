@@ -76,4 +76,24 @@ public static class Response
         public int TotalPendingSubmissions { get; set; }
         public decimal GradedPercentage { get; set; }
     }
+
+    public class JudgeTeamSubmissionInfo
+    {
+        public Guid RegisterTeamId { get; set; }
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = string.Empty;
+        public Guid? TopicId { get; set; }
+        public string? TopicTitle { get; set; }
+        public Guid? SubmissionId { get; set; }
+        public SubmissionStatusEnum? SubmissionStatus { get; set; }
+        public DateTimeOffset? SubmittedAt { get; set; }
+        public bool IsGraded { get; set; }
+    }
+
+    public class JudgeTrackTeamResponse
+    {
+        public Guid TrackId { get; set; }
+        public string TrackTitle { get; set; } = string.Empty;
+        public List<JudgeTeamSubmissionInfo> Teams { get; set; } = new();
+    }
 }
