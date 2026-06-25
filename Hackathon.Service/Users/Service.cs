@@ -2,6 +2,7 @@ using Hackathon.Repository;
 using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
 using Hackathon.Service.Exceptions;
+using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -109,13 +110,105 @@ public class Service : IService
         return "REPORT_CREATED_SUCCESSFULLY";
     }
 
+    public async Task<List<Reponse.MyAssignmentResponse>> GetMyAssignments()
+    {
+        var userId = GetUserId();
+        var user = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
+        if (user == null) throw new NotFoundException("USER_NOT_FOUND");
+        if (user.Role != RoleEnum.Staff && user.Role != RoleEnum.Lecturer) throw new ForbiddenException("FORBIDDEN");
+
+        return await _dbContext.AssignEvents
+            .AsNoTracking()
+            .Where(x => x.UserId == userId && !x.IsDisable && !x.Event.IsDisable)
+            .OrderByDescending(x => x.CreatedAt)
+            .Select(x => new Reponse.MyAssignmentResponse
+            {
+                AssignEventId = x.Id,
+                EventId = x.EventId,
+                EventName = x.Event.Name,
+                Role = x.EventRole != null ? x.EventRole.Name : null,
+                Tracks = x.AssignTracks
+                    .Where(t => !t.IsDisable && !t.Track.IsDisable)
+                    .Select(t => new Reponse.AssignmentTrackResponse
+                    {
+                        TrackId = t.TrackId,
+                        TrackTitle = t.Track.Title
+                    })
+                    .ToList()
+            })
+            .ToListAsync();
+    }
+
+    public async Task<BasePaginationResponse> GetMyReports(Request.GetMyReportsRequest request)
+    {
+        var userId = GetUserId();
+        var pageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
+        var pageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
+
+        var query = _dbContext.Reports
+            .AsNoTracking()
+            .Where(x => x.UserId == userId && !x.IsDisable);
+
+        var totalCount = await query.CountAsync();
+        var reports = await query
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new Reponse.MyReportListItemResponse
+            {
+                Id = x.Id,
+                Title = x.Title,
+                TypeReport = x.TypeReport,
+                Status = x.Status,
+                CreatedAt = x.CreatedAt
+            })
+            .ToListAsync();
+
+        return ApiResponseFactory.BasePagination(reports, pageIndex, pageSize, totalCount, _IhttpContex.HttpContext?.TraceIdentifier);
+    }
+
+    public async Task<Reponse.MyReportDetailResponse> GetMyReportById(Guid reportId)
+    {
+        var userId = GetUserId();
+        var report = await _dbContext.Reports.AsNoTracking().FirstOrDefaultAsync(x => x.Id == reportId && !x.IsDisable);
+        if (report == null) throw new NotFoundException("REPORT_NOT_FOUND", "Báo cáo không tồn tại.");
+        if (report.UserId != userId) throw new ForbiddenException("FORBIDDEN");
+
+        return new Reponse.MyReportDetailResponse
+        {
+            Id = report.Id,
+            AssignEventId = report.AssignEventId,
+            SubmissionId = report.SubmissionId,
+            Title = report.Title,
+            Description = report.Description,
+            ImgUrl = report.ImgUrl,
+            FileUrl = report.FileUrl,
+            TypeReport = report.TypeReport,
+            Status = report.Status,
+            Reason = report.Reason,
+            CreatedAt = report.CreatedAt,
+            UpdatedAt = report.UpdatedAt
+        };
+    }
+
+    public async Task<string> UpdateAvatar(Request.UpdateAvatarRequest request)
+    {
+        var userId = GetUserId();
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
+        if (user == null) throw new NotFoundException("USER_NOT_FOUND");
+
+        user.AvatarUrl = request.AvatarUrl;
+        user.ImgUrl = request.AvatarUrl;
+        user.UpdatedAt = DateTimeOffset.UtcNow;
+
+        await _dbContext.SaveChangesAsync();
+        return "AVATAR_UPDATED_SUCCESSFULLY";
+    }
+
     private Guid GetUserId()
     {
         var userId = _IhttpContex?.HttpContext?.User.FindFirst("UserId")?.Value;
-        if(userId != null)
-        {
-            return Guid.Parse(userId);
-        }
-        return Guid.Empty;
+        if (!Guid.TryParse(userId, out var parsedUserId)) throw new UnauthorizedException("UNAUTHORIZED");
+        return parsedUserId;
     }
 }

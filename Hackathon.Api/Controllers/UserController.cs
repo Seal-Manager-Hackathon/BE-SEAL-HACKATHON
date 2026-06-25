@@ -40,4 +40,36 @@ public class UserController : ControllerBase
         var message = await _userService.CreateSystemReport(requestBody);
         return Ok(ApiResponseFactory.Base(null,201,message, traceId: HttpContext.TraceIdentifier));
     }
+
+    [HttpGet("/api/v1/me/assignments")]
+    [Authorize]
+    public async Task<IActionResult> GetMyAssignments()
+    {
+        var result = await _userService.GetMyAssignments();
+        return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("reports/me")]
+    [Authorize]
+    public async Task<IActionResult> GetMyReports([FromQuery] Request.GetMyReportsRequest request)
+    {
+        var result = await _userService.GetMyReports(request);
+        return Ok(result);
+    }
+
+    [HttpGet("reports/{reportId:guid}")]
+    [Authorize]
+    public async Task<IActionResult> GetMyReportById(Guid reportId)
+    {
+        var result = await _userService.GetMyReportById(reportId);
+        return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpPatch("me/avatar")]
+    [Authorize]
+    public async Task<IActionResult> UpdateAvatar(Request.UpdateAvatarRequest requestBody)
+    {
+        var message = await _userService.UpdateAvatar(requestBody);
+        return Ok(ApiResponseFactory.Base(new { avatarUrl = requestBody.AvatarUrl }, 200, message, traceId: HttpContext.TraceIdentifier));
+    }
 }

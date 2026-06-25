@@ -1,3 +1,5 @@
+using Hackathon.Service.Models;
+
 namespace Hackathon.Service.Users;
 
 public static class Request
@@ -25,5 +27,14 @@ public static class Request
         public string? ImgUrl { get; set; }
         public string? FileUrl { get; set; }
         public string? TypeReport { get; set; }
+    }
+
+    public class GetMyReportsRequest : PaginationRequest
+    {
+    }
+
+    public class UpdateAvatarRequest
+    {
+        public string AvatarUrl { get; set; } = string.Empty;
     }
 }

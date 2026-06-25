@@ -1,3 +1,5 @@
+using Hackathon.Repository.Enum;
+
 namespace Hackathon.Service.RegisterTeams;
 
 public static class Request
@@ -32,5 +34,18 @@ public static class Request
     {
         [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "REASON_IS_REQUIRED")]
         public required string Reason { get; set; }
+    }
+
+    public class GetTeamsByTrackRequest
+    {
+        public string? Keyword { get; set; }
+        public RegisterTeamStatusEnum? Status { get; set; }
+        public bool? IsEliminated { get; set; }
+    }
+
+    public class GetApprovedTeamsRequest
+    {
+        public string? Keyword { get; set; }
+        public bool? IsEliminated { get; set; }
     }
 }
