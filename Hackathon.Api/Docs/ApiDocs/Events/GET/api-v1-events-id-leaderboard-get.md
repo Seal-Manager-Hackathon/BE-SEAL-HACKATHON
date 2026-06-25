@@ -29,7 +29,7 @@ Public (không yêu cầu access token). Chỉ trả về danh sách các team �
       "teamId": "c4b5a6d7-e8f9-0a1b-2c3d-4e5f6a7b8c9d",
       "teamName": "Chiến binh công nghệ",
       "totalScore": 270.5,
-      "levelAward": "Giải Nhất"
+      "levelAward": 1
     }
   ],
   "message": "SUCCESS"
@@ -40,7 +40,7 @@ Public (không yêu cầu access token). Chỉ trả về danh sách các team �
 - Event phải tồn tại trong DB và không bị soft-disable.
 - Xếp hạng được sắp xếp theo tổng điểm (`totalScore`) giảm dần.
 - Trường `rank` cho biết team đang đứng hạng thứ mấy trong event (bắt đầu từ 1).
-- `levelAward` hiển thị danh hiệu đạt được (Nhất, Nhì, Ba, Khuyến khích) nếu BTC đã gán.
+- `levelAward` hiển thị danh hiệu đạt được (1: Nhất, 2: Nhì, 3: Ba, 4: Khuyến khích, v.v.) nếu BTC đã gán.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |

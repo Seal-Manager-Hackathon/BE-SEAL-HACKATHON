@@ -66,7 +66,7 @@ public static class Request
     {
         public string? Name { get; set; }
         public string? Description { get; set; }
-        public string? LevelAward { get; set; }
+        public int? LevelAward { get; set; }
         public int? NumberOfAward { get; set; }
         public decimal? Prize { get; set; }
     }
@@ -80,7 +80,7 @@ public static class Request
     {
         public string? Name { get; set; }
         public string? Description { get; set; }
-        public string? LevelAward { get; set; }
+        public int? LevelAward { get; set; }
         public int? NumberOfAward { get; set; }
         public decimal? Prize { get; set; }
     }
