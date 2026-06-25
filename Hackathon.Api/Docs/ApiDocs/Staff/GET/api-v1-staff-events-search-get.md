@@ -9,8 +9,9 @@ Staff.
 ## Request Parameters
 *   **Query Parameters:**
     *   `keyword` (string, Không bắt buộc): Tìm kiếm theo tên sự kiện.
-    *   `startTime` (datetime, Không bắt buộc): Lọc sự kiện có thời gian bắt đầu >= giá trị này.
-    *   `endTime` (datetime, Không bắt buộc): Lọc sự kiện có thời gian kết thúc <= giá trị này.
+    *   `month` (int, Không bắt buộc): Lọc sự kiện có thời gian diễn ra trong tháng được chỉ định (1-12).
+    *   `year` (int, Không bắt buộc): Lọc sự kiện có thời gian diễn ra trong năm được chỉ định.
+    *   `status` (int, Không bắt buộc): Trạng thái sự kiện (0: Draft, 1: Published, 2: Closed, 3: Cancelled).
     *   `pageIndex` (int, Không bắt buộc, mặc định 1): Số trang.
     *   `pageSize` (int, Không bắt buộc, mặc định 10): Số item mỗi trang.
 
@@ -52,10 +53,20 @@ Staff.
 | `1` | Judge | Giám khảo chấm điểm bài thi |
 | `2` | Staff | Nhân viên vận hành sự kiện |
 
+### Bảng trạng thái EventStatusEnum
+| Giá trị (Value) | Trạng thái (Status) | Mô tả (Description) |
+| :--- | :--- | :--- |
+| `0` | Draft | Bản nháp |
+| `1` | Published | Đã xuất bản |
+| `2` | Closed | Đã đóng |
+| `3` | Cancelled | Đã hủy |
+
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
 | 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | FORBIDDEN |
+| 400 | MONTH_MUST_BE_BETWEEN_1_AND_12 | FluentValidation error |
+| 400 | YEAR_MUST_BE_GREATER_THAN_ZERO | FluentValidation error |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

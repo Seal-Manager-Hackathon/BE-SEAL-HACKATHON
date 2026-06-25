@@ -156,14 +156,32 @@ public class Service : IService
             query = query.Where(x => x.Event.Name.ToLower().Contains(normKeyword));
         }
 
-        if (request.StartTime.HasValue)
+        if (request.Status.HasValue)
         {
-            query = query.Where(x => x.Event.StartTime.HasValue && x.Event.StartTime.Value >= request.StartTime.Value);
+            query = query.Where(x => x.Event.Status == request.Status.Value);
         }
 
-        if (request.EndTime.HasValue)
+        if (request.Year.HasValue || request.Month.HasValue)
         {
-            query = query.Where(x => x.Event.EndTime.HasValue && x.Event.EndTime.Value <= request.EndTime.Value);
+            var year = request.Year ?? DateTimeOffset.UtcNow.Year;
+            DateTimeOffset startDate;
+            DateTimeOffset endDate;
+
+            if (request.Month.HasValue)
+            {
+                startDate = new DateTimeOffset(year, request.Month.Value, 1, 0, 0, 0, TimeSpan.Zero);
+                endDate = startDate.AddMonths(1);
+            }
+            else
+            {
+                startDate = new DateTimeOffset(year, 1, 1, 0, 0, 0, TimeSpan.Zero);
+                endDate = startDate.AddYears(1);
+            }
+
+            query = query.Where(x => x.Event.StartTime.HasValue
+                        && x.Event.StartTime.Value >= startDate
+                        && x.Event.EndTime.HasValue
+                        && x.Event.EndTime.Value < endDate);
         }
 
         var totalCount = await query.CountAsync();
