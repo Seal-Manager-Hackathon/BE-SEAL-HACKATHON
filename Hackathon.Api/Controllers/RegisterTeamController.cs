@@ -115,4 +115,20 @@ public class RegisterTeamController : ControllerBase
         var (data, message) = await _registerTeamService.GetApprovedTeams(eventId, request);
         return Ok(ApiResponseFactory.Base(data, 200, message, traceId: HttpContext.TraceIdentifier));
     }
+
+    [HttpGet("events/{eventId:guid}/teams")]
+    [Authorize]
+    public async Task<IActionResult> GetTeamsByRound(Guid eventId, [FromQuery] RegisterTeamsService.Request.GetTeamsByRoundRequest request)
+    {
+        var (data, message) = await _registerTeamService.GetTeamsByRound(eventId, request);
+        return Ok(ApiResponseFactory.Base(data, 200, message, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("staff/register-teams/{registerTeamId:guid}/submissions")]
+    [Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]
+    public async Task<IActionResult> GetTeamRoundSubmissions(Guid registerTeamId, [FromQuery] Guid? roundId)
+    {
+        var result = await _registerTeamService.GetTeamRoundSubmissions(registerTeamId, roundId);
+        return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
 }

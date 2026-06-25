@@ -184,3 +184,47 @@ options.AddPolicy(StaffLecturerOrAdminPolicy, policy =>
 ### 3.2 Fix corrupt tail trong [Service.cs](Hackathon.Service/RegisterTeams/Service.cs)
 
 `UnbanRegisterTeam` bị thiếu closing braces (file bị hỏng bởi planning text), đã phục hồi đúng cú pháp.
+
+### 3.3 Validation message trong Program.cs
+
+| Mục | Trước | Sau |
+|-----|-------|-----|
+| `message` | `"INVALID_INPUT_DATA"` (cố định) | `errors?.FirstOrDefault().Value?.FirstOrDefault() ?? "INVALID_INPUT_DATA"` (lấy lỗi validation đầu tiên) |
+
+---
+
+## 4. API GetTeamsByRound — đổi route và mở rộng filter
+
+| Mục | Trước | Sau |
+|-----|-------|-----|
+| **Route** | `GET /rounds/{roundId}/teams` | `GET /events/{eventId}/teams` |
+| **Request** | `roundId` path required | `eventId` path required + `?roundId=&trackId=` query (cả 2 optional) |
+| **Auth** | `[Authorize]` (giữ nguyên) | `[Authorize]` |
+| **Service** | Query `RoundDetails` theo `roundId` → teams | Query `RegisterTeams` theo `eventId`, filter subquery `RoundDetails` nếu có roundId, filter `TrackId` nếu có trackId |
+| **Doc** | api-v1-register-teams-rounds-roundid-teams-get.md (đã xóa) | [api-v1-register-teams-events-eventid-teams-get.md](Hackathon.Api/Docs/ApiDocs/RegisterTeams/GET/api-v1-register-teams-events-eventid-teams-get.md) |
+
+## 5. API GetTeamRoundSubmissions — xem bài nộp + điểm của đội
+
+| Mục | Trước | Sau |
+|-----|-------|-----|
+| **Route** | `GET /staff/rounds/{roundId}/register-teams/{registerTeamId}/submissions` | `GET /staff/register-teams/{registerTeamId}/submissions?roundId=` |
+| **roundId** | Path required | Query optional (bỏ qua = lấy tất cả round) |
+| **Response** | Không có roundId/roundNo | Thêm `roundId`, `roundNo` mỗi submission |
+| **Logic** | Chỉ 1 round detail | Hỗ trợ nhiều round, gom submissions, `isLatest` tính riêng từng round |
+| **Auth** | `StaffOrAdminPolicy` | `StaffOrAdminPolicy` |
+
+### Response DTO mới
+- `TeamRoundSubmissionResponse` — team info + list submissions
+- `SubmissionDetailDto` — thêm `RoundId`, `RoundNo`, `IsLatest`
+- `SubmissionScoreDto` — score info
+- `ScoreItemDto` — điểm chi tiết từng tiêu chí
+
+### Doc mới
+- [api-v1-register-teams-staff-register-teams-registerteamid-submissions-get.md](Hackathon.Api/Docs/ApiDocs/RegisterTeams/GET/api-v1-register-teams-staff-register-teams-registerteamid-submissions-get.md)
+
+## 6. GetRegisterTeamDetail — mở rộng policy
+
+| Mục | Trước | Sau |
+|-----|-------|-----|
+| **Policy** | `StaffOrAdminPolicy` | `StaffLecturerOrAdminPolicy` |
+| **Response** | Thiếu IsEliminated, CurrentRound* | Thêm `IsEliminated`, `CurrentRoundId`, `CurrentRoundName`, `CurrentRoundNo` |

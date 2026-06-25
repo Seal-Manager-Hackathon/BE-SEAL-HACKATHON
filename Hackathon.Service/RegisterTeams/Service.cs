@@ -836,6 +836,89 @@ public class Service : IService
         };
     }
 
+    public async Task<(List<Response.RegisterTeamByRoundResponse> Data, string Message)> GetTeamsByRound(Guid eventId, Request.GetTeamsByRoundRequest request)
+    {
+        if (eventId == Guid.Empty)
+        {
+            throw new BadRequestException("EVENT_ID_REQUIRED");
+        }
+
+        var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
+        if (!eventExists)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        // If roundId provided, validate the round belongs to the event
+        if (request.RoundId.HasValue)
+        {
+            var roundExists = await _dbContext.Rounds.AsNoTracking()
+                .AnyAsync(x => x.Id == request.RoundId.Value && !x.IsDisable && x.EventId == eventId);
+            if (!roundExists)
+            {
+                throw new NotFoundException("ROUND_NOT_FOUND");
+            }
+        }
+
+        // If trackId provided, validate the track belongs to the event
+        if (request.TrackId.HasValue)
+        {
+            var trackExists = await _dbContext.Tracks.AsNoTracking()
+                .AnyAsync(x => x.Id == request.TrackId.Value && !x.IsDisable && x.EventId == eventId);
+            if (!trackExists)
+            {
+                throw new NotFoundException("TRACK_NOT_FOUND");
+            }
+        }
+
+        // Build query from RegisterTeams
+        var registerTeamsQuery = _dbContext.RegisterTeams
+            .AsNoTracking()
+            .Include(x => x.Team)
+            .Include(x => x.Track)
+            .Include(x => x.Topic)
+            .Where(x => x.EventId == eventId
+                        && !x.IsDisable
+                        && !x.Team.IsDisable);
+
+        // Filter by trackId if provided
+        if (request.TrackId.HasValue)
+        {
+            registerTeamsQuery = registerTeamsQuery.Where(x => x.TrackId == request.TrackId.Value);
+        }
+
+        // If roundId provided, only include teams that have RoundDetails for that round
+        if (request.RoundId.HasValue)
+        {
+            var teamIdsInRound = _dbContext.RoundDetails
+                .AsNoTracking()
+                .Where(rd => rd.RoundId == request.RoundId.Value
+                             && !rd.IsDisable)
+                .Select(rd => rd.RegisterTeamId);
+
+            registerTeamsQuery = registerTeamsQuery.Where(x => teamIdsInRound.Contains(x.Id));
+        }
+
+        var teams = await registerTeamsQuery
+            .Select(x => new Response.RegisterTeamByRoundResponse
+            {
+                RegisterTeamId = x.Id,
+                TeamId = x.TeamId,
+                TeamName = x.Team.Name,
+                TrackId = x.TrackId,
+                TrackTitle = x.Track != null ? x.Track.Title : null,
+                TopicId = x.TopicId,
+                TopicTitle = x.Topic != null ? x.Topic.Title : null,
+                Status = x.Status ?? RegisterTeamStatusEnum.Pending,
+                IsBanned = x.IsBanned,
+                CreatedAt = x.CreatedAt,
+            })
+            .OrderBy(x => x.TeamName)
+            .ToListAsync();
+
+        return (teams, teams.Count == 0 ? "NO_TEAMS_FOUND" : "SUCCESS");
+    }
+
     public async Task<(List<Response.RegisterTeamTrackResponse> Data, string Message)> GetTeamsByTrack(Guid eventId, Guid trackId, Request.GetTeamsByTrackRequest request)
     {
         if (eventId == Guid.Empty)
@@ -1105,5 +1188,132 @@ public class Service : IService
             .ToList();
 
         return (teams, teams.Count == 0 ? "NO_TEAMS_FOUND" : "SUCCESS");
+    }
+
+    public async Task<Response.TeamRoundSubmissionResponse> GetTeamRoundSubmissions(Guid registerTeamId, Guid? roundId)
+    {
+        // Validate register team exists
+        var registerTeam = await _dbContext.RegisterTeams
+            .AsNoTracking()
+            .Include(x => x.Team)
+            .Include(x => x.Track)
+            .FirstOrDefaultAsync(x => x.Id == registerTeamId && !x.IsDisable && !x.Team.IsDisable);
+
+        if (registerTeam == null)
+        {
+            throw new NotFoundException("REGISTER_TEAM_NOT_FOUND");
+        }
+
+        // If roundId provided, validate it belongs to the same event
+        if (roundId.HasValue)
+        {
+            var roundExists = await _dbContext.Rounds.AsNoTracking()
+                .AnyAsync(x => x.Id == roundId.Value && !x.IsDisable && x.EventId == registerTeam.EventId);
+            if (!roundExists)
+            {
+                throw new NotFoundException("ROUND_NOT_FOUND");
+            }
+        }
+
+        // Build RoundDetails query
+        var roundDetailsQuery = _dbContext.RoundDetails
+            .AsNoTracking()
+            .Include(x => x.Round)
+            .Where(x => x.RegisterTeamId == registerTeamId
+                        && !x.IsDisable
+                        && !x.Round.IsDisable);
+
+        if (roundId.HasValue)
+        {
+            roundDetailsQuery = roundDetailsQuery.Where(x => x.RoundId == roundId.Value);
+        }
+
+        var roundDetails = await roundDetailsQuery.ToListAsync();
+
+        if (roundDetails.Count == 0)
+        {
+            throw new NotFoundException("ROUND_DETAIL_NOT_FOUND");
+        }
+
+        // Get all submissions for all matching round details
+        var roundDetailIds = roundDetails.Select(x => x.Id).ToList();
+        var roundLookup = roundDetails.ToDictionary(x => x.Id, x => x.Round);
+
+        var submissions = await _dbContext.Submissions
+            .AsNoTracking()
+            .Include(x => x.Scores).ThenInclude(x => x.ScoreItems).ThenInclude(x => x.CriteriaItem)
+            .Where(x => roundDetailIds.Contains(x.RoundDetailId) && !x.IsDisable)
+            .OrderBy(x => x.SubmittedAt)
+            .ToListAsync();
+
+        // Group submissions by RoundDetail to compute isLatest per round
+        var submissionsByRoundDetail = submissions.GroupBy(x => x.RoundDetailId);
+
+        var submissionDtos = submissionsByRoundDetail.SelectMany(group =>
+        {
+            var roundDetail = roundLookup[group.Key];
+            var groupList = group.OrderBy(x => x.SubmittedAt).ToList();
+            var latestSubmittedAt = groupList
+                .Where(x => x.SubmittedAt.HasValue)
+                .OrderByDescending(x => x.SubmittedAt)
+                .Select(x => x.SubmittedAt)
+                .FirstOrDefault();
+
+            return groupList.Select(sub =>
+            {
+                var isLatest = sub.SubmittedAt.HasValue && sub.SubmittedAt == latestSubmittedAt;
+                var activeScores = sub.Scores.Where(s => !s.IsDisable && s.TotalScore.HasValue).ToList();
+                var gradingStatus = activeScores.Count == 0 ? "NotGraded" : "Graded";
+
+                Response.SubmissionScoreDto? scoreDto = null;
+                if (activeScores.Count > 0)
+                {
+                    var latestScore = activeScores.OrderByDescending(s => s.CreatedAt).First();
+                    scoreDto = new Response.SubmissionScoreDto
+                    {
+                        ScoreId = latestScore.Id,
+                        TotalScore = latestScore.TotalScore,
+                        IsRetake = latestScore.IsRetake,
+                        IsMock = latestScore.IsMock,
+                        ScoreItems = latestScore.ScoreItems
+                            .Where(si => !si.IsDisable)
+                            .Select(si => new Response.ScoreItemDto
+                            {
+                                ScoreItemId = si.Id,
+                                CriteriaItemId = si.CriteriaItemId,
+                                CriteriaItemName = si.CriteriaItem.Name,
+                                Score = si.Score,
+                                MaxScore = si.CriteriaItem.Score,
+                                Comment = si.Comment,
+                            })
+                            .ToList(),
+                    };
+                }
+
+                return new Response.SubmissionDetailDto
+                {
+                    SubmissionId = sub.Id,
+                    RoundId = roundDetail.Id,
+                    RoundNo = roundDetail.RoundNo,
+                    Url = sub.Url,
+                    Description = sub.Description,
+                    Status = sub.Status,
+                    SubmittedAt = sub.SubmittedAt,
+                    IsLatest = isLatest,
+                    GradingStatus = gradingStatus,
+                    Score = scoreDto,
+                };
+            });
+        }).ToList();
+
+        return new Response.TeamRoundSubmissionResponse
+        {
+            RegisterTeamId = registerTeamId,
+            TeamId = registerTeam.TeamId,
+            TeamName = registerTeam.Team.Name,
+            TrackId = registerTeam.TrackId,
+            TrackTitle = registerTeam.Track != null ? registerTeam.Track.Title : null,
+            Submissions = submissionDtos,
+        };
     }
 }
