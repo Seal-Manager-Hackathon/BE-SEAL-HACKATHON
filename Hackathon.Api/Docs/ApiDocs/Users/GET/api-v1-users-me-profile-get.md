@@ -28,14 +28,14 @@ Không có.
 *Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Status": 200,
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-18T23:00:00Z",
-  "Message": "SUCCESS",
-  "Data": {
+  "isSuccess": true,
+  "isFailed": false,
+  "status": 200,
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-18T23:00:00Z",
+  "message": "SUCCESS",
+  "data": {
     "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "email": "user@example.com",
     "firstName": "John",

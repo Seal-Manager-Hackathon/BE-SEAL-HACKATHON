@@ -35,13 +35,13 @@ Không có.
 
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Status": 200,
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z",
-  "Data": {
+  "isSuccess": true,
+  "isFailed": false,
+  "status": 200,
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "data": {
     "Items": [
       {
         "submissionId": "f7b6d5c4-129b-4e6f-adbd-2c5ea56789ff",

@@ -16,8 +16,8 @@ Mentor phụ trách track (Yêu cầu đăng nhập tài khoản Giảng viên �
 *Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
+  "isSuccess": true,
+  "isFailed": false,
   "Value": [
     {
       "assignTrackId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -27,9 +27,9 @@ Mentor phụ trách track (Yêu cầu đăng nhập tài khoản Giảng viên �
       "eventName": "SEAL Hackathon 2026"
     }
   ],
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
@@ -42,13 +42,13 @@ Mentor phụ trách track (Yêu cầu đăng nhập tài khoản Giảng viên �
 
 ```json
 {
-  "Title": "Unauthorized",
-  "Status": 401,
+  "title": "Unauthorized",
+  "status": 401,
   "Detail": "Vui lòng xác thực tài khoản giảng viên.",
-  "MessageCode": "UNAUTHORIZED",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "messageCode": "UNAUTHORIZED",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 

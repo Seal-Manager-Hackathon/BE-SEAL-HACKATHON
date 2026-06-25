@@ -1,3 +1,5 @@
+using System;
+
 namespace Hackathon.Service.Tracks;
 
 public static class Request

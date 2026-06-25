@@ -24,6 +24,13 @@ public class InvitationsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("pending/count")]
+    public async Task<IActionResult> GetPendingInvitationsCount()
+    {
+        var count = await _invitationsService.GetPendingInvitationsCount();
+        return Ok(ApiResponseFactory.Base(new { count }, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
+
     [HttpPost("{invitationId:guid}/accept")]
     public async Task<IActionResult> AcceptInvitation(Guid invitationId)
     {

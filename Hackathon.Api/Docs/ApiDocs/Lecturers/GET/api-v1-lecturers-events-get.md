@@ -4,7 +4,7 @@
 Giúp giảng viên (Lecturer) xem danh sách các event mà mình được phân công tham gia hỗ trợ hoặc chấm điểm (với các vai trò như Mentor, Judge,...) trong mùa giải.
 
 ## URL
-`GET /api/v1/mentor/events`
+`GET /api/v1/lecturers/events`
 
 ## Quyền
 Lecturer đã được phân công trong sự kiện (Yêu cầu đăng nhập tài khoản Giảng viên)
@@ -12,8 +12,13 @@ Lecturer đã được phân công trong sự kiện (Yêu cầu đăng nhập t
 ## Request Headers
 - `Authorization: Bearer <AccessToken>`
 
+## Request Parameters
+*   **Query Parameters:**
+    *   `pageIndex` (int, Không bắt buộc, mặc định: 1): Số trang hiện tại.
+    *   `pageSize` (int, Không bắt buộc, mặc định: 10): Số phần tử trên một trang (tối đa 100).
+
 ## Response body (Success - 200 OK)
-*Cấu trúc trả về dạng `BasePaginationResponse`:*
+*Cấu trúc trả về dạng `BasePaginationResponse` với định dạng camelCase:*
 ```json
 {
   "isSuccess": true,
@@ -23,57 +28,50 @@ Lecturer đã được phân công trong sự kiện (Yêu cầu đăng nhập t
   "traceId": "0HN1A2B3C4D5E",
   "timestampUtc": "2026-06-22T08:00:00Z",
   "data": {
-    "Items": [
+    "items": [
       {
         "assignEventId": "b1a7d6c2-4821-4f9b-bd5e-3c2fa56789e0",
         "eventId": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
         "eventName": "SEAL Hackathon 2026",
-        "role": "Mentor"
-      },
-      {
-        "assignEventId": "c2b8e7d3-5932-5a0c-ce6f-4d3fb6789af1",
-        "eventId": "f8e7d6c5-b4a3-2109-8c7d-6e5f4a3b2c1d",
-        "eventName": "AI Hackathon 2026",
-        "role": "Judge"
+        "season": "Mùa hè 2026",
+        "startTime": "2026-07-01T08:00:00Z",
+        "endTime": "2026-07-10T17:00:00Z",
+        "role": 0, /* 0: Mentor, 1: Judge */
+        "eventStatus": 1 /* 0: Draft, 1: Published, 2: Closed, 3: Cancelled */
       }
     ],
-    "PageIndex": 1,
-    "PageSize": 10,
-    "TotalCount": 2,
-    "HasNextPage": false,
-    "HasPreviousPage": false
+    "pageIndex": 1,
+    "pageSize": 10,
+    "totalCount": 1,
+    "hasNextPage": false,
+    "hasPreviousPage": false
   }
 }
 ```
 
 ## Business rules
-- Người gọi phải là giảng viên (`Role = Lecturer` trong `Users`).
-- Trích xuất thông tin phân công trong bảng nối `AssignEvents` liên kết với `EventRoles` của giảng viên hiện tại (không giới hạn riêng vai trò Mentor).
+- Người gọi phải là giảng viên (`role = 3` tương ứng `RoleEnum.Lecturer` trong `Users`).
+- Trích xuất thông tin phân công trong bảng nối `AssignEvents` liên kết với `EventRoles` của giảng viên hiện tại.
 - Chỉ lấy các sự kiện chưa bị disable.
 
-### Bảng vai trò EventRoleEnum
+### Bảng vai trò EventRoleEnum (Integer)
 | Giá trị (Value) | Vai trò (Role) | Mô tả (Description) |
 | :--- | :--- | :--- |
 | `0` | Mentor | Người hướng dẫn chuyên môn cho đội thi |
 | `1` | Judge | Giám khảo chấm điểm bài thi |
 | `2` | Staff | Nhân viên vận hành sự kiện |
 
+### Bảng trạng thái EventStatusEnum
+| Giá trị (Value) | Trạng thái (Status) | Mô tả (Description) |
+| :--- | :--- | :--- |
+| `0` | Draft | Sự kiện đang nháp, chưa công bố |
+| `1` | Published | Sự kiện đã công bố và hoạt động |
+| `2` | Closed | Sự kiện đã kết thúc và đóng lại |
+| `3` | Cancelled | Sự kiện đã bị hủy bỏ |
+
 ## Lỗi có thể xảy ra
 *Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
 
-```json
-{
-  "title": "Forbidden",
-  "status": 403,
-  "message": "FORBIDDEN",
-  "messageCode": "FORBIDDEN",
-  "errors": null,
-  "traceId": "0HN1A2B3C4D5E",
-  "timestampUtc": "2026-06-22T08:00:00Z"
-}
-```
-
-### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
 |---:|---|---|
 | 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
