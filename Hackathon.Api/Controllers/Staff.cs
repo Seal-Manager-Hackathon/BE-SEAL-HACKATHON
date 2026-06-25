@@ -87,10 +87,10 @@ public class Staff : ControllerBase
         return Ok(ApiResponseFactory.Base(result, 200,"TOPIC_ASSIGNED_TO_TEAM_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
-    [HttpGet("events/{eventId:guid}/lecturers")]
-    public async Task<IActionResult> GetAssignedLecturersByEvent(Guid eventId, [FromQuery] Guid? eventRoleId, [FromQuery] string? keyword, [FromQuery] bool? isDisable, [FromQuery] PaginationRequest paginationRequest)
+    [HttpGet("events/{eventId:guid}/assignments")]
+    public async Task<IActionResult> GetEventAssignments(Guid eventId, [FromQuery] EventRoleEnum? eventRole, [FromQuery] string? keyword, [FromQuery] bool? isDisable, [FromQuery] PaginationRequest paginationRequest)
     {
-        var result = await _assignEventsService.GetAssignedLecturersByEvent(eventId, eventRoleId, keyword, isDisable, paginationRequest);
+        var result = await _assignEventsService.GetEventAssignments(eventId, eventRole, keyword, isDisable, paginationRequest);
         return Ok(result);
     }
 
@@ -106,6 +106,13 @@ public class Staff : ControllerBase
     {
         var result = await _assignTracksService.AssignJudgeToTrack(trackId, request);
         return Ok(ApiResponseFactory.Base(result, 200, "JUDGE_ASSIGNED_TO_TRACK_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("events/{eventId:guid}/tracks/{trackId:guid}/lecturers")]
+    public async Task<IActionResult> GetLecturersAssignedToTrack(Guid eventId, Guid trackId, [FromQuery] bool? isDisable)
+    {
+        var result = await _assignTracksService.GetLecturersAssignedToTrack(eventId, trackId, isDisable);
+        return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpDelete("assign-events/{id:guid}")]
