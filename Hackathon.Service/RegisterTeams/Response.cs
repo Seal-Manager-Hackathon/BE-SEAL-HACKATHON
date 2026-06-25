@@ -38,6 +38,10 @@ public static class Response
         public RegisterTeamStatusEnum Status { get; set; }
         public bool IsBanned { get; set; }
         public bool IsDisable { get; set; }
+        public bool IsEliminated { get; set; }
+        public Guid? CurrentRoundId { get; set; }
+        public string? CurrentRoundName { get; set; }
+        public int? CurrentRoundNo { get; set; }
         public List<RegisterTeamMemberResponse> Members { get; set; } = new();
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset UpdatedAt { get; set; }
@@ -96,5 +100,34 @@ public static class Response
         public RegisterTeamStatusEnum? Status { get; set; }
         public string? Description { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
+    }
+
+    public class RegisterTeamTrackResponse
+    {
+        public Guid RegisterTeamId { get; set; }
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = string.Empty;
+        public RegisterTeamStatusEnum Status { get; set; }
+        public Guid? TopicId { get; set; }
+        public string? TopicTitle { get; set; }
+        public Guid? CurrentRoundId { get; set; }
+        public string? CurrentRoundName { get; set; }
+        public int? CurrentRoundNo { get; set; }
+        public bool IsEliminated { get; set; }
+    }
+
+    public class RegisterTeamApprovedResponse
+    {
+        public Guid RegisterTeamId { get; set; }
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = string.Empty;
+        public Guid? TrackId { get; set; }
+        public string? TrackTitle { get; set; }
+        public Guid? TopicId { get; set; }
+        public string? TopicTitle { get; set; }
+        public Guid? CurrentRoundId { get; set; }
+        public string? CurrentRoundName { get; set; }
+        public int? CurrentRoundNo { get; set; }
+        public bool IsEliminated { get; set; }
     }
 }

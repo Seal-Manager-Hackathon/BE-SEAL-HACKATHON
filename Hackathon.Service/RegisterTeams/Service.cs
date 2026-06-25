@@ -477,9 +477,68 @@ public class Service : IService
             await EnsureStaffAssignedToEvent(registerTeam.EventId);
         }
 
+        var eventId = registerTeam.EventId;
+        var teamRegisterId = registerTeam.Id;
+
+        // Check active rounds to compute IsEliminated.
+        var activeRounds = await _dbContext.Rounds.AsNoTracking()
+            .Where(x => x.EventId == eventId && !x.IsDisable)
+            .Select(x => new { x.Id, x.RoundNo })
+            .ToListAsync();
+
+        var latestActiveRound = activeRounds
+            .OrderByDescending(x => x.RoundNo ?? 0)
+            .Select(x => x.Id)
+            .FirstOrDefault();
+
+        bool isEliminated;
+        Guid? currentRoundId = null;
+        string? currentRoundName = null;
+        int? currentRoundNo = null;
+
+        if (activeRounds.Count == 0)
+        {
+            isEliminated = false;
+        }
+        else
+        {
+            var hasActiveRoundDetail = await _dbContext.RoundDetails
+                .AsNoTracking()
+                .AnyAsync(x => x.RegisterTeamId == teamRegisterId
+                               && !x.IsDisable
+                               && !x.Round.IsDisable
+                               && x.Round.EventId == eventId);
+
+            if (!hasActiveRoundDetail)
+            {
+                isEliminated = true;
+            }
+            else
+            {
+                isEliminated = false;
+
+                var currentRoundData = await _dbContext.RoundDetails
+                    .AsNoTracking()
+                    .Where(x => x.RegisterTeamId == teamRegisterId
+                                && !x.IsDisable
+                                && !x.Round.IsDisable
+                                && x.Round.EventId == eventId)
+                    .Select(x => new { x.Round.Id, x.Round.Name, x.Round.RoundNo })
+                    .OrderByDescending(x => x.RoundNo ?? 0)
+                    .FirstOrDefaultAsync();
+
+                if (currentRoundData != null)
+                {
+                    currentRoundId = currentRoundData.Id;
+                    currentRoundName = currentRoundData.Name;
+                    currentRoundNo = currentRoundData.RoundNo;
+                }
+            }
+        }
+
         return await _dbContext.RegisterTeams
             .AsNoTracking()
-            .Where(x => x.Id == registerTeamId)
+            .Where(x => x.Id == teamRegisterId)
             .Select(x => new Response.RegisterTeamDetailResponse
             {
                 Id = x.Id,
@@ -496,6 +555,10 @@ public class Service : IService
                 Status = x.Status ?? RegisterTeamStatusEnum.Pending,
                 IsBanned = x.IsBanned,
                 IsDisable = x.IsDisable,
+                IsEliminated = isEliminated,
+                CurrentRoundId = currentRoundId,
+                CurrentRoundName = currentRoundName,
+                CurrentRoundNo = currentRoundNo,
                 Members = x.Team.TeamDetails
                     .Where(td => !td.IsDisable && td.Status == TeamDetailStatusEnum.Active)
                     .OrderByDescending(td => td.IsLeader)
@@ -767,9 +830,280 @@ public class Service : IService
             TeamName = registerTeam.Team.Name,
             EventId = registerTeam.EventId,
             EventName = registerTeam.Event.Name,
-            Status = registerTeam.Status ?? RegisterTeamStatusEnum.Pending,
+            Status = registerTeam.Status.Value,
             RejectionReason = registerTeam.RejectionReason,
             IsBanned = registerTeam.IsBanned
         };
+    }
+
+    public async Task<(List<Response.RegisterTeamTrackResponse> Data, string Message)> GetTeamsByTrack(Guid eventId, Guid trackId, Request.GetTeamsByTrackRequest request)
+    {
+        if (eventId == Guid.Empty)
+        {
+            throw new BadRequestException("EVENT_ID_REQUIRED");
+        }
+
+        if (trackId == Guid.Empty)
+        {
+            throw new BadRequestException("TRACK_ID_REQUIRED");
+        }
+
+        var eventEntity = await _dbContext.Events.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == eventId && !x.IsDisable);
+        if (eventEntity == null)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        var track = await _dbContext.Tracks.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == trackId && !x.IsDisable);
+        if (track == null || track.EventId != eventId)
+        {
+            throw new NotFoundException("TRACK_NOT_FOUND");
+        }
+
+        if (!IsCurrentUserAdmin())
+        {
+            await EnsureStaffAssignedToEvent(eventId);
+        }
+
+        // Pull active rounds for the event once.
+        var activeRounds = await _dbContext.Rounds.AsNoTracking()
+            .Where(x => x.EventId == eventId && !x.IsDisable)
+            .Select(x => new { x.Id, x.Name, x.RoundNo })
+            .ToListAsync();
+
+        // Pull all active register teams for this track in memory (bounded by LimitTeam).
+        var registerTeamsQuery = _dbContext.RegisterTeams
+            .AsNoTracking()
+            .Include(x => x.Team)
+            .Include(x => x.Topic)
+            .Where(x => x.EventId == eventId
+                        && x.TrackId == trackId
+                        && !x.IsDisable
+                        && !x.Team.IsDisable);
+
+        if (!string.IsNullOrWhiteSpace(request.Keyword))
+        {
+            var normalizedKeyword = request.Keyword.Trim().ToLower();
+            registerTeamsQuery = registerTeamsQuery.Where(x => x.Team.Name.ToLower().Contains(normalizedKeyword));
+        }
+
+        var registerTeams = await registerTeamsQuery.ToListAsync();
+
+        // For each register team, look up their active RoundDetails once.
+        var registerTeamIds = registerTeams.Select(x => x.Id).ToList();
+        var activeRoundDetails = await _dbContext.RoundDetails.AsNoTracking()
+            .Where(x => registerTeamIds.Contains(x.RegisterTeamId)
+                        && !x.IsDisable
+                        && !x.Round.IsDisable
+                        && x.Round.EventId == eventId)
+            .Select(x => new { x.RegisterTeamId, x.RoundId })
+            .ToListAsync();
+
+        var result = registerTeams.Select(rt =>
+        {
+            var teamRoundIds = activeRoundDetails
+                .Where(rd => rd.RegisterTeamId == rt.Id)
+                .Select(rd => rd.RoundId)
+                .ToList();
+
+            bool isTeamEliminated;
+            Guid? currentRoundId = null;
+            string? currentRoundName = null;
+            int? currentRoundNo = null;
+
+            if (activeRounds.Count == 0)
+            {
+                // Event has not started its rounds yet.
+                isTeamEliminated = false;
+            }
+            else
+            {
+                var currentRound = activeRounds
+                    .Where(r => teamRoundIds.Contains(r.Id))
+                    .OrderByDescending(r => r.RoundNo ?? 0)
+                    .FirstOrDefault();
+
+                if (currentRound != null)
+                {
+                    isTeamEliminated = false;
+                    currentRoundId = currentRound.Id;
+                    currentRoundName = currentRound.Name;
+                    currentRoundNo = currentRound.RoundNo;
+                }
+                else
+                {
+                    isTeamEliminated = true;
+                }
+            }
+
+            return new
+            {
+                RegisterTeam = rt,
+                IsEliminated = isTeamEliminated,
+                CurrentRoundId = currentRoundId,
+                CurrentRoundName = currentRoundName,
+                CurrentRoundNo = currentRoundNo,
+            };
+        });
+
+        // Apply filters.
+        if (request.Status.HasValue)
+        {
+            result = result.Where(x => x.RegisterTeam.Status == request.Status.Value);
+        }
+
+        if (request.IsEliminated.HasValue)
+        {
+            result = result.Where(x => x.IsEliminated == request.IsEliminated.Value);
+        }
+
+        // Sort: not-eliminated first, then by TeamName asc, then CreatedAt desc.
+        var teams = result
+            .OrderBy(x => x.IsEliminated)
+            .ThenBy(x => x.RegisterTeam.Team.Name)
+            .ThenByDescending(x => x.RegisterTeam.CreatedAt)
+            .Select(x => new Response.RegisterTeamTrackResponse
+            {
+                RegisterTeamId = x.RegisterTeam.Id,
+                TeamId = x.RegisterTeam.TeamId,
+                TeamName = x.RegisterTeam.Team.Name,
+                Status = x.RegisterTeam.Status ?? RegisterTeamStatusEnum.Pending,
+                TopicId = x.RegisterTeam.TopicId,
+                TopicTitle = x.RegisterTeam.Topic != null ? x.RegisterTeam.Topic.Title : null,
+                CurrentRoundId = x.CurrentRoundId,
+                CurrentRoundName = x.CurrentRoundName,
+                CurrentRoundNo = x.CurrentRoundNo,
+                IsEliminated = x.IsEliminated,
+            })
+            .ToList();
+
+        return (teams, teams.Count == 0 ? "NO_TEAMS_FOUND" : "SUCCESS");
+    }
+
+    public async Task<(List<Response.RegisterTeamApprovedResponse> Data, string Message)> GetApprovedTeams(Guid eventId, Request.GetApprovedTeamsRequest request)
+    {
+        if (eventId == Guid.Empty)
+        {
+            throw new BadRequestException("EVENT_ID_REQUIRED");
+        }
+
+        var eventEntity = await _dbContext.Events.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == eventId && !x.IsDisable);
+        if (eventEntity == null)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        if (!IsCurrentUserAdmin())
+        {
+            await EnsureStaffAssignedToEvent(eventId);
+        }
+
+        var activeRounds = await _dbContext.Rounds.AsNoTracking()
+            .Where(x => x.EventId == eventId && !x.IsDisable)
+            .Select(x => new { x.Id, x.Name, x.RoundNo })
+            .ToListAsync();
+
+        var registerTeamsQuery = _dbContext.RegisterTeams
+            .AsNoTracking()
+            .Include(x => x.Team)
+            .Include(x => x.Track)
+            .Include(x => x.Topic)
+            .Where(x => x.EventId == eventId
+                        && x.Status == RegisterTeamStatusEnum.Approved
+                        && !x.IsDisable
+                        && !x.Team.IsDisable);
+
+        if (!string.IsNullOrWhiteSpace(request.Keyword))
+        {
+            var normalizedKeyword = request.Keyword.Trim().ToLower();
+            registerTeamsQuery = registerTeamsQuery.Where(x => x.Team.Name.ToLower().Contains(normalizedKeyword));
+        }
+
+        var registerTeams = await registerTeamsQuery.ToListAsync();
+
+        var registerTeamIds = registerTeams.Select(x => x.Id).ToList();
+        var activeRoundDetails = await _dbContext.RoundDetails.AsNoTracking()
+            .Where(x => registerTeamIds.Contains(x.RegisterTeamId)
+                        && !x.IsDisable
+                        && !x.Round.IsDisable
+                        && x.Round.EventId == eventId)
+            .Select(x => new { x.RegisterTeamId, x.RoundId })
+            .ToListAsync();
+
+        var result = registerTeams.Select(rt =>
+        {
+            var teamRoundIds = activeRoundDetails
+                .Where(rd => rd.RegisterTeamId == rt.Id)
+                .Select(rd => rd.RoundId)
+                .ToList();
+
+            bool isTeamEliminated;
+            Guid? currentRoundId = null;
+            string? currentRoundName = null;
+            int? currentRoundNo = null;
+
+            if (activeRounds.Count == 0)
+            {
+                isTeamEliminated = false;
+            }
+            else
+            {
+                var currentRound = activeRounds
+                    .Where(r => teamRoundIds.Contains(r.Id))
+                    .OrderByDescending(r => r.RoundNo ?? 0)
+                    .FirstOrDefault();
+
+                if (currentRound != null)
+                {
+                    isTeamEliminated = false;
+                    currentRoundId = currentRound.Id;
+                    currentRoundName = currentRound.Name;
+                    currentRoundNo = currentRound.RoundNo;
+                }
+                else
+                {
+                    isTeamEliminated = true;
+                }
+            }
+
+            return new
+            {
+                RegisterTeam = rt,
+                IsEliminated = isTeamEliminated,
+                CurrentRoundId = currentRoundId,
+                CurrentRoundName = currentRoundName,
+                CurrentRoundNo = currentRoundNo,
+            };
+        });
+
+        if (request.IsEliminated.HasValue)
+        {
+            result = result.Where(x => x.IsEliminated == request.IsEliminated.Value);
+        }
+
+        var teams = result
+            .OrderBy(x => x.IsEliminated)
+            .ThenBy(x => x.RegisterTeam.Team.Name)
+            .ThenByDescending(x => x.RegisterTeam.CreatedAt)
+            .Select(x => new Response.RegisterTeamApprovedResponse
+            {
+                RegisterTeamId = x.RegisterTeam.Id,
+                TeamId = x.RegisterTeam.TeamId,
+                TeamName = x.RegisterTeam.Team.Name,
+                TrackId = x.RegisterTeam.TrackId,
+                TrackTitle = x.RegisterTeam.Track != null ? x.RegisterTeam.Track.Title : null,
+                TopicId = x.RegisterTeam.TopicId,
+                TopicTitle = x.RegisterTeam.Topic != null ? x.RegisterTeam.Topic.Title : null,
+                CurrentRoundId = x.CurrentRoundId,
+                CurrentRoundName = x.CurrentRoundName,
+                CurrentRoundNo = x.CurrentRoundNo,
+                IsEliminated = x.IsEliminated,
+            })
+            .ToList();
+
+        return (teams, teams.Count == 0 ? "NO_TEAMS_FOUND" : "SUCCESS");
     }
 }

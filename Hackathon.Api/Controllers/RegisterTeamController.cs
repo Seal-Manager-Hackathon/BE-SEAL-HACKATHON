@@ -56,7 +56,7 @@ public class RegisterTeamController : ControllerBase
     }
 
     [HttpGet("staff/{registerTeamId:guid}")]
-    [Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]
+    [Authorize(Policy = JwtExtensions.StaffLecturerOrAdminPolicy)]
     public async Task<IActionResult> GetRegisterTeamDetail(Guid registerTeamId)
     {
         var result = await _registerTeamService.GetRegisterTeamDetail(registerTeamId);
@@ -93,5 +93,26 @@ public class RegisterTeamController : ControllerBase
     {
         var result = await _registerTeamService.UnbanRegisterTeam(registerId);
         return Ok(ApiResponseFactory.Base(result, 200, "TEAM_UNBANNED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("events/{eventId:guid}/tracks/{trackId:guid}/teams")]
+    [Authorize(Policy = JwtExtensions.StaffLecturerOrAdminPolicy)]
+    public async Task<IActionResult> GetTeamsByTrack(
+        Guid eventId,
+        Guid trackId,
+        [FromQuery] RegisterTeamsService.Request.GetTeamsByTrackRequest request)
+    {
+        var (data, message) = await _registerTeamService.GetTeamsByTrack(eventId, trackId, request);
+        return Ok(ApiResponseFactory.Base(data, 200, message, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("events/{eventId:guid}/approved-teams")]
+    [Authorize(Policy = JwtExtensions.StaffLecturerOrAdminPolicy)]
+    public async Task<IActionResult> GetApprovedTeams(
+        Guid eventId,
+        [FromQuery] RegisterTeamsService.Request.GetApprovedTeamsRequest request)
+    {
+        var (data, message) = await _registerTeamService.GetApprovedTeams(eventId, request);
+        return Ok(ApiResponseFactory.Base(data, 200, message, traceId: HttpContext.TraceIdentifier));
     }
 }

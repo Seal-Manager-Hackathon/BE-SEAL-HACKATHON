@@ -15,6 +15,7 @@ public static class JwtExtensions
     public const string StudentPolicy = "StudentPolicy";
     public const string StaffOrAdminPolicy = "StaffOrAdminPolicy";
     public const string StudentVerifiedPolicy = "StudentVerifiedPolicy";
+    public const string StaffLecturerOrAdminPolicy = "StaffLecturerOrAdminPolicy";
     
     public static void AddJwtServices(this IServiceCollection services, IConfiguration configuration)
     {
@@ -75,7 +76,13 @@ public static class JwtExtensions
             options.AddPolicy(StaffOrAdminPolicy, policy =>
                 policy.RequireRole(RoleEnum.Staff.ToString(), RoleEnum.Admin.ToString()));
             // [Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]
-            
+
+            options.AddPolicy(StaffLecturerOrAdminPolicy, policy =>
+                policy.RequireRole(RoleEnum.Staff.ToString(),
+                                   RoleEnum.Lecturer.ToString(),
+                                   RoleEnum.Admin.ToString()));
+            // [Authorize(Policy = JwtExtensions.StaffLecturerOrAdminPolicy)]
+
             options.AddPolicy(StudentVerifiedPolicy, policy =>
                 policy.RequireRole(RoleEnum.Student.ToString())
                     .RequireClaim("IsVerified", "true"));
