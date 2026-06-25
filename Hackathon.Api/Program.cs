@@ -51,7 +51,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
         var errorResponse = ApiResponseFactory.Error(
             title: "Validation Failed",
             status: StatusCodes.Status400BadRequest,
-            message: "INVALID_INPUT_DATA",
+            message: errors?.FirstOrDefault().Value?.FirstOrDefault() ?? "INVALID_INPUT_DATA",
             messageCode: "VALIDATION_FAILED",
             errors: errors,
             traceId: context.HttpContext.TraceIdentifier
