@@ -87,4 +87,11 @@ public class JudgeController : ControllerBase
         var result = await _judgeService.SubmitRetakeScore(scoreId, request);
         return Ok(ApiResponseFactory.Base(result, 200, "REGRADE_SCORE_SUBMITTED", traceId: HttpContext.TraceIdentifier));
     }
+
+    [HttpGet("events/{eventId:guid}/teams")]
+    public async Task<IActionResult> GetJudgeTeamsByEvent(Guid eventId, [FromQuery] Guid? roundId)
+    {
+        var (data, message) = await _judgeService.GetJudgeTeamsByEvent(eventId, roundId);
+        return Ok(ApiResponseFactory.Base(data, 200, message, traceId: HttpContext.TraceIdentifier));
+    }
 }
