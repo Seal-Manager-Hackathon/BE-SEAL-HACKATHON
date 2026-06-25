@@ -60,7 +60,7 @@ public class Service : IService
         }
     }
 
-    public async Task<BasePaginationResponse> GetAssignedLecturersByEvent(Guid eventId, Guid? eventRoleId, string? keyword, bool? isDisable, PaginationRequest paginationRequest)
+    public async Task<BasePaginationResponse> GetEventAssignments(Guid eventId, EventRoleEnum? eventRole, string? keyword, bool? isDisable, PaginationRequest paginationRequest)
     {
         var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
         if (!eventExists)
@@ -78,14 +78,11 @@ public class Service : IService
             .Include(x => x.EventRole)
             .AsNoTracking()
             .Where(x => x.EventId == eventId
-                     && x.EventRoleId != null
-                     && x.EventRole != null
-                     && x.IsDisable == (isDisable ?? false)
-                     && x.User.Role == RoleEnum.Lecturer);
+                     && x.IsDisable == (isDisable ?? false));
 
-        if (eventRoleId.HasValue)
+        if (eventRole.HasValue)
         {
-            query = query.Where(x => x.EventRoleId == eventRoleId.Value);
+            query = query.Where(x => x.EventRole != null && x.EventRole.Name == eventRole.Value);
         }
 
         if (!string.IsNullOrWhiteSpace(keyword))
@@ -108,14 +105,21 @@ public class Service : IService
             {
                 Id = x.Id,
                 UserId = x.UserId,
-                FullName = x.User.FirstName + " " + x.User.LastName,
+                FirstName = x.User.FirstName,
+                LastName = x.User.LastName,
                 Email = x.User.Email,
                 EventRoleId = x.EventRoleId,
-                EventRoleName = x.EventRole.Name,
+                EventRole = x.EventRole != null ? (EventRoleEnum?)x.EventRole.Name : null,
+                Role = x.User.Role,
                 IsDisable = x.IsDisable,
                 CreatedAt = x.CreatedAt
             })
             .ToListAsync();
+
+        if (items.Count == 0)
+        {
+            throw new NotFoundException("NO_ONE_ASSIGNED_TO_EVENT");
+        }
 
         return ApiResponseFactory.BasePagination(items, paginationRequest.PageIndex, paginationRequest.PageSize, totalCount);
     }
