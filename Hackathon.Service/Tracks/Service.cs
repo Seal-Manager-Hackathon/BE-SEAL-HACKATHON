@@ -1,6 +1,7 @@
 using System;
 using System.Security.Claims;
 using Hackathon.Repository;
+using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
 using Hackathon.Service.Exceptions;
 using Hackathon.Service.Models;
@@ -58,6 +59,21 @@ public class Service : IService
         return Enum.TryParse<RoleEnum>(role, true, out var userRole) && userRole == RoleEnum.Admin;
     }
 
+    private static Response.TrackResponse ToTrackResponse(Repository.Entity.Tracks track)
+    {
+        return new Response.TrackResponse
+        {
+            Id = track.Id,
+            EventId = track.EventId,
+            Title = track.Title,
+            Description = track.Description,
+            MaxTeam = track.MaxTeam,
+            IsDisable = track.IsDisable,
+            CreatedAt = track.CreatedAt,
+            UpdatedAt = track.UpdatedAt,
+        };
+    }
+
     public Task<BasePaginationResponse> GetTracksByEvent(Guid eventId, string? keyword, bool? isDisable, PaginationRequest paginationRequest)
     {
         return GetTracks(eventId, keyword, isDisable, paginationRequest);
@@ -104,10 +120,30 @@ public class Service : IService
                 MaxTeam = x.MaxTeam,
                 IsDisable = x.IsDisable,
                 CreatedAt = x.CreatedAt,
+                UpdatedAt = x.UpdatedAt,
             })
             .ToListAsync();
 
         return ApiResponseFactory.BasePagination(items, paginationRequest.PageIndex, paginationRequest.PageSize, totalCount);
+    }
+
+    public async Task<Response.TrackResponse> GetTrack(Guid trackId)
+    {
+        var track = await _dbContext.Tracks
+            .AsNoTracking()
+            .Include(x => x.Event)
+            .FirstOrDefaultAsync(x => x.Id == trackId && !x.IsDisable);
+        if (track == null)
+        {
+            throw new NotFoundException("TRACK_NOT_FOUND");
+        }
+
+        if (track.Event.IsDisable)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        return ToTrackResponse(track);
     }
 
     public async Task<BasePaginationResponse> GetTopicsByTrack(Guid trackId, string? keyword, bool? isDisable, PaginationRequest paginationRequest)
@@ -145,6 +181,200 @@ public class Service : IService
             .ToListAsync();
 
         return ApiResponseFactory.BasePagination(items, paginationRequest.PageIndex, paginationRequest.PageSize, totalCount);
+    }
+
+    public async Task<BasePaginationResponse> GetAdminTopicsByTrack(Guid trackId, string? keyword, bool? isDisable, PaginationRequest paginationRequest)
+    {
+        var trackEventId = await _dbContext.Tracks
+            .AsNoTracking()
+            .Where(x => x.Id == trackId)
+            .Select(x => x.EventId)
+            .FirstOrDefaultAsync();
+
+        if (trackEventId == Guid.Empty)
+        {
+            throw new NotFoundException("TRACK_NOT_FOUND");
+        }
+
+        if (!IsCurrentUserAdmin())
+        {
+            await EnsureStaffAssignedToEvent(trackEventId);
+        }
+
+        return await GetTopicsByTrack(trackId, keyword, isDisable, paginationRequest);
+    }
+
+    public async Task<Response.TrackResponse> CreateTrack(Guid eventId, Request.CreateTrackRequest request)
+    {
+        if (eventId == Guid.Empty)
+        {
+            throw new BadRequestException("EVENT_ID_REQUIRED");
+        }
+
+        var title = request.Title?.Trim();
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            throw new BadRequestException("TRACK_TITLE_REQUIRED");
+        }
+
+        var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
+        if (!eventExists)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        var titleExists = await _dbContext.Tracks.AsNoTracking().AnyAsync(x => x.EventId == eventId
+            && x.Title == title
+            && !x.IsDisable);
+        if (titleExists)
+        {
+            throw new ConflictException("TRACK_TITLE_ALREADY_EXISTS");
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var track = new Repository.Entity.Tracks
+        {
+            Id = Guid.NewGuid(),
+            EventId = eventId,
+            Title = title,
+            Description = request.Description,
+            MaxTeam = request.MaxTeam,
+            IsDisable = false,
+            CreatedAt = now,
+            UpdatedAt = now,
+        };
+
+        await _dbContext.Tracks.AddAsync(track);
+        await _dbContext.SaveChangesAsync();
+
+        return ToTrackResponse(track);
+    }
+
+    public async Task<Response.TrackResponse> UpdateTrack(Guid trackId, Request.UpdateTrackRequest request)
+    {
+        if (trackId == Guid.Empty)
+        {
+            throw new BadRequestException("TRACK_ID_REQUIRED");
+        }
+
+        var track = await _dbContext.Tracks
+            .Include(x => x.Event)
+            .FirstOrDefaultAsync(x => x.Id == trackId && !x.IsDisable);
+        if (track == null)
+        {
+            throw new NotFoundException("TRACK_NOT_FOUND");
+        }
+
+        if (track.Event.IsDisable)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        if (request.Title != null)
+        {
+            var title = request.Title.Trim();
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                throw new BadRequestException("TRACK_TITLE_REQUIRED");
+            }
+
+            var titleExists = await _dbContext.Tracks.AsNoTracking().AnyAsync(x => x.EventId == track.EventId
+                && x.Id != trackId
+                && x.Title == title
+                && !x.IsDisable);
+            if (titleExists)
+            {
+                throw new ConflictException("TRACK_TITLE_ALREADY_EXISTS");
+            }
+
+            track.Title = title;
+        }
+
+        if (request.Description != null)
+        {
+            track.Description = request.Description;
+        }
+
+        if (request.MaxTeam.HasValue)
+        {
+            track.MaxTeam = request.MaxTeam;
+        }
+
+        track.UpdatedAt = DateTimeOffset.UtcNow;
+        _dbContext.Tracks.Update(track);
+        await _dbContext.SaveChangesAsync();
+
+        return ToTrackResponse(track);
+    }
+
+    public async Task<Response.TrackResponse> UpdateTrackVisibility(Guid trackId, Request.UpdateTrackVisibilityRequest request)
+    {
+        if (trackId == Guid.Empty)
+        {
+            throw new BadRequestException("TRACK_ID_REQUIRED");
+        }
+
+        var track = await _dbContext.Tracks
+            .Include(x => x.Event)
+            .FirstOrDefaultAsync(x => x.Id == trackId);
+        if (track == null)
+        {
+            throw new NotFoundException("TRACK_NOT_FOUND");
+        }
+
+        if (track.Event.IsDisable)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        if (!IsCurrentUserAdmin())
+        {
+            await EnsureStaffAssignedToEvent(track.EventId);
+        }
+
+        track.IsDisable = !request.IsVisible;
+        track.UpdatedAt = DateTimeOffset.UtcNow;
+        _dbContext.Tracks.Update(track);
+        await _dbContext.SaveChangesAsync();
+
+        return ToTrackResponse(track);
+    }
+
+    public async Task<Response.TrackResponse> DeleteTrack(Guid trackId)
+    {
+        if (trackId == Guid.Empty)
+        {
+            throw new BadRequestException("TRACK_ID_REQUIRED");
+        }
+
+        var track = await _dbContext.Tracks
+            .Include(x => x.Event)
+            .Include(x => x.Topics)
+            .FirstOrDefaultAsync(x => x.Id == trackId && !x.IsDisable);
+        if (track == null)
+        {
+            throw new NotFoundException("TRACK_NOT_FOUND");
+        }
+
+        if (track.Event.IsDisable)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        track.IsDisable = true;
+        track.UpdatedAt = now;
+        _dbContext.Tracks.Update(track);
+
+        foreach (var topic in track.Topics.Where(x => !x.IsDisable))
+        {
+            topic.IsDisable = true;
+            topic.UpdatedAt = now;
+        }
+
+        await _dbContext.SaveChangesAsync();
+
+        return ToTrackResponse(track);
     }
 
     public async Task<BasePaginationResponse> GetApprovedTeamsByEvent(Guid eventId, string? keyword, RegisterTeamStatusEnum? status, bool? isDisable, PaginationRequest paginationRequest)
