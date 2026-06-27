@@ -124,6 +124,84 @@ public class Service : IService
         return ApiResponseFactory.BasePagination(items, paginationRequest.PageIndex, paginationRequest.PageSize, totalCount);
     }
 
+    public async Task<BasePaginationResponse> GetAvailableLecturers(Guid eventId, GetAvailableLecturersRequest request)
+    {
+        var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
+        if (!eventExists)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        if (!IsCurrentUserAdmin())
+        {
+            await EnsureStaffAssignedToEvent(eventId);
+        }
+
+        var eventRole = await _dbContext.EventRoles.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == request.EventRoleId && !x.IsDisable);
+
+        if (eventRole == null)
+        {
+            throw new NotFoundException("EVENT_ROLE_NOT_FOUND");
+        }
+
+        if (eventRole.Name == EventRoleEnum.Staff)
+        {
+            throw new BadRequestException("LECTURER_EVENT_ROLE_MUST_BE_MENTOR_OR_JUDGE");
+        }
+
+        var unavailableLecturerIds = _dbContext.AssignEvents.AsNoTracking()
+            .Where(x => x.EventId == eventId
+                        && !x.IsDisable
+                        && x.EventRoleId != null
+                        && (x.EventRoleId == request.EventRoleId
+                            || x.EventRole!.Name == EventRoleEnum.Mentor
+                            || x.EventRole!.Name == EventRoleEnum.Judge))
+            .Select(x => x.UserId);
+
+        var query = _dbContext.Users.AsNoTracking()
+            .Where(x => x.Role == RoleEnum.Lecturer
+                        && !x.IsDisable
+                        && x.Status == UserStatusEnum.Active
+                        && !unavailableLecturerIds.Contains(x.Id));
+
+        if (!string.IsNullOrWhiteSpace(request.Keyword))
+        {
+            var normalizedKeyword = request.Keyword.Trim().ToLower();
+            query = query.Where(x => (x.FirstName + " " + x.LastName).ToLower().Contains(normalizedKeyword)
+                                  || x.FirstName.ToLower().Contains(normalizedKeyword)
+                                  || x.LastName.ToLower().Contains(normalizedKeyword)
+                                  || x.Email.ToLower().Contains(normalizedKeyword));
+        }
+
+        var totalCount = await query.CountAsync();
+
+        request.PageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
+        request.PageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
+
+        var items = await query
+            .OrderBy(x => x.FirstName)
+            .ThenBy(x => x.LastName)
+            .Skip((request.PageIndex - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .Select(x => new AvailableLecturerResponse
+            {
+                Id = x.Id,
+                FirstName = x.FirstName,
+                LastName = x.LastName,
+                FullName = (x.FirstName + " " + x.LastName).Trim(),
+                Email = x.Email,
+                PhoneNumber = x.PhoneNumber,
+                AvatarUrl = x.AvatarUrl,
+                Role = x.Role,
+                IsAlreadyAssignedToEvent = false,
+                AssignedEventRole = null
+            })
+            .ToListAsync();
+
+        return ApiResponseFactory.BasePagination(items, request.PageIndex, request.PageSize, totalCount);
+    }
+
     public async Task<Guid> RemoveLecturerAssignment(Guid assignEventId)
     {
         var assignEvent = await _dbContext.AssignEvents
