@@ -182,7 +182,7 @@ public class Service : IService
         return await _dbContext.Awards
             .AsNoTracking()
             .Where(x => x.EventId == eventId && !x.IsDisable)
-            .OrderBy(x => x.LevelAward)
+            .OrderByDescending(x => x.LevelAward)
             .Select(x => new Response.AwardResponse
             {
                 Id = x.Id,
@@ -291,8 +291,8 @@ public class Service : IService
                         && !x.IsDisable
                         && !x.Round.IsDisable
                         && !x.RegisterTeam.IsDisable)
-            .OrderBy(x => x.Round.RoundNo)
-            .ThenBy(x => x.Round.CreatedAt)
+            .OrderByDescending(x => x.Round.RoundNo)
+            .ThenByDescending(x => x.Round.CreatedAt)
             .ToListAsync();
 
         return rounds.Select(roundDetail =>
@@ -1102,8 +1102,8 @@ public class Service : IService
 
         var totalCount = await query.CountAsync();
         var items = await query
-            .OrderBy(x => x.StartTime)
-            .ThenBy(x => x.CreatedAt)
+            .OrderByDescending(x => x.StartTime)
+            .ThenByDescending(x => x.CreatedAt)
             .Skip((request.PageIndex - 1) * request.PageSize)
             .Take(request.PageSize)
             .Select(x => new Response.AdminEventResponse

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="SUCCESS" xml:space="preserve"><value>Thành công</value></data>
+  <data name="VALIDATION_FAILED" xml:space="preserve"><value>Dữ liệu không hợp lệ</value></data>
+  <data name="VALIDATION_FAILED_TITLE" xml:space="preserve"><value>Xác thực dữ liệu thất bại</value></data>
+  <data name="INVALID_INPUT_DATA" xml:space="preserve"><value>Dữ liệu đầu vào không hợp lệ</value></data>
+  <data name="AN_UNEXPECTED_ERROR_OCCURRED" xml:space="preserve"><value>Đã xảy ra lỗi hệ thống</value></data>
+  <data name="AN_UNEXPECTED_ERROR_OCCURRED_TITLE" xml:space="preserve"><value>Lỗi hệ thống</value></data>
+  <data name="BAD_REQUEST" xml:space="preserve"><value>Yêu cầu không hợp lệ</value></data>
+  <data name="UNAUTHORIZED" xml:space="preserve"><value>Chưa xác thực</value></data>
+  <data name="FORBIDDEN" xml:space="preserve"><value>Không có quyền truy cập</value></data>
+  <data name="NOT_FOUND" xml:space="preserve"><value>Không tìm thấy dữ liệu</value></data>
+  <data name="LOGIN_SUCCESSFUL" xml:space="preserve"><value>Đăng nhập thành công</value></data>
+  <data name="EVENT_CREATED_SUCCESSFULLY" xml:space="preserve"><value>Tạo sự kiện thành công</value></data>
+  <data name="TRACK_CREATED_SUCCESSFULLY" xml:space="preserve"><value>Tạo track thành công</value></data>
+  <data name="TOPIC_CREATED_SUCCESSFULLY" xml:space="preserve"><value>Tạo chủ đề thành công</value></data>
+</root>
