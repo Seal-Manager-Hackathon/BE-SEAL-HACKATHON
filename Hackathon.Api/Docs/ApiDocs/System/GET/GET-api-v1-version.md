@@ -13,16 +13,18 @@ Public API (Không yêu cầu đăng nhập)
 *Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Value": {
+  "isSuccess": true,
+  "isFailed": false,
+  "status": 200,
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "message": "GET_SYSTEM_VERSION_SUCCESSFUL",
+  "data": {
     "version": "1.0.4-build.20260622",
     "environment": "Production",
     "dotnetVersion": ".NET 8.0"
-  },
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  }
 }
 ```
 
@@ -34,17 +36,17 @@ Public API (Không yêu cầu đăng nhập)
 
 ```json
 {
-  "Title": "Internal Server Error",
-  "Status": 500,
-  "Detail": "Không thể lấy thông tin build version.",
-  "MessageCode": "INTERNAL_SERVER_ERROR",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "title": "Internal Server Error",
+  "status": 500,
+  "message": "AN_UNEXPECTED_ERROR_OCCURRED",
+  "messageCode": "INTERNAL_SERVER_ERROR",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
 ### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 500 | INTERNAL_SERVER_ERROR | Lỗi máy chủ phát sinh. |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

@@ -10,8 +10,8 @@ Cho phép người dùng upload tài liệu (PDF, Word) hoặc hình ảnh (PNG,
 Authenticated User (Yêu cầu đăng nhập)
 
 ## Request Headers
-- \`Authorization: Bearer <AccessToken>\`
-- \`Content-Type: multipart/form-data\`
+- `Authorization: Bearer <AccessToken>`
+- `Content-Type: multipart/form-data`
 
 ## Request Body (Form Data)
 *Định dạng truyền nhận dạng file binary:*
@@ -22,17 +22,18 @@ Authenticated User (Yêu cầu đăng nhập)
 *Cấu trúc trả về dạng `BaseResponse` chứa link URL lưu trữ.*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Value": {
+  "isSuccess": true,
+  "isFailed": false,
+  "status": 200,
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "message": "FILE_UPLOADED_SUCCESSFULLY",
+  "data": {
     "fileUrl": "https://cdn.seal-hackathon.vn/uploads/submissions/file-uuid-name.pdf",
     "fileName": "file-uuid-name.pdf",
-    "fileSize": 1048576,
-    "message": "FILE_UPLOADED_SUCCESSFULLY"
-  },
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+    "fileSize": 1048576
+  }
 }
 ```
 
@@ -42,25 +43,25 @@ Authenticated User (Yêu cầu đăng nhập)
 - Tự động gán UUID vào tên file để tránh ghi đè/trùng lặp file trên CDN.
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn \`ErrorResponse\`:*
+*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse`:*
 
 ```json
 {
-  "Title": "Bad Request",
-  "Status": 400,
-  "Detail": "Kích thước file vượt quá giới hạn 10MB cho phép.",
-  "MessageCode": "FILE_SIZE_LIMIT_EXCEEDED",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "title": "Bad Request",
+  "status": 400,
+  "message": "FILE_SIZE_LIMIT_EXCEEDED",
+  "messageCode": "FILE_SIZE_LIMIT_EXCEEDED",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
 ### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | FILE_REQUIRED | Không tìm thấy file nhị phân trong request. |
-| 400 | FILE_SIZE_LIMIT_EXCEEDED | File tải lên vượt giới hạn kích thước tối đa. |
-| 400 | INVALID_FILE_TYPE | Định dạng file tải lên không nằm trong list cho phép. |
-| 401 | UNAUTHORIZED | Access token không hợp lệ hoặc thiếu. |
-| 500 | FILE_UPLOAD_FAILED | Gặp sự cố truyền dẫn khi kết nối với server lưu trữ. |
+| 400 | FILE_REQUIRED | FILE_REQUIRED |
+| 400 | FILE_SIZE_LIMIT_EXCEEDED | FILE_SIZE_LIMIT_EXCEEDED |
+| 400 | INVALID_FILE_TYPE | INVALID_FILE_TYPE |
+| 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
+| 500 | FILE_UPLOAD_FAILED | FILE_UPLOAD_FAILED |
