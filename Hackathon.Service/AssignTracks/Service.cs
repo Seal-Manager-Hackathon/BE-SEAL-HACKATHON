@@ -62,12 +62,17 @@ public class Service : IService
         }
     }
 
-    public async Task<AssignTrackResponse> AssignJudgeToTrack(Guid trackId, AssignJudgeRequest request)
+    public async Task<AssignTrackResponse> AssignLecturerToTrack(Guid eventId, Guid trackId, AssignJudgeRequest request)
     {
         var track = await _dbContext.Tracks.AsNoTracking().FirstOrDefaultAsync(x => x.Id == trackId && !x.IsDisable);
         if (track == null)
         {
             throw new NotFoundException("TRACK_NOT_FOUND");
+        }
+
+        if (track.EventId != eventId)
+        {
+            throw new ConflictException("TRACK_NOT_IN_EVENT");
         }
 
         if (!IsCurrentUserAdmin())
@@ -90,9 +95,9 @@ public class Service : IService
             throw new ConflictException("ASSIGN_EVENT_NOT_MATCH_TRACK_EVENT");
         }
 
-        if (assignEvent.EventRole?.Name != EventRoleEnum.Judge)
+        if (assignEvent.EventRole?.Name != EventRoleEnum.Judge && assignEvent.EventRole?.Name != EventRoleEnum.Mentor)
         {
-            throw new ConflictException("ONLY_JUDGE_CAN_BE_ASSIGNED_TO_TRACK");
+            throw new ConflictException("ONLY_JUDGE_OR_MENTOR_CAN_BE_ASSIGNED_TO_TRACK");
         }
 
         var existingAssignment = await _dbContext.AssignTracks.AsNoTracking()
@@ -100,7 +105,7 @@ public class Service : IService
 
         if (existingAssignment)
         {
-            throw new ConflictException("JUDGE_ALREADY_ASSIGNED_TO_TRACK");
+            throw new ConflictException("LECTURER_ALREADY_ASSIGNED_TO_TRACK");
         }
 
         var newAssignTrack = new Repository.Entity.AssignTracks
@@ -180,5 +185,33 @@ public class Service : IService
         }
 
         return items;
+    }
+
+    public async Task<Guid> RemoveLecturerFromTrack(Guid assignTrackId)
+    {
+        var assignTrack = await _dbContext.AssignTracks
+            .FirstOrDefaultAsync(x => x.Id == assignTrackId && !x.IsDisable);
+
+        if (assignTrack == null)
+        {
+            throw new NotFoundException("ASSIGN_TRACK_NOT_FOUND");
+        }
+
+        if (!IsCurrentUserAdmin())
+        {
+            var track = await _dbContext.Tracks.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == assignTrack.TrackId && !x.IsDisable);
+            if (track != null)
+            {
+                await EnsureStaffAssignedToEvent(track.EventId);
+            }
+        }
+
+        assignTrack.IsDisable = true;
+        assignTrack.UpdatedAt = DateTimeOffset.UtcNow;
+        _dbContext.AssignTracks.Update(assignTrack);
+        await _dbContext.SaveChangesAsync();
+
+        return assignTrack.Id;
     }
 }
