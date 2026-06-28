@@ -1,4 +1,4 @@
-# Lấy event team tham gia mới nhất (Approved)
+# Get team latest registered event
 
 ## Tác dụng
 Lấy ra duy nhất **một** event tham gia gần đây nhất của một team (đã được chấp nhận - Approved).
@@ -35,12 +35,12 @@ Response dùng `ApiResponseFactory.Base(...)`. Nếu team không tham gia event 
   "error": null,
   "status": 200,
   "traceId": "...",
-  "timestampUtc": "2026-06-19T...",
+  "timestampUtc": "2026-06-19T10:00:00.0000000Z",
   "data": {
     "registerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "eventId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
     "eventName": "Hackathon ABC",
-    "status": "Approved",
+    "status": 1, /* 0: Pending, 1: Approved, 2: Rejected */
     "createdAt": "2026-06-19T10:00:00.0000000Z"
   }
 }
@@ -53,6 +53,8 @@ Response dùng `ApiResponseFactory.Base(...)`. Nếu team không tham gia event 
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
-|---|---|---|
+|---:|---|---|
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 404 | NOT_FOUND | TEAM_NOT_FOUND |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
