@@ -1,11 +1,14 @@
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+using Hackathon.Api.Extention;
 using Hackathon.Service.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using LecturersService = Hackathon.Service.Lecturers;
 
 namespace Hackathon.Api.Controllers;
 
 [ApiController]
+[Authorize(Policy = JwtExtensions.LecturerPolicy)]
 [Route("api/v1/lecturers")]
 public class LecturersController : ControllerBase
 {
