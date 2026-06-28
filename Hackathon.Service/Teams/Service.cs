@@ -668,4 +668,236 @@ public class Service : IService
 
         return ApiResponseFactory.BasePagination(items, reqPageIndex, reqPageSize, totalCount);
     }
+
+    public async Task<BasePaginationResponse> GetAdminTeams(string? keyword, bool? isDisable, PaginationRequest paginationRequest)
+    {
+        var query = _dbContext.Teams.AsNoTracking().AsQueryable();
+
+        if (isDisable.HasValue)
+        {
+            query = query.Where(x => x.IsDisable == isDisable.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            var normalizedKeyword = keyword.Trim().ToLower();
+            query = query.Where(x => x.Name.ToLower().Contains(normalizedKeyword));
+        }
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((paginationRequest.PageIndex - 1) * paginationRequest.PageSize)
+            .Take(paginationRequest.PageSize)
+            .Select(x => new Response.AdminTeamResponse
+            {
+                Id = x.Id,
+                Name = x.Name,
+                CanEdit = x.CanEdit,
+                IsDisable = x.IsDisable,
+                CreatedAt = x.CreatedAt,
+                MemberCount = x.TeamDetails.Count(td => !td.IsDisable && td.Status == TeamDetailStatusEnum.Active)
+            })
+            .ToListAsync();
+
+        return ApiResponseFactory.BasePagination(items, paginationRequest.PageIndex, paginationRequest.PageSize, totalCount);
+    }
+
+    public async Task<List<Response.TeamMemberResponse>> GetTeamMembers(Guid teamId)
+    {
+        var userId = GetCurrentUserId();
+        var team = await _dbContext.Teams
+            .AsNoTracking()
+            .Include(x => x.TeamDetails)
+                .ThenInclude(td => td.User)
+            .FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
+
+        if (team == null)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        var isMember = team.TeamDetails.Any(x => x.UserId == userId && !x.IsDisable);
+
+        var userRoleClaim = _httpContext.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
+        Enum.TryParse<RoleEnum>(userRoleClaim, true, out var userRole);
+        var isStaff = userRole == RoleEnum.Staff || userRole == RoleEnum.Admin;
+
+        if (!isMember && !isStaff)
+        {
+            throw new ForbiddenException("TEAM_NOT_VISIBLE_TO_USER");
+        }
+
+        var members = team.TeamDetails
+            .Where(x => !x.IsDisable)
+            .OrderByDescending(x => x.IsLeader)
+            .ThenBy(x => x.CreatedAt)
+            .Select(x => new Response.TeamMemberResponse
+            {
+                UserId = x.UserId,
+                FirstName = x.User.FirstName,
+                LastName = x.User.LastName,
+                DateOfBirth = x.User.DateOfBirth,
+                StudentId = x.User.StudentId,
+                College = x.User.College,
+                IsLeader = x.IsLeader,
+                Status = x.Status
+            })
+            .ToList();
+
+        return members;
+    }
+
+    public async Task<List<Response.TeamNotificationResponse>> GetTeamNotifications(Guid teamId)
+    {
+        var userId = GetCurrentUserId();
+        var teamExists = await _dbContext.Teams.AnyAsync(x => x.Id == teamId && !x.IsDisable);
+        if (!teamExists)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        var isMember = await _dbContext.TeamDetails.AnyAsync(x => x.TeamId == teamId
+            && x.UserId == userId
+            && x.Status == TeamDetailStatusEnum.Active
+            && !x.IsDisable);
+
+        if (!isMember)
+        {
+            throw new ForbiddenException("NOT_A_TEAM_MEMBER");
+        }
+
+        var notifications = await _dbContext.Notifications
+            .AsNoTracking()
+            .Where(x => x.TeamId == teamId && !x.IsDisable)
+            .OrderByDescending(x => x.CreatedAt)
+            .Select(x => new Response.TeamNotificationResponse
+            {
+                Id = x.Id,
+                TeamId = x.TeamId,
+                Title = x.Title,
+                Description = x.Description,
+                CreatedAt = x.CreatedAt
+            })
+            .ToListAsync();
+
+        return notifications;
+    }
+
+    public async Task<BasePaginationResponse> GetMyTeamRegisterEvents(string? status, PaginationRequest paginationRequest)
+    {
+        var userId = GetCurrentUserId();
+
+        // Query active memberships of current student user, prioritizing leadership
+        var myActiveMemberships = await _dbContext.TeamDetails
+            .AsNoTracking()
+            .Where(x => x.UserId == userId
+                        && x.Status == TeamDetailStatusEnum.Active
+                        && !x.IsDisable
+                        && !x.Team.IsDisable)
+            .OrderByDescending(x => x.IsLeader)
+            .ThenBy(x => x.CreatedAt)
+            .ToListAsync();
+
+        if (myActiveMemberships.Count == 0)
+        {
+            throw new ForbiddenException("NOT_TEAM_MEMBER");
+        }
+
+        // Pick the primary active team of the user
+        var chosenMembership = myActiveMemberships[0];
+        var teamId = chosenMembership.TeamId;
+
+        var query = _dbContext.RegisterTeams
+            .AsNoTracking()
+            .Include(x => x.Team)
+            .Include(x => x.Event)
+            .Where(x => x.TeamId == teamId && !x.IsDisable);
+
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            if (!Enum.TryParse<RegisterTeamStatusEnum>(status.Trim(), true, out var statusEnum))
+            {
+                throw new BadRequestException("INVALID_STATUS");
+            }
+            query = query.Where(x => x.Status == statusEnum);
+        }
+
+        var pageIndex = paginationRequest.PageIndex <= 0 ? 1 : paginationRequest.PageIndex;
+        var pageSize = paginationRequest.PageSize <= 0 ? 10 : Math.Min(paginationRequest.PageSize, 100);
+
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new Response.MyTeamRegisterEventResponse
+            {
+                RegisterId = x.Id,
+                TeamId = x.TeamId,
+                TeamName = x.Team.Name,
+                EventId = x.EventId,
+                EventName = x.Event.Name,
+                Status = x.Status,
+                StatusName = x.Status.HasValue ? x.Status.Value.ToString() : string.Empty,
+                Description = x.Description,
+                RejectionReason = x.RejectionReason,
+                CreatedAt = x.CreatedAt
+            })
+            .ToListAsync();
+
+        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
+    }
+
+    public async Task<string> DisableTeam(Guid teamId)
+    {
+        var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
+        if (team == null)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        team.IsDisable = true;
+        team.UpdatedAt = DateTimeOffset.UtcNow;
+
+        _dbContext.Teams.Update(team);
+        await _dbContext.SaveChangesAsync();
+
+        return "TEAM_DISABLED_SUCCESSFULLY";
+    }
+
+    public async Task<string> LockTeam(Guid teamId)
+    {
+        var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
+        if (team == null)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        team.CanEdit = false;
+        team.UpdatedAt = DateTimeOffset.UtcNow;
+
+        _dbContext.Teams.Update(team);
+        await _dbContext.SaveChangesAsync();
+
+        return "TEAM_LOCKED_SUCCESSFULLY";
+    }
+
+    public async Task<string> UnlockTeam(Guid teamId)
+    {
+        var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
+        if (team == null)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        team.CanEdit = true;
+        team.UpdatedAt = DateTimeOffset.UtcNow;
+
+        _dbContext.Teams.Update(team);
+        await _dbContext.SaveChangesAsync();
+
+        return "TEAM_UNLOCKED_SUCCESSFULLY";
+    }
 }

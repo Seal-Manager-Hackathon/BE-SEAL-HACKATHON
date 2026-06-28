@@ -1,4 +1,4 @@
-# Đếm số lượng event team đã tham gia (Approved)
+# Get team approved events count
 
 ## Tác dụng
 API dùng để đếm số lượng các sự kiện (events) mà một team cụ thể đã được ban tổ chức chấp nhận tham gia (đơn đăng ký có trạng thái là `Approved`).
@@ -49,6 +49,8 @@ Response dùng `ApiResponseFactory.Base(...)`. Value trả về là số lượn
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
-|---|---|---|
+|---:|---|---|
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 404 | NOT_FOUND | TEAM_NOT_FOUND |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

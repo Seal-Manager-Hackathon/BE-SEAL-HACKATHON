@@ -77,6 +77,35 @@ public static class Response
         public decimal GradedPercentage { get; set; }
     }
 
+    public class JudgeStatusSubmissionResponse
+    {
+        public Guid RegisterTeamId { get; set; }
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = string.Empty;
+        public Guid? TopicId { get; set; }
+        public string? TopicTitle { get; set; }
+        public Guid? SubmissionId { get; set; }
+        public SubmissionStatusEnum? SubmissionStatus { get; set; }
+        public DateTimeOffset? SubmittedAt { get; set; }
+        public Guid? ScoreId { get; set; }
+        public decimal? TotalScore { get; set; }
+    }
+
+    public class JudgeMyScoreItemResponse
+    {
+        public Guid ScoreId { get; set; }
+        public Guid SubmissionId { get; set; }
+        public Guid TrackId { get; set; }
+        public string TrackTitle { get; set; } = string.Empty;
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = string.Empty;
+        public decimal? TotalScore { get; set; }
+        public bool IsRetake { get; set; }
+        public bool IsMock { get; set; }
+        public DateTimeOffset? SubmittedAt { get; set; }
+        public DateTimeOffset UpdatedAt { get; set; }
+    }
+
     public class JudgeTeamSubmissionInfo
     {
         public Guid RegisterTeamId { get; set; }

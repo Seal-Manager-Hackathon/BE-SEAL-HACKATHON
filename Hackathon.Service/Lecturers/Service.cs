@@ -44,13 +44,6 @@ public class Service : IService
     {
         var userId = GetCurrentUserId();
 
-        // 1. Check if user exists and is a Lecturer (Enum comparison)
-        var user = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
-        if (user == null || user.Role != RoleEnum.Lecturer)
-        {
-            throw new ForbiddenException("FORBIDDEN");
-        }
-
         var pageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
         var pageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
 
@@ -89,13 +82,6 @@ public class Service : IService
     public async Task<BasePaginationResponse> SearchLecturerEvents(Request.SearchLecturerEventsRequest request)
     {
         var userId = GetCurrentUserId();
-
-        // 1. Check if user exists and is a Lecturer (Enum comparison)
-        var user = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
-        if (user == null || user.Role != RoleEnum.Lecturer)
-        {
-            throw new ForbiddenException("FORBIDDEN");
-        }
 
         var pageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
         var pageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
@@ -155,13 +141,6 @@ public class Service : IService
     public async Task<List<Response.LecturerEventResponse>> GetCurrentLecturerEvents()
     {
         var userId = GetCurrentUserId();
-
-        // 1. Check if user exists and is a Lecturer (Enum comparison)
-        var user = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
-        if (user == null || user.Role != RoleEnum.Lecturer)
-        {
-            throw new ForbiddenException("FORBIDDEN");
-        }
 
         var now = DateTimeOffset.UtcNow;
 

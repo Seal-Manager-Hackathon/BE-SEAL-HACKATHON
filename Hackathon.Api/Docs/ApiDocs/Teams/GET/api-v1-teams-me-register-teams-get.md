@@ -1,4 +1,4 @@
-# Team member xem danh sách đơn đăng ký vào event của team
+# Get my team register events
 
 ## Tác dụng
 API dùng cho thành viên trong team (cả Leader và Member) xem toàn bộ đơn đăng ký tham gia event của team mình, bao gồm cả 3 trạng thái: `Pending`, `Approved`, `Rejected`. API tự động xác định team dựa trên user hiện tại.
@@ -7,7 +7,7 @@ API dùng cho thành viên trong team (cả Leader và Member) xem toàn bộ đ
 `GET /api/v1/teams/me/register-teams`
 
 ## Authorization
-Yêu cầu access token hợp lệ với role `Student` và user hiện tại phải là thành viên đang active của một team (có `Status = Active` trong `TeamDetails`).
+Yêu cầu access token hợp lệ với role `Student` và user hiện tại phải là thành viên đang active của một team (có `status = 0` (Active) trong `TeamDetails`).
 
 ## Query parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
@@ -44,7 +44,7 @@ Response dùng `ApiResponseFactory.BasePagination(...)`.
         "teamName": "Tên team",
         "eventId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
         "eventName": "Hackathon ABC",
-        "status": 0,
+        "status": 0, /* 0: Pending, 1: Approved, 2: Rejected */
         "statusName": "Pending",
         "description": "Mô tả đơn đăng ký",
         "rejectionReason": null,
@@ -62,7 +62,7 @@ Response dùng `ApiResponseFactory.BasePagination(...)`.
 
 ## Business rules
 - User phải đăng nhập và có role `Student`.
-- User phải là thành viên đang active (`Status = Active`) của một team (`IsDisable = false`) trong `TeamDetails`.
+- User phải là thành viên đang active (`status = 0`) của một team (`IsDisable = false`) trong `TeamDetails`.
 - Nếu user thuộc nhiều team, ưu tiên team mà user là leader; nếu không phải leader của team nào, lấy team đầu tiên user tham gia.
 - Trả về toàn bộ các đơn đăng ký (`RegisterTeams`) của team đó bất kể trạng thái duyệt (`Pending`/`Approved`/`Rejected`).
 - Nếu truyền `status`, chỉ lọc các đơn có trạng thái tương ứng.
@@ -72,8 +72,10 @@ Response dùng `ApiResponseFactory.BasePagination(...)`.
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
 |---:|---|---|
+| 400 | BAD_REQUEST | INVALID_STATUS |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | CURRENT_USER_MUST_BE_STUDENT |
 | 403 | FORBIDDEN | NOT_TEAM_MEMBER |
-| 400 | BAD_REQUEST | INVALID_STATUS |
 | 404 | NOT_FOUND | TEAM_NOT_FOUND |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

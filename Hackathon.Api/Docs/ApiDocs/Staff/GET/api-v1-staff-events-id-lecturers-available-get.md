@@ -77,7 +77,7 @@ Response dùng `ApiResponseFactory.BasePagination(items, pageIndex, pageSize, to
 | `avatarUrl` | `string` | Ảnh đại diện. |
 | `role` | `int` | Global role của user. Với lecturer là `3`. |
 | `isAlreadyAssignedToEvent` | `bool` | Cho biết giảng viên đã được phân công trong event này chưa. |
-| `assignedEventRole` | `int | null` | Role hiện tại trong event nếu đã được phân công (`0 = Mentor`, `1 = Judge`). |
+| `assignedEventRole` | `int | null` | Role hiện tại trong event nếu đã được phân công. Xem bảng EventRoleEnum bên dưới. |
 
 ### Bảng vai trò EventRoleEnum
 | Giá trị (Value) | Vai trò (Role) | Mô tả |
