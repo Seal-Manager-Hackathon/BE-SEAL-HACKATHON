@@ -26,10 +26,11 @@ public class JudgeController : ControllerBase
     }
 
     [HttpGet("tracks/{trackId:guid}/submissions")]
-    public async Task<IActionResult> GetTrackSubmissions(Guid trackId)
+    public async Task<IActionResult> GetTrackSubmissions(Guid trackId, [FromQuery] PaginationRequest paginationRequest)
     {
-        var result = await _judgeService.GetTrackSubmissions(trackId);
-        return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+        var result = await _judgeService.GetTrackSubmissions(trackId, paginationRequest);
+        result.TraceId = HttpContext.TraceIdentifier;
+        return Ok(result);
     }
 
     [HttpGet("submissions/{submissionId:guid}/criteria")]
@@ -47,10 +48,11 @@ public class JudgeController : ControllerBase
     }
 
     [HttpGet("scores/me")]
-    public async Task<IActionResult> GetMyScores()
+    public async Task<IActionResult> GetMyScores([FromQuery] Guid eventId, [FromQuery] Guid? trackId, [FromQuery] bool? isGraded, [FromQuery] PaginationRequest paginationRequest)
     {
-        var result = await _judgeService.GetMyScores();
-        return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+        var result = await _judgeService.GetMyScores(eventId, trackId, isGraded, paginationRequest);
+        result.TraceId = HttpContext.TraceIdentifier;
+        return Ok(result);
     }
 
     [HttpPost("submissions/{submissionId:guid}/scores")]
@@ -86,6 +88,38 @@ public class JudgeController : ControllerBase
     {
         var result = await _judgeService.SubmitRetakeScore(scoreId, request);
         return Ok(ApiResponseFactory.Base(result, 200, "REGRADE_SCORE_SUBMITTED", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("events/{eventId:guid}/submissions")]
+    public async Task<IActionResult> GetEventSubmissions(Guid eventId, [FromQuery] Guid? trackId, [FromQuery] Guid? roundId, [FromQuery] PaginationRequest paginationRequest)
+    {
+        var result = await _judgeService.GetEventSubmissions(eventId, trackId, roundId, paginationRequest);
+        result.TraceId = HttpContext.TraceIdentifier;
+        return Ok(result);
+    }
+
+    [HttpGet("events/current/submissions/pending")]
+    public async Task<IActionResult> GetCurrentEventPendingSubmissions([FromQuery] Guid? trackId, [FromQuery] Guid? roundId, [FromQuery] PaginationRequest paginationRequest)
+    {
+        var result = await _judgeService.GetCurrentEventPendingSubmissions(trackId, roundId, paginationRequest);
+        result.TraceId = HttpContext.TraceIdentifier;
+        return Ok(result);
+    }
+
+    [HttpGet("events/{eventId:guid}/submissions/pending")]
+    public async Task<IActionResult> GetPendingSubmissions(Guid eventId, [FromQuery] Guid? trackId, [FromQuery] Guid? roundId, [FromQuery] bool? isGraded, [FromQuery] PaginationRequest paginationRequest)
+    {
+        var result = await _judgeService.GetPendingSubmissions(eventId, trackId, roundId, isGraded, paginationRequest);
+        result.TraceId = HttpContext.TraceIdentifier;
+        return Ok(result);
+    }
+
+    [HttpGet("events/{eventId:guid}/submissions/search")]
+    public async Task<IActionResult> SearchSubmissions(Guid eventId, [FromQuery] Guid? trackId, [FromQuery] string? keyword, [FromQuery] PaginationRequest paginationRequest)
+    {
+        var result = await _judgeService.SearchSubmissions(eventId, trackId, keyword, paginationRequest);
+        result.TraceId = HttpContext.TraceIdentifier;
+        return Ok(result);
     }
 
     [HttpGet("events/{eventId:guid}/teams")]
