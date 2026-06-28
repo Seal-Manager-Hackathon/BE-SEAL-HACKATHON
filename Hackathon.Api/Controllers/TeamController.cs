@@ -131,4 +131,28 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
         var result = await _teamService.GetMyTeamRegisterEvents(status, paginationRequest);
         return Ok(result);
     }
+
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    [HttpPatch("/api/v1/admin/teams/{teamId:guid}/disable")]
+    public async Task<IActionResult> DisableTeam(Guid teamId)
+    {
+        var message = await _teamService.DisableTeam(teamId);
+        return Ok(ApiResponseFactory.Base(null, 200, message, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]
+    [HttpPatch("{teamId:guid}/lock")]
+    public async Task<IActionResult> LockTeam(Guid teamId)
+    {
+        var message = await _teamService.LockTeam(teamId);
+        return Ok(ApiResponseFactory.Base(null, 200, message, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]
+    [HttpPatch("{teamId:guid}/unlock")]
+    public async Task<IActionResult> UnlockTeam(Guid teamId)
+    {
+        var message = await _teamService.UnlockTeam(teamId);
+        return Ok(ApiResponseFactory.Base(null, 200, message, traceId: HttpContext.TraceIdentifier));
+    }
 }

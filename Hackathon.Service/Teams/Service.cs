@@ -849,4 +849,55 @@ public class Service : IService
 
         return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
     }
+
+    public async Task<string> DisableTeam(Guid teamId)
+    {
+        var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
+        if (team == null)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        team.IsDisable = true;
+        team.UpdatedAt = DateTimeOffset.UtcNow;
+
+        _dbContext.Teams.Update(team);
+        await _dbContext.SaveChangesAsync();
+
+        return "TEAM_DISABLED_SUCCESSFULLY";
+    }
+
+    public async Task<string> LockTeam(Guid teamId)
+    {
+        var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
+        if (team == null)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        team.CanEdit = false;
+        team.UpdatedAt = DateTimeOffset.UtcNow;
+
+        _dbContext.Teams.Update(team);
+        await _dbContext.SaveChangesAsync();
+
+        return "TEAM_LOCKED_SUCCESSFULLY";
+    }
+
+    public async Task<string> UnlockTeam(Guid teamId)
+    {
+        var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
+        if (team == null)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        team.CanEdit = true;
+        team.UpdatedAt = DateTimeOffset.UtcNow;
+
+        _dbContext.Teams.Update(team);
+        await _dbContext.SaveChangesAsync();
+
+        return "TEAM_UNLOCKED_SUCCESSFULLY";
+    }
 }

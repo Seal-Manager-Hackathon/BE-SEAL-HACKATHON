@@ -20,4 +20,8 @@ public interface IService
     Task<List<Response.TeamMemberResponse>> GetTeamMembers(Guid teamId);
     Task<List<Response.TeamNotificationResponse>> GetTeamNotifications(Guid teamId);
     Task<BasePaginationResponse> GetMyTeamRegisterEvents(string? status, PaginationRequest paginationRequest);
+    Task<string> DisableTeam(Guid teamId);
+    Task<string> LockTeam(Guid teamId);
+    Task<string> UnlockTeam(Guid teamId);
+    Task<string> LeaveTeam(Guid teamId);
 }
