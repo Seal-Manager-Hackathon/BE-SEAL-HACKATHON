@@ -44,14 +44,13 @@ public class Service : IService
     {
         var eventRoles = await _dbContext.EventRoles
             .AsNoTracking()
-            .Select(x => new EventRoleResponse
-            {
-                Id = (int)x.Name,
-                Name = x.Name.ToString(),
-                DisplayName = x.Name.ToString()
-            })
             .ToListAsync();
 
-        return eventRoles;
+        return eventRoles.Select(x => new EventRoleResponse
+        {
+            Id = (int)x.Name,
+            Name = x.Name.ToString(),
+            DisplayName = x.Name.ToString()
+        }).ToList();
     }
 }

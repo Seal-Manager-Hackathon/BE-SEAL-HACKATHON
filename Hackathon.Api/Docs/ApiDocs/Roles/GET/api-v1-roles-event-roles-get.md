@@ -46,12 +46,22 @@ Response dùng `ApiResponseFactory.Base(...)`.
 }
 ```
 
+### Bảng vai trò EventRoleEnum (Integer)
+| Giá trị (Value) | Vai trò (Role) | Mô tả (Description) |
+| :--- | :--- | :--- |
+| `0` | Mentor | Người hướng dẫn chuyên môn cho đội thi |
+| `1` | Judge | Giám khảo chấm điểm bài thi |
+| `2` | Staff | Nhân viên vận hành sự kiện |
+
 ## Business rules
 - Không cần xác thực.
 - Dữ liệu lấy từ bảng `EventRoles` trong database.
+- Nếu bảng rỗng → trả về mảng `data: []` rỗng (HTTP 200).
 
 ## Lỗi có thể xảy ra
-Không có — API luôn trả về 200 OK.
+| HTTP | messageCode | message/detail |
+|---:|---|---|
+| 500 | INTERNAL_SERVER_ERROR | Lỗi database hoặc lỗi hệ thống khác |
 
 ## Trạng thái implement
 - Đã implement trong `Hackathon.Api.Controllers.RolesController`.

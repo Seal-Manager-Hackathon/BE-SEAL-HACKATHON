@@ -4,6 +4,7 @@ namespace Hackathon.Service.AssignEvents.Request;
 
 public class GetAvailableLecturersRequest : PaginationRequest
 {
-    public Guid EventRoleId { get; set; }
     public string? Keyword { get; set; }
+    public Guid? UserId { get; set; }
+    public string? Email { get; set; }
 }

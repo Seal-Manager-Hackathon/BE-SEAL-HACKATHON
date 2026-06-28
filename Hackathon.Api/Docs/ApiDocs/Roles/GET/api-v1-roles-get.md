@@ -51,9 +51,17 @@ Response dùng `ApiResponseFactory.Base(...)`.
 }
 ```
 
+### Bảng RoleEnum (SystemRole)
+| Giá trị (Value) | Vai trò (Role) | Mô tả |
+| :--- | :--- | :--- |
+| `0` | Admin | Quản trị viên hệ thống |
+| `1` | Staff | Nhân viên quản lý |
+| `2` | Student | Sinh viên/Thí sinh |
+| `3` | Lecturer | Giảng viên |
+
 ## Business rules
 - Không cần xác thực.
-- Trả về danh sách cố định từ enum `RoleEnum`.
+- Trả về danh sách cố định từ enum `RoleEnum`, không phụ thuộc database.
 
 ## Lỗi có thể xảy ra
 Không có — API luôn trả về 200 OK.

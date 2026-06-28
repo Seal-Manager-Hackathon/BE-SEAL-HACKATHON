@@ -1,90 +1,69 @@
 # Nhật ký sửa đổi API — cho FE
 
+---
+
 ## 1. Sửa route `POST /api/v1/staff/tracks/{trackId}/assign-lecturers`
 
+**File:** `Hackathon.Api/Controllers/Staff.cs`
+
 ### Trước
-`POST /api/v1/staff/tracks/{trackId}/assign-lecturers` ← không có eventId
+```
+POST /api/v1/staff/tracks/{trackId}/assign-lecturers
+```
+Không có eventId.
 
 ### Sau
-`POST /api/v1/staff/events/{eventId}/tracks/{trackId}/assign-lecturers`
+```
+POST /api/v1/staff/events/{eventId}/tracks/{trackId}/assign-lecturers
+```
+Có eventId.
 
 ### Request body (không đổi)
 ```json
-{
-  "assignEventId": "guid"
-}
+{ "assignEventId": "guid" }
 ```
 
 ### Response (không đổi)
 ```json
-{
-  "isSuccess": true,
-  "status": 200,
-  "data": { "id": "guid", "assignEventId": "guid", "trackId": "guid" },
-  "message": "LECTURER_ASSIGNED_TO_TRACK_SUCCESSFULLY"
-}
+{ "id": "guid", "assignEventId": "guid", "trackId": "guid" }
 ```
+
+### Sửa logic
+- Thêm validate `track.EventId != eventId` → `TRACK_NOT_IN_EVENT`
 
 ---
 
 ## 2. Sửa response `GET /api/v1/staff/events/{eventId}/assignments`
 
-### Trước (thiếu assignedTracks, thiếu filter trackId)
+### Trước
 ```json
 {
-  "data": {
-    "items": [
-      {
-        "id": "guid",
-        "userId": "guid",
-        "firstName": "string",
-        "lastName": "string",
-        "email": "string",
-        "eventRoleId": "guid",
-        "eventRole": 1,
-        "role": 3,
-        "isDisable": false,
-        "createdAt": "datetimeoffset"
-      }
-    ]
-  }
+  "items": [{
+    "id": "guid", "userId": "guid", "firstName": "string", "lastName": "string",
+    "email": "string", "eventRoleId": "guid", "eventRole": 1, "role": 3,
+    "isDisable": false, "createdAt": "datetimeoffset"
+  }]
 }
 ```
+Không có track info.
 
-### Sau (thêm assignedTracks)
+### Sau
 ```json
 {
-  "data": {
-    "items": [
-      {
-        "id": "guid",
-        "userId": "guid",
-        "firstName": "string",
-        "lastName": "string",
-        "email": "string",
-        "eventRoleId": "guid",
-        "eventRole": 1,
-        "role": 3,
-        "isDisable": false,
-        "createdAt": "datetimeoffset",
-        "assignedTracks": [
-          {
-            "assignTrackId": "guid",
-            "trackId": "guid",
-            "trackTitle": "string",
-            "isDisable": false
-          }
-        ]
-      }
-    ]
-  }
+  "items": [{
+    "id": "guid", "userId": "guid", "firstName": "string", "lastName": "string",
+    "email": "string", "eventRoleId": "guid", "eventRole": 1, "role": 3,
+    "isDisable": false, "createdAt": "datetimeoffset",
+    "assignedTracks": [{
+      "assignTrackId": "guid", "trackId": "guid", "trackTitle": "string", "isDisable": false
+    }]
+  }]
 }
 ```
+Thêm `assignedTracks` cho mỗi item.
 
 ### Query parameter mới
-| Param | Kiểu | Bắt buộc | Mô tả |
-|---|---|---|---|
-| `trackId` | `guid` | Không | Lọc những người được phân công vào track cụ thể |
+- `trackId` (guid?) — lọc những người được phân công vào track cụ thể
 
 ### Sửa logic
 - **Admin:** Xem được Staff + Lecturer
@@ -92,44 +71,52 @@
 
 ---
 
-## 3. API mới: `DELETE /api/v1/staff/assign-tracks/{id}`
-*(Tạo mới — không phải sửa, chỉ note cho FE)*
+## 3. Sửa `GET /api/v1/staff/events/{eventId}/lecturers/available`
 
-Xóa mềm lecturer khỏi track (giữ nguyên trong event).
+**Request — xóa `EventRoleId` (Guid), thêm `userId` + `email`**
 
----
-
-## 4. API mới: `GET /api/v1/roles`
-*(Tạo mới)*
-
-Lấy danh sách RoleEnum hệ thống (Admin/Staff/Student/Lecturer). Không cần auth.
-
-### Response
+### Trước
 ```json
 {
-  "data": [
-    { "id": 0, "name": "Admin", "displayName": "Admin" },
-    { "id": 1, "name": "Staff", "displayName": "Staff" },
-    { "id": 2, "name": "Student", "displayName": "Student" },
-    { "id": 3, "name": "Lecturer", "displayName": "Lecturer" }
-  ]
+  "eventRoleId": "guid",     // bắt buộc
+  "keyword": "string"
 }
 ```
 
----
-
-## 5. API mới: `GET /api/v1/roles/event-roles`
-*(Tạo mới)*
-
-Lấy danh sách EventRoleEnum (Mentor/Judge/Staff) từ DB. Không cần auth.
-
-### Response
+### Sau
 ```json
 {
-  "data": [
-    { "id": 0, "name": "Mentor", "displayName": "Mentor" },
-    { "id": 1, "name": "Judge", "displayName": "Judge" },
-    { "id": 2, "name": "Staff", "displayName": "Staff" }
-  ]
+  "keyword": "string",       // Không bắt buộc
+  "userId": "guid",          // Mới — search theo UserId
+  "email": "string"          // Mới — search theo email
 }
 ```
+
+### Sửa logic
+- **Trước:** Lookup EventRoles DB theo `EventRoleId`, validate Staff, filter conflict role Mentor/Judge
+- **Sau:** Tự động loại tất cả lecturer đã có `AssignEvents` trong event (bất kỳ role nào). Thêm search bằng `userId` / `email`.
+
+---
+
+## 4. API mới: Admin Users
+
+### `GET /api/v1/admin/users`
+Lấy tất cả user, phân trang.
+
+### `GET /api/v1/admin/users/search`
+Tìm kiếm user với filter: `mailSearch`, `idSearch`, `role`, `studentIdSearch`, `isDisable`, `isVerified`.
+
+---
+
+## 5. API mới: Roles
+
+### `GET /api/v1/roles`
+Danh sách RoleEnum (Admin/Staff/Student/Lecturer). Không cần auth.
+
+### `GET /api/v1/roles/event-roles`
+Danh sách EventRoleEnum từ DB (Mentor/Judge/Staff). Không cần auth.
+
+---
+
+## 6. Sửa heading EventRoleEnum (14 file doc)
+`### Bảng vai trò EventRoleEnum` → `### Bảng vai trò EventRoleEnum (Integer)`
