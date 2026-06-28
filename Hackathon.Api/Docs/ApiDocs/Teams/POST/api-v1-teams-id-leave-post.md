@@ -35,7 +35,7 @@ Yêu cầu access token hợp lệ với role `Student`.
 - Người gọi API phải đang là thành viên hoạt động trong team (`Status = Active` trong `TeamDetails`).
 - Trưởng nhóm (`IsLeader = true`) KHÔNG được phép tự rời nhóm bằng API này. Nếu muốn rời nhóm, Leader phải nhường/chuyển quyền leader cho thành viên khác trước (API 30).
 - Team phải đang mở cho phép sửa đổi thành viên (`CanEdit = true`).
-- Cập nhật trạng thái thành viên trong `TeamDetails` sang `Inactive` (xóa mềm).
+- Cập nhật `IsDisable = true` cho bản ghi thành viên trong `TeamDetails` (xóa mềm), giống pattern `RemoveMembers`.
 
 ## Lỗi có thể xảy ra
 *Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*

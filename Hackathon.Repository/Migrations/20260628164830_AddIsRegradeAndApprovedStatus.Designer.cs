@@ -3,6 +3,7 @@ using System;
 using Hackathon.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hackathon.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260628164830_AddIsRegradeAndApprovedStatus")]
+    partial class AddIsRegradeAndApprovedStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3611,9 +3614,6 @@ namespace Hackathon.Repository.Migrations
                     b.Property<bool>("IsRetake")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid?>("RetakeFromScoreId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("SubmissionId")
                         .HasColumnType("uuid");
 
@@ -3626,10 +3626,6 @@ namespace Hackathon.Repository.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AssignTrackId");
-
-                    b.HasIndex("RetakeFromScoreId")
-                        .IsUnique()
-                        .HasFilter("\"IsDisable\" = false AND \"RetakeFromScoreId\" IS NOT NULL");
 
                     b.HasIndex("SubmissionId");
 
@@ -5943,11 +5939,6 @@ namespace Hackathon.Repository.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Hackathon.Repository.Entity.Scores", "RetakeFromScore")
-                        .WithMany("RetakeScores")
-                        .HasForeignKey("RetakeFromScoreId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("Hackathon.Repository.Entity.Submissions", "Submission")
                         .WithMany("Scores")
                         .HasForeignKey("SubmissionId")
@@ -5955,8 +5946,6 @@ namespace Hackathon.Repository.Migrations
                         .IsRequired();
 
                     b.Navigation("AssignTrack");
-
-                    b.Navigation("RetakeFromScore");
 
                     b.Navigation("Submission");
                 });
@@ -6083,8 +6072,6 @@ namespace Hackathon.Repository.Migrations
 
             modelBuilder.Entity("Hackathon.Repository.Entity.Scores", b =>
                 {
-                    b.Navigation("RetakeScores");
-
                     b.Navigation("ScoreItems");
                 });
 

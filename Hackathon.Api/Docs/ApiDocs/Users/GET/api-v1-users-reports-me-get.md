@@ -55,6 +55,7 @@ Authenticated User (Yêu cầu đăng nhập, chỉ xem các báo cáo do mình 
 | :--- | :--- | :--- |
 | `0` | Open | Đang mở / Chờ xử lý khiếu nại |
 | `1` | Closed | Đã đóng / Đã giải quyết xong |
+| `2` | Approved | Đã duyệt phúc khảo / Đang chờ judge cũ chấm lại |
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
