@@ -13,9 +13,14 @@ Public API (Không yêu cầu đăng nhập)
 *Cấu trúc trả về dạng `BaseResponse` chứa metadata các enum.*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Value": {
+  "isSuccess": true,
+  "isFailed": false,
+  "status": 200,
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "message": "GET_SYSTEM_ENUMS_SUCCESSFUL",
+  "data": {
     "EmailVerificationStatusEnum": {
       "0": "Pending",
       "1": "Verified",
@@ -23,7 +28,8 @@ Public API (Không yêu cầu đăng nhập)
     },
     "EventRoleEnum": {
       "0": "Mentor",
-      "1": "Judge"
+      "1": "Judge",
+      "2": "Staff"
     },
     "EventStatusEnum": {
       "0": "Draft",
@@ -66,7 +72,9 @@ Public API (Không yêu cầu đăng nhập)
       "2": "IsDisable"
     },
     "SubmissionStatusEnum": {
-      "0": "Submitted"
+      "0": "Submitted",
+      "1": "Unsubmitted",
+      "2": "Failed"
     },
     "TeamDetailStatusEnum": {
       "0": "Active",
@@ -77,10 +85,7 @@ Public API (Không yêu cầu đăng nhập)
       "1": "Inactive",
       "2": "Banned"
     }
-  },
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  }
 }
 ```
 
@@ -95,17 +100,17 @@ Public API (Không yêu cầu đăng nhập)
 
 ```json
 {
-  "Title": "Internal Server Error",
-  "Status": 500,
-  "Detail": "Không thể lấy thông tin metadata enums.",
-  "MessageCode": "METADATA_LOAD_FAILED",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "title": "Internal Server Error",
+  "status": 500,
+  "message": "METADATA_LOAD_FAILED",
+  "messageCode": "METADATA_LOAD_FAILED",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
 ### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 500 | METADATA_LOAD_FAILED | Gặp lỗi khi parse enum code. |
+| 500 | METADATA_LOAD_FAILED | METADATA_LOAD_FAILED |

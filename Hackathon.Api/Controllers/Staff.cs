@@ -94,6 +94,13 @@ public class Staff : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("events/{eventId:guid}/lecturers/available")]
+    public async Task<IActionResult> GetAvailableLecturers(Guid eventId, [FromQuery] AssignEventsService.Request.GetAvailableLecturersRequest request)
+    {
+        var result = await _assignEventsService.GetAvailableLecturers(eventId, request);
+        return Ok(result);
+    }
+
     [HttpPost("events/{eventId:guid}/assign-lecturers")]
     public async Task<IActionResult> AssignLecturerToEvent(Guid eventId, [FromBody] AssignEventsService.Request.AssignLecturerRequest request)
     {
