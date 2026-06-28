@@ -50,6 +50,43 @@ public class Staff : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("reports")]
+    public async Task<IActionResult> GetReports([FromQuery] StaffService.Request.GetStaffReportsRequest request)
+    {
+        var result = await _staffService.GetReports(request);
+        result.TraceId = HttpContext.TraceIdentifier;
+        return Ok(result);
+    }
+
+    [HttpGet("reports/{reportId:guid}")]
+    public async Task<IActionResult> GetReportDetail(Guid reportId)
+    {
+        var result = await _staffService.GetReportDetail(reportId);
+        return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpPatch("reports/{reportId:guid}/status")]
+    public async Task<IActionResult> UpdateReportStatus(Guid reportId, [FromBody] StaffService.Request.UpdateReportStatusRequest request)
+    {
+        await _staffService.UpdateReportStatus(reportId, request);
+        return Ok(ApiResponseFactory.Base(null, 200, "REPORT_STATUS_UPDATED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpPost("reports/{reportId:guid}/regrade")]
+    public async Task<IActionResult> ApproveRegrade(Guid reportId)
+    {
+        var result = await _staffService.ApproveRegrade(reportId);
+        return Ok(ApiResponseFactory.Base(result, 200, "REGRADE_APPROVED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("submissions/regrade")]
+    public async Task<IActionResult> GetRegradeSubmissions([FromQuery] StaffService.Request.GetRegradeSubmissionsRequest request)
+    {
+        var result = await _staffService.GetRegradeSubmissions(request);
+        result.TraceId = HttpContext.TraceIdentifier;
+        return Ok(result);
+    }
+
     [HttpGet("events/{eventId:guid}/teams")]
     public async Task<IActionResult> GetApprovedTeamsByEvent(Guid eventId, [FromQuery] string? keyword, [FromQuery] RegisterTeamStatusEnum? status, [FromQuery] bool? isDisable, [FromQuery] PaginationRequest paginationRequest)
     {

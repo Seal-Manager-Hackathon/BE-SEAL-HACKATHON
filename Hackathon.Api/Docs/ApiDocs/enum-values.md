@@ -56,6 +56,7 @@ Trạng thái của một thông báo gửi đến người dùng.
 Trạng thái các Report/Feedback của người dùng gửi cho Admin.
 - `0`: Open (Đang mở/Chưa xử lý)
 - `1`: Closed (Đã đóng/Đã giải quyết)
+- `2`: Approved (Đã duyệt/Chấp nhận chấm lại)
 
 ## 10. SubmissionStatusEnum (Trạng thái nộp bài)
 Trạng thái nộp bài tập / Assignment.

@@ -211,6 +211,17 @@ public class AppDbContext : DbContext
             .WithMany(assignTrack => assignTrack.Scores)
             .HasForeignKey(score => score.AssignTrackId);
 
+        modelBuilder.Entity<Scores>()
+            .HasOne(score => score.RetakeFromScore)
+            .WithMany(score => score.RetakeScores)
+            .HasForeignKey(score => score.RetakeFromScoreId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Scores>()
+            .HasIndex(score => score.RetakeFromScoreId)
+            .IsUnique()
+            .HasFilter("\"IsDisable\" = false AND \"RetakeFromScoreId\" IS NOT NULL");
+
         modelBuilder.Entity<ScoreItems>()
             .HasOne(scoreItem => scoreItem.ScoreEntity)
             .WithMany(score => score.ScoreItems)
