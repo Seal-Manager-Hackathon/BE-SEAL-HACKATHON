@@ -2,8 +2,6 @@ using System.Security.Claims;
 using Hackathon.Repository;
 using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
-using Hackathon.Service.AssignEvents.Request;
-using Hackathon.Service.AssignEvents.Response;
 using Hackathon.Service.Exceptions;
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Http;
@@ -60,7 +58,7 @@ public class Service : IService
         }
     }
 
-    public async Task<BasePaginationResponse> GetEventAssignments(Guid eventId, EventRoleEnum? eventRole, string? keyword, bool? isDisable, PaginationRequest paginationRequest)
+    public async Task<BasePaginationResponse> GetEventAssignments(Guid eventId, EventRoleEnum? eventRole, string? keyword, Guid? trackId, bool? isDisable, PaginationRequest paginationRequest)
     {
         var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
         if (!eventExists)
@@ -76,13 +74,26 @@ public class Service : IService
         var query = _dbContext.AssignEvents
             .Include(x => x.User)
             .Include(x => x.EventRole)
+            .Include(x => x.AssignTracks)
+                .ThenInclude(at => at.Track)
             .AsNoTracking()
             .Where(x => x.EventId == eventId
                      && x.IsDisable == (isDisable ?? false));
 
+        // Staff chỉ thấy Lecturer (ko thấy Staff assignments)
+        if (!IsCurrentUserAdmin())
+        {
+            query = query.Where(x => x.User.Role == RoleEnum.Lecturer);
+        }
+
         if (eventRole.HasValue)
         {
             query = query.Where(x => x.EventRole != null && x.EventRole.Name == eventRole.Value);
+        }
+
+        if (trackId.HasValue)
+        {
+            query = query.Where(x => x.AssignTracks.Any(at => at.TrackId == trackId && !at.IsDisable));
         }
 
         if (!string.IsNullOrWhiteSpace(keyword))
@@ -101,7 +112,7 @@ public class Service : IService
             .OrderByDescending(x => x.CreatedAt)
             .Skip((paginationRequest.PageIndex - 1) * paginationRequest.PageSize)
             .Take(paginationRequest.PageSize)
-            .Select(x => new AssignLecturerDetailResponse
+            .Select(x => new Response.AssignLecturerDetailResponse
             {
                 Id = x.Id,
                 UserId = x.UserId,
@@ -112,7 +123,16 @@ public class Service : IService
                 EventRole = x.EventRole != null ? (EventRoleEnum?)x.EventRole.Name : null,
                 Role = x.User.Role,
                 IsDisable = x.IsDisable,
-                CreatedAt = x.CreatedAt
+                CreatedAt = x.CreatedAt,
+                AssignedTracks = x.AssignTracks
+                    .Where(at => !at.IsDisable)
+                    .Select(at => new Response.AssignedTrackInfo
+                    {
+                        AssignTrackId = at.Id,
+                        TrackId = at.TrackId,
+                        TrackTitle = at.Track.Title,
+                        IsDisable = at.IsDisable
+                    }).ToList()
             })
             .ToListAsync();
 
@@ -124,7 +144,7 @@ public class Service : IService
         return ApiResponseFactory.BasePagination(items, paginationRequest.PageIndex, paginationRequest.PageSize, totalCount);
     }
 
-    public async Task<BasePaginationResponse> GetAvailableLecturers(Guid eventId, GetAvailableLecturersRequest request)
+    public async Task<BasePaginationResponse> GetAvailableLecturers(Guid eventId, Request.GetAvailableLecturersRequest request)
     {
         var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
         if (!eventExists)
@@ -184,7 +204,7 @@ public class Service : IService
             .ThenBy(x => x.LastName)
             .Skip((request.PageIndex - 1) * request.PageSize)
             .Take(request.PageSize)
-            .Select(x => new AvailableLecturerResponse
+            .Select(x => new Response.AvailableLecturerResponse
             {
                 Id = x.Id,
                 FirstName = x.FirstName,
@@ -238,7 +258,7 @@ public class Service : IService
         return assignEvent.Id;
     }
 
-    public async Task<AssignEventResponse> AssignLecturerToEvent(Guid eventId, AssignLecturerRequest request)
+    public async Task<Response.AssignEventResponse> AssignLecturerToEvent(Guid eventId, Request.AssignLecturerRequest request)
     {
         var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
         if (!eventExists)
@@ -260,7 +280,7 @@ public class Service : IService
         }
 
         var eventRole = await _dbContext.EventRoles.AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == request.EventRoleId && !x.IsDisable);
+            .FirstOrDefaultAsync(x => x.Name == request.EventRole && !x.IsDisable);
 
         if (eventRole == null)
         {
@@ -272,12 +292,12 @@ public class Service : IService
             .Where(x => x.UserId == request.LecturerId && x.EventId == eventId && !x.IsDisable)
             .ToListAsync();
 
-        if (existingAssignments.Any(x => x.EventRoleId == request.EventRoleId))
+        if (existingAssignments.Any(x => x.EventRoleId == eventRole.Id))
         {
             throw new ConflictException("LECTURER_ALREADY_ASSIGNED_THIS_ROLE");
         }
 
-        if (existingAssignments.Any(x => x.EventRoleId != request.EventRoleId))
+        if (existingAssignments.Any(x => x.EventRoleId != eventRole.Id))
         {
             // Already assigned as the other role
             throw new ConflictException("LECTURER_CANNOT_BE_BOTH_MENTOR_AND_JUDGE");
@@ -286,7 +306,7 @@ public class Service : IService
         var newAssignment = new Repository.Entity.AssignEvents
         {
             UserId = request.LecturerId,
-            EventRoleId = request.EventRoleId,
+            EventRoleId = eventRole.Id,
             EventId = eventId,
             IsDisable = false,
             CreatedAt = DateTimeOffset.UtcNow,
@@ -296,7 +316,7 @@ public class Service : IService
         _dbContext.AssignEvents.Add(newAssignment);
         await _dbContext.SaveChangesAsync();
 
-        return new AssignEventResponse
+        return new Response.AssignEventResponse
         {
             Id = newAssignment.Id,
             UserId = newAssignment.UserId,

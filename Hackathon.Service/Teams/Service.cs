@@ -905,32 +905,42 @@ public class Service : IService
     {
         var userId = GetCurrentUserId();
 
-        // Check current user role & status
         await ValidateAndGetStudentAsync(userId);
 
-        // Check team is editable (CanEdit + no pending/approved registrations)
         await ValidateAndGetEditableTeamAsync(teamId);
 
-        // Check user is an active member
-        var memberDetail = await _dbContext.TeamDetails
-            .FirstOrDefaultAsync(x => x.TeamId == teamId && x.UserId == userId && !x.IsDisable && x.Status == TeamDetailStatusEnum.Active);
-        if (memberDetail == null)
+        var member = await _dbContext.TeamDetails.FirstOrDefaultAsync(x =>
+            x.TeamId == teamId &&
+            x.UserId == userId &&
+            !x.IsDisable &&
+            x.Status == TeamDetailStatusEnum.Active);
+
+        if (member == null)
         {
             throw new NotFoundException("NOT_A_TEAM_MEMBER");
         }
 
-        // Leader cannot leave — must transfer first
-        if (memberDetail.IsLeader)
+        if (member.IsLeader)
         {
             throw new ForbiddenException("LEADER_CANNOT_LEAVE_TEAM");
         }
 
-        // Soft-delete the membership
-        memberDetail.IsDisable = true;
-        memberDetail.UpdatedAt = DateTimeOffset.UtcNow;
+        member.Status = TeamDetailStatusEnum.Inactive;
+        member.IsDisable = true;
+        member.UpdatedAt = DateTimeOffset.UtcNow;
 
-        _dbContext.TeamDetails.Update(memberDetail);
-        await _dbContext.SaveChangesAsync();
+        var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            _dbContext.TeamDetails.Update(member);
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
 
         return "TEAM_LEFT_SUCCESSFULLY";
     }

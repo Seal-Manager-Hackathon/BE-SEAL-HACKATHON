@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using Hackathon.Repository;
 using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
-using Hackathon.Service.AssignTracks.Request;
-using Hackathon.Service.AssignTracks.Response;
 using Hackathon.Service.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -62,12 +60,17 @@ public class Service : IService
         }
     }
 
-    public async Task<AssignTrackResponse> AssignJudgeToTrack(Guid trackId, AssignJudgeRequest request)
+    public async Task<Response.AssignTrackResponse> AssignLecturerToTrack(Guid eventId, Guid trackId, Request.AssignJudgeRequest request)
     {
         var track = await _dbContext.Tracks.AsNoTracking().FirstOrDefaultAsync(x => x.Id == trackId && !x.IsDisable);
         if (track == null)
         {
             throw new NotFoundException("TRACK_NOT_FOUND");
+        }
+
+        if (track.EventId != eventId)
+        {
+            throw new ConflictException("TRACK_NOT_IN_EVENT");
         }
 
         if (!IsCurrentUserAdmin())
@@ -90,9 +93,9 @@ public class Service : IService
             throw new ConflictException("ASSIGN_EVENT_NOT_MATCH_TRACK_EVENT");
         }
 
-        if (assignEvent.EventRole?.Name != EventRoleEnum.Judge)
+        if (assignEvent.EventRole?.Name != EventRoleEnum.Judge && assignEvent.EventRole?.Name != EventRoleEnum.Mentor)
         {
-            throw new ConflictException("ONLY_JUDGE_CAN_BE_ASSIGNED_TO_TRACK");
+            throw new ConflictException("ONLY_JUDGE_OR_MENTOR_CAN_BE_ASSIGNED_TO_TRACK");
         }
 
         var existingAssignment = await _dbContext.AssignTracks.AsNoTracking()
@@ -100,7 +103,7 @@ public class Service : IService
 
         if (existingAssignment)
         {
-            throw new ConflictException("JUDGE_ALREADY_ASSIGNED_TO_TRACK");
+            throw new ConflictException("LECTURER_ALREADY_ASSIGNED_TO_TRACK");
         }
 
         var newAssignTrack = new Repository.Entity.AssignTracks
@@ -115,7 +118,7 @@ public class Service : IService
         _dbContext.AssignTracks.Add(newAssignTrack);
         await _dbContext.SaveChangesAsync();
 
-        return new AssignTrackResponse
+        return new Response.AssignTrackResponse
         {
             Id = newAssignTrack.Id,
             AssignEventId = newAssignTrack.AssignEventId,
@@ -123,7 +126,7 @@ public class Service : IService
         };
     }
 
-    public async Task<List<AssignTrackLecturerResponse>> GetLecturersAssignedToTrack(Guid eventId, Guid trackId, bool? isDisable)
+    public async Task<List<Response.AssignTrackLecturerResponse>> GetLecturersAssignedToTrack(Guid eventId, Guid trackId, bool? isDisable)
     {
         var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
         if (!eventExists)
@@ -160,7 +163,7 @@ public class Service : IService
 
         var items = await query
             .OrderByDescending(x => x.CreatedAt)
-            .Select(x => new AssignTrackLecturerResponse
+            .Select(x => new Response.AssignTrackLecturerResponse
             {
                 Id = x.Id,
                 AssignEventId = x.AssignEventId,
@@ -180,5 +183,33 @@ public class Service : IService
         }
 
         return items;
+    }
+
+    public async Task<Guid> RemoveLecturerFromTrack(Guid assignTrackId)
+    {
+        var assignTrack = await _dbContext.AssignTracks
+            .FirstOrDefaultAsync(x => x.Id == assignTrackId && !x.IsDisable);
+
+        if (assignTrack == null)
+        {
+            throw new NotFoundException("ASSIGN_TRACK_NOT_FOUND");
+        }
+
+        if (!IsCurrentUserAdmin())
+        {
+            var track = await _dbContext.Tracks.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == assignTrack.TrackId && !x.IsDisable);
+            if (track != null)
+            {
+                await EnsureStaffAssignedToEvent(track.EventId);
+            }
+        }
+
+        assignTrack.IsDisable = true;
+        assignTrack.UpdatedAt = DateTimeOffset.UtcNow;
+        _dbContext.AssignTracks.Update(assignTrack);
+        await _dbContext.SaveChangesAsync();
+
+        return assignTrack.Id;
     }
 }

@@ -11,17 +11,22 @@ Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
 
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | `eventId` | `guid` | Có | Id của sự kiện. |
 
 ## Request body
 ```json
 {
   "lecturerId": "guid",
-  "eventRoleId": "guid"
+  "eventRole": 0
 }
 ```
-*Ghi chú*: `eventRoleId` là ID của record trong bảng `EventRoles` tương ứng với `Mentor (0)` hoặc `Judge (1)`.
+### Bảng vai trò EventRoleEnum (Integer)
+| Giá trị (Value) | Vai trò (Role) | Mô tả (Description) |
+| :--- | :--- | :--- |
+| `0` | Mentor | Người hướng dẫn chuyên môn cho đội thi |
+| `1` | Judge | Giám khảo chấm điểm bài thi |
+| `2` | Staff | Nhân viên vận hành sự kiện |
 
 ## Response body
 Response dùng `ApiResponseFactory.Base(...)`.
@@ -48,9 +53,9 @@ Response dùng `ApiResponseFactory.Base(...)`.
 - Nếu là `Staff`, phải được phân công quản lý sự kiện này trước.
 - `eventId` phải tồn tại và không bị disable.
 - `lecturerId` phải tồn tại, có global role là `Lecturer` và không bị ban/disable.
-- `eventRoleId` phải tồn tại trong bảng `EventRoles`.
-- Một `Lecturer` **không được** vừa làm Mentor vừa làm Judge trong cùng một sự kiện (theo RULE: "A lecture should not be mentor and judge in the same event"). Nếu vi phạm trả lỗi `LECTURER_CANNOT_BE_BOTH_MENTOR_AND_JUDGE`.
-- Nếu đã được phân công vai trò này rồi thì không tạo mới (trả lỗi conflict hoặc return thành công).
+- `eventRole` phải là `0` (Mentor) hoặc `1` (Judge) — lookup từ bảng `EventRoles`.
+- Một `Lecturer` không được vừa làm Mentor vừa làm Judge trong cùng một sự kiện.
+- Nếu đã được phân công vai trò này rồi thì trả lỗi conflict.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |

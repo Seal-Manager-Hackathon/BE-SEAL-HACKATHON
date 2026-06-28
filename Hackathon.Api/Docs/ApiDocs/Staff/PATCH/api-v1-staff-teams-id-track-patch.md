@@ -1,17 +1,17 @@
- # Staff assign track to team
+# Staff assign track to team
 
 ## Tác dụng
 Staff gán một track cho team đã đăng ký event, để xác định team thuộc track nào trong event đó.
 
 ## URL
-`PATCH /api/v1/staff/teams/{teamId}/track`
+`PATCH /api/v1/staff/events/{eventId}/teams/{teamId}/track`
 
 ## Authorization
-Yêu cầu access token hợp lệ với role `Staff`.
+Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
 
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | `eventId` | `guid` | Có | Id của event diễn ra. |
 | `teamId` | `guid` | Có | Id của team cần được gán track. |
 
@@ -78,6 +78,6 @@ Yêu cầu access token hợp lệ với role `Staff`.
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- Đã implement trong `StaffTracksController` và `TracksService.AssignTrackToTeam`.
-- Assignment được lưu bằng `RegisterTeams.TrackId`.
-- Khi gán track mới, `RegisterTeams.TopicId` được reset về `null` để tránh topic cũ không thuộc track mới.
+- Đã implement trong `Hackathon.Api.Controllers.Staff`.
+- Route: `PATCH /api/v1/staff/events/{eventId:guid}/teams/{teamId:guid}/track`.
+- Sử dụng policy `StaffPolicy`.

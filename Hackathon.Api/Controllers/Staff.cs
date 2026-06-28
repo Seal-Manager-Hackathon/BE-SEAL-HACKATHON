@@ -108,7 +108,6 @@ public class Staff : ControllerBase
         return Ok(ApiResponseFactory.Base(result, 200, "JUDGES_ASSIGNED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
-    [Authorize(Policy = JwtExtensions.StaffPolicy)]
     [HttpPatch("events/{eventId:guid}/teams/{teamId:guid}/track")]
     public async Task<IActionResult> AssignTrackToTeam(Guid eventId, Guid teamId, TracksService.Request.AssignTrackToTeamRequest request)
     {
@@ -125,9 +124,9 @@ public class Staff : ControllerBase
     }
 
     [HttpGet("events/{eventId:guid}/assignments")]
-    public async Task<IActionResult> GetEventAssignments(Guid eventId, [FromQuery] EventRoleEnum? eventRole, [FromQuery] string? keyword, [FromQuery] bool? isDisable, [FromQuery] PaginationRequest paginationRequest)
+    public async Task<IActionResult> GetEventAssignments(Guid eventId, [FromQuery] EventRoleEnum? eventRole, [FromQuery] string? keyword, [FromQuery] Guid? trackId, [FromQuery] bool? isDisable, [FromQuery] PaginationRequest paginationRequest)
     {
-        var result = await _assignEventsService.GetEventAssignments(eventId, eventRole, keyword, isDisable, paginationRequest);
+        var result = await _assignEventsService.GetEventAssignments(eventId, eventRole, keyword, trackId, isDisable, paginationRequest);
         return Ok(result);
     }
 
@@ -145,11 +144,11 @@ public class Staff : ControllerBase
         return Ok(ApiResponseFactory.Base(result, 200, "LECTURER_ASSIGNED_TO_EVENT_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
-    [HttpPost("tracks/{trackId:guid}/assign-judges")]
-    public async Task<IActionResult> AssignJudgeToTrack(Guid trackId, [FromBody] AssignTracksService.Request.AssignJudgeRequest request)
+    [HttpPost("events/{eventId:guid}/tracks/{trackId:guid}/assign-lecturers")]
+    public async Task<IActionResult> AssignLecturerToTrack(Guid eventId, Guid trackId, [FromBody] AssignTracksService.Request.AssignJudgeRequest request)
     {
-        var result = await _assignTracksService.AssignJudgeToTrack(trackId, request);
-        return Ok(ApiResponseFactory.Base(result, 200, "JUDGE_ASSIGNED_TO_TRACK_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+        var result = await _assignTracksService.AssignLecturerToTrack(eventId, trackId, request);
+        return Ok(ApiResponseFactory.Base(result, 200, "LECTURER_ASSIGNED_TO_TRACK_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpGet("events/{eventId:guid}/tracks/{trackId:guid}/lecturers")]
@@ -164,6 +163,13 @@ public class Staff : ControllerBase
     {
         var result = await _assignEventsService.RemoveLecturerAssignment(id);
         return Ok(ApiResponseFactory.Base(new { id = result }, 200, "LECTURER_ASSIGNMENT_REMOVED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpDelete("assign-tracks/{id:guid}")]
+    public async Task<IActionResult> RemoveLecturerFromTrack(Guid id)
+    {
+        var result = await _assignTracksService.RemoveLecturerFromTrack(id);
+        return Ok(ApiResponseFactory.Base(new { id = result }, 200, "LECTURER_REMOVED_FROM_TRACK_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.StaffPolicy)]
