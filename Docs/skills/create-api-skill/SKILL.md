@@ -45,8 +45,12 @@ Endpoints must follow RESTful API design patterns:
    - For regular APIs, return the response DTO.
    - For paginated APIs, **return `BasePaginationResponse` directly from the service** using `ApiResponseFactory.BasePagination` and pass `PaginationRequest` as a parameter.
 7. **Add the controller action** to invoke the service method.
-   - Regular endpoints return `Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier))`.
-   - Paginated endpoints return `Ok(result)` directly since the service already bakes the `BasePaginationResponse` structure.
+   - **Paginated endpoints** (service returns `BasePaginationResponse`): return `Ok(result)` directly.
+
+   - **Non-paginated GET/PATCH/DELETE endpoints** (service returns response DTO or `string`): return `Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier))`. Use specific message code instead of `"SUCCESS"` when applicable (e.g. `"TRACK_UPDATED_SUCCESSFULLY"`).
+
+   - **POST create endpoints** (service returns created DTO): return `Created("", ApiResponseFactory.Base(data, 201, "CREATED_MESSAGE", traceId: HttpContext.TraceIdentifier))`, where `data` wraps the returned id if needed: `var data = new { id = result.Id }`.
+
    - For paginated query parameters in endpoints, **always bind them using `[FromQuery] PaginationRequest paginationRequest`** (or a DTO inheriting from it) instead of individual `pageIndex` / `pageSize` parameters.
 8. **Register DI (Dependency Injection)** in `Hackathon.Api/Program.cs` immediately when creating a new service module/class.
    - Add the service registration (e.g., `builder.Services.AddScoped<SomeService.IService, SomeService.Service>();`) in the dependency block inside `Program.cs`.
