@@ -16,4 +16,8 @@ public interface IService
     Task<BasePaginationResponse> GetMyRegistrationsByEvent(Request.GetMyRegistrationsByEventRequest request);
     Task<Response.CountResponse> GetApprovedEventsCount(Guid teamId);
     Task<Response.LatestRegisteredEventResponse?> GetLatestRegisteredEvent(Guid teamId);
+    Task<BasePaginationResponse> GetAdminTeams(string? keyword, bool? isDisable, PaginationRequest paginationRequest);
+    Task<List<Response.TeamMemberResponse>> GetTeamMembers(Guid teamId);
+    Task<List<Response.TeamNotificationResponse>> GetTeamNotifications(Guid teamId);
+    Task<BasePaginationResponse> GetMyTeamRegisterEvents(string? status, PaginationRequest paginationRequest);
 }
