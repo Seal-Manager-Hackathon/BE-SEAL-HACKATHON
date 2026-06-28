@@ -1,4 +1,4 @@
-# Student chuyển quyền leader
+# Transfer team leadership
 
 ## Tác dụng
 Leader hiện tại của team có thể chuyển quyền leader cho một thành viên khác đang ở trong team. Sau đó, bản thân sẽ trở thành member bình thường.
@@ -49,18 +49,25 @@ Content-Type: application/json
 
 ## Business rules
 - Người gọi API phải là leader của team (`IsLeader = true`).
-- `newLeaderId` phải là một thành viên đang hoạt động trong team.
+- `newLeaderId` phải là một thành viên đang hoạt động trong team (`status = 0` (Active) và `IsDisable = false`).
 - Không thể tự truyền bản thân làm `newLeaderId` được nữa.
 - `CanEdit` của team phải là `true`.
 - Có sử dụng **Database Transaction**.
 
 ## Lỗi có thể xảy ra
+*Khi gặp lỗi Validation hoặc nghiệp vụ, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
+
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | BAD_REQUEST | NEW_LEADER_ID_REQUIRED, ALREADY_THE_LEADER |
+| 400 | BAD_REQUEST | NEW_LEADER_ID_REQUIRED |
+| 400 | BAD_REQUEST | ALREADY_THE_LEADER |
 | 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | CURRENT_USER_MUST_BE_STUDENT |
-| 403 | FORBIDDEN | ONLY_TEAM_LEADER_CAN_TRANSFER_ROLE, TEAM_MEMBER_LOCKED, TEAM_LOCKED_DUE_TO_REGISTRATION_STATUS |
-| 404 | NOT_FOUND | USER_NOT_FOUND, TEAM_NOT_FOUND, NEW_LEADER_NOT_IN_TEAM |
+| 403 | FORBIDDEN | ONLY_TEAM_LEADER_CAN_TRANSFER_ROLE |
+| 403 | FORBIDDEN | TEAM_MEMBER_LOCKED |
+| 403 | FORBIDDEN | TEAM_LOCKED_DUE_TO_REGISTRATION_STATUS |
+| 404 | NOT_FOUND | USER_NOT_FOUND |
+| 404 | NOT_FOUND | TEAM_NOT_FOUND |
+| 404 | NOT_FOUND | NEW_LEADER_NOT_IN_TEAM |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

@@ -1,4 +1,4 @@
-# Xem thành viên trong nhóm (Get Team Members)
+# Get team members
 
 ## Tác dụng
 Lấy danh sách các thành viên hiện tại trong team kèm vai trò trưởng nhóm/thành viên và trạng thái hoạt động.
@@ -6,11 +6,11 @@ Lấy danh sách các thành viên hiện tại trong team kèm vai trò trưở
 ## URL
 `GET /api/v1/teams/{teamId}/members`
 
-## Quyền
-Authenticated User (Cho phép thành viên trong team, Staff hoặc Admin xem)
+## Authorization
+Yêu cầu access token hợp lệ với role `Student`, `Staff` hoặc `Admin`.
 
 ## Request Headers
-- \`Authorization: Bearer <AccessToken>\`
+- `Authorization: Bearer <AccessToken>`
 
 ## Request Parameters
 *   **Path Parameters:**
@@ -20,12 +20,14 @@ Authenticated User (Cho phép thành viên trong team, Staff hoặc Admin xem)
 *Cấu trúc trả về dạng `BaseResponse` chứa danh sách thành viên.*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z",
-  "Value": [
+  "isSuccess": true,
+  "isFailed": false,
+  "status": 200,
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "message": "SUCCESS",
+  "data": [
     {
       "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
       "firstName": "Hoàng",
@@ -33,7 +35,7 @@ Authenticated User (Cho phép thành viên trong team, Staff hoặc Admin xem)
       "studentId": "STU123456",
       "college": "Đại Học Bách Khoa",
       "isLeader": true,
-      "Status": 0 /* Active */
+      "status": 0 /* 0: Active, 1: Inactive */
     }
   ]
 }
@@ -43,30 +45,32 @@ Authenticated User (Cho phép thành viên trong team, Staff hoặc Admin xem)
 - Team phải tồn tại trong DB và chưa bị disable.
 - Chỉ hiển thị các thành viên có trong bảng `TeamDetails` của team.
 
-### Bảng trạng thái TeamDetailStatusEnum
+### Bảng trạng thái TeamDetailStatusEnum (Integer)
 | Giá trị (Value) | Trạng thái (Status) | Mô tả (Description) |
 | :--- | :--- | :--- |
 | `0` | Active | Thành viên đang hoạt động |
 | `1` | Inactive | Thành viên đã rời nhóm hoặc ngưng hoạt động |
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn \`ErrorResponse\`:*
+*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
 
 ```json
 {
-  "Title": "Not Found",
-  "Status": 404,
-  "Detail": "Không tìm thấy team để xem danh sách thành viên.",
-  "MessageCode": "TEAM_NOT_FOUND",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "title": "Not Found",
+  "status": 404,
+  "message": "TEAM_NOT_FOUND",
+  "messageCode": "NOT_FOUND",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
 ### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 401 | UNAUTHORIZED | Access token không hợp lệ hoặc thiếu. |
-| 404 | TEAM_NOT_FOUND | Team không tồn tại. |
-| 500 | INTERNAL_SERVER_ERROR | Lỗi máy chủ phát sinh. |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
+| 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
+| 403 | FORBIDDEN | TEAM_NOT_VISIBLE_TO_USER |
+| 404 | NOT_FOUND | TEAM_NOT_FOUND |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

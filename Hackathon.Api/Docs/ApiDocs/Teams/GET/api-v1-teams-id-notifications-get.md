@@ -1,4 +1,4 @@
-# Xem thông báo riêng của Team (Get Team Notifications)
+# Get team notifications
 
 ## Tác dụng
 Cho phép các thành viên trong team xem danh sách các thông báo gửi riêng cho team của mình từ Ban tổ chức.
@@ -6,11 +6,11 @@ Cho phép các thành viên trong team xem danh sách các thông báo gửi ri�
 ## URL
 `GET /api/v1/teams/{teamId}/notifications`
 
-## Quyền
-Authenticated User (Yêu cầu đăng nhập, là thành viên trong team)
+## Authorization
+Yêu cầu access token hợp lệ và người dùng phải là thành viên đang hoạt động của team (`Status = Active` trong `TeamDetails`).
 
 ## Request Headers
-- \`Authorization: Bearer <AccessToken>\`
+- `Authorization: Bearer <AccessToken>`
 
 ## Request Parameters
 *   **Path Parameters:**
@@ -20,20 +20,22 @@ Authenticated User (Yêu cầu đăng nhập, là thành viên trong team)
 *Cấu trúc trả về dạng `BaseResponse` chứa danh sách thông báo của team.*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Value": [
+  "isSuccess": true,
+  "isFailed": false,
+  "status": 200,
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "message": "SUCCESS",
+  "data": [
     {
       "id": "e5f6a7b8-c9d0-e1f2-a3b4-c5d6e7f8a9b0",
       "teamId": "c4b5a6d7-e8f9-0a1b-2c3d-4e5f6a7b8c9d",
-      "Title": "Thông báo duyệt nhóm",
+      "title": "Thông báo duyệt nhóm",
       "description": "Nhóm của bạn đã được duyệt tham gia giải đấu SEAL Hackathon 2026.",
       "createdAt": "2026-06-22T08:00:00Z"
     }
-  ],
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  ]
 }
 ```
 
@@ -43,24 +45,25 @@ Authenticated User (Yêu cầu đăng nhập, là thành viên trong team)
 - Trích xuất toàn bộ các thông báo trong bảng `Notifications` liên kết với `teamId`.
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn \`ErrorResponse\`:*
+*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
 
 ```json
 {
-  "Title": "Forbidden",
-  "Status": 403,
-  "Detail": "Bạn không phải thành viên hoạt động của đội thi này.",
-  "MessageCode": "NOT_A_TEAM_MEMBER",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "title": "Forbidden",
+  "status": 403,
+  "message": "NOT_A_TEAM_MEMBER",
+  "messageCode": "FORBIDDEN",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
 ### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 401 | UNAUTHORIZED | Access token không hợp lệ hoặc thiếu. |
-| 403 | NOT_A_TEAM_MEMBER | Sinh viên không thuộc team hoặc trạng thái Inactive. |
-| 404 | TEAM_NOT_FOUND | Team không tồn tại. |
-| 500 | INTERNAL_SERVER_ERROR | Lỗi máy chủ phát sinh. |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
+| 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
+| 403 | FORBIDDEN | NOT_A_TEAM_MEMBER |
+| 404 | NOT_FOUND | TEAM_NOT_FOUND |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

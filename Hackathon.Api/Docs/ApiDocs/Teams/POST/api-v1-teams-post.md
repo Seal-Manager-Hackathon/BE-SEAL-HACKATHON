@@ -1,4 +1,4 @@
-# Create Team
+# Create team
 
 ## Tác dụng
 Tạo một team mới cho học sinh (Student) đang đăng nhập và tự động chỉ định học sinh đó làm Leader của team.
@@ -20,14 +20,14 @@ Yêu cầu access token hợp lệ với role `Student`.
 *Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Status": 201,
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z",
-  "Message": "TEAM_CREATED_SUCCESSFULLY",
-  "Data": {
+  "isSuccess": true,
+  "isFailed": false,
+  "status": 201,
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "message": "TEAM_CREATED_SUCCESSFULLY",
+  "data": {
     "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
     "name": "Chiến binh công nghệ",
     "canEdit": true,
@@ -36,7 +36,7 @@ Yêu cầu access token hợp lệ với role `Student`.
       {
         "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         "isLeader": true,
-        "status": 1 /* 0: Pending, 1: Active, 2: Rejected */
+        "status": 0 /* 0: Active, 1: Inactive */
       }
     ]
   }
@@ -56,25 +56,24 @@ Yêu cầu access token hợp lệ với role `Student`.
   - Thành viên tạo được lưu vào bảng `TeamDetails` với trạng thái `Active` và vai trò Leader (`IsLeader = true`).
   - Quá trình ghi nhận hai bảng này được thực hiện trong cùng một Database Transaction.
 
-### Bảng trạng thái thành viên TeamDetailStatusEnum
+### Bảng trạng thái thành viên TeamDetailStatusEnum (Integer)
 | Giá trị (Value) | Trạng thái (Status) | Mô tả (Description) |
 | :--- | :--- | :--- |
-| `0` | Pending | Đang đợi trưởng nhóm duyệt vào |
-| `1` | Active | Thành viên chính thức hoạt động |
-| `2` | Rejected | Yêu cầu tham gia bị từ chối |
+| `0` | Active | Thành viên chính thức hoạt động |
+| `1` | Inactive | Thành viên đã rời nhóm hoặc ngưng hoạt động |
 
 ## Lỗi có thể xảy ra
 *Khi gặp lỗi Validation hoặc nghiệp vụ, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
 
 ```json
 {
-  "Title": "Bad Request",
-  "Status": 400,
-  "Message": "TEAM_NAME_REQUIRED",
-  "MessageCode": "BAD_REQUEST",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "title": "Bad Request",
+  "status": 400,
+  "message": "TEAM_NAME_REQUIRED",
+  "messageCode": "BAD_REQUEST",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
