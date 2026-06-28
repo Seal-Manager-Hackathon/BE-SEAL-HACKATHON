@@ -1,7 +1,7 @@
 # Submit submission appeal
 
 ## Tác dụng
-Cho phép Team Leader gửi khiếu nại/phúc khảo cho một bài nộp cụ thể sau khi bài đã có kết quả chấm. Đây vẫn là luồng report bình thường, nhưng request gắn trực tiếp `submissionId` để Staff/Admin xem đúng bài nộp và phân công judge khác chấm lại nếu cần.
+Cho phép Team Leader gửi khiếu nại/phúc khảo cho một bài nộp cụ thể sau khi bài đã có kết quả chấm. Đây vẫn là luồng report bình thường, nhưng request gắn trực tiếp `submissionId` để Staff/Admin xem đúng bài nộp và duyệt chấm lại nếu cần.
 
 ## URL
 `POST /api/v1/teams/{teamId}/submissions/{submissionId}/appeal`
@@ -51,7 +51,7 @@ Yêu cầu access token hợp lệ với role `Student` và phải là Leader c�
 - Chỉ cho gửi khiếu nại khi submission đã có kết quả chấm/công bố; nếu chưa có kết quả thì FE không hiển thị nút khiếu nại và API trả lỗi.
 - Mỗi submission chỉ có một report/phúc khảo đang mở; nếu đã gửi rồi thì báo conflict.
 - Tạo bản ghi `Reports` với `SubmissionId = submissionId`, `TypeReport = "Phúc khảo"`, và `Status = 0` (Open) của `ReportStatusEnum`.
-- Staff/Admin xem report này ở `GET /api/v1/staff/reports/{reportId}`, sau đó có thể phân công judge khác bằng `POST /api/v1/staff/reports/{reportId}/assign-judge`.
+- Staff/Admin xem report này ở `GET /api/v1/staff/reports/{reportId}`; nếu duyệt phúc khảo thì gọi `POST /api/v1/staff/reports/{reportId}/regrade`. Judge được chấm lại là judge đã chấm score gốc của submission.
 
 ## Lỗi có thể xảy ra
 *Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*

@@ -55,6 +55,14 @@ public class JudgeController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("submissions/regrade")]
+    public async Task<IActionResult> GetRegradeSubmissions([FromQuery] Guid? eventId, [FromQuery] Guid? trackId, [FromQuery] bool? isRegraded, [FromQuery] PaginationRequest paginationRequest)
+    {
+        var result = await _judgeService.GetRegradeSubmissions(eventId, trackId, isRegraded, paginationRequest);
+        result.TraceId = HttpContext.TraceIdentifier;
+        return Ok(result);
+    }
+
     [HttpPost("submissions/{submissionId:guid}/scores")]
     public async Task<IActionResult> SubmitScore(Guid submissionId, [FromBody] JudgesService.Request.SubmitScoreRequest request)
     {

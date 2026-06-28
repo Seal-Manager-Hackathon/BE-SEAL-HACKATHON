@@ -1,7 +1,7 @@
-# Judge chấm điểm phúc khảo (Judge Submit Regrade Score)
+# Judge chấm điểm phúc khảo
 
 ## Tác dụng
-Giúp Judge tạo một bảng điểm phúc khảo riêng biệt từ bảng điểm cũ của chính mình. Bản ghi mới có `IsRetake = true`, bản ghi cũ được giữ nguyên.
+Judge tạo một bảng điểm phúc khảo riêng biệt từ bảng điểm gốc của chính mình. Bản ghi mới có `IsRetake = true` và `RetakeFromScoreId` trỏ về score gốc; score gốc được giữ nguyên.
 
 ## URL
 `POST /api/v1/judge/scores/{scoreId}/retake`
@@ -12,9 +12,9 @@ Yêu cầu access token hợp lệ của tài khoản Giảng viên sở hữu b
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
 |---|---|---:|---|
-| `scoreId` | `guid` | Có | ID của bảng điểm gốc cần chấm lại. |
+| `scoreId` | `guid` | Có | ID của score gốc cần chấm lại. |
 
-## Request Body
+## Request body
 ```json
 {
   "totalScore": 88.0,
@@ -28,21 +28,21 @@ Yêu cầu access token hợp lệ của tài khoản Giảng viên sở hữu b
 }
 ```
 
-## Response body (Success - 200 OK)
-*Cấu trúc trả về dạng `BaseResponse` — `scoreId` trong `data` là ID của bảng điểm MỚI (bản ghi phúc khảo), KHÔNG phải `scoreId` trong path.*
+## Response body (200 OK)
 ```json
 {
   "isSuccess": true,
   "isFailed": false,
-  "status": 200,
   "error": null,
+  "status": 200,
   "traceId": "0HN1A2B3C4D5E",
-  "timestampUtc": "2026-06-22T08:00:00Z",
+  "timestampUtc": "2026-06-26T14:00:00Z",
   "message": "REGRADE_SCORE_SUBMITTED",
   "data": {
     "scoreId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "submissionId": "f7b6d5c4-129b-4e6f-adbd-2c5ea56789ff",
     "assignTrackId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "retakeFromScoreId": "8a9b0c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d",
     "totalScore": 88.0,
     "isRetake": true,
     "isMock": false,
@@ -59,42 +59,27 @@ Yêu cầu access token hợp lệ của tài khoản Giảng viên sở hữu b
 ```
 
 ## Business rules
-- `scoreId` trong path là ID của bảng điểm CŨ. API tạo bảng điểm MỚI với cờ `IsRetake = true`, không ghi đè bảng điểm cũ.
-- Bảng điểm cũ `scoreId` phải tồn tại trong DB.
-- Người gọi phải là Judge sở hữu bảng điểm cũ.
-- Không cho phúc khảo điểm mock (`IsMock = true`).
-- Chỉ cho tạo một bản ghi phúc khảo active cho cùng `SubmissionId` + `AssignTrackId`.
+- `scoreId` trong path là ID của score gốc; API tạo score mới, không ghi đè score gốc.
+- Score gốc phải tồn tại, active và thuộc sở hữu của Judge hiện tại.
+- Score gốc không được là mock (`IsMock = false`) và không được là retake (`IsRetake = false`).
+- Submission của score gốc phải có `Submissions.IsRegrade = true`.
+- Report phúc khảo liên kết với submission phải ở trạng thái `Approved`.
+- Chỉ cho tạo một score phúc khảo active cho cùng score gốc (`RetakeFromScoreId = scoreId`).
+- Score mới dùng cùng `SubmissionId` và `AssignTrackId` với score gốc.
+- Score mới có `IsRetake = true`, `IsMock = false`, `RetakeFromScoreId = scoreId`.
 - Server validate criteria thuộc round của submission, điểm không vượt `maxScore`, và tổng điểm chi tiết khớp `totalScore`.
-- Do DB hiện tại chưa có field phê duyệt phúc khảo/assigned judge riêng trong `Reports`, API này không kiểm tra trạng thái phê duyệt phúc khảo từ report.
 
-## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
-
-```json
-{
-  "title": "Conflict",
-  "status": 409,
-  "message": "Đã có điểm phúc khảo cho bảng điểm này.",
-  "messageCode": "SCORE_ALREADY_RETAKEN",
-  "errors": null,
-  "traceId": "0HN1A2B3C4D5E",
-  "timestampUtc": "2026-06-22T08:00:00Z"
-}
-```
-
-### Các mã lỗi cụ thể:
+## Errors
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | MOCK_SCORE_CANNOT_BE_RETAKEN | Không thể phúc khảo điểm mock. |
-| 400 | SCORE_LIMIT_EXCEEDED | Điểm chấm cho tiêu chí lớn hơn điểm tối đa cho phép. |
-| 400 | SCORE_TOTAL_MISMATCH | Tổng điểm chi tiết không khớp với totalScore gửi lên. |
-| 401 | UNAUTHORIZED | Access token không hợp lệ. |
-| 403 | SCORE_NOT_OWNED_BY_JUDGE | Bảng điểm gốc không thuộc về người gọi. |
-| 404 | SCORE_NOT_FOUND | Không tìm thấy bảng điểm cũ. |
-| 409 | SCORE_ALREADY_RETAKEN | Đã có điểm phúc khảo cho bảng điểm này. |
-| 500 | INTERNAL_SERVER_ERROR | Gặp lỗi hệ thống. |
-
-## Trạng thái implement
-- ✅ Đã implement trong `Hackathon.Api.Controllers.JudgeController`.
-- Route: `POST /api/v1/judge/scores/{scoreId}/retake`.
-- Sử dụng policy `LecturerPolicy`.
+| 400 | BAD_REQUEST | MOCK_SCORE_CANNOT_BE_RETAKEN |
+| 400 | BAD_REQUEST | RETAKE_SCORE_CANNOT_BE_RETAKEN |
+| 400 | BAD_REQUEST | SUBMISSION_NOT_IN_REGRADE |
+| 400 | BAD_REQUEST | REPORT_NOT_APPROVED |
+| 400 | BAD_REQUEST | SCORE_LIMIT_EXCEEDED |
+| 400 | BAD_REQUEST | SCORE_TOTAL_MISMATCH |
+| 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
+| 403 | FORBIDDEN | SCORE_NOT_OWNED_BY_JUDGE |
+| 404 | NOT_FOUND | SCORE_NOT_FOUND |
+| 409 | CONFLICT | SCORE_ALREADY_RETAKEN |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

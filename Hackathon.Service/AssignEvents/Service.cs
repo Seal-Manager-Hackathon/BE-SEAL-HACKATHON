@@ -2,8 +2,6 @@ using System.Security.Claims;
 using Hackathon.Repository;
 using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
-using Hackathon.Service.AssignEvents.Request;
-using Hackathon.Service.AssignEvents.Response;
 using Hackathon.Service.Exceptions;
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Http;
@@ -114,7 +112,7 @@ public class Service : IService
             .OrderByDescending(x => x.CreatedAt)
             .Skip((paginationRequest.PageIndex - 1) * paginationRequest.PageSize)
             .Take(paginationRequest.PageSize)
-            .Select(x => new AssignLecturerDetailResponse
+            .Select(x => new Response.AssignLecturerDetailResponse
             {
                 Id = x.Id,
                 UserId = x.UserId,
@@ -128,7 +126,7 @@ public class Service : IService
                 CreatedAt = x.CreatedAt,
                 AssignedTracks = x.AssignTracks
                     .Where(at => !at.IsDisable)
-                    .Select(at => new AssignedTrackInfo
+                    .Select(at => new Response.AssignedTrackInfo
                     {
                         AssignTrackId = at.Id,
                         TrackId = at.TrackId,
@@ -146,7 +144,7 @@ public class Service : IService
         return ApiResponseFactory.BasePagination(items, paginationRequest.PageIndex, paginationRequest.PageSize, totalCount);
     }
 
-    public async Task<BasePaginationResponse> GetAvailableLecturers(Guid eventId, GetAvailableLecturersRequest request)
+    public async Task<BasePaginationResponse> GetAvailableLecturers(Guid eventId, Request.GetAvailableLecturersRequest request)
     {
         var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
         if (!eventExists)
@@ -206,7 +204,7 @@ public class Service : IService
             .ThenBy(x => x.LastName)
             .Skip((request.PageIndex - 1) * request.PageSize)
             .Take(request.PageSize)
-            .Select(x => new AvailableLecturerResponse
+            .Select(x => new Response.AvailableLecturerResponse
             {
                 Id = x.Id,
                 FirstName = x.FirstName,
@@ -260,7 +258,7 @@ public class Service : IService
         return assignEvent.Id;
     }
 
-    public async Task<AssignEventResponse> AssignLecturerToEvent(Guid eventId, AssignLecturerRequest request)
+    public async Task<Response.AssignEventResponse> AssignLecturerToEvent(Guid eventId, Request.AssignLecturerRequest request)
     {
         var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
         if (!eventExists)
@@ -318,7 +316,7 @@ public class Service : IService
         _dbContext.AssignEvents.Add(newAssignment);
         await _dbContext.SaveChangesAsync();
 
-        return new AssignEventResponse
+        return new Response.AssignEventResponse
         {
             Id = newAssignment.Id,
             UserId = newAssignment.UserId,

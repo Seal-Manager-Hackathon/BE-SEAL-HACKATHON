@@ -55,6 +55,7 @@ public static class Response
         public Guid ScoreId { get; set; }
         public Guid SubmissionId { get; set; }
         public Guid AssignTrackId { get; set; }
+        public Guid? RetakeFromScoreId { get; set; }
         public decimal? TotalScore { get; set; }
         public bool IsRetake { get; set; }
         public bool IsMock { get; set; }
@@ -124,5 +125,26 @@ public static class Response
         public Guid TrackId { get; set; }
         public string TrackTitle { get; set; } = string.Empty;
         public List<JudgeTeamSubmissionInfo> Teams { get; set; } = new();
+    }
+
+    public class JudgeRegradeSubmissionResponse
+    {
+        public Guid SubmissionId { get; set; }
+        public Guid RoundDetailId { get; set; }
+        public string RoundName { get; set; } = string.Empty;
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = string.Empty;
+        public string EventName { get; set; } = string.Empty;
+        public string? TrackTitle { get; set; }
+        public string? Url { get; set; }
+        public string? Description { get; set; }
+        public Guid ReportId { get; set; }
+        public string? ReportTitle { get; set; }
+        public Guid SourceScoreId { get; set; }
+        public decimal? SourceTotalScore { get; set; }
+        public bool IsRegraded { get; set; }
+        public Guid? RegradeScoreId { get; set; }
+        public decimal? RegradeTotalScore { get; set; }
+        public DateTimeOffset ApprovedAt { get; set; }
     }
 }

@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using Hackathon.Repository;
 using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
-using Hackathon.Service.AssignTracks.Request;
-using Hackathon.Service.AssignTracks.Response;
 using Hackathon.Service.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -62,7 +60,7 @@ public class Service : IService
         }
     }
 
-    public async Task<AssignTrackResponse> AssignLecturerToTrack(Guid eventId, Guid trackId, AssignJudgeRequest request)
+    public async Task<Response.AssignTrackResponse> AssignLecturerToTrack(Guid eventId, Guid trackId, Request.AssignJudgeRequest request)
     {
         var track = await _dbContext.Tracks.AsNoTracking().FirstOrDefaultAsync(x => x.Id == trackId && !x.IsDisable);
         if (track == null)
@@ -120,7 +118,7 @@ public class Service : IService
         _dbContext.AssignTracks.Add(newAssignTrack);
         await _dbContext.SaveChangesAsync();
 
-        return new AssignTrackResponse
+        return new Response.AssignTrackResponse
         {
             Id = newAssignTrack.Id,
             AssignEventId = newAssignTrack.AssignEventId,
@@ -128,7 +126,7 @@ public class Service : IService
         };
     }
 
-    public async Task<List<AssignTrackLecturerResponse>> GetLecturersAssignedToTrack(Guid eventId, Guid trackId, bool? isDisable)
+    public async Task<List<Response.AssignTrackLecturerResponse>> GetLecturersAssignedToTrack(Guid eventId, Guid trackId, bool? isDisable)
     {
         var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
         if (!eventExists)
@@ -165,7 +163,7 @@ public class Service : IService
 
         var items = await query
             .OrderByDescending(x => x.CreatedAt)
-            .Select(x => new AssignTrackLecturerResponse
+            .Select(x => new Response.AssignTrackLecturerResponse
             {
                 Id = x.Id,
                 AssignEventId = x.AssignEventId,

@@ -106,6 +106,88 @@ public class Service : IService
         return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
     }
 
+    public async Task<BasePaginationResponse> GetRegradeSubmissions(Guid? eventId, Guid? trackId, bool? isRegraded, PaginationRequest paginationRequest)
+    {
+        var userId = GetCurrentUserId();
+        var pageIndex = paginationRequest.PageIndex <= 0 ? 1 : paginationRequest.PageIndex;
+        var pageSize = paginationRequest.PageSize <= 0 ? 10 : Math.Min(paginationRequest.PageSize, 100);
+
+        var query = _dbContext.Scores
+            .AsNoTracking()
+            .Where(x =>
+                !x.IsDisable &&
+                !x.IsMock &&
+                !x.IsRetake &&
+                x.AssignTrack.AssignEvent.UserId == userId &&
+                x.AssignTrack.AssignEvent.EventRole != null &&
+                x.AssignTrack.AssignEvent.EventRole.Name == EventRoleEnum.Judge &&
+                x.Submission.IsRegrade &&
+                !x.Submission.IsDisable &&
+                x.Submission.Report != null &&
+                !x.Submission.Report.IsDisable &&
+                x.Submission.Report.Status == ReportStatusEnum.Approved);
+
+        if (eventId.HasValue)
+        {
+            query = query.Where(x => x.Submission.RoundDetail.RegisterTeam.EventId == eventId.Value);
+        }
+
+        if (trackId.HasValue)
+        {
+            query = query.Where(x => x.Submission.RoundDetail.RegisterTeam.TrackId == trackId.Value);
+        }
+
+        if (isRegraded.HasValue)
+        {
+            query = isRegraded.Value
+                ? query.Where(x => x.RetakeScores.Any(r => !r.IsDisable && r.IsRetake))
+                : query.Where(x => !x.RetakeScores.Any(r => !r.IsDisable && r.IsRetake));
+        }
+        else
+        {
+            query = query.Where(x => !x.RetakeScores.Any(r => !r.IsDisable && r.IsRetake));
+        }
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(x => x.Submission.Report!.UpdatedAt)
+            .ThenByDescending(x => x.Submission.SubmittedAt)
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new Response.JudgeRegradeSubmissionResponse
+            {
+                SubmissionId = x.SubmissionId,
+                RoundDetailId = x.Submission.RoundDetailId,
+                RoundName = x.Submission.RoundDetail.Round.Name,
+                TeamId = x.Submission.RoundDetail.RegisterTeam.TeamId,
+                TeamName = x.Submission.RoundDetail.RegisterTeam.Team.Name,
+                EventName = x.Submission.RoundDetail.RegisterTeam.Event.Name,
+                TrackTitle = x.Submission.RoundDetail.RegisterTeam.Track != null ? x.Submission.RoundDetail.RegisterTeam.Track.Title : null,
+                Url = x.Submission.Url,
+                Description = x.Submission.Description,
+                ReportId = x.Submission.Report!.Id,
+                ReportTitle = x.Submission.Report.Title,
+                SourceScoreId = x.Id,
+                SourceTotalScore = x.TotalScore,
+                IsRegraded = x.RetakeScores.Any(r => !r.IsDisable && r.IsRetake),
+                RegradeScoreId = x.RetakeScores
+                    .Where(r => !r.IsDisable && r.IsRetake)
+                    .OrderByDescending(r => r.UpdatedAt)
+                    .Select(r => (Guid?)r.Id)
+                    .FirstOrDefault(),
+                RegradeTotalScore = x.RetakeScores
+                    .Where(r => !r.IsDisable && r.IsRetake)
+                    .OrderByDescending(r => r.UpdatedAt)
+                    .Select(r => r.TotalScore)
+                    .FirstOrDefault(),
+                ApprovedAt = x.Submission.Report.UpdatedAt
+            })
+            .ToListAsync();
+
+        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
+    }
+
     public async Task<Response.SubmissionCriteriaResponse> GetSubmissionCriteria(Guid submissionId)
     {
         var userId = GetCurrentUserId();
@@ -161,6 +243,7 @@ public class Service : IService
                 ScoreId = x.Id,
                 SubmissionId = x.SubmissionId,
                 AssignTrackId = x.AssignTrackId,
+                RetakeFromScoreId = x.RetakeFromScoreId,
                 TotalScore = x.TotalScore,
                 IsRetake = x.IsRetake,
                 IsMock = x.IsMock,
@@ -332,11 +415,30 @@ public class Service : IService
             throw new BadRequestException("MOCK_SCORE_CANNOT_BE_RETAKEN");
         }
 
+        if (sourceScore.IsRetake)
+        {
+            throw new BadRequestException("RETAKE_SCORE_CANNOT_BE_RETAKEN");
+        }
+
+        if (!sourceScore.Submission.IsRegrade)
+        {
+            throw new BadRequestException("SUBMISSION_NOT_IN_REGRADE");
+        }
+
+        var reportApproved = await _dbContext.Reports.AnyAsync(x =>
+            !x.IsDisable &&
+            x.SubmissionId == sourceScore.SubmissionId &&
+            x.Status == ReportStatusEnum.Approved);
+
+        if (!reportApproved)
+        {
+            throw new BadRequestException("REPORT_NOT_APPROVED");
+        }
+
         var hasRetake = await _dbContext.Scores.AnyAsync(x =>
             !x.IsDisable &&
             x.IsRetake &&
-            x.SubmissionId == sourceScore.SubmissionId &&
-            x.AssignTrackId == sourceScore.AssignTrackId);
+            x.RetakeFromScoreId == sourceScore.Id);
 
         if (hasRetake)
         {
@@ -379,6 +481,7 @@ public class Service : IService
             SubmissionId = submissionId,
             AssignTrackId = submissionAccess.AssignTrackId,
             IsRetake = isRetake,
+            RetakeFromScoreId = sourceScore?.Id,
             TotalScore = request.TotalScore,
             IsMock = isMock,
             CreatedAt = now,
@@ -504,6 +607,7 @@ public class Service : IService
                 ScoreId = x.Id,
                 SubmissionId = x.SubmissionId,
                 AssignTrackId = x.AssignTrackId,
+                RetakeFromScoreId = x.RetakeFromScoreId,
                 TotalScore = x.TotalScore,
                 IsRetake = x.IsRetake,
                 IsMock = x.IsMock,
