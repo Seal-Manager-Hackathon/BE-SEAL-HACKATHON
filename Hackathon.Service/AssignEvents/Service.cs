@@ -183,8 +183,7 @@ public class Service : IService
             var normalizedKeyword = request.Keyword.Trim().ToLower();
             query = query.Where(x => (x.FirstName + " " + x.LastName).ToLower().Contains(normalizedKeyword)
                                   || x.FirstName.ToLower().Contains(normalizedKeyword)
-                                  || x.LastName.ToLower().Contains(normalizedKeyword)
-                                  || x.Email.ToLower().Contains(normalizedKeyword));
+                                  || x.LastName.ToLower().Contains(normalizedKeyword));
         }
 
         var totalCount = await query.CountAsync();
@@ -266,7 +265,7 @@ public class Service : IService
 
         var lecturer = await _dbContext.Users.AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == request.LecturerId && !x.IsDisable && x.Status == UserStatusEnum.Active);
-        
+
         if (lecturer == null || lecturer.Role != RoleEnum.Lecturer)
         {
             throw new NotFoundException("LECTURER_NOT_FOUND");
