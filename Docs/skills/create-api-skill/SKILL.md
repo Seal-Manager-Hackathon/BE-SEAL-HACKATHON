@@ -29,11 +29,11 @@ Endpoints must follow RESTful API design patterns:
 
 1. **Identify the target module** from the user's requirement.
    - Prefer an existing controller/service folder when one matches the domain.
-   - If no controller exists for the module, **create a new controller using `EventsController.cs` as a template**.
-2. **Create Controller actions** by referencing any existing API endpoint pattern inside `EventsController.cs`.
+   - If no controller exists for the module, **create a new controller using `AuthController.cs` as a template**.
+2. **Create Controller actions** by referencing any existing API endpoint pattern inside `AuthController.cs`.
 3. **Define Request DTOs** in `Hackathon.Service/<Module>/Request.cs`.
-   - Always validate properties on the DTO model class using standard **DataAnnotations** attributes (e.g., `[Required]`, `[EmailAddress]`, `[Range]`, `[Compare]`).
-   - Do not use `IValidatableObject` or FluentValidation for request validation when DataAnnotations can express the rule.
+   - Keep the request DTO classes clean and free of validation annotations.
+   - Always validate request DTOs using **FluentValidation** by creating a validator class under `Hackathon.Service/Validations/<Module>/` (e.g. `Hackathon.Service/Validations/Auth/ChangePasswordRequestValidator.cs`).
    - For DTOs that represent paginated search queries (e.g., `GetEventsRequest`), **always inherit from `PaginationRequest`** (defined in `Hackathon.Service.Models`).
 4. **Define Response DTOs** in `Hackathon.Service/<Module>/Response.cs`.
    - **Always ask the user for response requirements first**, proposing a draft based on the description and related entities before writing code.
@@ -52,111 +52,151 @@ Endpoints must follow RESTful API design patterns:
    - Add the service registration (e.g., `builder.Services.AddScoped<SomeService.IService, SomeService.Service>();`) in the dependency block inside `Program.cs`.
    - Never skip this step, otherwise the application will crash at runtime with `InvalidOperationException` when resolving the controller dependency.
 
+## Response Envelope Standards
+
+All API responses must strictly conform to the wrapper structures defined in the backend (`ApiResponse` subclasses and `ErrorResponse`). 
+
+1. **PascalCase Response Envelope**:
+   The root wrapper properties are serialized using **PascalCase**. Do not use `isSuccess`, `isFailed`, `data`, `error` (camelCase) for envelope roots.
+   - Standard: `IsSuccess`, `IsFailed`, `Status`, `Error`, `TraceId`, `TimestampUtc`, `Data`, `Message`.
+   - Paginated Standard: `IsSuccess`, `IsFailed`, `Status`, `Error`, `TraceId`, `TimestampUtc`, `Data` (which wraps inner pagination details: `Items`, `PageIndex`, `PageSize`, `TotalCount`, `HasNextPage`, `HasPreviousPage`).
+
+2. **Standard ErrorResponse**:
+   Validation failures or system exceptions caught by the global middleware return `ErrorResponse` (without `IsSuccess`, `IsFailed`, or `Data` properties):
+   - Fields: `Title`, `Status`, `Message` (not `Detail`), `MessageCode`, `Errors`, `TraceId`, `TimestampUtc`.
+
+3. **Error Specification Table in Docs**:
+   Every API markdown documentation must list error codes in a standardized table where:
+   - **messageCode**: Must match the exact `MessageCode` defined in the C# custom exception class (e.g. `MISSING_ACCESS_TOKEN`, `UNAUTHORIZED`, `FORBIDDEN`, `EVENT_NOT_FOUND`).
+   - **message/detail**: Must match the exact error details string returned by the exception (e.g. `ACCESS_TOKEN_IS_MISSING`, `INVALID_ACCESS_TOKEN`, `Bạn không được phân công hỗ trợ hoặc chấm điểm sự kiện nào.`, `Event không tồn tại.`). Do not write arbitrary local descriptions here.
+
 ## Reference Patterns
 
-### Controller Baseline (`EventsController.cs` example)
+### Controller Baseline (`AuthController.cs` example)
 Use this as the template when creating new controllers. Note the use of `[ApiController]`, route structures, dependency injection of the service interface, and returning wrapping base responses:
 
 ```csharp
 [ApiController]
-[Route("api/v1/events")]
-public class EventsController : ControllerBase
+[Route("api/v1/auth")]
+public class AuthController : ControllerBase
 {
-    private readonly EventsService.IService _eventsService;
+    private readonly AuthsService.IService _authService;
 
-    public EventsController(EventsService.IService eventsService)
+    public AuthController(AuthsService.IService authService)
     {
-        _eventsService = eventsService;
+        _authService = authService;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetEvents([FromQuery] EventsService.Request.GetEventsRequest request)
+    [HttpPost("login")]
+    public async Task<IActionResult> LoginAsync(AuthsService.Request.LoginRequest request)
     {
-        var result = await _eventsService.GetEvents(request);
-        return Ok(result);
+        var result = await _authService.LoginAsync(request);
+        Response.WriteAuthCookies(result.AccessToken!, result.RefreshToken!);
+        return Ok(ApiResponseFactory.Base(result, 200, "LOGIN_SUCCESSFUL", traceId: HttpContext.TraceIdentifier));
     }
 
-    [HttpGet("{eventId:guid}")]
-    public async Task<IActionResult> GetEvent(Guid eventId)
+    [Authorize]
+    [HttpPatch("change-password")]
+    public async Task<IActionResult> ChangePassword(AuthsService.Request.ChangePasswordRequest request)
     {
-        var result = await _eventsService.GetEvent(eventId);
-        return Ok(ApiResponseFactory.Base(result, traceId: HttpContext.TraceIdentifier));
+        var message = await _authService.ChangePassword(request);
+        return Ok(ApiResponseFactory.Base(null, 200, message, traceId: HttpContext.TraceIdentifier));
     }
 }
 ```
 
-### Paginated API Pattern (Reference Screenshot Example)
-Use this structure when implementing pagination.
+### Service Implementation Pattern (`Auths/Service.cs` example)
+Use this structure when implementing business logic, handling database transactions, and returning response messages:
 
-**Service implementation (`Service.cs`):**
 ```csharp
-public async Task<BasePaginationResponse> GetNewsAsync(PaginationRequest paginationRequest, string? keyword, NewsStatus? status)
+public async Task<string> ChangePassword(Request.ChangePasswordRequest request)
 {
-    var pageIndex = paginationRequest.PageIndex <= 0 ? 1 : paginationRequest.PageIndex;
-    var pageSize = paginationRequest.PageSize <= 0 ? 10 : Math.Min(paginationRequest.PageSize, 100);
-
-    var query = _dbContext.NewsList
-        .AsNoTracking()
-        .Include(news => news.CategoryNewsDetail)
-        .Where(news => !news.IsDeleted);
-
-    if (!string.IsNullOrWhiteSpace(keyword))
+    var userId = CheckAccessToken();
+    if (userId == Guid.Empty)
     {
-        var searchKeyword = keyword.Trim().ToLower();
-        query = query.Where(news =>
-            news.Title.ToLower().Contains(searchKeyword) ||
-            news.Description.ToLower().Contains(searchKeyword));
+        throw new MissingAccessTokenException();
     }
 
-    if (status.HasValue)
+    var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
+    if (user == null)
     {
-        query = query.Where(news => news.Status == status.Value);
+        throw new NotFoundException("USER_NOT_FOUND");
     }
 
-    var totalCount = await query.CountAsync();
-    var items = await query
-        .OrderByDescending(news => news.CreatedAt)
-        .Skip((pageIndex - 1) * pageSize)
-        .Take(pageSize)
-        .Select(news => new NewResponse
-        {
-            Id = news.Id,
-            Title = news.Title,
-            Description = news.Description,
-            ViewCount = news.ViewCount,
-            PictureUrl = news.CoverImage,
-            slug = news.slug,
-            Status = news.Status == NewsStatus.Published ? "Published" : "Draft",
-            UserId = news.UserId,
-            CategoryIds = news.CategoryNewsDetail.Select(categoryNewsDetail => categoryNewsDetail.CategoryNewsId).ToList(),
-            CreatedAt = news.CreatedAt,
-            UpdatedAt = news.UpdatedAt
-        })
-        .ToListAsync();
+    var currentPepperPassword = request.CurrentPassword + _securityOptions.Pepper;
+    var isPasswordValid = BCrypt.Net.BCrypt.EnhancedVerify(
+        currentPepperPassword,
+        user.HashPassword,
+        hashType: BCrypt.Net.HashType.SHA256
+    );
 
-    return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
-}
-```
+    if (!isPasswordValid)
+    {
+        throw new BadRequestException("CURRENT_PASSWORD_INVALID");
+    }
 
-**Controller action (`Controller.cs`):**
-```csharp
-[HttpGet]
-public async Task<IActionResult> GetNews([FromQuery] PaginationRequest paginationRequest, [FromQuery] string? keyword, [FromQuery] NewsStatus? status)
-{
-    var result = await _newsService.GetNewsAsync(paginationRequest, keyword, status);
-    return Ok(result);
+    var transaction = await _dbContext.Database.BeginTransactionAsync();
+    try
+    {
+        var newPepperPassword = request.NewPassword + _securityOptions.Pepper;
+        user.HashPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(newPepperPassword, hashType: BCrypt.Net.HashType.SHA256);
+        user.UpdatedAt = DateTimeOffset.UtcNow;
+        _dbContext.Users.Update(user);
+        await _dbContext.SaveChangesAsync();
+
+        await transaction.CommitAsync();
+    }
+    catch
+    {
+        await transaction.RollbackAsync();
+        throw;
+    }
+
+    return "PASSWORD_CHANGED_SUCCESSFULLY";
 }
 ```
 
 ## Validation Policy
 
-Always validate request properties on the DTO model class using standard **DataAnnotations** attributes:
-- Required: `[Required(ErrorMessage = "FIELD_REQUIRED")]`
-- Email: `[EmailAddress(ErrorMessage = "INVALID_EMAIL_FORMAT")]`
-- Range: `[Range(1, int.MaxValue, ErrorMessage = "VALUE_MUST_BE_GREATER_THAN_ZERO")]`
-- Compare: `[Compare(nameof(Password), ErrorMessage = "PASSWORD_CONFIRMATION_NOT_MATCH")]`
+Always validate request properties using **FluentValidation** under the `Hackathon.Service/Validations/` directory. Create a validator class inheriting from `AbstractValidator<Request.YourRequestDTO>`.
 
-Do not use `IValidatableObject` or FluentValidation unless explicitly requested.
+Refer to `Hackathon.Service/Validations/Auth/ChangePasswordRequestValidator.cs` as the gold standard validator pattern:
+
+```csharp
+using FluentValidation;
+using Hackathon.Service.Auths;
+
+namespace Hackathon.Service.Validations.Auth;
+
+public class ChangePasswordRequestValidator : AbstractValidator<Request.ChangePasswordRequest>
+{
+    public ChangePasswordRequestValidator()
+    {
+        RuleFor(x => x.CurrentPassword)
+            .NotEmpty().WithMessage("CURRENT_PASSWORD_REQUIRED");
+
+        RuleFor(x => x.NewPassword)
+            .NotEmpty().WithMessage("NEW_PASSWORD_REQUIRED")
+            .Length(6, 128).WithMessage("NEW_PASSWORD_LENGTH_INVALID")
+            .Matches(@"[A-Z]").WithMessage("NEW_PASSWORD_UPPERCASE_REQUIRED")
+            .Matches(@"[0-9]").WithMessage("NEW_PASSWORD_DIGIT_REQUIRED")
+            .Matches(@"[^a-zA-Z0-9]").WithMessage("NEW_PASSWORD_SPECIAL_CHARACTER_REQUIRED");
+
+        RuleFor(x => x.ConfirmPassword)
+            .NotEmpty().WithMessage("CONFIRM_PASSWORD_REQUIRED")
+            .Equal(x => x.NewPassword).WithMessage("CONFIRM_PASSWORD_NOT_MATCH");
+    }
+}
+```
+
+### Common Validation Rules
+- Required field: `.NotEmpty().WithMessage("FIELD_REQUIRED")`
+- Email format: `.EmailAddress().WithMessage("INVALID_EMAIL_FORMAT")`
+- Greater than zero: `.GreaterThan(0).WithMessage("VALUE_MUST_BE_GREATER_THAN_ZERO")`
+- Field comparison (e.g. password confirmation): `.Equal(x => x.Password).WithMessage("PASSWORD_CONFIRMATION_NOT_MATCH")`
+- Uri validation: `.Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _)).WithMessage("INVALID_URL_FORMAT").When(x => !string.IsNullOrWhiteSpace(x.Url))`
+
+Do not use DataAnnotations validation attributes on the Request DTO classes directly. Keep DTO files clean.
 
 ## Transaction Policy
 
@@ -172,14 +212,15 @@ Only use database transactions (`BeginTransactionAsync`) when atomicity is stric
 - Do not skip `IService.cs` when adding service methods.
 - Do not query the database or put business logic directly in controllers.
 - Do not return EF entities directly; always map to a response DTO.
-- Do not use `IValidatableObject` or FluentValidation for simple cross-field validations like password comparison when `[Compare]` works.
+- Do not use DataAnnotations validation attributes on Request DTO classes directly.
+- Do not perform simple input validation inline in controllers or services; delegate them to FluentValidation.
 
 ## Common Mistakes
 
 | Mistake | Correct action |
 | --- | --- |
 | Using verbs in basic CRUD endpoints (e.g. `[HttpDelete("delete-event/{id}")]`) | Use RESTful noun routes and proper HTTP methods (e.g. `[HttpDelete("{id:guid}")]`) |
-| Creating a custom `IValidatableObject` for password confirmation | Use the `[Compare(nameof(Password))]` DataAnnotation |
+| Using DataAnnotations validation attributes on Request DTO classes | Keep Request DTOs clean and write a validator class under `Hackathon.Service/Validations/<Module>/` using FluentValidation (refer to `ChangePasswordRequestValidator.cs` as a template) |
 | Querying the database context inside a controller action | Always put queries in the Service implementation |
 | Returning EF entities inside the pagination list | Project entities to response DTOs using `.Select()` before `.ToListAsync()` |
 | Returning `Ok(ApiResponseFactory.BasePagination(...))` in the controller when the service returns `BasePaginationResponse` | Return `Ok(result)` directly |

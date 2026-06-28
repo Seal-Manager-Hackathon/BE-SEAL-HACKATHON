@@ -7,6 +7,8 @@ using RoundsService = Hackathon.Service.Rounds;
 using TracksService = Hackathon.Service.Tracks;
 using AssignEventsService = Hackathon.Service.AssignEvents;
 using AssignTracksService = Hackathon.Service.AssignTracks;
+using StaffService = Hackathon.Service.Staff;
+using RegisterTeamsService = Hackathon.Service.RegisterTeams;
 
 namespace Hackathon.Api.Controllers;
 
@@ -19,13 +21,17 @@ public class Staff : ControllerBase
     private readonly AssignEventsService.IService _assignEventsService;
     private readonly AssignTracksService.IService _assignTracksService;
     private readonly RoundsService.IService _roundsService;
+    private readonly StaffService.IService _staffService;
+    private readonly RegisterTeamsService.IService _registerTeamsService;
 
-    public Staff(TracksService.IService tracksService, AssignEventsService.IService assignEventsService, AssignTracksService.IService assignTracksService, RoundsService.IService roundsService)
+    public Staff(TracksService.IService tracksService, AssignEventsService.IService assignEventsService, AssignTracksService.IService assignTracksService, RoundsService.IService roundsService, StaffService.IService staffService, RegisterTeamsService.IService registerTeamsService)
     {
         _tracksService = tracksService;
         _roundsService = roundsService;
         _assignEventsService = assignEventsService;
         _assignTracksService = assignTracksService;
+        _staffService = staffService;
+        _registerTeamsService = registerTeamsService;
     }
 
     [Authorize(Policy = JwtExtensions.StaffPolicy)]
@@ -66,25 +72,32 @@ public class Staff : ControllerBase
     }
 
     [Authorize(Policy = JwtExtensions.StaffPolicy)]
-    [HttpPatch("teams/{teamId:guid}/track")]
-    public async Task<IActionResult> AssignTrackToTeam(Guid teamId, TracksService.Request.AssignTrackToTeamRequest request)
+    [HttpPatch("events/{eventId:guid}/teams/{teamId:guid}/track")]
+    public async Task<IActionResult> AssignTrackToTeam(Guid eventId, Guid teamId, TracksService.Request.AssignTrackToTeamRequest request)
     {
-        var result = await _tracksService.AssignTrackToTeam(teamId, request);
+        var result = await _tracksService.AssignTrackToTeam(eventId, teamId, request);
         return Ok(ApiResponseFactory.Base(result, 200,"TRACK_ASSIGNED_TO_TEAM_SUCCESSFULLY",traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.StaffPolicy)]
-    [HttpPatch("teams/{teamId:guid}/topic")]
-    public async Task<IActionResult> AssignTopicToTeam(Guid teamId, TracksService.Request.AssignTopicToTeamRequest request)
+    [HttpPatch("events/{eventId:guid}/teams/{teamId:guid}/topic")]
+    public async Task<IActionResult> AssignTopicToTeam(Guid eventId, Guid teamId, TracksService.Request.AssignTopicToTeamRequest request)
     {
-        var result = await _tracksService.AssignTopicToTeam(teamId, request);
+        var result = await _tracksService.AssignTopicToTeam(eventId, teamId, request);
         return Ok(ApiResponseFactory.Base(result, 200,"TOPIC_ASSIGNED_TO_TEAM_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
-    [HttpGet("events/{eventId:guid}/lecturers")]
-    public async Task<IActionResult> GetAssignedLecturersByEvent(Guid eventId, [FromQuery] Guid? eventRoleId, [FromQuery] string? keyword, [FromQuery] bool? isDisable, [FromQuery] PaginationRequest paginationRequest)
+    [HttpGet("events/{eventId:guid}/assignments")]
+    public async Task<IActionResult> GetEventAssignments(Guid eventId, [FromQuery] EventRoleEnum? eventRole, [FromQuery] string? keyword, [FromQuery] bool? isDisable, [FromQuery] PaginationRequest paginationRequest)
     {
-        var result = await _assignEventsService.GetAssignedLecturersByEvent(eventId, eventRoleId, keyword, isDisable, paginationRequest);
+        var result = await _assignEventsService.GetEventAssignments(eventId, eventRole, keyword, isDisable, paginationRequest);
+        return Ok(result);
+    }
+
+    [HttpGet("events/{eventId:guid}/lecturers/available")]
+    public async Task<IActionResult> GetAvailableLecturers(Guid eventId, [FromQuery] AssignEventsService.Request.GetAvailableLecturersRequest request)
+    {
+        var result = await _assignEventsService.GetAvailableLecturers(eventId, request);
         return Ok(result);
     }
 
@@ -102,10 +115,48 @@ public class Staff : ControllerBase
         return Ok(ApiResponseFactory.Base(result, 200, "JUDGE_ASSIGNED_TO_TRACK_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
+    [HttpGet("events/{eventId:guid}/tracks/{trackId:guid}/lecturers")]
+    public async Task<IActionResult> GetLecturersAssignedToTrack(Guid eventId, Guid trackId, [FromQuery] bool? isDisable)
+    {
+        var result = await _assignTracksService.GetLecturersAssignedToTrack(eventId, trackId, isDisable);
+        return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
+
     [HttpDelete("assign-events/{id:guid}")]
     public async Task<IActionResult> RemoveLecturerAssignment(Guid id)
     {
         var result = await _assignEventsService.RemoveLecturerAssignment(id);
         return Ok(ApiResponseFactory.Base(new { id = result }, 200, "LECTURER_ASSIGNMENT_REMOVED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [Authorize(Policy = JwtExtensions.StaffPolicy)]
+    [HttpGet("events")]
+    public async Task<IActionResult> GetStaffEvents([FromQuery] PaginationRequest request)
+    {
+        var result = await _staffService.GetStaffEvents(request);
+        return Ok(result);
+    }
+
+    [Authorize(Policy = JwtExtensions.StaffPolicy)]
+    [HttpGet("events/search")]
+    public async Task<IActionResult> SearchStaffEvents([FromQuery] StaffService.Request.SearchStaffEventsRequest request)
+    {
+        var result = await _staffService.SearchStaffEvents(request);
+        return Ok(result);
+    }
+
+    [Authorize(Policy = JwtExtensions.StaffPolicy)]
+    [HttpGet("events/current")]
+    public async Task<IActionResult> GetCurrentStaffEvents()
+    {
+        var result = await _staffService.GetCurrentStaffEvents();
+        return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("events/{eventId:guid}/register-teams")]
+    public async Task<IActionResult> GetRegisterTeamsByEvent(Guid eventId, [FromQuery] string? keyword, [FromQuery] RegisterTeamStatusEnum? status, [FromQuery] PaginationRequest paginationRequest)
+    {
+        var result = await _registerTeamsService.GetRegisterTeamsByEvent(eventId, keyword, status, null, paginationRequest);
+        return Ok(result);
     }
 }

@@ -14,31 +14,32 @@ Lấy thông tin chi tiết đầy đủ của một event theo `eventId` (phụ
 Không yêu cầu Access Token (Public API).
 
 ## Response body (Success - 200 OK)
+*Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "isSuccess": true,
-  "isFailed": false,
-  "error": null,
-  "status": 200,
-  "traceId": "string|null",
-  "timestampUtc": "datetime",
-  "data": {
-    "id": "guid",
-    "name": "string",
-    "description": "string|null",
-    "startTime": "datetime|null",
-    "endTime": "datetime|null",
-    "registerLimitTime": "datetime|null",
-    "limitTeam": 0,
-    "minMember": 0,
-    "maxMember": 0,
-    "status": 0, /* Draft */
-    "numberRound": 0,
-    "season": "string|null",
+  "IsSuccess": true,
+  "IsFailed": false,
+  "Status": 200,
+  "Error": null,
+  "TraceId": "0HN1A2B3C4D5E",
+  "TimestampUtc": "2026-06-22T08:00:00Z",
+  "Message": "SUCCESS",
+  "Data": {
+    "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+    "name": "SEAL Hackathon 2026",
+    "description": "Cuộc thi lập trình SEAL Hackathon mùa hè 2026.",
+    "startTime": "2026-07-01T08:00:00Z",
+    "endTime": "2026-07-10T17:00:00Z",
+    "registerLimitTime": "2026-06-30T23:59:59Z",
+    "limitTeam": 50,
+    "minMember": 3,
+    "maxMember": 5,
+    "status": 0, /* 0: Draft, 1: Published, 2: Closed, 3: Cancelled */
+    "numberRound": 3,
+    "season": "Mùa hè 2026",
     "isDisable": false,
-    "createdAt": "datetime"
-  },
-  "message": "SUCCESS"
+    "createdAt": "2026-06-22T08:00:00Z"
+  }
 }
 ```
 
@@ -48,8 +49,16 @@ Không yêu cầu Access Token (Public API).
 - Trả về đầy đủ tất cả các trường thông tin của event (bao gồm các trường cấu hình như mô tả, thời gian đăng ký tối hạn, giới hạn số lượng team, số thành viên tối đa/tối thiểu của team, số vòng đấu, v.v.).
 - Nếu không tìm thấy event có `eventId` tương ứng, trả về lỗi `404 Not Found` (`EVENT_NOT_FOUND`).
 
+### Bảng trạng thái EventStatusEnum
+| Giá trị (Value) | Trạng thái (Status) | Mô tả (Description) |
+| :--- | :--- | :--- |
+| `0` | Draft | Sự kiện đang nháp, chưa công bố |
+| `1` | Published | Sự kiện đã công bố và hoạt động |
+| `2` | Closed | Sự kiện đã kết thúc và đóng lại |
+| `3` | Cancelled | Sự kiện đã bị hủy bỏ |
+
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse`:*
+*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
 
 | HTTP | messageCode | message/detail |
 |---:|---|---|

@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Hackathon.Repository;
 using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
@@ -41,7 +44,8 @@ public class Service : IService
 
     private bool IsCurrentUserAdmin()
     {
-        return _httpContext.HttpContext?.User.IsInRole(RoleEnum.Admin.ToString()) == true;
+        var role = _httpContext.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
+        return Enum.TryParse<RoleEnum>(role, true, out var userRole) && userRole == RoleEnum.Admin;
     }
 
     private async Task EnsureStaffAssignedToEvent(Guid eventId)
@@ -117,5 +121,64 @@ public class Service : IService
             AssignEventId = newAssignTrack.AssignEventId,
             TrackId = newAssignTrack.TrackId
         };
+    }
+
+    public async Task<List<AssignTrackLecturerResponse>> GetLecturersAssignedToTrack(Guid eventId, Guid trackId, bool? isDisable)
+    {
+        var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
+        if (!eventExists)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        var trackExists = await _dbContext.Tracks.AsNoTracking().AnyAsync(x => x.Id == trackId && x.EventId == eventId && !x.IsDisable);
+        if (!trackExists)
+        {
+            throw new NotFoundException("TRACK_NOT_FOUND");
+        }
+
+        if (!IsCurrentUserAdmin())
+        {
+            await EnsureStaffAssignedToEvent(eventId);
+        }
+
+        var query = _dbContext.AssignTracks
+            .AsNoTracking()
+            .Include(x => x.AssignEvent)
+                .ThenInclude(ae => ae.User)
+            .Include(x => x.AssignEvent)
+                .ThenInclude(ae => ae.EventRole)
+            .Where(x => x.TrackId == trackId
+                        && x.AssignEvent.EventId == eventId
+                        && !x.AssignEvent.IsDisable
+                        && (x.AssignEvent.EventRole != null && (x.AssignEvent.EventRole.Name == EventRoleEnum.Mentor || x.AssignEvent.EventRole.Name == EventRoleEnum.Judge)));
+
+        if (isDisable.HasValue)
+        {
+            query = query.Where(x => x.IsDisable == isDisable.Value);
+        }
+
+        var items = await query
+            .OrderByDescending(x => x.CreatedAt)
+            .Select(x => new AssignTrackLecturerResponse
+            {
+                Id = x.Id,
+                AssignEventId = x.AssignEventId,
+                UserId = x.AssignEvent.UserId,
+                FirstName = x.AssignEvent.User.FirstName,
+                LastName = x.AssignEvent.User.LastName,
+                Email = x.AssignEvent.User.Email,
+                EventRole = x.AssignEvent.EventRole != null ? (EventRoleEnum?)x.AssignEvent.EventRole.Name : null,
+                Role = x.AssignEvent.User.Role,
+                CreatedAt = x.CreatedAt
+            })
+            .ToListAsync();
+
+        if (items.Count == 0)
+        {
+            throw new NotFoundException("NO_ONE_ASSIGNED_TO_TRACK");
+        }
+
+        return items;
     }
 }

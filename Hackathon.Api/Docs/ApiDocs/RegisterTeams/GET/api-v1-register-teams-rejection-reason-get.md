@@ -31,6 +31,9 @@ Authorization: Bearer {accessToken}
   "timestampUtc": "datetime",
   "data": {
     "registerId": "guid",
+    "teamId": "guid",
+    "eventId": "guid",
+    "status": 2, /* Enum: 0: Pending, 1: Approved, 2: Rejected */
     "rejectionReason": "string"
   },
   "message": "SUCCESS"

@@ -63,7 +63,7 @@ public static class ApiResponseFactory
     }
 
     public static BasePaginationResponse BasePagination(
-        IList? items, int pageIndex, int pageSize, int totalCount)
+        IList? items, int pageIndex, int pageSize, int totalCount, string? traceId = null)
     {
         var newItems = new List<object>();
         if (items != null)
@@ -78,9 +78,10 @@ public static class ApiResponseFactory
             IsSuccess = true,
             IsFailed = false,
             Error = null,
-            Data = new PaginationValue 
+            TraceId = traceId,
+            Data = new PaginationValue
             {
-                Items = newItems,       
+                Items = newItems,
                 PageIndex = pageIndex,
                 PageSize = pageSize,
                 TotalCount = totalCount
