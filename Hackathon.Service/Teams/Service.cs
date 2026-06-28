@@ -900,4 +900,30 @@ public class Service : IService
 
         return "TEAM_UNLOCKED_SUCCESSFULLY";
     }
+
+    public async Task<string> LeaveTeam(Guid teamId)
+    {
+        var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
+        if (team == null)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        var userId = GetCurrentUserId();
+
+        var member = await _dbContext.TeamDetails
+            .FirstOrDefaultAsync(x => x.TeamId == teamId && x.UserId == userId && !x.IsDisable);
+
+        if (member == null)
+        {
+            throw new NotFoundException("MEMBER_NOT_FOUND");
+        }
+
+        member.IsDisable = true;
+        member.UpdatedAt = DateTimeOffset.UtcNow;
+        _dbContext.TeamDetails.Update(member);
+        await _dbContext.SaveChangesAsync();
+
+        return "LEFT_TEAM_SUCCESSFULLY";
+    }
 }
