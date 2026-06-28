@@ -1,13 +1,20 @@
-# Invite Member
+# Invite member
 
 ## Tác dụng
 Gửi lời mời tham gia team cho một học sinh khác bằng email của học sinh đó.
 
 ## URL
-`POST /api/v1/teams/{teamId:guid}/invitations`
+`POST /api/v1/teams/{teamId}/invitations`
 
 ## Authorization
 Yêu cầu access token hợp lệ với role `Student`.
+
+## Request Headers
+- `Authorization: Bearer <AccessToken>`
+
+## Request parameters
+*   **Path Parameters:**
+    *   `teamId` (Guid, Bắt buộc): ID của team gửi lời mời.
 
 ## Request body
 ```json
@@ -45,36 +52,36 @@ Yêu cầu access token hợp lệ với role `Student`.
   - Một bản ghi thông báo mới được thêm vào bảng `Notifications` gửi đến học sinh được mời.
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi Validation hoặc nghiệp vụ, API trả về cấu trúc lỗi chuẩn `ErrorResponse`:*
+*Khi gặp lỗi Validation hoặc nghiệp vụ, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
 
 ```json
 {
-  "title": "string",
-  "status": "integer",
-  "detail": "string",
-  "messageCode": "string",
-  "errors": "object|null",
-  "traceId": "string|null",
-  "timestampUtc": "datetime"
+  "title": "Bad Request",
+  "status": 400,
+  "message": "EMAIL_REQUIRED",
+  "messageCode": "BAD_REQUEST",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | BAD_REQUEST | EMAIL_REQUIRED (khi `email` trống hoặc null) |
-| 400 | BAD_REQUEST | CANNOT_INVITE_YOURSELF (khi tự mời chính mình) |
+| 400 | BAD_REQUEST | EMAIL_REQUIRED |
+| 400 | BAD_REQUEST | CANNOT_INVITE_YOURSELF |
 | 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
-| 401 | INVALID_ACCESS_TOKEN | INVALID_ACCESS_TOKEN |
-| 403 | FORBIDDEN | CURRENT_USER_MUST_BE_STUDENT (người gọi không phải học sinh) |
-| 403 | FORBIDDEN | TEAM_MEMBER_LOCKED (team đã khóa chỉnh sửa) |
+| 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
+| 403 | FORBIDDEN | CURRENT_USER_MUST_BE_STUDENT |
+| 403 | FORBIDDEN | TEAM_MEMBER_LOCKED |
 | 403 | FORBIDDEN | TEAM_LOCKED_DUE_TO_REGISTRATION_STATUS |
-| 403 | FORBIDDEN | ONLY_TEAM_LEADER_CAN_INVITE_MEMBER (người gọi không phải leader) |
-| 403 | FORBIDDEN | INVITED_USER_MUST_BE_STUDENT (người được mời không phải học sinh) |
-| 403 | FORBIDDEN | INVITED_USER_NOT_VERIFIED (người được mời chưa xác thực email) |
-| 404 | NOT_FOUND | USER_NOT_FOUND (tài khoản không tồn tại hoặc bị khóa) |
-| 404 | NOT_FOUND | TEAM_NOT_FOUND (team không tồn tại) |
+| 403 | FORBIDDEN | ONLY_TEAM_LEADER_CAN_INVITE_MEMBER |
+| 403 | FORBIDDEN | INVITED_USER_MUST_BE_STUDENT |
+| 403 | FORBIDDEN | INVITED_USER_NOT_VERIFIED |
+| 404 | NOT_FOUND | USER_NOT_FOUND |
+| 404 | NOT_FOUND | TEAM_NOT_FOUND |
 | 404 | NOT_FOUND | INVITED_USER_NOT_FOUND |
-| 409 | CONFLICT | TEAM_MEMBER_LIMIT_EXCEEDED (team đã đủ 50 thành viên) |
-| 409 | CONFLICT | USER_ALREADY_IN_TEAM (người được mời đã trong team) |
-| 409 | CONFLICT | INVITATION_ALREADY_PENDING (đã có lời mời đang chờ xử lý) |
+| 409 | CONFLICT | TEAM_MEMBER_LIMIT_EXCEEDED |
+| 409 | CONFLICT | USER_ALREADY_IN_TEAM |
+| 409 | CONFLICT | INVITATION_ALREADY_PENDING |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
