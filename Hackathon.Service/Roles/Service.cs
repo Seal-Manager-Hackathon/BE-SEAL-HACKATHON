@@ -27,14 +27,7 @@ public class Service : IService
             {
                 Id = value,
                 Name = name,
-                DisplayName = name switch
-                {
-                    nameof(RoleEnum.Admin) => "Admin",
-                    nameof(RoleEnum.Staff) => "Staff",
-                    nameof(RoleEnum.Student) => "Student",
-                    nameof(RoleEnum.Lecturer) => "Lecturer",
-                    _ => name
-                }
+                DisplayName = name
             });
         }
         return roles;
@@ -44,14 +37,13 @@ public class Service : IService
     {
         var eventRoles = await _dbContext.EventRoles
             .AsNoTracking()
-            .Select(x => new EventRoleResponse
-            {
-                Id = (int)x.Name,
-                Name = x.Name.ToString(),
-                DisplayName = x.Name.ToString()
-            })
             .ToListAsync();
 
-        return eventRoles;
+        return eventRoles.Select(x => new EventRoleResponse
+        {
+            Id = (int)x.Name,
+            Name = x.Name.ToString(),
+            DisplayName = x.Name.ToString()
+        }).ToList();
     }
 }
