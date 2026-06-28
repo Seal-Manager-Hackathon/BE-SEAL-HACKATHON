@@ -1,10 +1,13 @@
-# Get My Teams
+# Get my teams
 
 ## Tác dụng
 Lấy danh sách phân trang các team mà người dùng hiện tại đang tham gia (trong bảng `TeamDetails`).
 
 ## URL
 `GET /api/v1/teams/me`
+
+## Request Headers
+- `Authorization: Bearer <AccessToken>`
 
 ## Request Parameters
 *   **Query Parameters:**
@@ -31,7 +34,7 @@ Yêu cầu access token hợp lệ với role `Student`.
         "teamName": "Chiến binh công nghệ",
         "canEdit": true,
         "isLeader": true,
-        "memberStatus": 1, /* 0: Pending, 1: Active, 2: Rejected */
+        "memberStatus": 0, /* 0: Active, 1: Inactive */
         "joinedAt": "2026-06-22T08:00:00Z"
       }
     ],
@@ -49,12 +52,11 @@ Yêu cầu access token hợp lệ với role `Student`.
 - Chỉ hiển thị các team mà người dùng hiện tại đang tham gia và đang còn hoạt động (`Status = Active` trong bảng `TeamDetails`, team và thành viên không bị disable).
 - Sắp xếp danh sách theo thời gian tạo team: Team nào được tạo mới hơn sẽ lên trước (`Team.CreatedAt` giảm dần).
 
-### Bảng trạng thái thành viên TeamDetailStatusEnum
+### Bảng trạng thái thành viên TeamDetailStatusEnum (Integer)
 | Giá trị (Value) | Trạng thái (Status) | Mô tả (Description) |
 | :--- | :--- | :--- |
-| `0` | Pending | Đang đợi trưởng nhóm duyệt vào |
-| `1` | Active | Thành viên chính thức hoạt động |
-| `2` | Rejected | Yêu cầu tham gia bị từ chối |
+| `0` | Active | Thành viên chính thức hoạt động |
+| `1` | Inactive | Thành viên đã rời nhóm hoặc ngưng hoạt động |
 
 ## Lỗi có thể xảy ra
 *Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*

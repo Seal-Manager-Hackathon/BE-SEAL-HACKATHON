@@ -1,13 +1,20 @@
-# Invite Member
+# Invite member
 
 ## Tác dụng
 Gửi lời mời tham gia team cho một học sinh khác bằng email của học sinh đó.
 
 ## URL
-`POST /api/v1/teams/{teamId:guid}/invitations`
+`POST /api/v1/teams/{teamId}/invitations`
 
 ## Authorization
 Yêu cầu access token hợp lệ với role `Student`.
+
+## Request Headers
+- `Authorization: Bearer <AccessToken>`
+
+## Request parameters
+*   **Path Parameters:**
+    *   `teamId` (Guid, Bắt buộc): ID của team gửi lời mời.
 
 ## Request body
 ```json
@@ -45,17 +52,17 @@ Yêu cầu access token hợp lệ với role `Student`.
   - Một bản ghi thông báo mới được thêm vào bảng `Notifications` gửi đến học sinh được mời.
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi Validation hoặc nghiệp vụ, API trả về cấu trúc lỗi chuẩn `ErrorResponse`:*
+*Khi gặp lỗi Validation hoặc nghiệp vụ, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
 
 ```json
 {
-  "title": "string",
-  "status": "integer",
-  "detail": "string",
-  "messageCode": "string",
-  "errors": "object|null",
-  "traceId": "string|null",
-  "timestampUtc": "datetime"
+  "title": "Bad Request",
+  "status": 400,
+  "message": "EMAIL_REQUIRED",
+  "messageCode": "BAD_REQUEST",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
@@ -64,7 +71,7 @@ Yêu cầu access token hợp lệ với role `Student`.
 | 400 | BAD_REQUEST | EMAIL_REQUIRED |
 | 400 | BAD_REQUEST | CANNOT_INVITE_YOURSELF |
 | 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
-| 401 | INVALID_ACCESS_TOKEN | INVALID_ACCESS_TOKEN |
+| 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | CURRENT_USER_MUST_BE_STUDENT |
 | 403 | FORBIDDEN | TEAM_MEMBER_LOCKED |
 | 403 | FORBIDDEN | TEAM_LOCKED_DUE_TO_REGISTRATION_STATUS |

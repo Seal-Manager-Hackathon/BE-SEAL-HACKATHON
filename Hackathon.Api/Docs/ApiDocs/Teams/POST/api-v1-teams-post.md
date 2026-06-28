@@ -1,4 +1,4 @@
-# Create Team
+# Create team
 
 ## Tác dụng
 Tạo một team mới cho học sinh (Student) đang đăng nhập và tự động chỉ định học sinh đó làm Leader của team.
@@ -36,7 +36,7 @@ Yêu cầu access token hợp lệ với role `Student`.
       {
         "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         "isLeader": true,
-        "status": 1 /* 0: Pending, 1: Active, 2: Rejected */
+        "status": 0 /* 0: Active, 1: Inactive */
       }
     ]
   }
@@ -56,12 +56,11 @@ Yêu cầu access token hợp lệ với role `Student`.
   - Thành viên tạo được lưu vào bảng `TeamDetails` với trạng thái `Active` và vai trò Leader (`IsLeader = true`).
   - Quá trình ghi nhận hai bảng này được thực hiện trong cùng một Database Transaction.
 
-### Bảng trạng thái thành viên TeamDetailStatusEnum
+### Bảng trạng thái thành viên TeamDetailStatusEnum (Integer)
 | Giá trị (Value) | Trạng thái (Status) | Mô tả (Description) |
 | :--- | :--- | :--- |
-| `0` | Pending | Đang đợi trưởng nhóm duyệt vào |
-| `1` | Active | Thành viên chính thức hoạt động |
-| `2` | Rejected | Yêu cầu tham gia bị từ chối |
+| `0` | Active | Thành viên chính thức hoạt động |
+| `1` | Inactive | Thành viên đã rời nhóm hoặc ngưng hoạt động |
 
 ## Lỗi có thể xảy ra
 *Khi gặp lỗi Validation hoặc nghiệp vụ, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*

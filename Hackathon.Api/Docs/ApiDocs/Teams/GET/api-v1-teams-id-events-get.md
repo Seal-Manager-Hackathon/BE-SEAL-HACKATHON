@@ -1,4 +1,4 @@
-# Lấy danh sách đăng ký event của một Team
+# Get team registered events
 
 ## Tác dụng
 API dùng để lấy danh sách toàn bộ các event mà một Team cụ thể (dựa vào `teamId`) đã nộp đơn đăng ký tham gia (bao gồm các trạng thái: Pending, Approved, Rejected).
@@ -48,7 +48,7 @@ Response dùng `ApiResponseFactory.BasePagination(...)`.
         "teamName": "Tên team",
         "eventId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
         "eventName": "Hackathon ABC",
-        "status": 1 /* Approved */,
+        "status": 1, /* 0: Pending, 1: Approved, 2: Rejected */
         "description": "Mô tả nếu có",
         "createdAt": "2026-06-19T10:00:00.0000000Z"
       }
@@ -70,7 +70,9 @@ Response dùng `ApiResponseFactory.BasePagination(...)`.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
-|---|---|---|
+|---:|---|---|
+| 400 | BAD_REQUEST | INVALID_STATUS |
+| 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 404 | NOT_FOUND | TEAM_NOT_FOUND |
-| 400 | BAD_REQUEST | INVALID_STATUS |
+| 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |

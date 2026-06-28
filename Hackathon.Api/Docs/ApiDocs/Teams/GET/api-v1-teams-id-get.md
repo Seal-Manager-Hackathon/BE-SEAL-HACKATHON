@@ -1,4 +1,4 @@
-# Student xem chi tiết team
+# Get team detail
 
 ## Tác dụng
 Lấy thông tin chi tiết của một team, bao gồm các thành viên với chi tiết như Tên, Ngày sinh, MSSV, Trường học.
@@ -52,7 +52,7 @@ Không có.
         "studentId": "STU123456",
         "college": "FPT University",
         "isLeader": true,
-        "status": 1 /* 0: Pending, 1: Active, 2: Rejected */
+        "status": 0 /* 0: Active, 1: Inactive */
       }
     ]
   }
@@ -62,12 +62,11 @@ Không có.
 ## Business rules
 - Chỉ hiển thị nếu người dùng là thành viên team hoặc Staff/Admin.
 
-### Bảng trạng thái thành viên TeamDetailStatusEnum
+### Bảng trạng thái thành viên TeamDetailStatusEnum (Integer)
 | Giá trị (Value) | Trạng thái (Status) | Mô tả (Description) |
 | :--- | :--- | :--- |
-| `0` | Pending | Đang đợi trưởng nhóm duyệt vào |
-| `1` | Active | Thành viên chính thức hoạt động |
-| `2` | Rejected | Yêu cầu tham gia bị từ chối |
+| `0` | Active | Thành viên chính thức hoạt động |
+| `1` | Inactive | Thành viên đã rời nhóm hoặc ngưng hoạt động |
 
 ## Lỗi có thể xảy ra
 *Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
