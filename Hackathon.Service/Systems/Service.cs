@@ -96,27 +96,27 @@ public class Service : IService
         };
     }
 
-    public async Task<Response.UploadFileResponse> UploadFile(IFormFile? file, string? folder)
+    public async Task<Response.UploadFileResponse> UploadFile(Request.FileUploadRequest request)
     {
-        if (file == null || file.Length == 0)
+        if (request.File == null || request.File.Length == 0)
         {
             throw new BadRequestException("FILE_REQUIRED", "FILE_REQUIRED");
         }
 
         const long maxFileSize = 10 * 1024 * 1024; // 10MB
-        if (file.Length > maxFileSize)
+        if (request.File.Length > maxFileSize)
         {
             throw new BadRequestException("FILE_SIZE_LIMIT_EXCEEDED", "FILE_SIZE_LIMIT_EXCEEDED");
         }
 
         var allowedExtensions = new List<string> { ".jpg", ".jpeg", ".png", ".pdf", ".docx", ".zip" };
-        var extension = Path.GetExtension(file.FileName).ToLower();
+        var extension = Path.GetExtension(request.File.FileName).ToLower();
         if (!allowedExtensions.Contains(extension))
         {
             throw new BadRequestException("INVALID_FILE_TYPE", "INVALID_FILE_TYPE");
         }
 
-        var originalFileNameWithoutExt = Path.GetFileNameWithoutExtension(file.FileName);
+        var originalFileNameWithoutExt = Path.GetFileNameWithoutExtension(request.File.FileName);
         var cleanFileName = originalFileNameWithoutExt.Replace(" ", "_");
         var uniqueFileName = $"{cleanFileName}_{Guid.NewGuid()}{extension}";
 
@@ -129,7 +129,7 @@ public class Service : IService
             );
             var cloudinary = new Cloudinary(account);
 
-            using var stream = file.OpenReadStream();
+            using var stream = request.File.OpenReadStream();
 
             RawUploadParams uploadParams;
             if (extension == ".jpg" || extension == ".jpeg" || extension == ".png")
@@ -137,7 +137,7 @@ public class Service : IService
                 uploadParams = new ImageUploadParams
                 {
                     File = new FileDescription(uniqueFileName, stream),
-                    Folder = folder ?? "uploads"
+                    Folder = request.Folder ?? "uploads"
                 };
             }
             else
@@ -145,7 +145,7 @@ public class Service : IService
                 uploadParams = new RawUploadParams
                 {
                     File = new FileDescription(uniqueFileName, stream),
-                    Folder = folder ?? "uploads"
+                    Folder = request.Folder ?? "uploads"
                 };
             }
 
@@ -161,7 +161,7 @@ public class Service : IService
             {
                 FileUrl = uploadResult.SecureUrl.ToString(),
                 FileName = uniqueFileName,
-                FileSize = file.Length
+                FileSize = request.File.Length
             };
         }
         catch (AppException)
