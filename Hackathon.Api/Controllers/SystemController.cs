@@ -46,9 +46,9 @@ public class SystemController : ControllerBase
 
     [Authorize]
     [HttpPost("files/upload")]
-    public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromForm] string? folder)
+    public async Task<IActionResult> UploadFile([FromForm] SystemsService.Request.FileUploadRequest request)
     {
-        var result = await _systemService.UploadFile(file, folder);
+        var result = await _systemService.UploadFile(request);
         return Ok(ApiResponseFactory.Base(result, 200, "FILE_UPLOADED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 }
