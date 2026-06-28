@@ -900,4 +900,48 @@ public class Service : IService
 
         return "TEAM_UNLOCKED_SUCCESSFULLY";
     }
+
+    public async Task<string> LeaveTeam(Guid teamId)
+    {
+        var userId = GetCurrentUserId();
+
+        await ValidateAndGetStudentAsync(userId);
+
+        await ValidateAndGetEditableTeamAsync(teamId);
+
+        var member = await _dbContext.TeamDetails.FirstOrDefaultAsync(x =>
+            x.TeamId == teamId &&
+            x.UserId == userId &&
+            !x.IsDisable &&
+            x.Status == TeamDetailStatusEnum.Active);
+
+        if (member == null)
+        {
+            throw new NotFoundException("NOT_A_TEAM_MEMBER");
+        }
+
+        if (member.IsLeader)
+        {
+            throw new ForbiddenException("LEADER_CANNOT_LEAVE_TEAM");
+        }
+
+        member.Status = TeamDetailStatusEnum.Inactive;
+        member.IsDisable = true;
+        member.UpdatedAt = DateTimeOffset.UtcNow;
+
+        var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            _dbContext.TeamDetails.Update(member);
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
+        return "TEAM_LEFT_SUCCESSFULLY";
+    }
 }
