@@ -590,5 +590,149 @@ public class Service : IService
         return new SubmissionAccess(submission.RoundId, submission.TrackId.Value, assignTrackId.Value);
     }
 
+    public async Task<(List<Response.JudgeTrackTeamResponse> Data, string Message)> GetJudgeTeamsByEvent(Guid eventId, Guid? roundId)
+    {
+        var userId = GetCurrentUserId();
+
+        // Get all tracks assigned to this judge in this event
+        var assignedTracks = await GetJudgeAssignmentsQuery(userId)
+            .Where(x => x.Track.EventId == eventId)
+            .Select(x => new
+            {
+                x.Id,
+                x.TrackId,
+                TrackTitle = x.Track.Title
+            })
+            .ToListAsync();
+
+        if (assignedTracks.Count == 0)
+        {
+            return (new List<Response.JudgeTrackTeamResponse>(), "NO_TEAMS_FOUND");
+        }
+
+        var assignTrackIds = assignedTracks.Select(x => x.Id).ToList();
+        var trackLookup = assignedTracks.ToDictionary(x => x.Id, x => new { x.TrackId, x.TrackTitle });
+
+        // Get all approved register teams in these tracks
+        var registerTeams = await _dbContext.RegisterTeams
+            .AsNoTracking()
+            .Include(x => x.Team)
+            .Include(x => x.Topic)
+            .Where(x => x.EventId == eventId
+                        && x.Status == RegisterTeamStatusEnum.Approved
+                        && !x.IsDisable
+                        && !x.IsBanned
+                        && !x.Team.IsDisable
+                        && x.TrackId.HasValue
+                        && assignedTracks.Select(a => a.TrackId).Contains(x.TrackId.Value))
+            .ToListAsync();
+
+        if (registerTeams.Count == 0)
+        {
+            return (new List<Response.JudgeTrackTeamResponse>(), "NO_TEAMS_FOUND");
+        }
+
+        var registerTeamIds = registerTeams.Select(x => x.Id).ToList();
+
+        // Get RoundDetails for these teams — optionally filtered by round
+        var roundDetailsQuery = _dbContext.RoundDetails
+            .AsNoTracking()
+            .Where(x => registerTeamIds.Contains(x.RegisterTeamId)
+                        && !x.IsDisable
+                        && !x.Round.IsDisable
+                        && x.Round.EventId == eventId);
+
+        if (roundId.HasValue)
+        {
+            roundDetailsQuery = roundDetailsQuery.Where(x => x.RoundId == roundId.Value);
+        }
+
+        var roundDetails = await roundDetailsQuery
+            .Select(x => new { x.Id, x.RegisterTeamId, x.RoundId })
+            .ToListAsync();
+
+        if (roundDetails.Count == 0)
+        {
+            return (new List<Response.JudgeTrackTeamResponse>(), "NO_TEAMS_FOUND");
+        }
+
+        var roundDetailIds = roundDetails.Select(x => x.Id).ToList();
+        var roundDetailTeamLookup = roundDetails
+            .GroupBy(x => x.RegisterTeamId)
+            .ToDictionary(g => g.Key, g => g.Select(x => x.Id).ToList());
+
+        // Get the latest submission per RoundDetail (per team per round)
+        var submissions = await _dbContext.Submissions
+            .AsNoTracking()
+            .Where(x => roundDetailIds.Contains(x.RoundDetailId) && !x.IsDisable)
+            .ToListAsync();
+
+        // For each register team, find the latest submission across its round details
+        var latestSubmissionPerTeam = new Dictionary<Guid, (Hackathon.Repository.Entity.Submissions? Submission, bool IsGraded)>();
+
+        foreach (var rt in registerTeams)
+        {
+            if (!roundDetailTeamLookup.TryGetValue(rt.Id, out var rtRoundDetailIds))
+                continue;
+
+            var teamSubmissions = submissions.Where(s => rtRoundDetailIds.Contains(s.RoundDetailId)).ToList();
+            if (teamSubmissions.Count == 0)
+                continue;
+
+            var latest = teamSubmissions
+                .Where(s => s.SubmittedAt.HasValue)
+                .OrderByDescending(s => s.SubmittedAt)
+                .FirstOrDefault()
+                ?? teamSubmissions.First();
+
+            // Check if graded by this judge (any assign track)
+            var isGraded = await _dbContext.Scores
+                .AsNoTracking()
+                .AnyAsync(x => !x.IsDisable
+                               && !x.IsMock
+                               && x.SubmissionId == latest.Id
+                               && assignTrackIds.Contains(x.AssignTrackId));
+
+            latestSubmissionPerTeam[rt.Id] = (latest, isGraded);
+        }
+
+        // Build response grouped by track
+        var result = assignedTracks.Select(track =>
+        {
+            var trackTeams = registerTeams
+                .Where(rt => rt.TrackId == track.TrackId
+                             && latestSubmissionPerTeam.ContainsKey(rt.Id))
+                .Select(rt =>
+                {
+                    var (submission, isGraded) = latestSubmissionPerTeam[rt.Id];
+                    return new Response.JudgeTeamSubmissionInfo
+                    {
+                        RegisterTeamId = rt.Id,
+                        TeamId = rt.TeamId,
+                        TeamName = rt.Team.Name,
+                        TopicId = rt.TopicId,
+                        TopicTitle = rt.Topic?.Title,
+                        SubmissionId = submission?.Id,
+                        SubmissionStatus = submission?.Status,
+                        SubmittedAt = submission?.SubmittedAt,
+                        IsGraded = isGraded,
+                    };
+                })
+                .OrderBy(x => x.TeamName)
+                .ToList();
+
+            return new Response.JudgeTrackTeamResponse
+            {
+                TrackId = track.TrackId,
+                TrackTitle = track.TrackTitle,
+                Teams = trackTeams,
+            };
+        })
+        .Where(x => x.Teams.Count > 0)
+        .ToList();
+
+        return (result, result.Count == 0 ? "NO_TEAMS_FOUND" : "SUCCESS");
+    }
+
     private sealed record SubmissionAccess(Guid RoundId, Guid TrackId, Guid AssignTrackId);
 }

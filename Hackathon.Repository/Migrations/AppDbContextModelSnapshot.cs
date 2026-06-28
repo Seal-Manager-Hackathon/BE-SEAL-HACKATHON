@@ -54,7 +54,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AssignEvents", (string)null);
+                    b.ToTable("AssignEvents");
 
                     b.HasData(
                         new
@@ -206,7 +206,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("TrackId");
 
-                    b.ToTable("AssignTracks", (string)null);
+                    b.ToTable("AssignTracks");
 
                     b.HasData(
                         new
@@ -346,8 +346,8 @@ namespace Hackathon.Repository.Migrations
                     b.Property<bool>("IsDisable")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("LevelAward")
-                        .HasColumnType("text");
+                    b.Property<int>("LevelAward")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -366,7 +366,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("Awards", (string)null);
+                    b.ToTable("Awards");
 
                     b.HasData(
                         new
@@ -376,7 +376,7 @@ namespace Hackathon.Repository.Migrations
                             Description = "First place award",
                             EventId = new Guid("20000000-0000-0000-0000-000000000001"),
                             IsDisable = false,
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Name = "Champion",
                             NumberOfAward = 1,
                             Prize = 1000m,
@@ -389,7 +389,7 @@ namespace Hackathon.Repository.Migrations
                             Description = "Second place award",
                             EventId = new Guid("20000000-0000-0000-0000-000000000001"),
                             IsDisable = false,
-                            LevelAward = "Second",
+                            LevelAward = 2,
                             Name = "Runner Up",
                             NumberOfAward = 1,
                             Prize = 500m,
@@ -402,7 +402,7 @@ namespace Hackathon.Repository.Migrations
                             Description = "First place award",
                             EventId = new Guid("20000000-0000-0000-0000-000000000010"),
                             IsDisable = false,
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Name = "First Prize",
                             NumberOfAward = 1,
                             Prize = 1000m,
@@ -415,7 +415,7 @@ namespace Hackathon.Repository.Migrations
                             Description = "First place award",
                             EventId = new Guid("20000000-0000-0000-0000-000000000011"),
                             IsDisable = false,
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Name = "First Prize",
                             NumberOfAward = 1,
                             Prize = 1200m,
@@ -428,7 +428,7 @@ namespace Hackathon.Repository.Migrations
                             Description = "First place award",
                             EventId = new Guid("20000000-0000-0000-0000-000000000012"),
                             IsDisable = false,
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Name = "First Prize",
                             NumberOfAward = 1,
                             Prize = 1500m,
@@ -441,7 +441,7 @@ namespace Hackathon.Repository.Migrations
                             Description = "First place award",
                             EventId = new Guid("20000000-0000-0000-0000-000000000013"),
                             IsDisable = false,
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Name = "First Prize",
                             NumberOfAward = 1,
                             Prize = 1000m,
@@ -454,7 +454,7 @@ namespace Hackathon.Repository.Migrations
                             Description = "First place award",
                             EventId = new Guid("20000000-0000-0000-0000-000000000014"),
                             IsDisable = false,
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Name = "First Prize",
                             NumberOfAward = 1,
                             Prize = 1100m,
@@ -467,7 +467,7 @@ namespace Hackathon.Repository.Migrations
                             Description = "First place award",
                             EventId = new Guid("20000000-0000-0000-0000-000000000015"),
                             IsDisable = false,
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Name = "First Prize",
                             NumberOfAward = 1,
                             Prize = 2000m,
@@ -480,7 +480,7 @@ namespace Hackathon.Repository.Migrations
                             Description = "First place award",
                             EventId = new Guid("20000000-0000-0000-0000-000000000016"),
                             IsDisable = false,
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Name = "First Prize",
                             NumberOfAward = 1,
                             Prize = 1500m,
@@ -493,7 +493,7 @@ namespace Hackathon.Repository.Migrations
                             Description = "First place award",
                             EventId = new Guid("20000000-0000-0000-0000-000000000017"),
                             IsDisable = false,
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Name = "First Prize",
                             NumberOfAward = 1,
                             Prize = 1000m,
@@ -506,7 +506,7 @@ namespace Hackathon.Repository.Migrations
                             Description = "First place award",
                             EventId = new Guid("20000000-0000-0000-0000-000000000018"),
                             IsDisable = false,
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Name = "First Prize",
                             NumberOfAward = 1,
                             Prize = 1300m,
@@ -519,7 +519,7 @@ namespace Hackathon.Repository.Migrations
                             Description = "First place award",
                             EventId = new Guid("20000000-0000-0000-0000-000000000019"),
                             IsDisable = false,
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Name = "First Prize",
                             NumberOfAward = 1,
                             Prize = 2500m,
@@ -559,7 +559,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("CriteriaTemplateId");
 
-                    b.ToTable("CriteriaItems", (string)null);
+                    b.ToTable("CriteriaItems");
 
                     b.HasData(
                         new
@@ -747,7 +747,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("RoundId");
 
-                    b.ToTable("CriteriaTemplates", (string)null);
+                    b.ToTable("CriteriaTemplates");
 
                     b.HasData(
                         new
@@ -904,7 +904,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("EmailVerifications", (string)null);
+                    b.ToTable("EmailVerifications");
 
                     b.HasData(
                         new
@@ -1051,7 +1051,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EventRoles", (string)null);
+                    b.ToTable("EventRoles");
 
                     b.HasData(
                         new
@@ -1123,7 +1123,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Events", (string)null);
+                    b.ToTable("Events");
 
                     b.HasData(
                         new
@@ -1362,7 +1362,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Invitations", (string)null);
+                    b.ToTable("Invitations");
 
                     b.HasData(
                         new
@@ -1514,8 +1514,8 @@ namespace Hackathon.Repository.Migrations
                     b.Property<Guid>("LeaderBoardId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("LevelAward")
-                        .HasColumnType("text");
+                    b.Property<int?>("LevelAward")
+                        .HasColumnType("integer");
 
                     b.Property<decimal?>("Score")
                         .HasColumnType("numeric");
@@ -1532,7 +1532,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("TeamId");
 
-                    b.ToTable("LeaderBoardDetails", (string)null);
+                    b.ToTable("LeaderBoardDetails");
 
                     b.HasData(
                         new
@@ -1541,7 +1541,7 @@ namespace Hackathon.Repository.Migrations
                             CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDisable = false,
                             LeaderBoardId = new Guid("60000000-0000-0000-0000-000000000001"),
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Score = 90m,
                             TeamId = new Guid("30000000-0000-0000-0000-000000000001"),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -1552,7 +1552,7 @@ namespace Hackathon.Repository.Migrations
                             CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDisable = false,
                             LeaderBoardId = new Guid("60000000-0000-0000-0000-000000000001"),
-                            LevelAward = "Second",
+                            LevelAward = 2,
                             Score = 82m,
                             TeamId = new Guid("30000000-0000-0000-0000-000000000002"),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -1563,7 +1563,7 @@ namespace Hackathon.Repository.Migrations
                             CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDisable = false,
                             LeaderBoardId = new Guid("60000000-0000-0000-0000-000000000010"),
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Score = 85m,
                             TeamId = new Guid("30000000-0000-0000-0000-000000000010"),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -1574,7 +1574,7 @@ namespace Hackathon.Repository.Migrations
                             CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDisable = false,
                             LeaderBoardId = new Guid("60000000-0000-0000-0000-000000000011"),
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Score = 89m,
                             TeamId = new Guid("30000000-0000-0000-0000-000000000011"),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -1585,7 +1585,7 @@ namespace Hackathon.Repository.Migrations
                             CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDisable = false,
                             LeaderBoardId = new Guid("60000000-0000-0000-0000-000000000012"),
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Score = 91m,
                             TeamId = new Guid("30000000-0000-0000-0000-000000000012"),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -1596,7 +1596,7 @@ namespace Hackathon.Repository.Migrations
                             CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDisable = false,
                             LeaderBoardId = new Guid("60000000-0000-0000-0000-000000000013"),
-                            LevelAward = "Second",
+                            LevelAward = 2,
                             Score = 78m,
                             TeamId = new Guid("30000000-0000-0000-0000-000000000013"),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -1607,7 +1607,7 @@ namespace Hackathon.Repository.Migrations
                             CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDisable = false,
                             LeaderBoardId = new Guid("60000000-0000-0000-0000-000000000014"),
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Score = 88m,
                             TeamId = new Guid("30000000-0000-0000-0000-000000000014"),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -1618,7 +1618,7 @@ namespace Hackathon.Repository.Migrations
                             CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDisable = false,
                             LeaderBoardId = new Guid("60000000-0000-0000-0000-000000000015"),
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Score = 92m,
                             TeamId = new Guid("30000000-0000-0000-0000-000000000015"),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -1629,7 +1629,7 @@ namespace Hackathon.Repository.Migrations
                             CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDisable = false,
                             LeaderBoardId = new Guid("60000000-0000-0000-0000-000000000016"),
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Score = 87m,
                             TeamId = new Guid("30000000-0000-0000-0000-000000000016"),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -1640,7 +1640,7 @@ namespace Hackathon.Repository.Migrations
                             CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDisable = false,
                             LeaderBoardId = new Guid("60000000-0000-0000-0000-000000000017"),
-                            LevelAward = "Second",
+                            LevelAward = 2,
                             Score = 83m,
                             TeamId = new Guid("30000000-0000-0000-0000-000000000017"),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -1651,7 +1651,7 @@ namespace Hackathon.Repository.Migrations
                             CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDisable = false,
                             LeaderBoardId = new Guid("60000000-0000-0000-0000-000000000018"),
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Score = 95m,
                             TeamId = new Guid("30000000-0000-0000-0000-000000000018"),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -1662,7 +1662,7 @@ namespace Hackathon.Repository.Migrations
                             CreatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDisable = false,
                             LeaderBoardId = new Guid("60000000-0000-0000-0000-000000000019"),
-                            LevelAward = "First",
+                            LevelAward = 1,
                             Score = 94m,
                             TeamId = new Guid("30000000-0000-0000-0000-000000000019"),
                             UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -1701,7 +1701,7 @@ namespace Hackathon.Repository.Migrations
                     b.HasIndex("EventId")
                         .IsUnique();
 
-                    b.ToTable("LeaderBoards", (string)null);
+                    b.ToTable("LeaderBoards");
 
                     b.HasData(
                         new
@@ -1855,7 +1855,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("AssignTrackId");
 
-                    b.ToTable("MentorNotifications", (string)null);
+                    b.ToTable("MentorNotifications");
 
                     b.HasData(
                         new
@@ -2006,7 +2006,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
 
                     b.HasData(
                         new
@@ -2184,7 +2184,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("RefreshTokens");
 
                     b.HasData(
                         new
@@ -2381,7 +2381,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("TrackId");
 
-                    b.ToTable("RegisterTeams", (string)null);
+                    b.ToTable("RegisterTeams");
 
                     b.HasData(
                         new
@@ -2654,7 +2654,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reports", (string)null);
+                    b.ToTable("Reports");
 
                     b.HasData(
                         new
@@ -2878,7 +2878,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ResetPasswords", (string)null);
+                    b.ToTable("ResetPasswords");
 
                     b.HasData(
                         new
@@ -3031,7 +3031,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("RoundId");
 
-                    b.ToTable("RoundDetails", (string)null);
+                    b.ToTable("RoundDetails");
 
                     b.HasData(
                         new
@@ -3254,7 +3254,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("Rounds", (string)null);
+                    b.ToTable("Rounds");
 
                     b.HasData(
                         new
@@ -3489,7 +3489,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("ScoreId");
 
-                    b.ToTable("ScoreItems", (string)null);
+                    b.ToTable("ScoreItems");
 
                     b.HasData(
                         new
@@ -3626,7 +3626,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("SubmissionId");
 
-                    b.ToTable("Scores", (string)null);
+                    b.ToTable("Scores");
 
                     b.HasData(
                         new
@@ -3713,7 +3713,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("RoundDetailId");
 
-                    b.ToTable("Submissions", (string)null);
+                    b.ToTable("Submissions");
 
                     b.HasData(
                         new
@@ -3919,7 +3919,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TeamDetails", (string)null);
+                    b.ToTable("TeamDetails");
 
                     b.HasData(
                         new
@@ -4223,7 +4223,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Teams", (string)null);
+                    b.ToTable("Teams");
 
                     b.HasData(
                         new
@@ -4410,7 +4410,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("TrackId");
 
-                    b.ToTable("Topics", (string)null);
+                    b.ToTable("Topics");
 
                     b.HasData(
                         new
@@ -4567,7 +4567,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("Tracks", (string)null);
+                    b.ToTable("Tracks");
 
                     b.HasData(
                         new
@@ -4786,7 +4786,7 @@ namespace Hackathon.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
 
                     b.HasData(
                         new

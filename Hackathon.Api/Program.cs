@@ -1,14 +1,19 @@
 using Hackathon.Api.Extention;
+using Hackathon.Api.Filters;
+using Hackathon.Api.Localization;
 using Hackathon.Repository;
 using Hackathon.Extension;
 using Hackathon.Middleware;
 using Hackathon.Service.BackgroundJobService;
+using Hackathon.Service.Localization;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Hackathon.Service.Models;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
+using System.Globalization;
 using AuthsService = Hackathon.Service.Auths;
 using MailServices = Hackathon.Service.MailServices;
 using JwtServices = Hackathon.Service.JwtServices;
@@ -25,13 +30,38 @@ using SubmissionsService = Hackathon.Service.Submissions;
 using MentorsService = Hackathon.Service.Mentors;
 using NotificationsService = Hackathon.Service.Notifications;
 using JudgesService = Hackathon.Service.Judges;
+using SystemsService = Hackathon.Service.Systems;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
+// Đăng ký service dịch message code -> text theo ngôn ngữ hiện tại.
+builder.Services.AddScoped<IMessageLocalizer, MessageLocalizer>();
 
-builder.Services.AddControllers();
+// Danh sách ngôn ngữ backend hỗ trợ ban đầu: English và Vietnamese.
+var supportedCultures = new[] { new CultureInfo("en"), new CultureInfo("vi") };
+
+// Khai báo thư mục chứa file .resx: Hackathon.Api/Resources.
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+// Cấu hình cách ASP.NET chọn culture cho mỗi request.
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    // Nếu request không gửi Accept-Language hoặc gửi ngôn ngữ chưa hỗ trợ thì dùng English.
+    options.DefaultRequestCulture = new RequestCulture("en");
+    // Culture dùng cho format số/ngày nếu sau này cần.
+    options.SupportedCultures = supportedCultures;
+    // UI culture dùng để chọn file SharedResource.{culture}.resx.
+    options.SupportedUICultures = supportedCultures;
+    // Đọc ngôn ngữ từ header Accept-Language của request.
+    options.RequestCultureProviders = new[] { new AcceptLanguageHeaderRequestCultureProvider() };
+});
+
+builder.Services.AddControllers(options =>
+{
+    // Filter này dịch Message/Title trước khi trả JSON; MessageCode vẫn giữ nguyên cho FE xử lý logic.
+    options.Filters.Add<LocalizationResponseFilter>();
+});
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<AuthsService.Request.RegisterRequest>();
@@ -49,11 +79,20 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
                     : Array.Empty<string>()
             );
 
+        // Lấy localizer theo request hiện tại để validation error cũng đi theo Accept-Language.
+        var localizer = context.HttpContext.RequestServices.GetRequiredService<IMessageLocalizer>();
+        // Ưu tiên dịch lỗi validation đầu tiên; nếu không có thì dùng INVALID_INPUT_DATA.
+        var firstError = errors?.FirstOrDefault().Value?.FirstOrDefault() ?? MessageKeys.InvalidInputData;
+
         var errorResponse = ApiResponseFactory.Error(
-            title: "Validation Failed",
+            // Title được dịch từ VALIDATION_FAILED_TITLE hoặc fallback theo HTTP 400.
+            title: localizer.GetTitle(MessageKeys.ValidationFailed, StatusCodes.Status400BadRequest),
             status: StatusCodes.Status400BadRequest,
-            message: errors?.FirstOrDefault().Value?.FirstOrDefault() ?? "INVALID_INPUT_DATA",
-            messageCode: "VALIDATION_FAILED",
+            // Message là lỗi cụ thể đã dịch, ví dụ FIRST_NAME_LENGTH_INVALID nếu có resource.
+            message: localizer.Get(firstError),
+            // MessageCode giữ nguyên để FE biết đây là lỗi validation.
+            messageCode: MessageKeys.ValidationFailed,
+            // errors giữ raw code theo từng field để FE/debug vẫn đọc được lỗi gốc.
             errors: errors,
             traceId: context.HttpContext.TraceIdentifier
         );
@@ -117,6 +156,7 @@ builder.Services.AddScoped<NotificationsService.IService, NotificationsService.S
 builder.Services.AddScoped<JudgesService.IService, JudgesService.Service>();
 builder.Services.AddScoped<Hackathon.Service.Lecturers.IService, Hackathon.Service.Lecturers.Service>();
 builder.Services.AddScoped<Hackathon.Service.Staff.IService, Hackathon.Service.Staff.Service>();
+builder.Services.AddScoped<SystemsService.IService, SystemsService.Service>();
 
 
 builder.Services.AddCors(options =>
@@ -132,7 +172,8 @@ builder.Services.AddCors(options =>
 });
 var app = builder.Build();
 
-
+// Kích hoạt localization sớm để middleware/validation/controller đều đọc được culture của request.
+app.UseRequestLocalization();
 
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 // Configure the HTTP request pipeline.

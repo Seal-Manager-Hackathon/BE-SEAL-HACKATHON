@@ -6,6 +6,12 @@ public class ServerException : AppException
         : base(title: "Internal Server Error", statusCode: 500, messageCode: "INTERNAL_SERVER_ERROR", message: message) { }
 }
 
+public class ServiceUnavailableException : AppException
+{
+    public ServiceUnavailableException(string messageCode, string message)
+        : base(title: "Service Unavailable", statusCode: 503, messageCode: messageCode, message: message) { }
+}
+
 public class NotFoundException : AppException
 {
     public NotFoundException(string message)
@@ -25,6 +31,15 @@ public class BadRequestException : AppException
 {
     public BadRequestException(string message)
         : base( "Bad Request", 400, "BAD_REQUEST", message) { }
+
+    public BadRequestException(string messageCode, string message)
+        : base( "Bad Request", 400, messageCode, message) { }
+}
+
+public class FileUploadFailedException : AppException
+{
+    public FileUploadFailedException(string message)
+        : base("Internal Server Error", 500, "FILE_UPLOAD_FAILED", message) { }
 }
 
 public class TooManyRequestException : AppException
