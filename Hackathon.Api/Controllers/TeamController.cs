@@ -155,4 +155,12 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
         var message = await _teamService.UnlockTeam(teamId);
         return Ok(ApiResponseFactory.Base(null, 200, message, traceId: HttpContext.TraceIdentifier));
     }
+
+    [Authorize(Policy = JwtExtensions.StudentPolicy)]
+    [HttpPost("{teamId:guid}/leave")]
+    public async Task<IActionResult> LeaveTeam(Guid teamId)
+    {
+        var message = await _teamService.LeaveTeam(teamId);
+        return Ok(ApiResponseFactory.Base(null, 200, message, traceId: HttpContext.TraceIdentifier));
+    }
 }
