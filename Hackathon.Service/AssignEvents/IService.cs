@@ -11,6 +11,6 @@ public interface IService
 {
     Task<AssignEventResponse> AssignLecturerToEvent(Guid eventId, AssignLecturerRequest request);
     Task<BasePaginationResponse> GetAvailableLecturers(Guid eventId, GetAvailableLecturersRequest request);
-    Task<BasePaginationResponse> GetEventAssignments(Guid eventId, EventRoleEnum? eventRole, string? keyword, bool? isDisable, PaginationRequest paginationRequest);
+    Task<BasePaginationResponse> GetEventAssignments(Guid eventId, EventRoleEnum? eventRole, string? keyword, Guid? trackId, bool? isDisable, PaginationRequest paginationRequest);
     Task<Guid> RemoveLecturerAssignment(Guid assignEventId);
 }
