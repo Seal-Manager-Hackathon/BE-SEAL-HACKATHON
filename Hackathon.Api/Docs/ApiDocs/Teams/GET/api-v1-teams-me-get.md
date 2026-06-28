@@ -18,14 +18,14 @@ Yêu cầu access token hợp lệ với role `Student`.
 *Cấu trúc trả về dạng `BasePaginationResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Status": 200,
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z",
-  "Data": {
-    "Items": [
+  "isSuccess": true,
+  "isFailed": false,
+  "status": 200,
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "data": {
+    "items": [
       {
         "teamId": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
         "teamName": "Chiến binh công nghệ",
@@ -35,11 +35,11 @@ Yêu cầu access token hợp lệ với role `Student`.
         "joinedAt": "2026-06-22T08:00:00Z"
       }
     ],
-    "PageIndex": 1,
-    "PageSize": 10,
-    "TotalCount": 1,
-    "HasNextPage": false,
-    "HasPreviousPage": false
+    "pageIndex": 1,
+    "pageSize": 10,
+    "totalCount": 1,
+    "hasNextPage": false,
+    "hasPreviousPage": false
   }
 }
 ```

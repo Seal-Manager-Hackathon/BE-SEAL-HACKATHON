@@ -63,8 +63,8 @@ _Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse`:_
 
 | HTTP | messageCode           | message/detail                                      |
 | ---: | --------------------- | --------------------------------------------------- |
-|  400 | VALIDATION_FAILED     | Dữ liệu đầu vào không hợp lệ (ví dụ: thiếu eventId) |
+|  400 | VALIDATION_FAILED     | VALIDATION_FAILED                                  |
 |  401 | MISSING_ACCESS_TOKEN  | ACCESS_TOKEN_IS_MISSING                             |
 |  401 | INVALID_ACCESS_TOKEN  | INVALID_ACCESS_TOKEN                                |
-|  404 | EVENT_NOT_FOUND       | Event không tồn tại hoặc bị disable                 |
+|  404 | EVENT_NOT_FOUND       | EVENT_NOT_FOUND                                     |
 |  500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED                        |

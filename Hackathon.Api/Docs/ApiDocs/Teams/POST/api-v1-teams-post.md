@@ -20,14 +20,14 @@ Yêu cầu access token hợp lệ với role `Student`.
 *Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "IsSuccess": true,
-  "IsFailed": false,
-  "Status": 201,
-  "Error": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z",
-  "Message": "TEAM_CREATED_SUCCESSFULLY",
-  "Data": {
+  "isSuccess": true,
+  "isFailed": false,
+  "status": 201,
+  "error": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z",
+  "message": "TEAM_CREATED_SUCCESSFULLY",
+  "data": {
     "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
     "name": "Chiến binh công nghệ",
     "canEdit": true,
@@ -68,13 +68,13 @@ Yêu cầu access token hợp lệ với role `Student`.
 
 ```json
 {
-  "Title": "Bad Request",
-  "Status": 400,
-  "Message": "TEAM_NAME_REQUIRED",
-  "MessageCode": "BAD_REQUEST",
-  "Errors": null,
-  "TraceId": "0HN1A2B3C4D5E",
-  "TimestampUtc": "2026-06-22T08:00:00Z"
+  "title": "Bad Request",
+  "status": 400,
+  "message": "TEAM_NAME_REQUIRED",
+  "messageCode": "BAD_REQUEST",
+  "errors": null,
+  "traceId": "0HN1A2B3C4D5E",
+  "timestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 

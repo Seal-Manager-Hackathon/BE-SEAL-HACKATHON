@@ -73,4 +73,4 @@ Response dùng `ApiResponseFactory.BasePagination(...)`.
 |---|---|---|
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 404 | NOT_FOUND | TEAM_NOT_FOUND |
-| 400 | BAD_REQUEST | INVALID_STATUS (Nếu status truyền vào sai tên enum) |
+| 400 | BAD_REQUEST | INVALID_STATUS |
