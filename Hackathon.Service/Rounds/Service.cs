@@ -832,20 +832,29 @@ public class Service : IService
         if (round == null)
             throw new NotFoundException("ROUND_NOT_FOUND");
 
-        // Check lecturer is assigned to this event
+        // Check judge is assigned to this event
         var userId = GetCurrentUserId();
-        var isAssigned = await _dbContext.AssignEvents
+        var judgeAssignEvents = await _dbContext.AssignEvents
             .AsNoTracking()
-            .AnyAsync(x => x.UserId == userId
+            .Where(x => x.UserId == userId
                 && x.EventId == round.EventId
                 && !x.IsDisable
                 && x.EventRole != null
-                && (x.EventRole.Name == EventRoleEnum.Mentor || x.EventRole.Name == EventRoleEnum.Judge));
+                && x.EventRole.Name == EventRoleEnum.Judge)
+            .Select(x => x.Id)
+            .ToListAsync();
 
-        if (!isAssigned)
-            throw new ForbiddenException("LECTURER_NOT_ASSIGNED_TO_EVENT");
+        if (judgeAssignEvents.Count == 0)
+            throw new ForbiddenException("JUDGE_NOT_ASSIGNED_TO_EVENT");
 
-        // Check round submission time — if still open, lecturer cannot view
+        // Get tracks assigned to this judge
+        var judgeTrackIds = await _dbContext.AssignTracks
+            .AsNoTracking()
+            .Where(x => judgeAssignEvents.Contains(x.AssignEventId) && !x.IsDisable)
+            .Select(x => x.TrackId)
+            .ToListAsync();
+
+        // Check round submission time — if still open, judge cannot view
         var now = DateTimeOffset.UtcNow;
         if (!round.EndSubmission.HasValue || now <= round.EndSubmission.Value)
             throw new BadRequestException("ROUND_SUBMISSION_STILL_OPEN");
@@ -853,8 +862,15 @@ public class Service : IService
         var roundDetails = await _dbContext.RoundDetails
             .AsNoTracking()
             .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
+            .Include(x => x.RegisterTeam).ThenInclude(x => x.Track)
+            .Include(x => x.RegisterTeam).ThenInclude(x => x.Topic)
             .Include(x => x.Submissions).ThenInclude(x => x.Scores)
-            .Where(x => x.RoundId == roundId && !x.IsDisable && !x.RegisterTeam.IsDisable && !x.RegisterTeam.Team.IsDisable)
+            .Where(x => x.RoundId == roundId
+                && !x.IsDisable
+                && !x.RegisterTeam.IsDisable
+                && !x.RegisterTeam.Team.IsDisable
+                && x.RegisterTeam.TrackId.HasValue
+                && judgeTrackIds.Contains(x.RegisterTeam.TrackId.Value))
             .ToListAsync();
 
         var items = roundDetails.Select(roundDetail =>
