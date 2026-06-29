@@ -54,4 +54,20 @@ public static class Request
         [System.ComponentModel.DataAnnotations.Range(1, int.MaxValue, ErrorMessage = "PAGE_SIZE_MUST_BE_GREATER_THAN_ZERO")]
         public int PageSize { get; set; } = 10;
     }
+
+    public class RoundAppealRequest
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string? ImgUrl { get; set; }
+        public string? FileUrl { get; set; }
+    }
+
+    public class SubmissionAppealRequest
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string? ImgUrl { get; set; }
+        public string? FileUrl { get; set; }
+    }
 }

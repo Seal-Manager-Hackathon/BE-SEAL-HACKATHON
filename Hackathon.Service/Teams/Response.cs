@@ -99,4 +99,10 @@ public static class Response
         public string? RejectionReason { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }
+
+    public class AppealResponse
+    {
+        public Guid ReportId { get; set; }
+        public Guid? SubmissionId { get; set; }
+    }
 }
