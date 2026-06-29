@@ -19,7 +19,6 @@ Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
 |---|---|---|---:|---|
 | `keyword` | `string` | Không | Tìm kiếm theo tên, họ, email. |
 | `userId` | `guid` | Không | Tìm kiếm theo UserId chính xác. |
-| `email` | `string` | Không | Tìm kiếm theo email (contains). |
 | `pageIndex` | `int` | Không | Trang hiện tại (mặc định `1`). |
 | `pageSize` | `int` | Không | Số item mỗi trang (mặc định `10`). |
 
@@ -51,10 +50,7 @@ Response dùng `ApiResponseFactory.BasePagination(items, pageIndex, pageSize, to
         "fullName": "Nguyễn Văn A",
         "email": "nguyenvana@school.edu.vn",
         "phoneNumber": "0901234567",
-        "avatarUrl": "https://example.com/avatar.png",
-        "role": 3,
-        "isAlreadyAssignedToEvent": false,
-        "assignedEventRole": null
+        "avatarUrl": "https://example.com/avatar.png"
       }
     ],
     "pageIndex": 1,
@@ -75,13 +71,10 @@ Response dùng `ApiResponseFactory.BasePagination(items, pageIndex, pageSize, to
 | `fullName` | `string` | Tên đầy đủ, ghép từ `FirstName` + `LastName`. |
 | `email` | `string` | Email giảng viên. |
 | `phoneNumber` | `string` | Số điện thoại. |
-| `avatarUrl` | `string` | Ảnh đại diện. |
-| `role` | `int` | Global role của user. Với lecturer là `3`. |
-| `isAlreadyAssignedToEvent` | `bool` | Cho biết giảng viên đã được phân công trong event này chưa (luôn `false` vì đã filter). |
-| `assignedEventRole` | `int | null` | Role hiện tại trong event nếu đã được phân công. Xem bảng EventRoleEnum bên dưới. |
+| `avatarUrl` | `string` | Ảnh đại diện.
 
-### Bảng vai trò EventRoleEnum (Integer)
-| Giá trị (Value) | Vai trò (Role) | Mô tả (Description) |
+### Bảng vai trò EventRoleEnum
+| Giá trị (Value) | Vai trò (Role) | Mô tả |
 | :--- | :--- | :--- |
 | `0` | Mentor | Người hướng dẫn chuyên môn cho đội thi |
 | `1` | Judge | Giám khảo chấm điểm bài thi |
@@ -100,7 +93,7 @@ Response dùng `ApiResponseFactory.BasePagination(items, pageIndex, pageSize, to
 - Nếu là `Staff`, phải được phân công quản lý sự kiện này.
 - `eventId` phải tồn tại và chưa bị disable.
 - Chỉ trả về user có global role `Lecturer`, active, chưa disable.
-- **Tự động loại** tất cả lecturer đã có `AssignEvents` trong event này (bất kỳ role nào).
+- **Tự động loại** tất cả lecturer đã có `AssignEvents` trong event này.
 - Tìm kiếm theo: `keyword` (firstName, lastName, email), `userId`. Có thể kết hợp AND.
 - Danh sách phân trang, sắp xếp theo tên.
 

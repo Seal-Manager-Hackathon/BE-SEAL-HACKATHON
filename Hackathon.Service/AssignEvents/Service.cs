@@ -200,9 +200,6 @@ public class Service : IService
                 Email = x.Email,
                 PhoneNumber = x.PhoneNumber,
                 AvatarUrl = x.AvatarUrl,
-                Role = x.Role,
-                IsAlreadyAssignedToEvent = false,
-                AssignedEventRole = null
             })
             .ToListAsync();
 
