@@ -950,7 +950,7 @@ public class Service : IService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<(Response.EndRoundResponse Data, string Message)> EndRound(Guid roundId)
+    public async Task<Response.EndRoundResponse> EndRound(Guid roundId)
     {
         var round = await _dbContext.Rounds
             .Include(x => x.Event)
@@ -970,7 +970,10 @@ public class Service : IService
             throw new BadRequestException("ROUND_NOT_ENDED_YET");
         }
 
-        // Find next round
+        // Execute close + advance teams (write — fallback if job missed)
+        await CloseAndAdvanceRoundAsync(_dbContext, round, now);
+
+        // Reload to build response with next round info
         var nextRound = await _dbContext.Rounds
             .Where(x => x.EventId == round.EventId && !x.IsDisable && x.RoundNo == round.RoundNo + 1)
             .FirstOrDefaultAsync();
@@ -980,10 +983,11 @@ public class Service : IService
             .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
             .Include(x => x.Submissions.Where(s => !s.IsDisable && s.Status == SubmissionStatusEnum.Submitted))
                 .ThenInclude(s => s.Scores.Where(sc => !sc.IsDisable && !sc.IsMock))
-            .Where(x => x.RoundId == roundId && !x.IsDisable && !x.RegisterTeam.IsDisable && !x.RegisterTeam.Team.IsDisable)
+            .Where(x => x.RoundId == roundId && !x.IsDisable && !x.RegisterTeam.IsDisable && !x.RegisterTeam.Team.IsDisable
+                && x.RegisterTeam.Status == RegisterTeamStatusEnum.Approved && !x.RegisterTeam.IsBanned)
             .ToListAsync();
 
-        // Calculate team scores: latest submission per team → average of all judge scores (exclude IsMock)
+        // Calculate team scores
         var teamScores = roundDetails
             .Select(rd =>
             {
@@ -997,7 +1001,8 @@ public class Service : IService
                 {
                     var validScores = latestSubmission.Scores
                         .Where(s => s.TotalScore.HasValue)
-                        .Select(s => s.TotalScore!.Value)
+                        .GroupBy(s => s.AssignTrackId)
+                        .Select(g => g.OrderByDescending(s => s.CreatedAt).First().TotalScore!.Value)
                         .ToList();
 
                     if (validScores.Count != 0)
@@ -1020,41 +1025,119 @@ public class Service : IService
             .ThenBy(x => x.RoundDetail.RegisterTeam.Team.Name)
             .ToList();
 
-        int totalTeamsAdvanced = 0;
+        var limit = nextRound?.LimitTeam ?? int.MaxValue;
         var advancedTeams = new List<Response.AdvancedTeamResponse>();
+        int rank = 0;
+
+        foreach (var ts in teamScores)
+        {
+            rank++;
+
+            advancedTeams.Add(new Response.AdvancedTeamResponse
+            {
+                Rank = rank,
+                TeamId = ts.RoundDetail.RegisterTeam.TeamId,
+                TeamName = ts.RoundDetail.RegisterTeam.Team.Name,
+                AverageScore = ts.AverageScore,
+                LatestSubmissionId = ts.LatestSubmission?.Id ?? Guid.Empty,
+                IsAdvanced = ts.HasScore && ts.AverageScore > 0 && rank <= limit,
+            });
+        }
+
+        var message = nextRound == null ? "FINAL_ROUND_CLOSED_HACKATHON_ENDED" : "ROUND_ENDED_SUCCESSFULLY";
+
+        return new Response.EndRoundResponse
+        {
+            RoundId = round.Id,
+            RoundName = round.Name,
+            EventId = round.EventId,
+            NextRoundId = nextRound?.Id,
+            NextRoundName = nextRound?.Name,
+            NextRoundLimitTeam = nextRound?.LimitTeam,
+            TotalTeams = advancedTeams.Count,
+            TotalAdvanced = advancedTeams.Count(x => x.IsAdvanced),
+            Teams = advancedTeams,
+        };
+    }
+
+    /// <summary>
+    /// Close an expired round: advance top teams to next round, close current round.
+    /// This is the write variant used only by EndRoundJob (not by the read-only API).
+    /// </summary>
+    internal static async Task CloseAndAdvanceRoundAsync(AppDbContext dbContext, Repository.Entity.Rounds round, DateTimeOffset now)
+    {
+        var eventId = round.EventId;
+
+        var nextRound = await dbContext.Rounds
+            .Where(x => x.EventId == eventId && !x.IsDisable && x.RoundNo == round.RoundNo + 1)
+            .FirstOrDefaultAsync();
+
+        var roundDetails = await dbContext.RoundDetails
+            .AsNoTracking()
+            .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
+            .Include(x => x.Submissions.Where(s => !s.IsDisable && s.Status == SubmissionStatusEnum.Submitted))
+                .ThenInclude(s => s.Scores.Where(sc => !sc.IsDisable && !sc.IsMock))
+            .Where(x => x.RoundId == round.Id && !x.IsDisable && !x.RegisterTeam.IsDisable && !x.RegisterTeam.Team.IsDisable
+                && x.RegisterTeam.Status == RegisterTeamStatusEnum.Approved && !x.RegisterTeam.IsBanned)
+            .ToListAsync();
+
+        // Calculate team scores
+        var teamScores = roundDetails
+            .Select(rd =>
+            {
+                var latestSubmission = rd.Submissions
+                    .OrderByDescending(s => s.SubmittedAt ?? s.CreatedAt)
+                    .FirstOrDefault();
+
+                decimal avgScore = 0;
+                var hasScore = false;
+                if (latestSubmission != null)
+                {
+                    var validScores = latestSubmission.Scores
+                        .Where(s => s.TotalScore.HasValue)
+                        .GroupBy(s => s.AssignTrackId)
+                        .Select(g => g.OrderByDescending(s => s.CreatedAt).First().TotalScore!.Value)
+                        .ToList();
+
+                    if (validScores.Count != 0)
+                    {
+                        avgScore = validScores.Average();
+                        hasScore = true;
+                    }
+                }
+
+                return new { RoundDetail = rd, AverageScore = avgScore, HasScore = hasScore };
+            })
+            .OrderByDescending(x => x.HasScore)
+            .ThenByDescending(x => x.AverageScore)
+            .ThenBy(x => x.RoundDetail.RegisterTeam.Team.Name)
+            .ToList();
 
         if (nextRound != null)
         {
             var limit = nextRound.LimitTeam ?? int.MaxValue;
             if (limit > 0)
             {
-                // Take top N teams that have score > 0
                 var topTeams = teamScores
                     .Where(x => x.HasScore && x.AverageScore > 0)
                     .Take(limit)
                     .ToList();
 
-                // Use transaction for RoundDetails insert + round disable (atomic)
-                await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+                await using var transaction = await dbContext.Database.BeginTransactionAsync();
 
-                var nextRoundDetails = new List<RoundDetails>();
-                int rank = 0;
-
-                // Get existing RoundDetail IDs for next round (batch, avoid per-row roundtrip)
-                var existingRegisterTeamIds = await _dbContext.RoundDetails
+                var existingRegisterTeamIds = await dbContext.RoundDetails
                     .Where(x => x.RoundId == nextRound.Id)
                     .Select(x => x.RegisterTeamId)
                     .ToListAsync();
 
                 var existingSet = new HashSet<Guid>(existingRegisterTeamIds);
+                var nextRoundDetails = new List<Repository.Entity.RoundDetails>();
 
                 foreach (var ts in topTeams)
                 {
-                    rank++;
-
                     if (!existingSet.Contains(ts.RoundDetail.RegisterTeamId))
                     {
-                        nextRoundDetails.Add(new RoundDetails
+                        nextRoundDetails.Add(new Repository.Entity.RoundDetails
                         {
                             Id = Guid.NewGuid(),
                             RoundId = nextRound.Id,
@@ -1063,50 +1146,24 @@ public class Service : IService
                             UpdatedAt = now
                         });
                     }
-
-                    advancedTeams.Add(new Response.AdvancedTeamResponse
-                    {
-                        Rank = rank,
-                        TeamId = ts.RoundDetail.RegisterTeam.TeamId,
-                        TeamName = ts.RoundDetail.RegisterTeam.Team.Name,
-                        AverageScore = ts.AverageScore,
-                        LatestSubmissionId = ts.LatestSubmission?.Id ?? Guid.Empty,
-                    });
-                    totalTeamsAdvanced++;
                 }
 
-                if (nextRoundDetails.Any())
+                if (nextRoundDetails.Count != 0)
                 {
-                    await _dbContext.RoundDetails.AddRangeAsync(nextRoundDetails);
+                    await dbContext.RoundDetails.AddRangeAsync(nextRoundDetails);
                 }
 
-                // Close current round
                 round.IsDisable = true;
                 round.UpdatedAt = now;
-
-                await _dbContext.SaveChangesAsync();
+                await dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
+                return;
             }
         }
-        else
-        {
-            // No next round: just close current round
-            round.IsDisable = true;
-            round.UpdatedAt = now;
-            await _dbContext.SaveChangesAsync();
-        }
 
-        var message = nextRound == null ? "FINAL_ROUND_CLOSED_HACKATHON_ENDED" : "ROUND_ENDED_SUCCESSFULLY";
-
-        return (new Response.EndRoundResponse
-        {
-            ClosedRoundId = round.Id,
-            ClosedRoundName = round.Name,
-            NextRoundId = nextRound?.Id,
-            NextRoundName = nextRound?.Name,
-            NextRoundLimitTeam = nextRound?.LimitTeam,
-            TotalTeamsAdvanced = totalTeamsAdvanced,
-            AdvancedTeams = advancedTeams,
-        }, message);
+        // No next round or limit = 0: just close the round
+        round.IsDisable = true;
+        round.UpdatedAt = now;
+        await dbContext.SaveChangesAsync();
     }
 }

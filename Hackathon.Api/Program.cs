@@ -162,6 +162,9 @@ builder.Services.AddScoped<Hackathon.Service.Staff.IService, Hackathon.Service.S
 builder.Services.AddScoped<SystemsService.IService, SystemsService.Service>();
 builder.Services.AddScoped<RolesService.IService, RolesService.Service>();
 builder.Services.AddScoped<AdminService.IService, AdminService.Service>();
+builder.Services.AddSingleton<RoundsService.EndRoundJob>();
+builder.Services.AddSingleton<RoundsService.IRoundEndScheduler>(sp => sp.GetRequiredService<RoundsService.EndRoundJob>());
+builder.Services.AddHostedService<RoundsService.EndRoundJob>(sp => sp.GetRequiredService<RoundsService.EndRoundJob>());
 
 
 builder.Services.AddCors(options =>

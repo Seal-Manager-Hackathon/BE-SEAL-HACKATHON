@@ -94,8 +94,8 @@ public class RoundsController : ControllerBase
     [Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]
     public async Task<IActionResult> EndRound(Guid roundId)
     {
-        var (data, message) = await _roundsService.EndRound(roundId);
-        return Ok(ApiResponseFactory.Base(data,200,message, traceId: HttpContext.TraceIdentifier));
+        var data = await _roundsService.EndRound(roundId);
+        return Ok(ApiResponseFactory.Base(data, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
