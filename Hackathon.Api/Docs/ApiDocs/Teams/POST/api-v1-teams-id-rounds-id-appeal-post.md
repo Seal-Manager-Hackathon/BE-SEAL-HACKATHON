@@ -1,7 +1,7 @@
 # Legacy round appeal
 
 ## Tác dụng
-API cũ mô tả gửi phúc khảo theo `roundId`. Luồng hiện tại nên dùng API phúc khảo theo `submissionId`: `POST /api/v1/teams/{teamId}/submissions/{submissionId}/appeal`, vì Staff/Admin cần biết chính xác bài nộp nào để xem và phân công judge khác chấm lại.
+API cũ mô tả gửi phúc khảo theo `roundId`. Luồng hiện tại nên dùng API phúc khảo theo `submissionId`: `POST /api/v1/teams/{teamId}/submissions/{submissionId}/appeal`, vì Staff/Admin cần biết chính xác bài nộp nào để xem và duyệt regrade.
 
 ## URL
 `POST /api/v1/teams/{teamId}/rounds/{roundId}/appeal`

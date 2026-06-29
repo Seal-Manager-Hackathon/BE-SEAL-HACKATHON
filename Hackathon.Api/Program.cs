@@ -32,6 +32,7 @@ using NotificationsService = Hackathon.Service.Notifications;
 using JudgesService = Hackathon.Service.Judges;
 using RolesService = Hackathon.Service.Roles;
 using SystemsService = Hackathon.Service.Systems;
+using AdminService = Hackathon.Service.Admin;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -159,6 +160,7 @@ builder.Services.AddScoped<Hackathon.Service.Lecturers.IService, Hackathon.Servi
 builder.Services.AddScoped<Hackathon.Service.Staff.IService, Hackathon.Service.Staff.Service>();
 builder.Services.AddScoped<SystemsService.IService, SystemsService.Service>();
 builder.Services.AddScoped<RolesService.IService, RolesService.Service>();
+builder.Services.AddScoped<AdminService.IService, AdminService.Service>();
 
 
 builder.Services.AddCors(options =>

@@ -58,7 +58,8 @@ Public API (Không yêu cầu đăng nhập)
     },
     "ReportStatusEnum": {
       "0": "Open",
-      "1": "Closed"
+      "1": "Closed",
+      "2": "Approved"
     },
     "RoleEnum": {
       "0": "Admin",

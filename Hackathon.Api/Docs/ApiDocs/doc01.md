@@ -141,7 +141,7 @@ Luồng này mô tả hành trình của một sinh viên từ lúc tham gia h�
    * [`- GET /api/v1/events/{eventId}/leaderboard`](Events/GET/GET-api-v1-events-eventId-leaderboard.md) — Xem bảng xếp hạng event; trong danh sách này team biết mình đang đứng hạng thứ mấy trong event.
    * `- GET /api/v1/teams/{teamId}/round-results` — Xem kết quả tổng hợp của team qua từng vòng (Đi tiếp - Advanced / Dừng lại - Stopped).
 3. **Gửi khiếu nại/phúc khảo khi bài đã có kết quả**:
-   * [`- POST /api/v1/teams/{teamId}/submissions/{submissionId}/appeal`](Teams/POST/POST-api-v1-teams-teamId-submissions-submissionId-appeal.md) — Khi bài nộp đã có kết quả, FE hiển thị nút khiếu nại; request truyền `submissionId` để Staff/Admin xem đúng bài và phân công judge khác chấm lại nếu cần.
+   * [`- POST /api/v1/teams/{teamId}/submissions/{submissionId}/appeal`](Teams/POST/POST-api-v1-teams-teamId-submissions-submissionId-appeal.md) — Khi bài nộp đã có kết quả, FE hiển thị nút khiếu nại; request truyền `submissionId` để Staff/Admin xem đúng bài và duyệt regrade nếu cần.
 
 ---
 
@@ -276,15 +276,16 @@ Luồng này dành cho Admin/BTC để khởi tạo, cấu hình, phân công nh
 ---
 
 ## Luồng 2.8: Giải quyết phúc khảo (Regrade Workflow)
-*Mô tả*: BTC tiếp nhận đơn khiếu nại điểm số từ thí sinh, phê duyệt chấm lại và chỉ định giám khảo thực hiện chấm lại.
+*Mô tả*: BTC tiếp nhận đơn khiếu nại điểm số từ thí sinh và phê duyệt chấm lại. Judge được chấm lại là judge đã chấm score gốc của bài đó.
 
 1. **Xem danh sách và chi tiết khiếu nại**:
-   * [`- GET /api/v1/staff/reports`](Staff/GET/GET-api-v1-staff-reports.md) — BTC lọc danh sách khiếu nại của thí sinh.
-   * [`- GET /api/v1/staff/reports/{reportId}`](Staff/GET/GET-api-v1-staff-reports-reportId.md) — BTC xem chi tiết report, trong đó có `submissionId` để mở đúng bài nộp cần xử lý.
+   * [`- GET /api/v1/staff/reports`](Staff/GET/api-v1-staff-reports-get.md) — BTC lọc danh sách khiếu nại của thí sinh.
+   * [`- GET /api/v1/staff/reports/{reportId}`](Staff/GET/api-v1-staff-reports-reportId-get.md) — BTC xem chi tiết report, trong đó có `submissionId` để mở đúng bài nộp cần xử lý.
 2. **Xử lý đơn phúc khảo**:
-   * *Đồng ý chấm lại*: [`- POST /api/v1/staff/reports/{reportId}/regrade`](Staff/POST/POST-api-v1-staff-reports-reportId-regrade.md) — BTC đồng ý cho chấm lại bài nộp gắn với report.
-   * *Giao việc cho Giám khảo*: [`- POST /api/v1/staff/reports/{reportId}/assign-judge`](Staff/POST/POST-api-v1-staff-reports-reportId-assign-judge.md) — Phân công judge khác/phù hợp chấm lại bài nộp theo `submissionId` của report (BR-REP-05).
-   * *Từ chối đơn*: [`- PATCH /api/v1/staff/reports/{reportId}/status`](Staff/PATCH/PATCH-api-v1-staff-reports-reportId-status.md) — BTC từ chối phúc khảo (chuyển trạng thái Closed) kèm lý do giải thích rõ ràng.
+   * *Đồng ý chấm lại*: [`- POST /api/v1/staff/reports/{reportId}/regrade`](Staff/POST/api-v1-staff-reports-reportId-regrade-post.md) — BTC đồng ý cho chấm lại bài nộp gắn với report, set `Submissions.IsRegrade = true`.
+   * *Từ chối đơn*: [`- PATCH /api/v1/staff/reports/{reportId}/status`](Staff/PATCH/api-v1-staff-reports-reportId-status-patch.md) — BTC từ chối phúc khảo (chuyển trạng thái Closed) kèm lý do giải thích rõ ràng.
+3. **Theo dõi tiến độ**:
+   * [`- GET /api/v1/staff/submissions/regrade`](Staff/GET/api-v1-staff-submissions-regrade-get.md) — BTC xem danh sách bài nộp đã duyệt regrade, biết score gốc nào chưa chấm lại, đã chấm một phần hay hoàn tất.
 
 ---
 
@@ -337,5 +338,6 @@ Luồng này mô tả hoạt động của giảng viên được BTC phân côn
    * *Xem lại điểm đã chấm*: [`- GET /api/v1/judge/submissions/{submissionId}/scores/me`](Judge/GET/GET-api-v1-judge-submissions-submissionId-scores-me.md) — Judge xem lại điểm của chính mình trên submission thuộc track được phân công.
    * *Sửa điểm*: [`- PATCH /api/v1/judge/scores/{scoreId}`](Judge/PATCH/PATCH-api-v1-judge-scores-scoreId.md) — Judge sửa điểm trước khi finalized, chỉ với score do chính judge tạo trong track được phân công.
    * *Khóa điểm*: [`- POST /api/v1/judge/scores/{scoreId}/finalize`](Judge/POST/POST-api-v1-judge-scores-scoreId-finalize.md) — Judge xác nhận kết quả chấm điểm của mình.
-5. **Chấm lại phúc khảo (Khi được BTC phân công)**:
-   * *Chấm lại*: [`- POST /api/v1/judge/scores/{scoreId}/retake`](Judge/POST/POST-api-v1-judge-scores-scoreId-retake.md) — Nhập điểm chấm lại cho bài thi phúc khảo nếu judge được phân công xử lý phúc khảo trong track liên quan.
+5. **Chấm lại phúc khảo (Khi bài đã được BTC duyệt)**:
+   * *Xem danh sách regrade*: [`- GET /api/v1/judge/submissions/regrade`](Judge/GET/api-v1-judge-submissions-regrade-get.md) — Judge xem danh sách bài phúc khảo dựa trên score gốc do chính mình đã chấm.
+   * *Chấm lại*: [`- POST /api/v1/judge/scores/{scoreId}/retake`](Judge/POST/api-v1-judge-scores-scoreId-retake-post.md) — Nhập điểm chấm lại từ score gốc của chính judge; score mới lưu `IsRetake = true` và `RetakeFromScoreId = scoreId`.
