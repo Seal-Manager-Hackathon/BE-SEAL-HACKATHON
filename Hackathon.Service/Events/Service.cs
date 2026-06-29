@@ -984,17 +984,12 @@ public class Service : IService
             throw new NotFoundException("ASSIGN_EVENT_NOT_FOUND");
         }
 
-        if (string.IsNullOrWhiteSpace(request.EventRole))
+        if (request.EventRole == null)
         {
             throw new BadRequestException("INVALID_EVENT_ROLE");
         }
 
-        if (!Enum.TryParse<EventRoleEnum>(request.EventRole, true, out var roleEnum))
-        {
-            throw new BadRequestException("INVALID_EVENT_ROLE");
-        }
-
-        var eventRole = await _dbContext.EventRoles.FirstOrDefaultAsync(x => x.Name == roleEnum);
+        var eventRole = await _dbContext.EventRoles.FirstOrDefaultAsync(x => x.Name == request.EventRole.Value);
         if (eventRole == null)
         {
             throw new BadRequestException("INVALID_EVENT_ROLE");
