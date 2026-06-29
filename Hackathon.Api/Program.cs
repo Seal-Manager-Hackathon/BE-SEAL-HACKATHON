@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
 using System.Globalization;
+using Microsoft.AspNetCore.HttpOverrides;
 using AuthsService = Hackathon.Service.Auths;
 using MailServices = Hackathon.Service.MailServices;
 using JwtServices = Hackathon.Service.JwtServices;
@@ -174,8 +175,20 @@ builder.Services.AddCors(options =>
             .AllowCredentials();
     });
 });
-var app = builder.Build();
 
+////////////
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders .XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+//
+
+var app = builder.Build();
+///////////////
+app.UseForwardedHeaders();
+//
 // Kích hoạt localization sớm để middleware/validation/controller đều đọc được culture của request.
 app.UseRequestLocalization();
 
