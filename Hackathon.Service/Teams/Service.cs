@@ -555,14 +555,7 @@ public class Service : IService
 
         var totalCount = await query.CountAsync();
 
-        if (string.IsNullOrWhiteSpace(request.Status))
-        {
-            query = query.OrderBy(x => x.Status == RegisterTeamStatusEnum.Pending ? 0 : (x.Status == RegisterTeamStatusEnum.Approved ? 1 : 2)).ThenByDescending(x => x.CreatedAt);
-        }
-        else
-        {
-            query = query.OrderByDescending(x => x.CreatedAt);
-        }
+        query = query.OrderByDescending(x => x.CreatedAt);
 
         var items = await query
             .Skip((paginationRequest.PageIndex - 1) * paginationRequest.PageSize)
@@ -943,5 +936,188 @@ public class Service : IService
         }
 
         return "TEAM_LEFT_SUCCESSFULLY";
+    }
+
+    public async Task<Response.AppealResponse> AppealRound(Guid teamId, Guid roundId, Request.RoundAppealRequest request)
+    {
+        var userId = GetCurrentUserId();
+
+        await ValidateAndGetStudentAsync(userId);
+
+        await ValidateAndGetLeaderDetailAsync(teamId, userId, "ONLY_TEAM_LEADER_CAN_APPEAL");
+
+        var roundDetail = await _dbContext.RoundDetails
+            .Include(x => x.RegisterTeam)
+            .FirstOrDefaultAsync(x => x.RoundId == roundId
+                                      && x.RegisterTeam.TeamId == teamId
+                                      && !x.IsDisable
+                                      && !x.RegisterTeam.IsDisable);
+
+        if (roundDetail == null)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        var submission = await _dbContext.Submissions
+            .FirstOrDefaultAsync(x => x.RoundDetailId == roundDetail.Id && !x.IsDisable);
+
+        if (submission == null)
+        {
+            throw new NotFoundException("SUBMISSION_NOT_FOUND");
+        }
+
+        var alreadyAppealed = await _dbContext.Reports
+            .AnyAsync(r => r.Submission.RoundDetailId == roundDetail.Id
+                           && r.TypeReport == "Phúc khảo"
+                           && !r.IsDisable);
+
+        if (alreadyAppealed)
+        {
+            throw new ConflictException("APPEAL_ALREADY_SUBMITTED_FOR_ROUND");
+        }
+
+        var assignEventId = await _dbContext.Scores
+            .Where(s => s.SubmissionId == submission.Id && !s.IsDisable)
+            .Select(s => s.AssignTrack.AssignEventId)
+            .FirstOrDefaultAsync();
+
+        if (assignEventId == Guid.Empty)
+        {
+            var assignEvent = await _dbContext.AssignEvents
+                .FirstOrDefaultAsync(ae => ae.EventId == roundDetail.RegisterTeam.EventId && !ae.IsDisable);
+
+            if (assignEvent == null)
+            {
+                throw new NotFoundException("ASSIGN_EVENT_NOT_FOUND");
+            }
+            assignEventId = assignEvent.Id;
+        }
+
+        var report = new Reports
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            AssignEventId = assignEventId,
+            SubmissionId = submission.Id,
+            Title = request.Title,
+            Description = request.Description,
+            ImgUrl = request.ImgUrl,
+            FileUrl = request.FileUrl,
+            TypeReport = "Phúc khảo",
+            Status = ReportStatusEnum.Open,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+
+        var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            await _dbContext.Reports.AddAsync(report);
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
+        return new Response.AppealResponse
+        {
+            ReportId = report.Id,
+            SubmissionId = submission.Id
+        };
+    }
+
+    public async Task<Response.AppealResponse> AppealSubmission(Guid teamId, Guid submissionId, Request.SubmissionAppealRequest request)
+    {
+        var userId = GetCurrentUserId();
+
+        await ValidateAndGetStudentAsync(userId);
+
+        await ValidateAndGetLeaderDetailAsync(teamId, userId, "ONLY_TEAM_LEADER_CAN_APPEAL");
+
+        var submission = await _dbContext.Submissions
+            .Include(s => s.RoundDetail)
+                .ThenInclude(rd => rd.RegisterTeam)
+            .FirstOrDefaultAsync(s => s.Id == submissionId && !s.IsDisable);
+
+        if (submission == null)
+        {
+            throw new NotFoundException("SUBMISSION_NOT_FOUND");
+        }
+
+        if (submission.RoundDetail.RegisterTeam.TeamId != teamId)
+        {
+            throw new ForbiddenException("SUBMISSION_NOT_BELONG_TO_TEAM");
+        }
+
+        var isGraded = await _dbContext.Scores
+            .AnyAsync(x => x.SubmissionId == submissionId && !x.IsDisable && !x.IsMock && x.TotalScore.HasValue);
+
+        if (!isGraded)
+        {
+            throw new BadRequestException("SUBMISSION_NOT_GRADED");
+        }
+
+        var alreadyAppealed = await _dbContext.Reports
+            .AnyAsync(r => r.SubmissionId == submissionId && r.TypeReport == "Phúc khảo" && !r.IsDisable);
+
+        if (alreadyAppealed)
+        {
+            throw new ConflictException("APPEAL_ALREADY_SUBMITTED_FOR_SUBMISSION");
+        }
+
+        var assignEventId = await _dbContext.Scores
+            .Where(s => s.SubmissionId == submissionId && !s.IsDisable)
+            .Select(s => s.AssignTrack.AssignEventId)
+            .FirstOrDefaultAsync();
+
+        if (assignEventId == Guid.Empty)
+        {
+            var assignEvent = await _dbContext.AssignEvents
+                .FirstOrDefaultAsync(ae => ae.EventId == submission.RoundDetail.RegisterTeam.EventId && !ae.IsDisable);
+
+            if (assignEvent == null)
+            {
+                throw new NotFoundException("ASSIGN_EVENT_NOT_FOUND");
+            }
+            assignEventId = assignEvent.Id;
+        }
+
+        var report = new Reports
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            AssignEventId = assignEventId,
+            SubmissionId = submissionId,
+            Title = request.Title,
+            Description = request.Description,
+            ImgUrl = request.ImgUrl,
+            FileUrl = request.FileUrl,
+            TypeReport = "Phúc khảo",
+            Status = ReportStatusEnum.Open,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+
+        var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            await _dbContext.Reports.AddAsync(report);
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
+        return new Response.AppealResponse
+        {
+            ReportId = report.Id,
+            SubmissionId = submissionId
+        };
     }
 }
