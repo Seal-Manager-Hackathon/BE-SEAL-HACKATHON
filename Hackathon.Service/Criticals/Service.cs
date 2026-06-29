@@ -13,7 +13,7 @@ public class Service : IService
         _dbContext = dbContext;
     }
 
-    public async Task<Response.RoundCriteriaResponse> GetCriteriaByRound(Guid roundId)
+    public async Task<List<Response.RoundCriteriaResponse>> GetCriteriaByRound(Guid roundId)
     {
         var round = await _dbContext.Rounds
             .AsNoTracking()
@@ -32,40 +32,70 @@ public class Service : IService
             throw new NotFoundException("ROUND_NOT_FOUND");
         }
 
-        var criteriaTemplate = await _dbContext.CriteriaTemplates
+        // Get all rounds of the same event
+        var rounds = await _dbContext.Rounds
             .AsNoTracking()
-            .Where(x => x.RoundId == roundId && x.IsDisable)
-            .Select(x => new Response.CriteriaTemplateResponse
+            .Where(x => x.EventId == round.EventId && !x.IsDisable)
+            .OrderBy(x => x.RoundNo)
+            .Select(x => new
             {
-                Id = x.Id,
-                Title = x.Title,
-                Description = x.Description,
-                IsDisable = x.IsDisable,
-                CreatedAt = x.CreatedAt,
-                Items = x.CriteriaItems
-                    .Where(item => !item.IsDisable)
-                    .OrderBy(item => item.CreatedAt)
-                    .ThenBy(item => item.Name)
-                    .Select(item => new Response.CriteriaItemResponse
-                    {
-                        Id = item.Id,
-                        Name = item.Name,
-                        Description = item.Description,
-                        Score = item.Score,
-                        IsDisable = item.IsDisable,
-                        CreatedAt = item.CreatedAt,
-                    })
-                    .ToList(),
+                x.Id,
+                x.EventId,
+                x.Name,
             })
-            .FirstOrDefaultAsync();
+            .ToListAsync();
 
-        return new Response.RoundCriteriaResponse
+        var roundIds = rounds.Select(r => r.Id).ToList();
+
+        var criteriaTemplates = await _dbContext.CriteriaTemplates
+            .AsNoTracking()
+            .Where(x => roundIds.Contains(x.RoundId) && x.IsDisable)
+            .Select(x => new
+            {
+                x.RoundId,
+                Template = new Response.CriteriaTemplateResponse
+                {
+                    Id = x.Id,
+                    Title = x.Title,
+                    Description = x.Description,
+                    IsDisable = x.IsDisable,
+                    CreatedAt = x.CreatedAt,
+                    Items = x.CriteriaItems
+                        .Where(item => !item.IsDisable)
+                        .OrderBy(item => item.CreatedAt)
+                        .ThenBy(item => item.Name)
+                        .Select(item => new Response.CriteriaItemResponse
+                        {
+                            Id = item.Id,
+                            Name = item.Name,
+                            Description = item.Description,
+                            Score = item.Score,
+                            IsDisable = item.IsDisable,
+                            CreatedAt = item.CreatedAt,
+                        })
+                        .ToList(),
+                }
+            })
+            .ToListAsync();
+
+        var templateDict = criteriaTemplates
+            .GroupBy(x => x.RoundId)
+            .ToDictionary(g => g.Key, g => g.FirstOrDefault()?.Template);
+
+        var result = new List<Response.RoundCriteriaResponse>();
+        foreach (var r in rounds)
         {
-            RoundId = round.Id,
-            EventId = round.EventId,
-            RoundName = round.Name,
-            Template = criteriaTemplate,
-        };
+            templateDict.TryGetValue(r.Id, out var template);
+            result.Add(new Response.RoundCriteriaResponse
+            {
+                RoundId = r.Id,
+                EventId = r.EventId,
+                RoundName = r.Name,
+                Template = template,
+            });
+        }
+
+        return result;
     }
 
     public async Task<Response.CreateCriteriaResponse> CreateCriteria(Guid eventId, Guid roundId, Request.CreateCriteriaRequest request)

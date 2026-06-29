@@ -171,8 +171,24 @@ public static class Response
 
     public class EndRoundResponse
     {
-        public Guid ClosedRoundId { get; set; }
+        public Guid RoundId { get; set; }
+        public string RoundName { get; set; } = null!;
+        public Guid EventId { get; set; }
         public Guid? NextRoundId { get; set; }
-        public int TotalTeamsAdvanced { get; set; }
+        public string? NextRoundName { get; set; }
+        public int? NextRoundLimitTeam { get; set; }
+        public int TotalTeams { get; set; }
+        public int TotalAdvanced { get; set; }
+        public List<AdvancedTeamResponse> Teams { get; set; } = new();
+    }
+
+    public class AdvancedTeamResponse
+    {
+        public int Rank { get; set; }
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = null!;
+        public decimal AverageScore { get; set; }
+        public Guid LatestSubmissionId { get; set; }
+        public bool IsAdvanced { get; set; }
     }
 }

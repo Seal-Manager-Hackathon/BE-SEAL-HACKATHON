@@ -13,11 +13,13 @@ public class Service : IService
 {
     private readonly AppDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContext;
+    private readonly Rounds.IRoundEndScheduler _roundEndScheduler;
 
-    public Service(AppDbContext dbContext, IHttpContextAccessor httpContext)
+    public Service(AppDbContext dbContext, IHttpContextAccessor httpContext, Rounds.IRoundEndScheduler roundEndScheduler)
     {
         _dbContext = dbContext;
         _httpContext = httpContext;
+        _roundEndScheduler = roundEndScheduler;
     }
 
     private Guid GetCurrentUserId()
@@ -368,6 +370,9 @@ public class Service : IService
 
         await _dbContext.Events.AddAsync(eventEntity);
         await _dbContext.SaveChangesAsync();
+
+        // Start background monitoring for this event's rounds
+        _roundEndScheduler.ScheduleEvent(eventEntity.Id);
 
         return new Response.CreateEventResponse
         {
