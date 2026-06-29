@@ -157,26 +157,8 @@ public class Service : IService
             await EnsureStaffAssignedToEvent(eventId);
         }
 
-        var eventRole = await _dbContext.EventRoles.AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == request.EventRoleId && !x.IsDisable);
-
-        if (eventRole == null)
-        {
-            throw new NotFoundException("EVENT_ROLE_NOT_FOUND");
-        }
-
-        if (eventRole.Name == EventRoleEnum.Staff)
-        {
-            throw new BadRequestException("LECTURER_EVENT_ROLE_MUST_BE_MENTOR_OR_JUDGE");
-        }
-
         var unavailableLecturerIds = _dbContext.AssignEvents.AsNoTracking()
-            .Where(x => x.EventId == eventId
-                        && !x.IsDisable
-                        && x.EventRoleId != null
-                        && (x.EventRoleId == request.EventRoleId
-                            || x.EventRole!.Name == EventRoleEnum.Mentor
-                            || x.EventRole!.Name == EventRoleEnum.Judge))
+            .Where(x => x.EventId == eventId && !x.IsDisable)
             .Select(x => x.UserId);
 
         var query = _dbContext.Users.AsNoTracking()
@@ -184,6 +166,11 @@ public class Service : IService
                         && !x.IsDisable
                         && x.Status == UserStatusEnum.Active
                         && !unavailableLecturerIds.Contains(x.Id));
+
+        if (request.UserId.HasValue)
+        {
+            query = query.Where(x => x.Id == request.UserId.Value);
+        }
 
         if (!string.IsNullOrWhiteSpace(request.Keyword))
         {
@@ -213,9 +200,6 @@ public class Service : IService
                 Email = x.Email,
                 PhoneNumber = x.PhoneNumber,
                 AvatarUrl = x.AvatarUrl,
-                Role = x.Role,
-                IsAlreadyAssignedToEvent = false,
-                AssignedEventRole = null
             })
             .ToListAsync();
 
@@ -273,7 +257,7 @@ public class Service : IService
 
         var lecturer = await _dbContext.Users.AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == request.LecturerId && !x.IsDisable && x.Status == UserStatusEnum.Active);
-        
+
         if (lecturer == null || lecturer.Role != RoleEnum.Lecturer)
         {
             throw new NotFoundException("LECTURER_NOT_FOUND");

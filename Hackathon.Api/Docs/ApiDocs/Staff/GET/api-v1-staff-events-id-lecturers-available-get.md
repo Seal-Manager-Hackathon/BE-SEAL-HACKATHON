@@ -11,20 +11,20 @@ Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
 
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | `eventId` | `guid` | Có | Id của sự kiện cần phân công giảng viên. |
 
 ## Query parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
-|---|---|---:|---|
-| `eventRoleId` | `guid` | Có | Id role trong event muốn phân công (`Mentor` hoặc `Judge`). Dùng để loại các giảng viên bị conflict role. |
-| `keyword` | `string` | Không | Tìm kiếm theo tên hoặc email giảng viên. |
+|---|---|---|---:|---|
+| `keyword` | `string` | Không | Tìm kiếm theo tên, họ, email. |
+| `userId` | `guid` | Không | Tìm kiếm theo UserId chính xác. |
 | `pageIndex` | `int` | Không | Trang hiện tại (mặc định `1`). |
 | `pageSize` | `int` | Không | Số item mỗi trang (mặc định `10`). |
 
 ## Ví dụ request
 ```http
-GET /api/v1/staff/events/00000000-0000-0000-0000-000000000000/lecturers/available?eventRoleId=11111111-1111-1111-1111-111111111111&keyword=Nguyen&pageIndex=1&pageSize=10
+GET /api/v1/staff/events/00000000-0000-0000-0000-000000000000/lecturers/available?keyword=Nguyen&pageIndex=1&pageSize=10
 Authorization: Bearer {accessToken}
 ```
 
@@ -50,10 +50,7 @@ Response dùng `ApiResponseFactory.BasePagination(items, pageIndex, pageSize, to
         "fullName": "Nguyễn Văn A",
         "email": "nguyenvana@school.edu.vn",
         "phoneNumber": "0901234567",
-        "avatarUrl": "https://example.com/avatar.png",
-        "role": 3,
-        "isAlreadyAssignedToEvent": false,
-        "assignedEventRole": null
+        "avatarUrl": "https://example.com/avatar.png"
       }
     ],
     "pageIndex": 1,
@@ -74,10 +71,7 @@ Response dùng `ApiResponseFactory.BasePagination(items, pageIndex, pageSize, to
 | `fullName` | `string` | Tên đầy đủ, ghép từ `FirstName` + `LastName`. |
 | `email` | `string` | Email giảng viên. |
 | `phoneNumber` | `string` | Số điện thoại. |
-| `avatarUrl` | `string` | Ảnh đại diện. |
-| `role` | `int` | Global role của user. Với lecturer là `3`. |
-| `isAlreadyAssignedToEvent` | `bool` | Cho biết giảng viên đã được phân công trong event này chưa. |
-| `assignedEventRole` | `int | null` | Role hiện tại trong event nếu đã được phân công. Xem bảng EventRoleEnum bên dưới. |
+| `avatarUrl` | `string` | Ảnh đại diện.
 
 ### Bảng vai trò EventRoleEnum
 | Giá trị (Value) | Vai trò (Role) | Mô tả |
@@ -96,17 +90,12 @@ Response dùng `ApiResponseFactory.BasePagination(items, pageIndex, pageSize, to
 
 ## Business rules
 - Người gọi phải là `Staff` hoặc `Admin`.
-- Nếu người gọi là `Staff`, staff đó phải được phân công quản lý sự kiện này trong `AssignEvents`; nếu không trả `STAFF_NOT_ASSIGNED_TO_EVENT`.
-- Nếu người gọi là `Admin`, không cần kiểm tra phân công quản lý sự kiện.
+- Nếu là `Staff`, phải được phân công quản lý sự kiện này.
 - `eventId` phải tồn tại và chưa bị disable.
-- `eventRoleId` phải tồn tại trong bảng `EventRoles` và chỉ nên là role `Mentor` hoặc `Judge`.
-- Chỉ trả về user có global role `Lecturer`.
-- Không trả lecturer bị disable hoặc bị ban.
-- Nếu `eventRoleId` là `Mentor`, loại các lecturer đã là `Judge` trong cùng event.
-- Nếu `eventRoleId` là `Judge`, loại các lecturer đã là `Mentor` trong cùng event.
-- Loại các lecturer đã được phân công đúng cùng `eventRoleId` trong event để tránh assign trùng.
-- `keyword` tìm kiếm theo `FirstName`, `LastName`, `FullName` hoặc `Email`, không phân biệt hoa thường.
-- Danh sách trả về phân trang theo `pageIndex`, `pageSize`.
+- Chỉ trả về user có global role `Lecturer`, active, chưa disable.
+- **Tự động loại** tất cả lecturer đã có `AssignEvents` trong event này.
+- Tìm kiếm theo: `keyword` (firstName, lastName, email), `userId`. Có thể kết hợp AND.
+- Danh sách phân trang, sắp xếp theo tên.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
@@ -116,5 +105,4 @@ Response dùng `ApiResponseFactory.BasePagination(items, pageIndex, pageSize, to
 | 403 | FORBIDDEN | FORBIDDEN |
 | 403 | FORBIDDEN | STAFF_NOT_ASSIGNED_TO_EVENT |
 | 404 | NOT_FOUND | EVENT_NOT_FOUND |
-| 404 | NOT_FOUND | EVENT_ROLE_NOT_FOUND |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
