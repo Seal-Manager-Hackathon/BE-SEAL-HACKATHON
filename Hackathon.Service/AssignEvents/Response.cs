@@ -46,8 +46,5 @@ public static class Response
         public string Email { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public string AvatarUrl { get; set; } = string.Empty;
-        public RoleEnum Role { get; set; }
-        public bool IsAlreadyAssignedToEvent { get; set; }
-        public EventRoleEnum? AssignedEventRole { get; set; }
     }
 }
