@@ -87,6 +87,8 @@ public class Service : IService
         if (string.IsNullOrWhiteSpace(request.Title))
             throw new BadRequestException("CRITERIA_TITLE_REQUIRED");
 
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
         var template = new Repository.Entity.CriteriaTemplates
         {
             Id = Guid.NewGuid(),
@@ -118,6 +120,7 @@ public class Service : IService
         }
 
         await _dbContext.SaveChangesAsync();
+        await transaction.CommitAsync();
 
         return new Response.CreateCriteriaResponse
         {
@@ -147,6 +150,8 @@ public class Service : IService
         if (template == null)
             throw new NotFoundException("CRITERIA_TEMPLATE_NOT_FOUND");
 
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
         // Deactivate all active templates of this round
         var allTemplates = await _dbContext.CriteriaTemplates
             .Where(x => x.RoundId == roundId && x.IsDisable)
@@ -163,6 +168,7 @@ public class Service : IService
         template.UpdatedAt = DateTimeOffset.UtcNow;
 
         await _dbContext.SaveChangesAsync();
+        await transaction.CommitAsync();
     }
 
     public async Task<List<Response.CriteriaTemplateResponse>> GetCriteriaTemplatesByRound(Guid eventId, Guid roundId)
