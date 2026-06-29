@@ -87,6 +87,6 @@ public static class Request
 
     public class UpdateLecturerRoleRequest
     {
-        public string? EventRole { get; set; }
+        public EventRoleEnum? EventRole { get; set; }
     }
 }

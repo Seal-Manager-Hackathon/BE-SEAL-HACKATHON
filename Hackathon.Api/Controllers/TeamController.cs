@@ -163,4 +163,20 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
         var message = await _teamService.LeaveTeam(teamId);
         return Ok(ApiResponseFactory.Base(null, 200, message, traceId: HttpContext.TraceIdentifier));
     }
+
+    [Authorize(Policy = JwtExtensions.StudentPolicy)]
+    [HttpPost("{teamId:guid}/rounds/{roundId:guid}/appeal")]
+    public async Task<IActionResult> AppealRound(Guid teamId, Guid roundId, [FromBody] TeamsService.Request.RoundAppealRequest request)
+    {
+        var result = await _teamService.AppealRound(teamId, roundId, request);
+        return Ok(ApiResponseFactory.Base(result, 200, "APPEAL_SUBMITTED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [Authorize(Policy = JwtExtensions.StudentPolicy)]
+    [HttpPost("{teamId:guid}/submissions/{submissionId:guid}/appeal")]
+    public async Task<IActionResult> AppealSubmission(Guid teamId, Guid submissionId, [FromBody] TeamsService.Request.SubmissionAppealRequest request)
+    {
+        var result = await _teamService.AppealSubmission(teamId, submissionId, request);
+        return Ok(ApiResponseFactory.Base(result, 200, "APPEAL_SUBMITTED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
 }

@@ -27,7 +27,7 @@ Chỉ cần truyền các field muốn cập nhật.
   "limitTeam": 0,
   "minMember": 0,
   "maxMember": 0,
-  "status": "Published",
+  "status": 1,
   "numberRound": 0,
   "season": "string|null"
 }
@@ -43,7 +43,7 @@ Chỉ cần truyền các field muốn cập nhật.
 | `limitTeam` | `int` | Không | Số lượng team tối đa có thể đăng ký. |
 | `minMember` | `int` | Không | Số lượng thành viên tối thiểu mỗi team. |
 | `maxMember` | `int` | Không | Số lượng thành viên tối đa mỗi team. |
-| `status` | `string` | Không | Trạng thái của event. Giá trị: `Draft`, `Published`, `Closed`, `Cancelled`. Nếu không truyền sẽ giữ nguyên trạng thái hiện tại. |
+| `status` | `int` | Không | Trạng thái của event. Giá trị: `0` (Draft), `1` (Published), `2` (Closed), `3` (Cancelled). Nếu không truyền sẽ giữ nguyên trạng thái hiện tại. |
 | `numberRound` | `int` | Không | Số vòng thi của event. |
 | `season` | `string` | Không | Mùa/mùa giải của event. |
 
@@ -97,6 +97,3 @@ Chỉ cần truyền các field muốn cập nhật.
 - Endpoint dùng route `PATCH /api/v1/admin/events/{eventId}` và `AdminPolicy`.
 - Response thành công chỉ trả message `EVENT_UPDATED_SUCCESSFULLY`.
 
-
-## Ghi chú Enum
-API dùng dạng `string` cho trường `status` (`Draft`, `Published`, `Closed`, `Cancelled`). Tham chiếu file [00-enum-values.md](00-enum-values.md) để biết mapping giữa tên enum và giá trị DB int.

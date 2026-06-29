@@ -17,13 +17,13 @@ Yêu cầu access token hợp lệ với role `Admin`.
 ## Request body
 ```json
 {
-  "eventRole": "Mentor"
+  "eventRole": 0
 }
 ```
 
 | Field | Kiểu dữ liệu | Bắt buộc | Mô tả |
 |---|---|---|---|
-| `eventRole` | `string` | Có | Vai trò mới: `Mentor` hoặc `Judge`. |
+| `eventRole` | `int` | Có | Vai trò mới: `0` (Mentor) hoặc `1` (Judge). Xem bảng bên dưới. |
 
 ## Response body
 ```json
