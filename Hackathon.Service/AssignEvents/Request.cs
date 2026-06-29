@@ -15,6 +15,5 @@ public static class Request
     {
         public string? Keyword { get; set; }
         public Guid? UserId { get; set; }
-        public string? Email { get; set; }
     }
 }

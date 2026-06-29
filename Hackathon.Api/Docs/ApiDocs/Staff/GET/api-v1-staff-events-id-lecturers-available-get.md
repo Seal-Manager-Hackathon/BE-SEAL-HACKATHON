@@ -19,7 +19,6 @@ Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
 |---|---|---|---:|---|
 | `keyword` | `string` | Không | Tìm kiếm theo tên, họ, email. |
 | `userId` | `guid` | Không | Tìm kiếm theo UserId chính xác. |
-| `email` | `string` | Không | Tìm kiếm theo email (contains). |
 | `pageIndex` | `int` | Không | Trang hiện tại (mặc định `1`). |
 | `pageSize` | `int` | Không | Số item mỗi trang (mặc định `10`). |
 
@@ -101,7 +100,7 @@ Response dùng `ApiResponseFactory.BasePagination(items, pageIndex, pageSize, to
 - `eventId` phải tồn tại và chưa bị disable.
 - Chỉ trả về user có global role `Lecturer`, active, chưa disable.
 - **Tự động loại** tất cả lecturer đã có `AssignEvents` trong event này (bất kỳ role nào).
-- Tìm kiếm theo: `keyword` (tên/email), `userId`, `email`. Có thể kết hợp AND.
+- Tìm kiếm theo: `keyword` (firstName, lastName, email), `userId`. Có thể kết hợp AND.
 - Danh sách phân trang, sắp xếp theo tên.
 
 ## Lỗi có thể xảy ra

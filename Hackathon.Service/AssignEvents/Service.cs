@@ -172,18 +172,13 @@ public class Service : IService
             query = query.Where(x => x.Id == request.UserId.Value);
         }
 
-        if (!string.IsNullOrWhiteSpace(request.Email))
-        {
-            var normalizedEmail = request.Email.Trim().ToLower();
-            query = query.Where(x => x.Email.ToLower().Contains(normalizedEmail));
-        }
-
         if (!string.IsNullOrWhiteSpace(request.Keyword))
         {
             var normalizedKeyword = request.Keyword.Trim().ToLower();
             query = query.Where(x => (x.FirstName + " " + x.LastName).ToLower().Contains(normalizedKeyword)
                                   || x.FirstName.ToLower().Contains(normalizedKeyword)
-                                  || x.LastName.ToLower().Contains(normalizedKeyword));
+                                  || x.LastName.ToLower().Contains(normalizedKeyword)
+                                  || x.Email.ToLower().Contains(normalizedKeyword));
         }
 
         var totalCount = await query.CountAsync();
