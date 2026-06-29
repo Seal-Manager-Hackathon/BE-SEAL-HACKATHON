@@ -29,6 +29,13 @@ public static class UserSeed
             CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000018"), "lucas.thomas@student.local", "Lucas", "Thomas", "SEAL018", RoleEnum.Student),
             CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000019"), "mia.white@student.local", "Mia", "White", "SEAL019", RoleEnum.Student),
 
+            // 5 Staff Data Seeds
+            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000025"), "sarah.johnson@staff.local", "Sarah", "Johnson", "STF001", RoleEnum.Staff),
+            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000026"), "michael.chen@staff.local", "Michael", "Chen", "STF002", RoleEnum.Staff),
+            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000027"), "emily.davis@staff.local", "Emily", "Davis", "STF003", RoleEnum.Staff),
+            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000028"), "kevin.nguyen@staff.local", "Kevin", "Nguyen", "STF004", RoleEnum.Staff),
+            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000029"), "lisa.taylor@staff.local", "Lisa", "Taylor", "STF005", RoleEnum.Staff),
+
             // 5 Mentor / Lecturer Data Seeds
             CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000020"), "robert.martin@lecturer.local", "Robert", "Martin", "LECT001", RoleEnum.Lecturer),
             CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000021"), "linda.clark@lecturer.local", "Linda", "Clark", "LECT002", RoleEnum.Lecturer),
