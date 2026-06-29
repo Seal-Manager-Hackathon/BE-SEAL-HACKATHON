@@ -912,6 +912,44 @@ public class Service : IService
         return ApiResponseFactory.BasePagination(pagedItems, query.PageIndex, query.PageSize, totalCount);
     }
 
+    public async Task UpdateRound(Guid roundId, Request.UpdateRoundRequest request)
+    {
+        var round = await _dbContext.Rounds.FirstOrDefaultAsync(x => x.Id == roundId && !x.IsDisable);
+        if (round == null)
+            throw new NotFoundException("ROUND_NOT_FOUND");
+
+        if (request.Name != null)
+        {
+            if (string.IsNullOrWhiteSpace(request.Name))
+                throw new BadRequestException("ROUND_NAME_REQUIRED");
+            round.Name = request.Name.Trim();
+        }
+
+        if (request.Description != null)
+            round.Description = request.Description?.Trim();
+
+        if (request.RoundNo.HasValue)
+            round.RoundNo = request.RoundNo;
+
+        if (request.StartTime.HasValue)
+            round.StartTime = request.StartTime;
+
+        if (request.EndTime.HasValue)
+            round.EndTime = request.EndTime;
+
+        if (request.StartSubmission.HasValue)
+            round.StartSubmission = request.StartSubmission;
+
+        if (request.EndSubmission.HasValue)
+            round.EndSubmission = request.EndSubmission;
+
+        if (request.LimitTeam.HasValue)
+            round.LimitTeam = request.LimitTeam;
+
+        round.UpdatedAt = DateTimeOffset.UtcNow;
+        await _dbContext.SaveChangesAsync();
+    }
+
     public async Task<(Response.EndRoundResponse Data, string Message)> EndRound(Guid roundId)
     {
         var round = await _dbContext.Rounds
