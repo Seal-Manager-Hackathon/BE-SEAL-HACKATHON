@@ -27,16 +27,19 @@ Response dùng `ApiResponseFactory.Base(...)`.
   "timestampUtc": "datetime",
   "data": [
     {
+      "roleId": "55555555-5555-5555-5555-555555555555",
       "id": 0,
       "name": "Mentor",
       "displayName": "Mentor"
     },
     {
+      "roleId": "66666666-6666-6666-6666-666666666666",
       "id": 1,
       "name": "Judge",
       "displayName": "Judge"
     },
     {
+      "roleId": "77777777-7777-7777-7777-777777777777",
       "id": 2,
       "name": "Staff",
       "displayName": "Staff"
