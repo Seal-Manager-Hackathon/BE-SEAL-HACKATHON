@@ -97,4 +97,12 @@ public class RoundsController : ControllerBase
         var (data, message) = await _roundsService.EndRound(roundId);
         return Ok(ApiResponseFactory.Base(data,200,message, traceId: HttpContext.TraceIdentifier));
     }
+
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    [HttpPatch("/api/v1/admin/rounds/{roundId:guid}")]
+    public async Task<IActionResult> UpdateRound(Guid roundId, RoundsService.Request.UpdateRoundRequest request)
+    {
+        await _roundsService.UpdateRound(roundId, request);
+        return Ok(ApiResponseFactory.Base(null, 200, "ROUND_UPDATED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
 }
