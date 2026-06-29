@@ -963,47 +963,114 @@ public class Service : IService
 
         await EnsureStaffAssignedToEvent(round.EventId);
 
+        // Check time: round must be ended (current time > round.EndTime)
+        var now = DateTimeOffset.UtcNow;
+        if (!round.EndTime.HasValue || now <= round.EndTime.Value)
+        {
+            throw new BadRequestException("ROUND_NOT_ENDED_YET");
+        }
+
+        // Find next round
         var nextRound = await _dbContext.Rounds
             .Where(x => x.EventId == round.EventId && !x.IsDisable && x.RoundNo == round.RoundNo + 1)
             .FirstOrDefaultAsync();
 
         var roundDetails = await _dbContext.RoundDetails
-            .Include(x => x.Submissions)
-                .ThenInclude(s => s.Scores)
-            .Where(x => x.RoundId == roundId && !x.IsDisable)
+            .AsNoTracking()
+            .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
+            .Include(x => x.Submissions.Where(s => !s.IsDisable && s.Status == SubmissionStatusEnum.Submitted))
+                .ThenInclude(s => s.Scores.Where(sc => !sc.IsDisable && !sc.IsMock))
+            .Where(x => x.RoundId == roundId && !x.IsDisable && !x.RegisterTeam.IsDisable && !x.RegisterTeam.Team.IsDisable)
             .ToListAsync();
 
+        // Calculate team scores: latest submission per team → average of all judge scores (exclude IsMock)
+        var teamScores = roundDetails
+            .Select(rd =>
+            {
+                var latestSubmission = rd.Submissions
+                    .OrderByDescending(s => s.SubmittedAt ?? s.CreatedAt)
+                    .FirstOrDefault();
+
+                decimal avgScore = 0;
+                var hasScore = false;
+                if (latestSubmission != null)
+                {
+                    var validScores = latestSubmission.Scores
+                        .Where(s => s.TotalScore.HasValue)
+                        .Select(s => s.TotalScore!.Value)
+                        .ToList();
+
+                    if (validScores.Count != 0)
+                    {
+                        avgScore = validScores.Average();
+                        hasScore = true;
+                    }
+                }
+
+                return new
+                {
+                    RoundDetail = rd,
+                    LatestSubmission = latestSubmission,
+                    AverageScore = avgScore,
+                    HasScore = hasScore
+                };
+            })
+            .OrderByDescending(x => x.HasScore)
+            .ThenByDescending(x => x.AverageScore)
+            .ThenBy(x => x.RoundDetail.RegisterTeam.Team.Name)
+            .ToList();
+
         int totalTeamsAdvanced = 0;
+        var advancedTeams = new List<Response.AdvancedTeamResponse>();
 
         if (nextRound != null)
         {
             var limit = nextRound.LimitTeam ?? int.MaxValue;
             if (limit > 0)
             {
-                var teamScores = roundDetails.Select(rd => new
-                {
-                    RoundDetail = rd,
-                    MaxScore = rd.Submissions
-                        .Where(s => !s.IsDisable)
-                        .SelectMany(s => s.Scores)
-                        .Where(sc => !sc.IsDisable)
-                        .OrderByDescending(sc => sc.CreatedAt)
-                        .FirstOrDefault()?.TotalScore ?? 0
-                })
-                .OrderByDescending(x => x.MaxScore)
-                .Take(limit)
-                .ToList();
+                // Take top N teams that have score > 0
+                var topTeams = teamScores
+                    .Where(x => x.HasScore && x.AverageScore > 0)
+                    .Take(limit)
+                    .ToList();
+
+                // Use transaction for RoundDetails insert + round disable (atomic)
+                await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
                 var nextRoundDetails = new List<RoundDetails>();
-                foreach (var ts in teamScores)
+                int rank = 0;
+
+                // Get existing RoundDetail IDs for next round (batch, avoid per-row roundtrip)
+                var existingRegisterTeamIds = await _dbContext.RoundDetails
+                    .Where(x => x.RoundId == nextRound.Id)
+                    .Select(x => x.RegisterTeamId)
+                    .ToListAsync();
+
+                var existingSet = new HashSet<Guid>(existingRegisterTeamIds);
+
+                foreach (var ts in topTeams)
                 {
-                    nextRoundDetails.Add(new RoundDetails
+                    rank++;
+
+                    if (!existingSet.Contains(ts.RoundDetail.RegisterTeamId))
                     {
-                        Id = Guid.NewGuid(),
-                        RoundId = nextRound.Id,
-                        RegisterTeamId = ts.RoundDetail.RegisterTeamId,
-                        CreatedAt = DateTimeOffset.UtcNow,
-                        UpdatedAt = DateTimeOffset.UtcNow
+                        nextRoundDetails.Add(new RoundDetails
+                        {
+                            Id = Guid.NewGuid(),
+                            RoundId = nextRound.Id,
+                            RegisterTeamId = ts.RoundDetail.RegisterTeamId,
+                            CreatedAt = now,
+                            UpdatedAt = now
+                        });
+                    }
+
+                    advancedTeams.Add(new Response.AdvancedTeamResponse
+                    {
+                        Rank = rank,
+                        TeamId = ts.RoundDetail.RegisterTeam.TeamId,
+                        TeamName = ts.RoundDetail.RegisterTeam.Team.Name,
+                        AverageScore = ts.AverageScore,
+                        LatestSubmissionId = ts.LatestSubmission?.Id ?? Guid.Empty,
                     });
                     totalTeamsAdvanced++;
                 }
@@ -1012,20 +1079,34 @@ public class Service : IService
                 {
                     await _dbContext.RoundDetails.AddRangeAsync(nextRoundDetails);
                 }
+
+                // Close current round
+                round.IsDisable = true;
+                round.UpdatedAt = now;
+
+                await _dbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
             }
         }
-
-        // Close current round
-        round.IsDisable = true;
-        await _dbContext.SaveChangesAsync();
+        else
+        {
+            // No next round: just close current round
+            round.IsDisable = true;
+            round.UpdatedAt = now;
+            await _dbContext.SaveChangesAsync();
+        }
 
         var message = nextRound == null ? "FINAL_ROUND_CLOSED_HACKATHON_ENDED" : "ROUND_ENDED_SUCCESSFULLY";
 
         return (new Response.EndRoundResponse
         {
             ClosedRoundId = round.Id,
+            ClosedRoundName = round.Name,
             NextRoundId = nextRound?.Id,
+            NextRoundName = nextRound?.Name,
+            NextRoundLimitTeam = nextRound?.LimitTeam,
             TotalTeamsAdvanced = totalTeamsAdvanced,
+            AdvancedTeams = advancedTeams,
         }, message);
     }
 }

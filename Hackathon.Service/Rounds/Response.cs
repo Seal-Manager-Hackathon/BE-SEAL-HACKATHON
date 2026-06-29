@@ -172,7 +172,20 @@ public static class Response
     public class EndRoundResponse
     {
         public Guid ClosedRoundId { get; set; }
+        public string ClosedRoundName { get; set; } = null!;
         public Guid? NextRoundId { get; set; }
+        public string? NextRoundName { get; set; }
+        public int? NextRoundLimitTeam { get; set; }
         public int TotalTeamsAdvanced { get; set; }
+        public List<AdvancedTeamResponse> AdvancedTeams { get; set; } = new();
+    }
+
+    public class AdvancedTeamResponse
+    {
+        public int Rank { get; set; }
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = null!;
+        public decimal AverageScore { get; set; }
+        public Guid LatestSubmissionId { get; set; }
     }
 }
