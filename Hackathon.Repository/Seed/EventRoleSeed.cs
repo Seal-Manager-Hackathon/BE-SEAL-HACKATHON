@@ -24,6 +24,14 @@ public static class EventRoleSeed
                 IsDisable = false,
                 CreatedAt = SeedConstants.CreatedAt,
                 UpdatedAt = SeedConstants.CreatedAt
+            },
+            new EventRoles
+            {
+                Id = SeedConstants.StaffEventRoleId,
+                Name = EventRoleEnum.Staff,
+                IsDisable = false,
+                CreatedAt = SeedConstants.CreatedAt,
+                UpdatedAt = SeedConstants.CreatedAt
             }
         );
     }

@@ -11,6 +11,7 @@ public static class SeedConstants
 
     public static readonly Guid MentorEventRoleId = Guid.Parse("55555555-5555-5555-5555-555555555555");
     public static readonly Guid JudgeEventRoleId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+    public static readonly Guid StaffEventRoleId = Guid.Parse("77777777-7777-7777-7777-777777777777");
 
     public static readonly Guid AdminUserId = Guid.Parse("10000000-0000-0000-0000-000000000001");
     public static readonly Guid StaffUserId = Guid.Parse("10000000-0000-0000-0000-000000000002");
@@ -55,6 +56,7 @@ public static class SeedConstants
 
     public static readonly Guid MentorAssignEventId = Guid.Parse("40000000-0000-0000-0000-000000000001");
     public static readonly Guid JudgeAssignEventId = Guid.Parse("40000000-0000-0000-0000-000000000002");
+    public static readonly Guid StaffAssignEventId = Guid.Parse("40000000-0000-0000-0000-000000000003");
     public static readonly Guid MentorAiAssignTrackId = Guid.Parse("41000000-0000-0000-0000-000000000001");
     public static readonly Guid JudgeAiAssignTrackId = Guid.Parse("41000000-0000-0000-0000-000000000002");
     public static readonly Guid JudgeGreenAssignTrackId = Guid.Parse("41000000-0000-0000-0000-000000000003");
