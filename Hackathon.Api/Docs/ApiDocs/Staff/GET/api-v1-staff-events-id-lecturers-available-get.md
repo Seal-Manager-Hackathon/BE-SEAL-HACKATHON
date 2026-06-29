@@ -19,6 +19,7 @@ Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
 |---|---|---|---:|---|
 | `keyword` | `string` | Không | Tìm kiếm theo tên, họ, email. |
 | `userId` | `guid` | Không | Tìm kiếm theo UserId chính xác. |
+| `email` | `string` | Không | Tìm kiếm theo email (contains). |
 | `pageIndex` | `int` | Không | Trang hiện tại (mặc định `1`). |
 | `pageSize` | `int` | Không | Số item mỗi trang (mặc định `10`). |
 
