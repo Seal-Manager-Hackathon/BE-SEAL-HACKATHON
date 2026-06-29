@@ -172,12 +172,6 @@ public class Service : IService
             query = query.Where(x => x.Id == request.UserId.Value);
         }
 
-        if (!string.IsNullOrWhiteSpace(request.Email))
-        {
-            var normalizedEmail = request.Email.Trim().ToLower();
-            query = query.Where(x => x.Email.ToLower().Contains(normalizedEmail));
-        }
-
         if (!string.IsNullOrWhiteSpace(request.Keyword))
         {
             var normalizedKeyword = request.Keyword.Trim().ToLower();
@@ -266,7 +260,7 @@ public class Service : IService
 
         var lecturer = await _dbContext.Users.AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == request.LecturerId && !x.IsDisable && x.Status == UserStatusEnum.Active);
-        
+
         if (lecturer == null || lecturer.Role != RoleEnum.Lecturer)
         {
             throw new NotFoundException("LECTURER_NOT_FOUND");
