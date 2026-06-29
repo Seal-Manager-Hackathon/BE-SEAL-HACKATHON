@@ -76,11 +76,11 @@ Response dùng `ApiResponseFactory.BasePagination(items, pageIndex, pageSize, to
 | `phoneNumber` | `string` | Số điện thoại. |
 | `avatarUrl` | `string` | Ảnh đại diện. |
 | `role` | `int` | Global role của user. Với lecturer là `3`. |
-| `isAlreadyAssignedToEvent` | `bool` | Cho biết giảng viên đã được phân công trong event này chưa (luôn `false` vì đã filter). |
+| `isAlreadyAssignedToEvent` | `bool` | Cho biết giảng viên đã được phân công trong event này chưa. |
 | `assignedEventRole` | `int | null` | Role hiện tại trong event nếu đã được phân công. Xem bảng EventRoleEnum bên dưới. |
 
-### Bảng vai trò EventRoleEnum (Integer)
-| Giá trị (Value) | Vai trò (Role) | Mô tả (Description) |
+### Bảng vai trò EventRoleEnum
+| Giá trị (Value) | Vai trò (Role) | Mô tả |
 | :--- | :--- | :--- |
 | `0` | Mentor | Người hướng dẫn chuyên môn cho đội thi |
 | `1` | Judge | Giám khảo chấm điểm bài thi |
@@ -96,12 +96,17 @@ Response dùng `ApiResponseFactory.BasePagination(items, pageIndex, pageSize, to
 
 ## Business rules
 - Người gọi phải là `Staff` hoặc `Admin`.
-- Nếu là `Staff`, phải được phân công quản lý sự kiện này.
+- Nếu người gọi là `Staff`, staff đó phải được phân công quản lý sự kiện này trong `AssignEvents`; nếu không trả `STAFF_NOT_ASSIGNED_TO_EVENT`.
+- Nếu người gọi là `Admin`, không cần kiểm tra phân công quản lý sự kiện.
 - `eventId` phải tồn tại và chưa bị disable.
-- Chỉ trả về user có global role `Lecturer`, active, chưa disable.
-- **Tự động loại** tất cả lecturer đã có `AssignEvents` trong event này (bất kỳ role nào).
-- Tìm kiếm theo: `keyword` (firstName, lastName, email), `userId`. Có thể kết hợp AND.
-- Danh sách phân trang, sắp xếp theo tên.
+- `eventRoleId` phải tồn tại trong bảng `EventRoles` và chỉ nên là role `Mentor` hoặc `Judge`.
+- Chỉ trả về user có global role `Lecturer`.
+- Không trả lecturer bị disable hoặc bị ban.
+- Nếu `eventRoleId` là `Mentor`, loại các lecturer đã là `Judge` trong cùng event.
+- Nếu `eventRoleId` là `Judge`, loại các lecturer đã là `Mentor` trong cùng event.
+- Loại các lecturer đã được phân công đúng cùng `eventRoleId` trong event để tránh assign trùng.
+- `keyword` tìm kiếm theo `FirstName`, `LastName`, `FullName` hoặc `Email`, không phân biệt hoa thường.
+- Danh sách trả về phân trang theo `pageIndex`, `pageSize`.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
@@ -111,4 +116,5 @@ Response dùng `ApiResponseFactory.BasePagination(items, pageIndex, pageSize, to
 | 403 | FORBIDDEN | FORBIDDEN |
 | 403 | FORBIDDEN | STAFF_NOT_ASSIGNED_TO_EVENT |
 | 404 | NOT_FOUND | EVENT_NOT_FOUND |
+| 404 | NOT_FOUND | EVENT_ROLE_NOT_FOUND |
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
