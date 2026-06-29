@@ -29,4 +29,9 @@ public static class Response
         public bool IsDisable { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }
+
+    public class CreateCriteriaResponse
+    {
+        public Guid Id { get; set; }
+    }
 }

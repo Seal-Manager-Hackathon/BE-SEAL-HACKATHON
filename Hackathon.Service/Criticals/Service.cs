@@ -34,7 +34,7 @@ public class Service : IService
 
         var criteriaTemplate = await _dbContext.CriteriaTemplates
             .AsNoTracking()
-            .Where(x => x.RoundId == roundId && !x.IsDisable)
+            .Where(x => x.RoundId == roundId && x.IsDisable)
             .Select(x => new Response.CriteriaTemplateResponse
             {
                 Id = x.Id,
@@ -68,6 +68,149 @@ public class Service : IService
         };
     }
 
+    public async Task<Response.CreateCriteriaResponse> CreateCriteria(Guid eventId, Guid roundId, Request.CreateCriteriaRequest request)
+    {
+        var eventExists = await _dbContext.Events
+            .AsNoTracking()
+            .AnyAsync(x => x.Id == eventId && !x.IsDisable);
+
+        if (!eventExists)
+            throw new NotFoundException("EVENT_NOT_FOUND");
+
+        var round = await _dbContext.Rounds
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == roundId && x.EventId == eventId && !x.IsDisable);
+
+        if (round == null)
+            throw new NotFoundException("ROUND_NOT_FOUND");
+
+        if (string.IsNullOrWhiteSpace(request.Title))
+            throw new BadRequestException("CRITERIA_TITLE_REQUIRED");
+
+        var template = new Repository.Entity.CriteriaTemplates
+        {
+            Id = Guid.NewGuid(),
+            RoundId = roundId,
+            Title = request.Title,
+            Description = request.Description,
+            IsDisable = false,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+
+        _dbContext.CriteriaTemplates.Add(template);
+
+        if (request.Items.Count != 0)
+        {
+            var items = request.Items.Select(item => new Repository.Entity.CriteriaItems
+            {
+                Id = Guid.NewGuid(),
+                CriteriaTemplateId = template.Id,
+                Name = item.Name,
+                Description = item.Description,
+                Score = item.Score,
+                IsDisable = false,
+                CreatedAt = DateTimeOffset.UtcNow,
+                UpdatedAt = DateTimeOffset.UtcNow
+            }).ToList();
+
+            _dbContext.CriteriaItems.AddRange(items);
+        }
+
+        await _dbContext.SaveChangesAsync();
+
+        return new Response.CreateCriteriaResponse
+        {
+            Id = template.Id
+        };
+    }
+
+    public async Task ActivateCriteria(Guid eventId, Guid roundId, Guid templateId)
+    {
+        var eventExists = await _dbContext.Events
+            .AsNoTracking()
+            .AnyAsync(x => x.Id == eventId && !x.IsDisable);
+
+        if (!eventExists)
+            throw new NotFoundException("EVENT_NOT_FOUND");
+
+        var round = await _dbContext.Rounds
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == roundId && x.EventId == eventId && !x.IsDisable);
+
+        if (round == null)
+            throw new NotFoundException("ROUND_NOT_FOUND");
+
+        var template = await _dbContext.CriteriaTemplates
+            .FirstOrDefaultAsync(x => x.Id == templateId && x.RoundId == roundId);
+
+        if (template == null)
+            throw new NotFoundException("CRITERIA_TEMPLATE_NOT_FOUND");
+
+        // Deactivate all active templates of this round
+        var allTemplates = await _dbContext.CriteriaTemplates
+            .Where(x => x.RoundId == roundId && x.IsDisable)
+            .ToListAsync();
+
+        foreach (var t in allTemplates)
+        {
+            t.IsDisable = false;
+            t.UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
+        // Activate the selected template
+        template.IsDisable = true;
+        template.UpdatedAt = DateTimeOffset.UtcNow;
+
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<List<Response.CriteriaTemplateResponse>> GetCriteriaTemplatesByRound(Guid eventId, Guid roundId)
+    {
+        var eventExists = await _dbContext.Events
+            .AsNoTracking()
+            .AnyAsync(x => x.Id == eventId && !x.IsDisable);
+
+        if (!eventExists)
+            throw new NotFoundException("EVENT_NOT_FOUND");
+
+        var round = await _dbContext.Rounds
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == roundId && x.EventId == eventId && !x.IsDisable);
+
+        if (round == null)
+            throw new NotFoundException("ROUND_NOT_FOUND");
+
+        var templates = await _dbContext.CriteriaTemplates
+            .AsNoTracking()
+            .Where(x => x.RoundId == roundId)
+            .OrderByDescending(x => x.CreatedAt)
+            .Select(x => new Response.CriteriaTemplateResponse
+            {
+                Id = x.Id,
+                Title = x.Title,
+                Description = x.Description,
+                IsDisable = x.IsDisable,
+                CreatedAt = x.CreatedAt,
+                Items = x.CriteriaItems
+                    .OrderBy(item => item.CreatedAt)
+                    .ThenBy(item => item.Name)
+                    .Select(item => new Response.CriteriaItemResponse
+                    {
+                        Id = item.Id,
+                        Name = item.Name,
+                        Description = item.Description,
+                        Score = item.Score,
+                        IsDisable = item.IsDisable,
+                        CreatedAt = item.CreatedAt,
+                    })
+                    .ToList(),
+            })
+            .ToListAsync();
+
+        return templates;
+    }
+
     public async Task<List<Response.RoundCriteriaResponse>> GetCriteriaByEvent(Guid eventId)
     {
         var eventExists = await _dbContext.Events
@@ -95,7 +238,7 @@ public class Service : IService
 
         var criteriaTemplates = await _dbContext.CriteriaTemplates
             .AsNoTracking()
-            .Where(x => roundIds.Contains(x.RoundId) && !x.IsDisable)
+            .Where(x => roundIds.Contains(x.RoundId) && x.IsDisable)
             .Select(x => new
             {
                 x.RoundId,
