@@ -72,7 +72,7 @@ Không có.
 - Không yêu cầu đăng nhập.
 - `roundId` là bắt buộc.
 - Nếu vòng thi (`Round`) hoặc sự kiện chứa vòng thi đó (`Event`) bị soft-disable (`IsDisable == true`) hoặc không tồn tại, trả về `ROUND_NOT_FOUND`.
-- Một vòng thi chỉ có duy nhất 1 mẫu tiêu chí (`template`), được lấy theo `roundId`. Trả về `null` nếu chưa có mẫu nào.
+- Một vòng thi có thể có nhiều template, nhưng chỉ trả về 1 template đang được gắn (`IsDisable == true`). Trả về `null` nếu chưa có template nào được gắn.
 - `template` chứa danh sách `items` (CriteriaItems), mỗi item có bao gồm `score` (điểm).
 - Chỉ lấy những tiêu chí chưa bị disable (`IsDisable == false`).
 - Dữ liệu `items` sắp xếp theo thời gian tạo, sau đó theo tên.

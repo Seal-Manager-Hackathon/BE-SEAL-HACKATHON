@@ -81,11 +81,11 @@ Không có.
 - `eventId` là bắt buộc.
 - Nếu sự kiện (`Event`) bị soft-disable (`IsDisable == true`) hoặc không tồn tại, trả về `EVENT_NOT_FOUND`.
 - Trả về danh sách tất cả các vòng thi (`Round`) chưa bị disable của Event, sắp xếp theo `RoundNo` tăng dần.
-- Đối với mỗi vòng thi, đính kèm `template` duy nhất tương ứng (nếu có).
+- Đối với mỗi vòng thi, đính kèm `template` đang được gắn (`IsDisable == true`) tương ứng (nếu có).
 - Trong mỗi `template` chứa danh sách `items` (CriteriaItems), mỗi item có bao gồm `score` (điểm).
-- Chỉ lấy các `template` và `items` chưa bị disable (`IsDisable == false`).
+- Chỉ lấy các `template` và `items` không bị disable (`IsDisable` của items là `false`).
 - Dữ liệu `items` sắp xếp theo thời gian tạo, sau đó theo tên.
-- Nếu một vòng thi chưa được tạo mẫu tiêu chí, trường `template` của vòng đó sẽ mang giá trị `null`.
+- Nếu một vòng thi chưa có template nào được gắn, trường `template` của vòng đó sẽ mang giá trị `null`.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
