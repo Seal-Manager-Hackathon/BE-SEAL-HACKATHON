@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Hackathon.Repository;
 using Hackathon.Repository.Enum;
-using Hackathon.Service.Roles.Response;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hackathon.Service.Roles;
@@ -41,6 +40,7 @@ public class Service : IService
 
         return eventRoles.Select(x => new EventRoleResponse
         {
+            RoleId = x.Id,
             Id = (int)x.Name,
             Name = x.Name.ToString(),
             DisplayName = x.Name.ToString()
