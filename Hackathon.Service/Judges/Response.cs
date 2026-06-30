@@ -127,6 +127,38 @@ public static class Response
         public List<JudgeTeamSubmissionInfo> Teams { get; set; } = new();
     }
 
+    public class JudgeRoundTeamResponse
+    {
+        public Guid RegisterTeamId { get; set; }
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = string.Empty;
+        public Guid? TrackId { get; set; }
+        public string? TrackTitle { get; set; }
+        public Guid? TopicId { get; set; }
+        public string? TopicTitle { get; set; }
+        public Guid? SubmissionId { get; set; }
+        public SubmissionStatusEnum? SubmissionStatus { get; set; }
+        public DateTimeOffset? SubmittedAt { get; set; }
+        public string GradingStatus { get; set; } = "Pending";
+        public decimal? TotalScore { get; set; }
+    }
+
+    public class JudgeTeamSubmissionListResponse
+    {
+        public Guid SubmissionId { get; set; }
+        public Guid RoundId { get; set; }
+        public string RoundName { get; set; } = string.Empty;
+        public int? RoundNo { get; set; }
+        public Guid RoundDetailId { get; set; }
+        public string? Url { get; set; }
+        public string? Description { get; set; }
+        public SubmissionStatusEnum? Status { get; set; }
+        public DateTimeOffset? SubmittedAt { get; set; }
+        public string GradingStatus { get; set; } = "Pending";
+        public Guid? ScoreId { get; set; }
+        public decimal? TotalScore { get; set; }
+    }
+
     public class JudgeRegradeSubmissionResponse
     {
         public Guid SubmissionId { get; set; }

@@ -136,4 +136,20 @@ public class JudgeController : ControllerBase
         var (data, message) = await _judgeService.GetJudgeTeamsByEvent(eventId, roundId);
         return Ok(ApiResponseFactory.Base(data, 200, message, traceId: HttpContext.TraceIdentifier));
     }
+
+    [HttpGet("events/{eventId:guid}/rounds/{roundId:guid}")]
+    public async Task<IActionResult> GetJudgeRoundTeams(Guid eventId, Guid roundId, [FromQuery] Guid? trackId, [FromQuery] string? status, [FromQuery] PaginationRequest paginationRequest)
+    {
+        var result = await _judgeService.GetJudgeRoundTeams(eventId, roundId, trackId, status, paginationRequest);
+        result.TraceId = HttpContext.TraceIdentifier;
+        return Ok(result);
+    }
+
+    [HttpGet("register-teams/{registerTeamId:guid}/submissions")]
+    public async Task<IActionResult> GetJudgeTeamSubmissions(Guid registerTeamId, [FromQuery] PaginationRequest paginationRequest)
+    {
+        var result = await _judgeService.GetJudgeTeamSubmissions(registerTeamId, paginationRequest);
+        result.TraceId = HttpContext.TraceIdentifier;
+        return Ok(result);
+    }
 }
