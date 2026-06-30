@@ -140,6 +140,14 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
         return Ok(ApiResponseFactory.Base(null, 200, message, traceId: HttpContext.TraceIdentifier));
     }
 
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    [HttpPatch("/api/v1/admin/teams/{teamId:guid}/enable")]
+    public async Task<IActionResult> EnableTeam(Guid teamId)
+    {
+        var message = await _teamService.EnableTeam(teamId);
+        return Ok(ApiResponseFactory.Base(null, 200, message, traceId: HttpContext.TraceIdentifier));
+    }
+
     [Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]
     [HttpPatch("{teamId:guid}/lock")]
     public async Task<IActionResult> LockTeam(Guid teamId)
