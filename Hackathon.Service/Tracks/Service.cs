@@ -101,8 +101,18 @@ public class Service : IService
         if (!string.IsNullOrWhiteSpace(keyword))
         {
             var normalizedKeyword = keyword.Trim().ToLower();
-            query = query.Where(x => x.Title.ToLower().Contains(normalizedKeyword)
-                                     || (x.Description != null && x.Description.ToLower().Contains(normalizedKeyword)));
+
+            if (Guid.TryParse(keyword.Trim(), out var trackId))
+            {
+                query = query.Where(x => x.Id == trackId
+                    || x.Title.ToLower().Contains(normalizedKeyword)
+                    || (x.Description != null && x.Description.ToLower().Contains(normalizedKeyword)));
+            }
+            else
+            {
+                query = query.Where(x => x.Title.ToLower().Contains(normalizedKeyword)
+                    || (x.Description != null && x.Description.ToLower().Contains(normalizedKeyword)));
+            }
         }
 
         var totalCount = await query.CountAsync();

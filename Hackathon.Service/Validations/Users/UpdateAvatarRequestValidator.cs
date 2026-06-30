@@ -8,7 +8,6 @@ public class UpdateAvatarRequestValidator : AbstractValidator<Request.UpdateAvat
     public UpdateAvatarRequestValidator()
     {
         RuleFor(x => x.AvatarUrl)
-            .NotEmpty().WithMessage("AVATAR_URL_REQUIRED")
-            .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _)).WithMessage("AVATAR_URL_INVALID");
+            .NotNull().WithMessage("AVATAR_FILE_REQUIRED");
     }
 }

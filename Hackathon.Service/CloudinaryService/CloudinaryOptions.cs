@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Rallyhub.Service.CloudinaryService;
+namespace Hackathon.Service.CloudinaryService;
 
 public record CloudinaryOptions
 {

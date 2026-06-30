@@ -1,10 +1,11 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using Hackathon.Service.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Rallyhub.Service.MediaService;
+using Hackathon.Service.MediaService;
 
-namespace Rallyhub.Service.CloudinaryService;
+namespace Hackathon.Service.CloudinaryService;
 
 public class Service : IService
 {
@@ -27,30 +28,30 @@ public class Service : IService
     {
         if (file == null || file.Length == 0)
         {
-            throw new ArgumentException("File is empty or null.", nameof(file));
+            throw new BadRequestException("FILE_EMPTY", "File is empty.");
         }
-        if (!IsImageFile(file))
+
+        var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+        if (!allowedExtensions.Contains(fileExtension))
         {
-            throw new ArgumentException("File is not a valid image.", nameof(file));
+            throw new BadRequestException("INVALID_IMAGE_FORMAT", "Only .jpg, .jpeg, .png, .gif, .webp are allowed.");
+        }
+
+        if (file.Length > 5 * 1024 * 1024)
+        {
+            throw new BadRequestException("FILE_TOO_LARGE", "Image must be less than 5MB.");
         }
 
         await using var stream = file.OpenReadStream();
         var uploadParams = new ImageUploadParams()
         {
             File = new FileDescription(file.FileName, stream),
-            Folder = "Rallyhub",
+            Folder = "Avatar/hackathon",
             UseFilename = true,
             UniqueFilename = true
         };
         var uploadResult = await _cloudinary.UploadAsync(uploadParams);
         return uploadResult.SecureUrl.ToString();
-    }
-
-    private bool IsImageFile(IFormFile file)
-    {
-        // This is a basic check. For more robust validation, consider using a library like MimeDetective
-        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
-        var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
-        return allowedExtensions.Contains(fileExtension);
     }
 }

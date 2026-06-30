@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Rallyhub.Service.MediaService;
+namespace Hackathon.Service.MediaService;
 
 public interface IService
 {

@@ -20,8 +20,8 @@ public class UpdateProfileRequestValidator : AbstractValidator<Request.UpdatePro
             .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber));
 
         RuleFor(x => x.AvatarUrl)
-            .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _)).WithMessage("AVATAR_URL_INVALID")
-            .When(x => !string.IsNullOrWhiteSpace(x.AvatarUrl));
+            .NotNull().WithMessage("AVATAR_URL_INVALID")
+            .When(x => x.AvatarUrl != null);
 
         RuleFor(x => x.DateOfBirth)
             .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.UtcNow)).WithMessage("DATE_OF_BIRTH_INVALID")
