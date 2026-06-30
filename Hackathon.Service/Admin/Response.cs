@@ -1,6 +1,6 @@
 using Hackathon.Repository.Enum;
 
-namespace Hackathon.Service.Admin.Response;
+namespace Hackathon.Service.Admin;
 
 public class AdminUserResponse
 {

@@ -1,7 +1,5 @@
 using System.Threading.Tasks;
 using Hackathon.Repository.Enum;
-using Hackathon.Service.Admin.Request;
-using Hackathon.Service.Admin.Response;
 using Hackathon.Service.Models;
 
 namespace Hackathon.Service.Admin;

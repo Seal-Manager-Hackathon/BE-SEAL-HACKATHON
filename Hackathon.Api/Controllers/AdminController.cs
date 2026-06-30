@@ -1,6 +1,5 @@
 using Hackathon.Api.Extention;
 using Hackathon.Repository.Enum;
-using Hackathon.Service.Admin.Request;
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,14 +27,14 @@ public class AdminController : ControllerBase
     }
 
     [HttpGet("users/search")]
-    public async Task<IActionResult> SearchUsers([FromQuery] GetUsersQuery query)
+    public async Task<IActionResult> SearchUsers([FromQuery] AdminService.GetUsersQuery query)
     {
         var result = await _adminService.SearchUsers(query);
         return Ok(result);
     }
 
     [HttpGet("events/{eventId:guid}/rounds")]
-    public async Task<IActionResult> GetRounds(Guid eventId, [FromQuery] GetAdminRoundsRequest request)
+    public async Task<IActionResult> GetRounds(Guid eventId, [FromQuery] AdminService.GetAdminRoundsRequest request)
     {
         var result = await _adminService.GetRounds(eventId, request);
         result.TraceId = HttpContext.TraceIdentifier;
@@ -43,14 +42,14 @@ public class AdminController : ControllerBase
     }
 
     [HttpPost("events/{eventId:guid}/rounds")]
-    public async Task<IActionResult> CreateRound(Guid eventId, CreateRoundRequest request)
+    public async Task<IActionResult> CreateRound(Guid eventId, AdminService.CreateRoundRequest request)
     {
         var result = await _adminService.CreateRound(eventId, request);
         return StatusCode(201, ApiResponseFactory.Base(result, 201, "ROUND_CREATED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpPatch("rounds/{roundId:guid}")]
-    public async Task<IActionResult> UpdateRound(Guid roundId, CreateRoundRequest request)
+    public async Task<IActionResult> UpdateRound(Guid roundId, AdminService.CreateRoundRequest request)
     {
         await _adminService.UpdateRound(roundId, request);
         return Ok(ApiResponseFactory.Base(null, 200, "ROUND_UPDATED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));

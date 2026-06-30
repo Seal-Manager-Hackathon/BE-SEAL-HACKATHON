@@ -3,8 +3,6 @@ using System.Threading.Tasks;
 using Hackathon.Repository;
 using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
-using Hackathon.Service.Admin.Request;
-using Hackathon.Service.Admin.Response;
 using Hackathon.Service.Exceptions;
 using Hackathon.Service.Models;
 using Microsoft.EntityFrameworkCore;
@@ -52,6 +50,16 @@ public class Service : IService
         if (query.IsVerified.HasValue)
         {
             q = q.Where(x => x.IsVerified == query.IsVerified.Value);
+        }
+
+        // KeySearch — search across email, userId, studentId, firstName, lastName
+        if (!string.IsNullOrWhiteSpace(query.KeySearch))
+        {
+            var normalized = query.KeySearch.Trim().ToLower();
+            q = q.Where(x => x.Email.ToLower().Contains(normalized)
+                || x.StudentId.ToLower().Contains(normalized)
+                || x.FirstName.ToLower().Contains(normalized)
+                || x.LastName.ToLower().Contains(normalized));
         }
 
         if (!string.IsNullOrWhiteSpace(query.MailSearch))
