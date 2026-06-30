@@ -85,15 +85,6 @@ public static class MailTemplate
                     color: #43516a;
                     font-size: 14px;
                 }
-                .link-box {
-                    word-break: break-all;
-                    margin-top: 18px;
-                    padding: 13px;
-                    background: #f6f8fc;
-                    border-radius: 10px;
-                    color: #526078;
-                    font-size: 12px;
-                }
                 .footer {
                     padding: 22px 30px;
                     background: #f7f9fd;
@@ -118,10 +109,6 @@ public static class MailTemplate
                         </div>
                         <div class="note">
                             Liên kết xác thực chỉ có hiệu lực trong thời gian ngắn. Vui lòng không chia sẻ email này cho bất kỳ ai.
-                        </div>
-                        <div class="link-box">
-                            Nếu nút không hoạt động, hãy sao chép liên kết này vào trình duyệt:<br>
-                            {{verification_link}}
                         </div>
                     </div>
                     <div class="footer">
@@ -219,15 +206,6 @@ public static class MailTemplate
                     color: #60402a;
                     font-size: 14px;
                 }
-                .link-box {
-                    word-break: break-all;
-                    margin-top: 18px;
-                    padding: 13px;
-                    background: #faf7f5;
-                    border-radius: 10px;
-                    color: #6b5b52;
-                    font-size: 12px;
-                }
                 .footer {
                     padding: 22px 30px;
                     background: #fff8f4;
@@ -252,10 +230,6 @@ public static class MailTemplate
                         </div>
                         <div class="warning">
                             Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này. Không chia sẻ liên kết này cho bất kỳ ai.
-                        </div>
-                        <div class="link-box">
-                            Nếu nút không hoạt động, hãy sao chép liên kết này vào trình duyệt:<br>
-                            {{reset_password_link}}
                         </div>
                     </div>
                     <div class="footer">
