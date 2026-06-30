@@ -19,6 +19,74 @@ public class Service : IService
     }
 
     
+    public async Task<Reponse.UserDetailResponse> GetUserById(Guid userId)
+    {
+        var user = await _dbContext.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
+
+        if (user == null) throw new NotFoundException("USER_NOT_FOUND");
+
+        return new Reponse.UserDetailResponse
+        {
+            Id = user.Id,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            PhoneNumber = user.PhoneNumber,
+            AvatarUrl = user.AvatarUrl,
+            Bio = user.Bio,
+            Address = user.Address,
+            DateOfBirth = user.DateOfBirth,
+            StudentId = user.StudentId,
+            College = user.College,
+            ImgUrl = user.ImgUrl,
+            LinkUrl = user.LinkUrl,
+            Role = user.Role,
+            Status = user.Status,
+            IsVerified = user.IsVerified
+        };
+    }
+
+    public async Task<BasePaginationResponse> SearchStudents(Request.SearchStudentsRequest request)
+    {
+        var q = _dbContext.Users
+            .AsNoTracking()
+            .Where(x => x.Role == RoleEnum.Student && !x.IsDisable);
+
+        if (!string.IsNullOrWhiteSpace(request.Search))
+        {
+            var normalized = request.Search.Trim().ToLower();
+            q = q.Where(x => (x.FirstName + " " + x.LastName).ToLower().Contains(normalized)
+                || x.Email.ToLower().Contains(normalized));
+        }
+
+        var totalCount = await q.CountAsync();
+
+        var pageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
+        var pageSize = request.PageSize <= 0 ? 10 : System.Math.Min(request.PageSize, 100);
+
+        var items = await q
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new Reponse.StudentSearchResponse
+            {
+                Id = x.Id,
+                FirstName = x.FirstName,
+                LastName = x.LastName,
+                Email = x.Email,
+                PhoneNumber = x.PhoneNumber,
+                AvatarUrl = x.AvatarUrl,
+                StudentId = x.StudentId,
+                College = x.College,
+                Status = x.Status
+            })
+            .ToListAsync();
+
+        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount, _IhttpContex.HttpContext?.TraceIdentifier);
+    }
+
     public async Task<Reponse.UserProfileDetailResponse> GetProfileUser()
     {
         var userId = GetUserId();

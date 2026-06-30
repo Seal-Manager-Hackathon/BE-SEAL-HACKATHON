@@ -33,6 +33,11 @@ public static class Request
     {
     }
 
+    public class SearchStudentsRequest : PaginationRequest
+    {
+        public string? Search { get; set; }
+    }
+
     public class UpdateAvatarRequest
     {
         public string AvatarUrl { get; set; } = string.Empty;

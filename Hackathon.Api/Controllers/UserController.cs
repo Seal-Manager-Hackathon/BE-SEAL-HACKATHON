@@ -17,6 +17,23 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
+    [HttpGet("{userId:guid}")]
+    [Authorize]
+    public async Task<IActionResult> GetUserById(Guid userId)
+    {
+        var result = await _userService.GetUserById(userId);
+        return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("students")]
+    [Authorize]
+    public async Task<IActionResult> SearchStudents([FromQuery] Request.SearchStudentsRequest request)
+    {
+        var result = await _userService.SearchStudents(request);
+        result.TraceId = HttpContext.TraceIdentifier;
+        return Ok(result);
+    }
+
     [HttpGet("profile")]
     [Authorize]
     public async Task<IActionResult> GetProfileUser()

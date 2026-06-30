@@ -24,6 +24,39 @@ public static class Reponse
         public RoleEnum Role { get; set; }
     }
 
+    public class UserDetailResponse
+    {
+        public Guid Id { get; set; }
+        public string Email { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
+        public string AvatarUrl { get; set; } = string.Empty;
+        public string? Bio { get; set; }
+        public string? Address { get; set; } = string.Empty;
+        public DateTimeOffset DateOfBirth { get; set; }
+        public string StudentId { get; set; } = string.Empty;
+        public string College { get; set; } = string.Empty;
+        public string? ImgUrl { get; set; }
+        public string? LinkUrl { get; set; }
+        public RoleEnum Role { get; set; }
+        public UserStatusEnum? Status { get; set; }
+        public bool? IsVerified { get; set; }
+    }
+
+    public class StudentSearchResponse
+    {
+        public Guid Id { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
+        public string AvatarUrl { get; set; } = string.Empty;
+        public string StudentId { get; set; } = string.Empty;
+        public string College { get; set; } = string.Empty;
+        public UserStatusEnum? Status { get; set; }
+    }
+
     public class MyAssignmentResponse
     {
         public Guid AssignEventId { get; set; }
