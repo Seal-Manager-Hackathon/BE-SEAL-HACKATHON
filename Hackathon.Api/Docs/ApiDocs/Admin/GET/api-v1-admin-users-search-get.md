@@ -15,6 +15,7 @@ Không có.
 ## Query parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
 |---|---|---|---:|---|
+| `keySearch` | `string` | Không | Tìm kiếm tổng quát (contains) qua email, studentId, firstName, lastName — không phân biệt hoa thường. |
 | `mailSearch` | `string` | Không | Tìm kiếm theo email (contains, không phân biệt hoa thường). |
 | `idSearch` | `guid` | Không | Tìm kiếm theo UserId chính xác. |
 | `role` | `int` | Không | Lọc theo RoleEnum (`0`=Admin, `1`=Staff, `2`=Student, `3`=Lecturer). |

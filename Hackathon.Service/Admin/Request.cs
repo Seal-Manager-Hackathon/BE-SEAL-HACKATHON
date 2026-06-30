@@ -1,10 +1,11 @@
 using Hackathon.Repository.Enum;
 using Hackathon.Service.Models;
 
-namespace Hackathon.Service.Admin.Request;
+namespace Hackathon.Service.Admin;
 
 public class GetUsersQuery
 {
+    public string? KeySearch { get; set; }
     public string? MailSearch { get; set; }
     public Guid? IdSearch { get; set; }
     public RoleEnum? Role { get; set; }
