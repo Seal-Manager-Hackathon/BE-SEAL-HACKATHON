@@ -1,4 +1,5 @@
 using Hackathon.Repository.Enum;
+using Hackathon.Service.Models;
 
 namespace Hackathon.Service.Judges;
 
@@ -90,6 +91,20 @@ public static class Response
         public DateTimeOffset? SubmittedAt { get; set; }
         public Guid? ScoreId { get; set; }
         public decimal? TotalScore { get; set; }
+    }
+
+    public class JudgeEventRoundSubmissionsResponse
+    {
+        public Guid RoundId { get; set; }
+        public string RoundName { get; set; } = string.Empty;
+        public List<JudgeEventTrackSubmissionsResponse> Tracks { get; set; } = [];
+    }
+
+    public class JudgeEventTrackSubmissionsResponse
+    {
+        public Guid TrackId { get; set; }
+        public string TrackTitle { get; set; } = string.Empty;
+        public PaginationValue Submissions { get; set; } = new();
     }
 
     public class JudgeMyScoreItemResponse
