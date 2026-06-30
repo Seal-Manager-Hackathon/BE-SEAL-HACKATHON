@@ -865,25 +865,127 @@ public class Service : IService
         return (result, result.Count == 0 ? "NO_TEAMS_FOUND" : "SUCCESS");
     }
 
-    public async Task<BasePaginationResponse> GetEventSubmissions(Guid eventId, Guid? trackId, Guid? roundId, PaginationRequest paginationRequest)
+    public async Task<BaseResponse> GetEventSubmissions(Guid eventId, Guid? trackId, Guid? roundId, PaginationRequest paginationRequest)
     {
         var userId = GetCurrentUserId();
-        var assignTrackIds = await GetJudgeAssignmentsQuery(userId)
-            .Where(x => x.Track.EventId == eventId)
-            .Select(x => x.Id)
-            .ToListAsync();
+        var now = DateTimeOffset.UtcNow;
+        var pageIndex = paginationRequest.PageIndex <= 0 ? 1 : paginationRequest.PageIndex;
+        var pageSize = paginationRequest.PageSize <= 0 ? 10 : Math.Min(paginationRequest.PageSize, 100);
+
+        var assignmentsQuery = GetJudgeAssignmentsQuery(userId)
+            .Where(x => x.Track.EventId == eventId);
 
         if (trackId.HasValue)
         {
-            assignTrackIds = assignTrackIds.Intersect(
-                await GetJudgeAssignmentsQuery(userId)
-                    .Where(x => x.TrackId == trackId.Value)
-                    .Select(x => x.Id)
-                    .ToListAsync()
-            ).ToList();
+            assignmentsQuery = assignmentsQuery.Where(x => x.TrackId == trackId.Value);
         }
 
-        return await BuildSubmissionsResponse(eventId, roundId, assignTrackIds, null, paginationRequest);
+        var assignments = await assignmentsQuery
+            .Select(x => new
+            {
+                AssignTrackId = x.Id,
+                x.TrackId,
+                TrackTitle = x.Track.Title,
+            })
+            .ToListAsync();
+
+        if (assignments.Count == 0)
+        {
+            return ApiResponseFactory.Base(new List<Response.JudgeEventRoundSubmissionsResponse>(), 200, "SUCCESS");
+        }
+
+        var assignTrackIds = assignments.Select(x => x.AssignTrackId).ToList();
+        var trackIds = assignments.Select(x => x.TrackId).Distinct().ToList();
+
+        var submissionsQuery = _dbContext.Submissions
+            .AsNoTracking()
+            .Include(x => x.Scores.Where(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId)))
+            .Where(x => !x.IsDisable
+                        && x.RoundDetail.Round.EventId == eventId
+                        && x.RoundDetail.Round.EndSubmission.HasValue
+                        && x.RoundDetail.Round.EndSubmission.Value <= now
+                        && x.RoundDetail.RegisterTeam.TrackId.HasValue
+                        && trackIds.Contains(x.RoundDetail.RegisterTeam.TrackId.Value)
+                        && x.RoundDetail.RegisterTeam.Status == RegisterTeamStatusEnum.Approved
+                        && !x.RoundDetail.RegisterTeam.IsDisable
+                        && !x.RoundDetail.RegisterTeam.IsBanned
+                        && !x.RoundDetail.RegisterTeam.Team.IsDisable);
+
+        if (roundId.HasValue)
+        {
+            submissionsQuery = submissionsQuery.Where(x => x.RoundDetail.RoundId == roundId.Value);
+        }
+
+        var submissions = await submissionsQuery
+            .OrderByDescending(x => x.SubmittedAt)
+            .Select(x => new
+            {
+                RoundId = x.RoundDetail.RoundId,
+                RoundName = x.RoundDetail.Round.Name,
+                TrackId = x.RoundDetail.RegisterTeam.TrackId!.Value,
+                TrackTitle = x.RoundDetail.RegisterTeam.Track!.Title,
+                Submission = new Response.JudgeStatusSubmissionResponse
+                {
+                    RegisterTeamId = x.RoundDetail.RegisterTeamId,
+                    TeamId = x.RoundDetail.RegisterTeam.TeamId,
+                    TeamName = x.RoundDetail.RegisterTeam.Team.Name,
+                    TopicId = x.RoundDetail.RegisterTeam.TopicId,
+                    TopicTitle = x.RoundDetail.RegisterTeam.Topic != null ? x.RoundDetail.RegisterTeam.Topic.Title : null,
+                    SubmissionId = x.Id,
+                    SubmissionStatus = x.Status,
+                    SubmittedAt = x.SubmittedAt,
+                    ScoreId = x.Scores
+                        .Where(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId))
+                        .OrderByDescending(s => s.UpdatedAt)
+                        .Select(s => (Guid?)s.Id)
+                        .FirstOrDefault(),
+                    TotalScore = x.Scores
+                        .Where(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId))
+                        .OrderByDescending(s => s.UpdatedAt)
+                        .Select(s => s.TotalScore)
+                        .FirstOrDefault()
+                }
+            })
+            .ToListAsync();
+
+        var result = submissions
+            .GroupBy(x => new { x.RoundId, x.RoundName })
+            .OrderBy(x => x.Key.RoundName)
+            .Select(roundGroup => new Response.JudgeEventRoundSubmissionsResponse
+            {
+                RoundId = roundGroup.Key.RoundId,
+                RoundName = roundGroup.Key.RoundName,
+                Tracks = roundGroup
+                    .GroupBy(x => new { x.TrackId, x.TrackTitle })
+                    .OrderBy(x => x.Key.TrackTitle)
+                    .Select(trackGroup =>
+                    {
+                        var totalCount = trackGroup.Count();
+                        var items = trackGroup
+                            .Select(x => x.Submission)
+                            .Skip((pageIndex - 1) * pageSize)
+                            .Take(pageSize)
+                            .Cast<object>()
+                            .ToList();
+
+                        return new Response.JudgeEventTrackSubmissionsResponse
+                        {
+                            TrackId = trackGroup.Key.TrackId,
+                            TrackTitle = trackGroup.Key.TrackTitle,
+                            Submissions = new PaginationValue
+                            {
+                                Items = items,
+                                PageIndex = pageIndex,
+                                PageSize = pageSize,
+                                TotalCount = totalCount
+                            }
+                        };
+                    })
+                    .ToList()
+            })
+            .ToList();
+
+        return ApiResponseFactory.Base(result, 200, "SUCCESS");
     }
 
     public async Task<BasePaginationResponse> GetPendingSubmissions(Guid eventId, Guid? trackId, Guid? roundId, bool? isGraded, PaginationRequest paginationRequest)
