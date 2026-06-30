@@ -177,4 +177,50 @@ public class Service : IService
 
         return items;
     }
+
+    public async Task<Response.LecturerEventTracksResponse> GetLecturerTracks(Guid eventId)
+    {
+        var userId = GetCurrentUserId();
+
+        var assignEvent = await _dbContext.AssignEvents
+            .AsNoTracking()
+            .Include(x => x.Event)
+            .Include(x => x.EventRole)
+            .FirstOrDefaultAsync(x =>
+                x.UserId == userId
+                && x.EventId == eventId
+                && !x.IsDisable
+                && !x.Event.IsDisable);
+
+        if (assignEvent == null)
+        {
+            throw new NotFoundException("NOT_ASSIGNED_TO_EVENT");
+        }
+
+        var tracks = await _dbContext.AssignTracks
+            .AsNoTracking()
+            .Include(x => x.Track)
+            .Where(x =>
+                x.AssignEventId == assignEvent.Id
+                && !x.IsDisable
+                && !x.Track.IsDisable)
+            .OrderBy(x => x.Track.Title)
+            .Select(x => new Response.LecturerTrackResponse
+            {
+                AssignTrackId = x.Id,
+                TrackId = x.TrackId,
+                TrackTitle = x.Track.Title,
+                TrackDescription = x.Track.Description,
+                MaxTeam = x.Track.MaxTeam,
+            })
+            .ToListAsync();
+
+        return new Response.LecturerEventTracksResponse
+        {
+            EventId = assignEvent.EventId,
+            EventName = assignEvent.Event.Name,
+            Role = assignEvent.EventRole != null ? (EventRoleEnum?)assignEvent.EventRole.Name : null,
+            Tracks = tracks,
+        };
+    }
 }

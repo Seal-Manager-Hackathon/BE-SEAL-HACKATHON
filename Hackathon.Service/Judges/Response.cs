@@ -19,7 +19,7 @@ public static class Response
 
     public class JudgeTrackSubmissionResponse
     {
-        public Guid SubmissionId { get; set; }
+        public Guid? SubmissionId { get; set; }
         public Guid RoundDetailId { get; set; }
         public Guid RoundId { get; set; }
         public string RoundName { get; set; } = string.Empty;
@@ -29,7 +29,7 @@ public static class Response
         public string? Description { get; set; }
         public SubmissionStatusEnum? Status { get; set; }
         public DateTimeOffset? SubmittedAt { get; set; }
-        public bool IsGraded { get; set; }
+        public string GradingStatus { get; set; } = "Pending";
         public Guid? ScoreId { get; set; }
         public decimal? TotalScore { get; set; }
     }
@@ -168,6 +168,24 @@ public static class Response
         public string? Url { get; set; }
         public string? Description { get; set; }
         public SubmissionStatusEnum? Status { get; set; }
+        public DateTimeOffset? SubmittedAt { get; set; }
+        public string GradingStatus { get; set; } = "Pending";
+        public Guid? ScoreId { get; set; }
+        public decimal? TotalScore { get; set; }
+    }
+
+    public class JudgeRoundAllSubmissionResponse
+    {
+        public Guid TrackId { get; set; }
+        public string TrackTitle { get; set; } = string.Empty;
+        public Guid RegisterTeamId { get; set; }
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = string.Empty;
+        public Guid? TopicId { get; set; }
+        public string? TopicTitle { get; set; }
+        public Guid? SubmissionId { get; set; }
+        public string? Url { get; set; }
+        public SubmissionStatusEnum? SubmissionStatus { get; set; }
         public DateTimeOffset? SubmittedAt { get; set; }
         public string GradingStatus { get; set; } = "Pending";
         public Guid? ScoreId { get; set; }

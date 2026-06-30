@@ -5,7 +5,7 @@ namespace Hackathon.Service.Judges;
 public interface IService
 {
     Task<List<Response.JudgeTrackResponse>> GetMyTracks();
-    Task<BasePaginationResponse> GetTrackSubmissions(Guid trackId, PaginationRequest paginationRequest);
+    Task<BasePaginationResponse> GetTrackSubmissions(Guid trackId, Guid roundId, string? status, PaginationRequest paginationRequest);
     Task<BaseResponse> GetEventSubmissions(Guid eventId, Guid? trackId, Guid? roundId, PaginationRequest paginationRequest);
     Task<BasePaginationResponse> GetPendingSubmissions(Guid eventId, Guid? trackId, Guid? roundId, bool? isGraded, PaginationRequest paginationRequest);
     Task<BasePaginationResponse> GetCurrentEventPendingSubmissions(Guid? trackId, Guid? roundId, PaginationRequest paginationRequest);
@@ -22,4 +22,5 @@ public interface IService
     Task<(List<Response.JudgeTrackTeamResponse> Data, string Message)> GetJudgeTeamsByEvent(Guid eventId, Guid? roundId);
     Task<BasePaginationResponse> GetJudgeRoundTeams(Guid eventId, Guid roundId, Guid? trackId, string? status, PaginationRequest paginationRequest);
     Task<BasePaginationResponse> GetJudgeTeamSubmissions(Guid registerTeamId, PaginationRequest paginationRequest);
+    Task<BasePaginationResponse> GetJudgeRoundAllSubmissions(Guid roundId, string? status, PaginationRequest paginationRequest);
 }

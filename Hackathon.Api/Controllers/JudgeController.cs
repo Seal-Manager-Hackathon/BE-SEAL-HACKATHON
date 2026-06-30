@@ -26,9 +26,9 @@ public class JudgeController : ControllerBase
     }
 
     [HttpGet("tracks/{trackId:guid}/submissions")]
-    public async Task<IActionResult> GetTrackSubmissions(Guid trackId, [FromQuery] PaginationRequest paginationRequest)
+    public async Task<IActionResult> GetTrackSubmissions(Guid trackId, [FromQuery] Guid roundId, [FromQuery] string? status, [FromQuery] PaginationRequest paginationRequest)
     {
-        var result = await _judgeService.GetTrackSubmissions(trackId, paginationRequest);
+        var result = await _judgeService.GetTrackSubmissions(trackId, roundId, status, paginationRequest);
         result.TraceId = HttpContext.TraceIdentifier;
         return Ok(result);
     }
@@ -141,6 +141,14 @@ public class JudgeController : ControllerBase
     public async Task<IActionResult> GetJudgeRoundTeams(Guid eventId, Guid roundId, [FromQuery] Guid? trackId, [FromQuery] string? status, [FromQuery] PaginationRequest paginationRequest)
     {
         var result = await _judgeService.GetJudgeRoundTeams(eventId, roundId, trackId, status, paginationRequest);
+        result.TraceId = HttpContext.TraceIdentifier;
+        return Ok(result);
+    }
+
+    [HttpGet("rounds/{roundId:guid}/submissions")]
+    public async Task<IActionResult> GetJudgeRoundAllSubmissions(Guid roundId, [FromQuery] string? status, [FromQuery] PaginationRequest paginationRequest)
+    {
+        var result = await _judgeService.GetJudgeRoundAllSubmissions(roundId, status, paginationRequest);
         result.TraceId = HttpContext.TraceIdentifier;
         return Ok(result);
     }
