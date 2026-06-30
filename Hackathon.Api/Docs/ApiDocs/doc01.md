@@ -124,6 +124,8 @@ Luồng này mô tả hành trình của một sinh viên từ lúc tham gia h�
    * [`- GET /api/v1/submissions/{submissionId}`](Submissions/GET/GET-api-v1-submissions-submissionId.md) — Xem chi tiết một bài nộp trong lịch sử.
 3. **Nộp bài thi cho round (Chỉ dành cho Team Leader)**:
    * API 55: [`POST /api/v1/rounds/{roundId}/submit-assignment`](Rounds/POST/POST-api-v1-rounds-roundId-submit-assignment.md) — Phần nộp bài của round, ghi nhận link sản phẩm và mô tả bài làm.
+   * API 56: [`POST /api/v1/submissions/rounds/{roundId}/register-teams/{registerTeamId}`](Submissions/POST/api-v1-rounds-id-register-teams-id-submissions-post.md) — Nộp bài mới (route chi tiết, kèm kiểm tra track/topic).
+   > **Lưu ý:** Team chỉ được nộp bài khi đã được duyệt (`Approved`), không bị ban, đã gán Track + Topic, và đang trong thời gian mở nộp bài.
 4. **Xem kết quả bài nộp**:
    * [`- GET /api/v1/rounds/{roundId}/scores/me`](Rounds/GET/api-v1-rounds-id-scores-me-get.md) — Xem kết quả/điểm của team trong round; nếu chưa có kết quả thì hiển thị "Bài chưa được chấm".
    * [`- GET /api/v1/submissions/{submissionId}`](Submissions/GET/GET-api-v1-submissions-submissionId.md) — Xem chi tiết bài nộp kèm trạng thái `NotGraded` hoặc điểm đã chấm nếu có.
@@ -185,8 +187,10 @@ Luồng này dành cho Admin/BTC để khởi tạo, cấu hình, phân công nh
 *Mô tả*: Admin thiết lập cơ cấu các vòng thi trong event và xây dựng bộ rubric tiêu chí chấm điểm chi tiết cho từng vòng.
 
 1. **Tạo các vòng thi (Rounds)**:
-   * `- POST /api/v1/admin/events/{eventId}/rounds` — Tạo round (Vòng 1, Vòng 2) kèm mốc thời gian làm bài, hạn nộp bài (`StartSubmission`, `EndSubmission`).
-   * `- PATCH /api/v1/admin/rounds/{roundId}` — Điều chỉnh timeline nộp bài hoặc tên vòng thi.
+   * [`- POST /api/v1/admin/events/{eventId}/rounds`](Admin/POST/api-v1-admin-events-id-rounds-post.md) — Tạo round (Vòng 1, Vòng 2) kèm mốc thời gian làm bài, hạn nộp bài (`StartSubmission`, `EndSubmission`).
+   * [`- GET /api/v1/admin/events/{eventId}/rounds`](Admin/GET/api-v1-admin-events-id-rounds-get.md) — Admin xem danh sách round của event, filter theo trạng thái disable, có phân trang.
+   * [`- PATCH /api/v1/admin/rounds/{roundId}`](Admin/PATCH/api-v1-admin-rounds-id-patch.md) — Điều chỉnh timeline nộp bài hoặc tên vòng thi.
+   * [`- DELETE /api/v1/admin/rounds/{roundId}`](Admin/DELETE/api-v1-admin-rounds-id-delete.md) — Admin xóa mềm vòng thi.
 2. **Thiết lập bộ tiêu chí chấm điểm (Criteria templates)**:
    * `- POST /api/v1/admin/rounds/{roundId}/criteria-templates` — Tạo nhóm tiêu chí (ví dụ: Bộ tiêu chí chấm Source Code, Bộ chấm Pitching).
 3. **Thêm tiêu chí chi tiết (Criteria items)**:

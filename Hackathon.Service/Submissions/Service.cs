@@ -173,11 +173,34 @@ public class Service : IService
 
         // 1. Validate RegisterTeam
         var registerTeam = await _dbContext.RegisterTeams
+            .Include(x => x.Topic)
             .FirstOrDefaultAsync(x => x.Id == registerTeamId && !x.IsDisable);
 
         if (registerTeam == null)
         {
             throw new NotFoundException("REGISTER_TEAM_NOT_FOUND");
+        }
+
+        // 1b. Validate team approved & not banned
+        if (registerTeam.Status != RegisterTeamStatusEnum.Approved)
+        {
+            throw new BadRequestException("REGISTER_TEAM_NOT_APPROVED");
+        }
+
+        if (registerTeam.IsBanned)
+        {
+            throw new BadRequestException("REGISTER_TEAM_BANNED");
+        }
+
+        // 1c. Validate team assigned to track & topic
+        if (!registerTeam.TrackId.HasValue || !registerTeam.TopicId.HasValue)
+        {
+            throw new BadRequestException("TRACK_OR_TOPIC_NOT_ASSIGNED");
+        }
+
+        if (registerTeam.Topic == null || registerTeam.Topic.TrackId != registerTeam.TrackId)
+        {
+            throw new BadRequestException("TRACK_OR_TOPIC_ASSIGNMENT_INVALID");
         }
 
         // 2. Validate leadership
@@ -203,7 +226,8 @@ public class Service : IService
         }
 
         // 4. Validate round submission open time
-        if (now < round.StartSubmission || now > round.EndSubmission)
+        if (!round.StartSubmission.HasValue || !round.EndSubmission.HasValue
+            || now < round.StartSubmission.Value || now > round.EndSubmission.Value)
         {
             throw new BadRequestException("ROUND_SUBMISSION_CLOSED");
         }

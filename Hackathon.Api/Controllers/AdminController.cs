@@ -33,4 +33,33 @@ public class AdminController : ControllerBase
         var result = await _adminService.SearchUsers(query);
         return Ok(result);
     }
+
+    [HttpGet("events/{eventId:guid}/rounds")]
+    public async Task<IActionResult> GetRounds(Guid eventId, [FromQuery] GetAdminRoundsRequest request)
+    {
+        var result = await _adminService.GetRounds(eventId, request);
+        result.TraceId = HttpContext.TraceIdentifier;
+        return Ok(result);
+    }
+
+    [HttpPost("events/{eventId:guid}/rounds")]
+    public async Task<IActionResult> CreateRound(Guid eventId, CreateRoundRequest request)
+    {
+        var result = await _adminService.CreateRound(eventId, request);
+        return StatusCode(201, ApiResponseFactory.Base(result, 201, "ROUND_CREATED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpPatch("rounds/{roundId:guid}")]
+    public async Task<IActionResult> UpdateRound(Guid roundId, CreateRoundRequest request)
+    {
+        await _adminService.UpdateRound(roundId, request);
+        return Ok(ApiResponseFactory.Base(null, 200, "ROUND_UPDATED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpDelete("rounds/{roundId:guid}")]
+    public async Task<IActionResult> DeleteRound(Guid roundId)
+    {
+        await _adminService.DeleteRound(roundId);
+        return Ok(ApiResponseFactory.Base(null, 200, "ROUND_DELETED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
 }

@@ -55,7 +55,10 @@ Student là Leader của team (Yêu cầu đăng nhập tài khoản sinh viên)
 - Yêu cầu đăng nhập tài khoản `Student`.
 - Chỉ cho phép **Trưởng nhóm (Leader)** thực hiện nộp bài. Kiểm tra bằng cách tìm `TeamDetails` tương ứng với `UserId == currentUserId`, `IsLeader = true`, `Status = Active` và chưa bị disable.
 - Vòng thi `roundId` và đội thi đăng ký `registerTeamId` phải khớp nhau trên cùng sự kiện (`Round.EventId == RegisterTeam.EventId`). Nếu không khớp hoặc không tìm thấy, trả lỗi `404 NotFound` (`ROUND_NOT_FOUND` hoặc `REGISTER_TEAM_NOT_FOUND`).
-- Kiểm tra thời gian nộp bài: chỉ cho phép nộp trong khoảng thời gian diễn ra vòng đấu (`Round.StartSubmission <= now <= Round.EndSubmission`). Nếu ngoài khoảng thời gian này, trả lỗi `400 BadRequest` (`ROUND_SUBMISSION_CLOSED`).
+- **Chỉ cho phép nộp bài khi team đã được duyệt tham gia (`RegisterTeam.Status == Approved`) và không bị cấm (`!IsBanned`).** Nếu chưa duyệt, trả lỗi `400 BadRequest` (`REGISTER_TEAM_NOT_APPROVED`). Nếu bị ban, trả lỗi `400 BadRequest` (`REGISTER_TEAM_BANNED`).
+- **Chỉ cho phép nộp bài khi team đã được phân vào Track và Topic cụ thể.** Kiểm tra `RegisterTeam.TrackId` và `RegisterTeam.TopicId` phải có giá trị. Nếu thiếu một trong hai, trả lỗi `400 BadRequest` (`TRACK_OR_TOPIC_NOT_ASSIGNED`).
+- **Kiểm tra tính nhất quán của đề tài:** Topic được gán phải thuộc đúng Track đã gán (`Topic.TrackId == RegisterTeam.TrackId`). Nếu không khớp, trả lỗi `400 BadRequest` (`TRACK_OR_TOPIC_ASSIGNMENT_INVALID`).
+- Kiểm tra thời gian nộp bài: chỉ cho phép nộp trong khoảng thời gian diễn ra vòng đấu (`Round.StartSubmission` và `Round.EndSubmission` phải có giá trị, và `now` phải nằm trong khoảng `[StartSubmission, EndSubmission]`). Nếu ngoài khoảng thời gian này hoặc thiếu mốc thời gian, trả lỗi `400 BadRequest` (`ROUND_SUBMISSION_CLOSED`).
 - Nếu chưa có `RoundDetails` liên kết `roundId` và `registerTeamId` này, hệ thống sẽ tự động khởi tạo mới.
 - Tạo mới bài nộp `Submissions` liên kết với `RoundDetails` này với trạng thái mặc định là `Submitted` và `SubmittedAt` bằng thời gian hiện tại.
 - Bọc toàn bộ quá trình cập nhật vào database transaction.
@@ -68,6 +71,10 @@ Student là Leader của team (Yêu cầu đăng nhập tài khoản sinh viên)
 | 400 | BAD_REQUEST | URL_REQUIRED |
 | 400 | BAD_REQUEST | INVALID_URL_FORMAT |
 | 400 | BAD_REQUEST | ROUND_SUBMISSION_CLOSED |
+| 400 | BAD_REQUEST | REGISTER_TEAM_NOT_APPROVED |
+| 400 | BAD_REQUEST | REGISTER_TEAM_BANNED |
+| 400 | BAD_REQUEST | TRACK_OR_TOPIC_NOT_ASSIGNED |
+| 400 | BAD_REQUEST | TRACK_OR_TOPIC_ASSIGNMENT_INVALID |
 | 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |
 | 401 | UNAUTHORIZED | INVALID_ACCESS_TOKEN |
 | 403 | FORBIDDEN | ONLY_TEAM_LEADER_CAN_SUBMIT |

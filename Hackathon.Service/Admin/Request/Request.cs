@@ -13,3 +13,20 @@ public class GetUsersQuery
     public bool? IsVerified { get; set; }
     public PaginationRequest Pagination { get; set; } = new();
 }
+
+public class GetAdminRoundsRequest : PaginationRequest
+{
+    public bool? IsDisable { get; set; }
+}
+
+public class CreateRoundRequest
+{
+    public string? Name { get; set; }
+    public string? Description { get; set; }
+    public int? RoundNo { get; set; }
+    public DateTimeOffset? StartTime { get; set; }
+    public DateTimeOffset? EndTime { get; set; }
+    public DateTimeOffset? StartSubmission { get; set; }
+    public DateTimeOffset? EndSubmission { get; set; }
+    public int? LimitTeam { get; set; }
+}

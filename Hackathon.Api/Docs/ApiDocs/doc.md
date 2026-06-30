@@ -137,11 +137,12 @@ Ngày rà soát: 2026-06-22
 53. [`GET /api/v1/rounds/teams/{teamId}`](Rounds/GET/GET-api-v1-rounds-teams-teamId.md) — Lấy danh sách các vòng đấu của team, có thể filter theo eventId; round sau chỉ xuất hiện khi team được chọn top sau khi kết thúc round trước. Quyền: Authenticated.
 54. [`GET /api/v1/rounds/register-teams/{registerTeamId}`](Rounds/GET/GET-api-v1-rounds-register-teams-registerTeamId.md) — Lấy thông tin round detail của register team (trạng thái đi tiếp/dừng lại). Quyền: Authenticated.
 - [`GET /api/v1/rounds/{roundId}`](Rounds/GET/api-v1-rounds-id-get.md) — Xem chi tiết round khi user bấm vào một vòng thi. Quyền: Public/Auth. Entity: `Rounds`. Lý do: FE cần màn hình chi tiết round trước khi xem tiêu chí, track và ranking theo round.
+- [`GET /api/v1/admin/events/{eventId}/rounds`](Admin/GET/api-v1-admin-events-id-rounds-get.md) — Admin xem danh sách round của event (kèm filter isDisable, phân trang). Quyền: Admin. Entity: `Rounds`. Lý do: Admin cần xem cả round đã disable để quản lý.
 58. [`GET /api/v1/rounds/{roundId}/criteria`](Rounds/GET/GET-api-v1-rounds-roundId-criteria.md) — Lấy danh sách criteria (tiêu chí chấm điểm) theo round. Quyền: Public/Auth.
 59. [`GET /api/v1/events/{eventId}/criteria`](Events/GET/GET-api-v1-events-eventId-criteria.md) — Lấy toàn bộ tiêu chí chấm điểm của event. Quyền: Public/Auth.
-- `POST /api/v1/admin/events/{eventId}/rounds` — Admin tạo round thi đấu mới. Quyền: Admin. Entity: `Rounds`. Body: `Name`, `Description`, `RoundNo`, `StartTime`, `EndTime`, `StartSubmission`, `EndSubmission`, `LimitTeam`. Lý do: Thiết lập các vòng đấu cho giải.
-- `PATCH /api/v1/admin/rounds/{roundId}` — Admin cập nhật thông tin vòng thi (sửa thời gian thi, hạn nộp bài). Quyền: Admin. Entity: `Rounds`. Lý do: Sửa đổi timeline vận hành.
-- `DELETE /api/v1/admin/rounds/{roundId}` — Admin xóa/disable vòng thi. Quyền: Admin. Entity: `Rounds.IsDisable`.
+- [`POST /api/v1/admin/events/{eventId}/rounds`](Admin/POST/api-v1-admin-events-id-rounds-post.md) — Admin tạo round thi đấu mới (Chưa implement). Quyền: Admin. Entity: `Rounds`. Body: `Name`, `Description`, `RoundNo`, `StartTime`, `EndTime`, `StartSubmission`, `EndSubmission`, `LimitTeam`. Lý do: Thiết lập các vòng đấu cho giải.
+- [`PATCH /api/v1/admin/rounds/{roundId}`](Admin/PATCH/api-v1-admin-rounds-id-patch.md) — Admin cập nhật thông tin vòng thi (sửa thời gian thi, hạn nộp bài). Quyền: Admin. Entity: `Rounds`. Lý do: Sửa đổi timeline vận hành.
+- [`DELETE /api/v1/admin/rounds/{roundId}`](Admin/DELETE/api-v1-admin-rounds-id-delete.md) — Admin xóa/disable vòng thi (Chưa implement). Quyền: Admin. Entity: `Rounds.IsDisable`.
 - `POST /api/v1/admin/rounds/{roundId}/criteria-templates` — Tạo criteria template (bộ tiêu chí) cho round. Quyền: Admin. Entity: `CriteriaTemplates`. Body: `Title`, `Description`.
 - `POST /api/v1/admin/criteria-templates/{criteriaTemplateId}/items` — Tạo criteria item (tiêu chí chấm điểm chi tiết). Quyền: Admin. Entity: `CriteriaItems`. Body: `Name`, `Description`, `Score` (điểm tối đa). Lý do: Cấu hình rubric chi tiết để Judge chấm điểm.
 - `PATCH /api/v1/admin/criteria-items/{criteriaItemId}` — Admin cập nhật tiêu chí chi tiết. Quyền: Admin. Entity: `CriteriaItems`.
@@ -151,7 +152,8 @@ Ngày rà soát: 2026-06-22
 
 ## 12. Submission Management
 55. [`POST /api/v1/rounds/{roundId}/submit-assignment`](Rounds/POST/POST-api-v1-rounds-roundId-submit-assignment.md) — Team leader nộp bài thi cho round. Quyền: Authenticated (Leader).
-56. [`GET /api/v1/rounds/{roundId}/submissions`](Rounds/GET/api-v1-rounds-id-submissions-get.md) — Xem danh sách submissions của round. Quyền: Authenticated. **(Chú ý: route này hiện mở cho mọi user, cần check phân quyền tại service)**.
+56. [`POST /api/v1/submissions/rounds/{roundId}/register-teams/{registerTeamId}`](Submissions/POST/api-v1-rounds-id-register-teams-id-submissions-post.md) — Nộp bài mới cho round (route chi tiết, kèm kiểm tra: team Approved, không bị ban, đã gán Track + Topic, trong thời gian mở nộp). Quyền: Authenticated (Leader).
+57. [`GET /api/v1/rounds/{roundId}/submissions`](Rounds/GET/api-v1-rounds-id-submissions-get.md) — Xem danh sách submissions của round. Quyền: Authenticated. **(Chú ý: route này hiện mở cho mọi user, cần check phân quyền tại service)**.
 - [`GET /api/v1/rounds/{roundId}/my-submissions`](Rounds/GET/api-v1-rounds-id-my-submissions-get.md) — Team xem lịch sử các lần nộp bài trong round; submission mới nhất được dùng để chấm khi hết hạn nộp. Quyền: Authenticated (Team member). Entity: `Submissions` + `RoundDetails`. Lý do: Màn hình chi tiết round có thẻ/nút "Bài nộp" để xem lịch sử bài nộp (BR-SUB-04/05).
 - [`GET /api/v1/submissions/{submissionId}`](Submissions/GET/GET-api-v1-submissions-submissionId.md) — Xem chi tiết bài nộp, trạng thái `NotGraded` nếu chưa có điểm, hoặc điểm/kết quả nếu đã chấm. Quyền: Authenticated (Team/BTC/Judge). Entity: `Submissions` + `Scores`. Lý do: FE hiển thị chi tiết bài nộp và nút khiếu nại khi bài đã có kết quả.
 - `DELETE /api/v1/submissions/{submissionId}` — Disable bài nộp thi. Quyền: Authenticated (Leader)/Staff. Entity: `Submissions.IsDisable`.
