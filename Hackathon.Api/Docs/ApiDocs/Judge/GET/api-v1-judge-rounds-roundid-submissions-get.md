@@ -1,32 +1,30 @@
-# Judge xem danh sách bài nộp của các team trong 1 round, 1 track
+# Judge xem tất cả bài nộp trong round (không phân biệt track)
 
 ## Tác dụng
-Giúp Judge xem danh sách các team đã nộp bài trong 1 round của 1 track mà judge được phân công.
+Giúp Judge xem danh sách tất cả các team + bài nộp mới nhất trong một round, **gồm tất cả track** mà judge được phân công.
 
-**Chỉ lấy bài nộp MỚI NHẤT của mỗi team (theo từng round).**  
-Bỏ qua các lần nộp cũ hơn của team — mỗi team chỉ xuất hiện 1 lần.
+Không cần trackId — API tự động lấy tất cả track của judge trong round đó.
 
 ## URL
-`GET /api/v1/judge/tracks/{trackId}/submissions?roundId={roundId}`
+`GET /api/v1/judge/rounds/{roundId}/submissions`
 
 ## Authorization
-Yêu cầu access token hợp lệ của tài khoản Giảng viên được phân công Judge phụ trách track.
+Yêu cầu access token hợp lệ của tài khoản Giảng viên được phân công Judge.
 
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
 |---|---|---|---:|---|
-| `trackId` | `guid` | Có | ID của bảng đấu cần lấy bài thi. |
+| `roundId` | `guid` | Có | ID của vòng cần xem. |
 
 ## Query Parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
 |---|---|---|---:|---|
-| `roundId` | `guid` | **Có** | ID của vòng cần xem. |
 | `status` | `string` | Không | Lọc theo trạng thái chấm: `all` (tất cả, mặc định), `pending` (chưa chấm), `graded` (đã chấm). |
 | `pageIndex` | `int` | Không | Số trang hiện tại (mặc định: 1). |
 | `pageSize` | `int` | Không | Số phần tử trên trang (mặc định: 10, tối đa: 100). |
 
 ## Response body (Success - 200 OK)
-*Cấu trúc trả về dạng `BasePaginationResponse` chứa danh sách team + bài nộp mới nhất (phân trang).*
+*Cấu trúc trả về dạng `BasePaginationResponse` chứa danh sách team + bài nộp (phân trang).*
 ```json
 {
   "isSuccess": true,
@@ -38,15 +36,16 @@ Yêu cầu access token hợp lệ của tài khoản Giảng viên được ph�
   "data": {
     "items": [
       {
-        "submissionId": "f7b6d5c4-129b-4e6f-adbd-2c5ea56789ff",
-        "roundDetailId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        "roundId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
-        "roundName": "Vòng loại",
+        "trackId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "trackTitle": "Web Development",
+        "registerTeamId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
         "teamId": "c4b5a6d7-e8f9-0a1b-2c3d-4e5f6a7b8c9d",
         "teamName": "Chiến binh công nghệ",
+        "topicId": "d5e6f7a8-b9c0-1d2e-3f4a-5b6c7d8e9f0a",
+        "topicTitle": "AI trong giáo dục",
+        "submissionId": "f7b6d5c4-129b-4e6f-adbd-2c5ea56789ff",
         "url": "https://github.com/seal-hackathon/team-project-web",
-        "description": "Bài thi hoàn thiện.",
-        "status": "Submitted",
+        "submissionStatus": "Submitted",
         "submittedAt": "2026-06-22T08:00:00Z",
         "gradingStatus": "Pending",
         "scoreId": null,
@@ -62,6 +61,24 @@ Yêu cầu access token hợp lệ của tài khoản Giảng viên được ph�
 }
 ```
 
+### Fields
+| Tên | Kiểu | Mô tả |
+|---|---|---|
+| `trackId` | `guid` | ID của track. |
+| `trackTitle` | `string` | Tên track. |
+| `registerTeamId` | `guid` | ID bản ghi đăng ký team trong event. |
+| `teamId` | `guid` | ID của team. |
+| `teamName` | `string` | Tên team. |
+| `topicId` | `guid?` | ID chủ đề team chọn (nếu có). |
+| `topicTitle` | `string?` | Tên chủ đề. |
+| `submissionId` | `guid?` | ID bài nộp mới nhất (null nếu chưa nộp). |
+| `url` | `string?` | Link bài nộp. |
+| `submissionStatus` | `string?` | Trạng thái bài nộp (`Submitted`, `Pending`...). |
+| `submittedAt` | `datetime?` | Thời gian nộp bài. |
+| `gradingStatus` | `string` | `NoSubmission` / `Pending` / `Graded`. |
+| `scoreId` | `guid?` | ID điểm (null nếu chưa chấm). |
+| `totalScore` | `decimal?` | Tổng điểm (null nếu chưa chấm). |
+
 ### Field `gradingStatus`
 | Giá trị | Ý nghĩa |
 |---|---|
@@ -75,13 +92,12 @@ Yêu cầu access token hợp lệ của tài khoản Giảng viên được ph�
 - Phân trang áp dụng **sau khi sắp xếp**, đếm theo số team.
 
 ## Business rules
-- Giám khảo gọi API phải được phân công chấm bảng đấu này. Nếu sai, từ chối xem và báo lỗi `FORBIDDEN`.
-- **`roundId` là bắt buộc** — API chỉ trả về kết quả cho 1 round cụ thể.
+- Giám khảo gọi API phải được phân công vào ít nhất 1 track của round đó. Nếu không có → trả về rỗng.
+- Chỉ trả về các team thuộc track mà judge được phân công.
 - Mỗi team chỉ xuất hiện **1 lần duy nhất** (lấy bài nộp mới nhất của team trong round đó).
-- Nếu team chưa nộp bài → `submissionId = null`, `gradingStatus = "NoSubmission"`, không có score.
+- Nếu team chưa nộp bài → `submissionId = null`, `gradingStatus = "NoSubmission"`.
 - `gradingStatus` so sánh **số lượng ScoreItem judge đã chấm** với tổng criteria items của template active.
 - Support lọc theo `status`: `all` (mặc định), `pending` (gồm NoSubmission + Pending), `graded`.
-- Support phân trang qua `pageIndex` và `pageSize`, đếm theo số lượng **team** (không phải submission).
 
 ## Lỗi có thể xảy ra
 *Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
@@ -102,11 +118,9 @@ Yêu cầu access token hợp lệ của tài khoản Giảng viên được ph�
 | HTTP | messageCode | message/detail |
 |---:|---|---|
 | 401 | UNAUTHORIZED | Access token không hợp lệ hoặc thiếu. |
-| 403 | FORBIDDEN | Không có quyền chấm bảng đấu này. |
-| 404 | TRACK_NOT_FOUND | Bảng đấu không tồn tại. |
 | 500 | INTERNAL_SERVER_ERROR | Lỗi máy chủ phát sinh. |
 
 ## Trạng thái implement
 - ✅ Đã implement trong `Hackathon.Api.Controllers.JudgeController`.
-- Route: `GET /api/v1/judge/tracks/{trackId}/submissions`.
+- Route: `GET /api/v1/judge/rounds/{roundId}/submissions`.
 - Sử dụng policy `LecturerPolicy`.

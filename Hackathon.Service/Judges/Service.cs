@@ -50,7 +50,7 @@ public class Service : IService
             .ToListAsync();
     }
 
-    public async Task<BasePaginationResponse> GetTrackSubmissions(Guid trackId, PaginationRequest paginationRequest)
+    public async Task<BasePaginationResponse> GetTrackSubmissions(Guid trackId, Guid roundId, string? status, PaginationRequest paginationRequest)
     {
         var userId = GetCurrentUserId();
         var assignTrackId = await EnsureJudgeAssignedToTrack(userId, trackId);
@@ -58,52 +58,147 @@ public class Service : IService
         var pageIndex = paginationRequest.PageIndex <= 0 ? 1 : paginationRequest.PageIndex;
         var pageSize = paginationRequest.PageSize <= 0 ? 10 : Math.Min(paginationRequest.PageSize, 100);
 
-        var query = _dbContext.Submissions
+        // Get active criteria template for this round to know total criteria items count
+        var activeTemplate = await _dbContext.CriteriaTemplates
             .AsNoTracking()
-            .Where(x =>
-                !x.IsDisable &&
-                !x.RoundDetail.IsDisable &&
-                !x.RoundDetail.Round.IsDisable &&
-                !x.RoundDetail.RegisterTeam.IsDisable &&
-                !x.RoundDetail.RegisterTeam.IsBanned &&
-                !x.RoundDetail.RegisterTeam.Team.IsDisable &&
-                x.RoundDetail.RegisterTeam.Status == RegisterTeamStatusEnum.Approved &&
-                x.RoundDetail.RegisterTeam.TrackId == trackId);
-
-        var totalCount = await query.CountAsync();
-
-        var items = await query
-            .OrderByDescending(x => x.SubmittedAt)
-            .ThenBy(x => x.RoundDetail.RegisterTeam.Team.Name)
-            .Skip((pageIndex - 1) * pageSize)
-            .Take(pageSize)
-            .Select(x => new Response.JudgeTrackSubmissionResponse
+            .Where(x => x.RoundId == roundId && !x.IsDisable)
+            .Select(x => new
             {
-                SubmissionId = x.Id,
-                RoundDetailId = x.RoundDetailId,
-                RoundId = x.RoundDetail.RoundId,
-                RoundName = x.RoundDetail.Round.Name,
-                TeamId = x.RoundDetail.RegisterTeam.TeamId,
-                TeamName = x.RoundDetail.RegisterTeam.Team.Name,
-                Url = x.Url,
-                Description = x.Description,
-                Status = x.Status,
-                SubmittedAt = x.SubmittedAt,
-                IsGraded = x.Scores.Any(s => !s.IsDisable && !s.IsMock && s.AssignTrackId == assignTrackId),
-                ScoreId = x.Scores
-                    .Where(s => !s.IsDisable && !s.IsMock && s.AssignTrackId == assignTrackId)
-                    .OrderByDescending(s => s.UpdatedAt)
-                    .Select(s => (Guid?)s.Id)
-                    .FirstOrDefault(),
-                TotalScore = x.Scores
-                    .Where(s => !s.IsDisable && !s.IsMock && s.AssignTrackId == assignTrackId)
-                    .OrderByDescending(s => s.UpdatedAt)
-                    .Select(s => s.TotalScore)
+                x.Id,
+                CriteriaCount = x.CriteriaItems.Count(c => !c.IsDisable)
+            })
+            .FirstOrDefaultAsync();
+
+        var totalCriteriaItems = activeTemplate?.CriteriaCount ?? 0;
+
+        // Get approved register teams in this track that have RoundDetails for the specified round
+        var registerTeamsQuery = _dbContext.RegisterTeams
+            .AsNoTracking()
+            .Include(x => x.Team)
+            .Where(x => x.TrackId == trackId
+                        && x.Status == RegisterTeamStatusEnum.Approved
+                        && !x.IsDisable
+                        && !x.IsBanned
+                        && !x.Team.IsDisable
+                        && x.RoundDetails.Any(rd => rd.RoundId == roundId && !rd.IsDisable));
+
+        var registerTeams = await registerTeamsQuery
+            .Select(x => new
+            {
+                x.Id,
+                x.TeamId,
+                TeamName = x.Team.Name,
+                RoundDetailId = x.RoundDetails
+                    .Where(rd => rd.RoundId == roundId && !rd.IsDisable)
+                    .Select(rd => rd.Id)
                     .FirstOrDefault()
             })
             .ToListAsync();
 
-        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
+        if (registerTeams.Count == 0)
+        {
+            return ApiResponseFactory.BasePagination(new List<Response.JudgeTrackSubmissionResponse>(), pageIndex, pageSize, 0);
+        }
+
+        var roundDetailIds = registerTeams.Select(x => x.RoundDetailId).ToList();
+
+        // Get latest submission per round detail with scores
+        var latestSubmissions = await _dbContext.Submissions
+            .AsNoTracking()
+            .Include(x => x.Scores.Where(s => !s.IsDisable && !s.IsMock && s.AssignTrackId == assignTrackId))
+            .ThenInclude(x => x.ScoreItems.Where(si => !si.IsDisable))
+            .Where(x => roundDetailIds.Contains(x.RoundDetailId) && !x.IsDisable)
+            .GroupBy(x => x.RoundDetailId)
+            .Select(g => g.OrderByDescending(x => x.SubmittedAt ?? x.CreatedAt).First())
+            .ToListAsync();
+
+        var submissionLookup = latestSubmissions.ToDictionary(x => x.RoundDetailId);
+
+        // Build items with grading status and score
+        var items = registerTeams.Select(rt =>
+        {
+            submissionLookup.TryGetValue(rt.RoundDetailId, out var submission);
+
+            string gradingStatus = "NoSubmission";
+            Guid? scoreId = null;
+            decimal? totalScore = null;
+
+            if (submission != null)
+            {
+                var myScore = submission.Scores
+                    .OrderByDescending(s => s.UpdatedAt)
+                    .FirstOrDefault();
+
+                if (myScore != null)
+                {
+                    scoreId = myScore.Id;
+                    totalScore = myScore.TotalScore;
+
+                    var scoredCriteriaCount = myScore.ScoreItems.Count(si => !si.IsDisable && si.Score.HasValue);
+                    gradingStatus = (totalCriteriaItems > 0 && scoredCriteriaCount >= totalCriteriaItems) ? "Graded" : "Pending";
+                }
+                else
+                {
+                    gradingStatus = "Pending";
+                }
+            }
+
+            return new Response.JudgeTrackSubmissionResponse
+            {
+                SubmissionId = submission?.Id,
+                RoundDetailId = rt.RoundDetailId,
+                RoundId = roundId,
+                RoundName = "",
+                TeamId = rt.TeamId,
+                TeamName = rt.TeamName,
+                Url = submission?.Url,
+                Description = submission?.Description,
+                Status = submission?.Status,
+                SubmittedAt = submission?.SubmittedAt,
+                GradingStatus = gradingStatus,
+                ScoreId = scoreId,
+                TotalScore = totalScore
+            };
+        }).ToList();
+
+        // Filter by status
+        if (!string.IsNullOrWhiteSpace(status) && !status.Equals("all", StringComparison.OrdinalIgnoreCase))
+        {
+            if (status.Equals("graded", StringComparison.OrdinalIgnoreCase))
+            {
+                items = items.Where(x => x.GradingStatus == "Graded").ToList();
+            }
+            else if (status.Equals("pending", StringComparison.OrdinalIgnoreCase))
+            {
+                items = items.Where(x => x.GradingStatus != "Graded").ToList();
+            }
+        }
+
+        // Sort: pending (NoSubmission) first, then by SubmittedAt DESC
+        items = items
+            .OrderBy(x => x.GradingStatus == "Graded" ? 1 : 0)
+            .ThenByDescending(x => x.SubmittedAt)
+            .ToList();
+
+        var totalCount = items.Count;
+        var paged = items
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        // Get round name
+        var round = await _dbContext.Rounds
+            .AsNoTracking()
+            .Where(x => x.Id == roundId)
+            .Select(x => x.Name)
+            .FirstOrDefaultAsync();
+
+        foreach (var item in paged)
+        {
+            item.RoundName = round ?? "";
+        }
+
+        return ApiResponseFactory.BasePagination(paged, pageIndex, pageSize, totalCount);
     }
 
     public async Task<BasePaginationResponse> GetRegradeSubmissions(Guid? eventId, Guid? trackId, bool? isRegraded, PaginationRequest paginationRequest)
@@ -1467,6 +1562,167 @@ public class Service : IService
         }).ToList();
 
         return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
+    }
+
+    public async Task<BasePaginationResponse> GetJudgeRoundAllSubmissions(Guid roundId, string? status, PaginationRequest paginationRequest)
+    {
+        var userId = GetCurrentUserId();
+        var pageIndex = paginationRequest.PageIndex <= 0 ? 1 : paginationRequest.PageIndex;
+        var pageSize = paginationRequest.PageSize <= 0 ? 10 : Math.Min(paginationRequest.PageSize, 100);
+
+        // Get judge's assigned tracks with their info
+        var assignedTracks = await GetJudgeAssignmentsQuery(userId)
+            .Where(x => x.Track.Event.Rounds.Any(r => r.Id == roundId))
+            .Select(x => new { x.Id, x.TrackId, TrackTitle = x.Track.Title })
+            .ToListAsync();
+
+        if (assignedTracks.Count == 0)
+        {
+            return ApiResponseFactory.BasePagination(new List<Response.JudgeRoundAllSubmissionResponse>(), pageIndex, pageSize, 0);
+        }
+
+        var assignTrackIds = assignedTracks.Select(x => x.Id).ToList();
+        var trackLookup = assignedTracks.ToDictionary(x => x.Id, x => new { x.TrackId, x.TrackTitle });
+        var trackIds = assignedTracks.Select(x => x.TrackId).ToHashSet();
+
+        // Get active criteria template for this round
+        var activeTemplate = await _dbContext.CriteriaTemplates
+            .AsNoTracking()
+            .Where(x => x.RoundId == roundId && !x.IsDisable)
+            .Select(x => new
+            {
+                x.Id,
+                CriteriaCount = x.CriteriaItems.Count(c => !c.IsDisable)
+            })
+            .FirstOrDefaultAsync();
+
+        var totalCriteriaItems = activeTemplate?.CriteriaCount ?? 0;
+
+        // Get all register teams in judge's tracks that have round details for this round
+        var registerTeamsQuery = _dbContext.RegisterTeams
+            .AsNoTracking()
+            .Include(x => x.Team)
+            .Include(x => x.Topic)
+            .Where(x => !x.IsDisable
+                        && !x.IsBanned
+                        && x.Status == RegisterTeamStatusEnum.Approved
+                        && !x.Team.IsDisable
+                        && x.TrackId.HasValue
+                        && trackIds.Contains(x.TrackId.Value)
+                        && x.RoundDetails.Any(rd => rd.RoundId == roundId && !rd.IsDisable));
+
+        var registerTeams = await registerTeamsQuery
+            .Select(x => new
+            {
+                x.Id,
+                x.TeamId,
+                TeamName = x.Team.Name,
+                x.TrackId,
+                x.TopicId,
+                TopicTitle = x.Topic != null ? x.Topic.Title : null,
+                RoundDetailId = x.RoundDetails
+                    .Where(rd => rd.RoundId == roundId && !rd.IsDisable)
+                    .Select(rd => rd.Id)
+                    .FirstOrDefault()
+            })
+            .ToListAsync();
+
+        if (registerTeams.Count == 0)
+        {
+            return ApiResponseFactory.BasePagination(new List<Response.JudgeRoundAllSubmissionResponse>(), pageIndex, pageSize, 0);
+        }
+
+        var roundDetailIds = registerTeams.Select(x => x.RoundDetailId).ToList();
+
+        // Get latest submission per round detail with scores
+        var latestSubmissions = await _dbContext.Submissions
+            .AsNoTracking()
+            .Include(x => x.Scores.Where(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId)))
+            .ThenInclude(x => x.ScoreItems.Where(si => !si.IsDisable))
+            .Where(x => roundDetailIds.Contains(x.RoundDetailId) && !x.IsDisable)
+            .GroupBy(x => x.RoundDetailId)
+            .Select(g => g.OrderByDescending(x => x.SubmittedAt ?? x.CreatedAt).First())
+            .ToListAsync();
+
+        var submissionLookup = latestSubmissions.ToDictionary(x => x.RoundDetailId);
+
+        // Build items
+        var items = registerTeams.Select(rt =>
+        {
+            submissionLookup.TryGetValue(rt.RoundDetailId, out var submission);
+            var track = assignedTracks.FirstOrDefault(t => t.TrackId == rt.TrackId);
+
+            string gradingStatus = "NoSubmission";
+            Guid? scoreId = null;
+            decimal? totalScore = null;
+
+            if (submission != null)
+            {
+                var myScore = submission.Scores
+                    .OrderByDescending(s => s.UpdatedAt)
+                    .FirstOrDefault();
+
+                if (myScore != null)
+                {
+                    scoreId = myScore.Id;
+                    totalScore = myScore.TotalScore;
+
+                    var scoredCriteriaCount = myScore.ScoreItems.Count(si => !si.IsDisable && si.Score.HasValue);
+                    gradingStatus = (totalCriteriaItems > 0 && scoredCriteriaCount >= totalCriteriaItems) ? "Graded" : "Pending";
+                }
+                else
+                {
+                    gradingStatus = "Pending";
+                }
+            }
+
+            return new Response.JudgeRoundAllSubmissionResponse
+            {
+                TrackId = rt.TrackId ?? Guid.Empty,
+                TrackTitle = track?.TrackTitle ?? "",
+                RegisterTeamId = rt.Id,
+                TeamId = rt.TeamId,
+                TeamName = rt.TeamName,
+                TopicId = rt.TopicId,
+                TopicTitle = rt.TopicTitle,
+                SubmissionId = submission?.Id,
+                Url = submission?.Url,
+                SubmissionStatus = submission?.Status,
+                SubmittedAt = submission?.SubmittedAt,
+                GradingStatus = gradingStatus,
+                ScoreId = scoreId,
+                TotalScore = totalScore,
+            };
+        }).ToList();
+
+        // Filter by status
+        if (!string.IsNullOrWhiteSpace(status) && !status.Equals("all", StringComparison.OrdinalIgnoreCase))
+        {
+            if (status.Equals("graded", StringComparison.OrdinalIgnoreCase))
+            {
+                items = items.Where(x => x.GradingStatus == "Graded").ToList();
+            }
+            else if (status.Equals("pending", StringComparison.OrdinalIgnoreCase))
+            {
+                items = items.Where(x => x.GradingStatus != "Graded").ToList();
+            }
+        }
+
+        // Sort: pending first, then by SubmittedAt DESC, then by track title
+        items = items
+            .OrderBy(x => x.GradingStatus == "Graded" ? 1 : 0)
+            .ThenByDescending(x => x.SubmittedAt)
+            .ThenBy(x => x.TrackTitle)
+            .ThenBy(x => x.TeamName)
+            .ToList();
+
+        var totalCount = items.Count;
+        var paged = items
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        return ApiResponseFactory.BasePagination(paged, pageIndex, pageSize, totalCount);
     }
 
     private sealed record SubmissionAccess(Guid RoundId, Guid TrackId, Guid AssignTrackId);

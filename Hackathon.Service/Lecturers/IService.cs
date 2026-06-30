@@ -8,4 +8,5 @@ public interface IService
     Task<BasePaginationResponse> GetLecturerEvents(PaginationRequest request);
     Task<BasePaginationResponse> SearchLecturerEvents(Request.SearchLecturerEventsRequest request);
     Task<List<Response.LecturerEventResponse>> GetCurrentLecturerEvents();
+    Task<Response.LecturerEventTracksResponse> GetLecturerTracks(Guid eventId);
 }

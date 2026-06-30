@@ -16,4 +16,21 @@ public static class Response
         public EventRoleEnum? Role { get; set; }
         public EventStatusEnum? EventStatus { get; set; }
     }
+
+    public class LecturerTrackResponse
+    {
+        public Guid AssignTrackId { get; set; }
+        public Guid TrackId { get; set; }
+        public string TrackTitle { get; set; } = string.Empty;
+        public string? TrackDescription { get; set; }
+        public int? MaxTeam { get; set; }
+    }
+
+    public class LecturerEventTracksResponse
+    {
+        public Guid EventId { get; set; }
+        public string EventName { get; set; } = string.Empty;
+        public EventRoleEnum? Role { get; set; }
+        public List<LecturerTrackResponse> Tracks { get; set; } = new();
+    }
 }

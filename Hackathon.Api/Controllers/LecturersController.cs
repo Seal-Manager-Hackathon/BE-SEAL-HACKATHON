@@ -42,6 +42,13 @@ public class LecturersController : ControllerBase
         return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
+    [HttpGet("events/{eventId:guid}/tracks")]
+    public async Task<IActionResult> GetLecturerTracks(Guid eventId)
+    {
+        var result = await _lecturersService.GetLecturerTracks(eventId);
+        return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
+
     [HttpGet("rounds/{roundId:guid}/submissions")]
     public async Task<IActionResult> GetRoundSubmissions(Guid roundId, [FromQuery] RoundsService.Request.GetSubmissionsQuery query)
     {
