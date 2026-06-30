@@ -10,10 +10,12 @@ namespace Hackathon.Service.Users;
 
 public class Service : IService
 {
+    private readonly MediaService.IService _mediaService;  
     public readonly AppDbContext _dbContext;
     public readonly IHttpContextAccessor _IhttpContex;
-    public Service(AppDbContext dbContext, IHttpContextAccessor httpContextAccessor)
+    public Service(MediaService.IService mediaService, AppDbContext dbContext, IHttpContextAccessor httpContextAccessor)
     {
+        _mediaService = mediaService;  
         _dbContext = dbContext;
         _IhttpContex = httpContextAccessor;
     }
@@ -125,7 +127,7 @@ public class Service : IService
         if (request.FirstName != null) user.FirstName = request.FirstName;
         if (request.LastName != null) user.LastName = request.LastName;
         if (request.PhoneNumber != null) user.PhoneNumber = request.PhoneNumber;
-        if (request.AvatarUrl != null) user.AvatarUrl = request.AvatarUrl;
+        if (request.AvatarUrl != null) user.AvatarUrl = await _mediaService.UploadImageAsync(request.AvatarUrl);
         if (request.Bio != null) user.Bio = request.Bio;
         if (request.Address != null) user.Address = request.Address;
         if (request.DateOfBirth != null)
@@ -261,12 +263,14 @@ public class Service : IService
 
     public async Task<string> UpdateAvatar(Request.UpdateAvatarRequest request)
     {
+        if (request.AvatarUrl == null || request.AvatarUrl.Length == 0)
+            throw new BadRequestException("AVATAR_FILE_REQUIRED");
+
         var userId = GetUserId();
         var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
         if (user == null) throw new NotFoundException("USER_NOT_FOUND");
 
-        user.AvatarUrl = request.AvatarUrl;
-        user.ImgUrl = request.AvatarUrl;
+        user.AvatarUrl = await _mediaService.UploadImageAsync(request.AvatarUrl);
         user.UpdatedAt = DateTimeOffset.UtcNow;
 
         await _dbContext.SaveChangesAsync();

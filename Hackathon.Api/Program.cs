@@ -34,6 +34,8 @@ using JudgesService = Hackathon.Service.Judges;
 using RolesService = Hackathon.Service.Roles;
 using SystemsService = Hackathon.Service.Systems;
 using AdminService = Hackathon.Service.Admin;
+using MediaService = Hackathon.Service.MediaService;
+using CloudinaryService = Hackathon.Service.CloudinaryService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -138,6 +140,7 @@ builder.Services.AddQuartzHostedService(options =>
     options.WaitForJobsToComplete = true;
 });
 
+builder.Services.AddScoped<MediaService.IService, CloudinaryService.Service>();
 builder.Services.AddScoped<AuthsService.IService, AuthsService.Service>();
 builder.Services.AddScoped<JwtServices.IService, JwtServices.Service>();
 builder.Services.AddScoped<MailServices.IService, MailServices.Service>();
