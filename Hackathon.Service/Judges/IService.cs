@@ -6,7 +6,7 @@ public interface IService
 {
     Task<List<Response.JudgeTrackResponse>> GetMyTracks();
     Task<BasePaginationResponse> GetTrackSubmissions(Guid trackId, PaginationRequest paginationRequest);
-    Task<BasePaginationResponse> GetEventSubmissions(Guid eventId, Guid? trackId, Guid? roundId, PaginationRequest paginationRequest);
+    Task<BaseResponse> GetEventSubmissions(Guid eventId, Guid? trackId, Guid? roundId, PaginationRequest paginationRequest);
     Task<BasePaginationResponse> GetPendingSubmissions(Guid eventId, Guid? trackId, Guid? roundId, bool? isGraded, PaginationRequest paginationRequest);
     Task<BasePaginationResponse> GetCurrentEventPendingSubmissions(Guid? trackId, Guid? roundId, PaginationRequest paginationRequest);
     Task<BasePaginationResponse> SearchSubmissions(Guid eventId, Guid? trackId, string? keyword, PaginationRequest paginationRequest);
