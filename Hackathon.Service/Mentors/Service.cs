@@ -122,8 +122,7 @@ public class Service : IService
         // Get approved teams in this track
         var query = _dbContext.RegisterTeams
             .AsNoTracking()
-            .Include(x => x.Team).ThenInclude(x => x.TeamDetails.Where(td => !td.IsDisable && td.IsLeader)).ThenInclude(td => td.User)
-            .Include(x => x.Team).ThenInclude(x => x.TeamDetails.Where(td => !td.IsDisable && td.Status == TeamDetailStatusEnum.Active))
+            .Include(x => x.Team).ThenInclude(x => x.TeamDetails).ThenInclude(td => td.User)
             .Include(x => x.Topic)
             .Where(x => x.TrackId == trackId
                         && x.Status == RegisterTeamStatusEnum.Approved

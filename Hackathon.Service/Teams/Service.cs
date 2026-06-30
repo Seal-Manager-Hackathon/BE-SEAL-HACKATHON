@@ -860,6 +860,23 @@ public class Service : IService
         return "TEAM_DISABLED_SUCCESSFULLY";
     }
 
+    public async Task<string> EnableTeam(Guid teamId)
+    {
+        var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && x.IsDisable);
+        if (team == null)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        team.IsDisable = false;
+        team.UpdatedAt = DateTimeOffset.UtcNow;
+
+        _dbContext.Teams.Update(team);
+        await _dbContext.SaveChangesAsync();
+
+        return "TEAM_ENABLED_SUCCESSFULLY";
+    }
+
     public async Task<string> LockTeam(Guid teamId)
     {
         var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
