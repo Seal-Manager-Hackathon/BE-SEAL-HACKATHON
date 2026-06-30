@@ -954,7 +954,7 @@ public class Service : IService
     {
         var round = await _dbContext.Rounds
             .Include(x => x.Event)
-            .FirstOrDefaultAsync(x => x.Id == roundId && !x.IsDisable);
+            .FirstOrDefaultAsync(x => x.Id == roundId);
 
         if (round == null)
         {
@@ -970,12 +970,16 @@ public class Service : IService
             throw new BadRequestException("ROUND_NOT_ENDED_YET");
         }
 
-        // Execute close + advance teams (write — fallback if job missed)
-        await CloseAndAdvanceRoundAsync(_dbContext, round, now);
+        // If round is not yet closed by the job, do advancement now
+        var isAlreadyClosed = round.IsDisable;
+        if (!isAlreadyClosed)
+        {
+            await CloseAndAdvanceRoundAsync(_dbContext, round, now);
+        }
 
-        // Reload to build response with next round info
+        // Build ranking response
         var nextRound = await _dbContext.Rounds
-            .Where(x => x.EventId == round.EventId && !x.IsDisable && x.RoundNo == round.RoundNo + 1)
+            .Where(x => x.EventId == round.EventId && x.RoundNo == round.RoundNo + 1)
             .FirstOrDefaultAsync();
 
         var roundDetails = await _dbContext.RoundDetails
@@ -1044,7 +1048,15 @@ public class Service : IService
             });
         }
 
-        var message = nextRound == null ? "FINAL_ROUND_CLOSED_HACKATHON_ENDED" : "ROUND_ENDED_SUCCESSFULLY";
+        string message;
+        if (isAlreadyClosed)
+        {
+            message = nextRound == null ? "FINAL_ROUND_CLOSED_HACKATHON_ENDED" : "ROUND_ALREADY_CLOSED";
+        }
+        else
+        {
+            message = nextRound == null ? "FINAL_ROUND_CLOSED_HACKATHON_ENDED" : "ROUND_ENDED_SUCCESSFULLY";
+        }
 
         return new Response.EndRoundResponse
         {
@@ -1056,6 +1068,7 @@ public class Service : IService
             NextRoundLimitTeam = nextRound?.LimitTeam,
             TotalTeams = advancedTeams.Count,
             TotalAdvanced = advancedTeams.Count(x => x.IsAdvanced),
+            Message = message,
             Teams = advancedTeams,
         };
     }
