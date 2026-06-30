@@ -4,7 +4,7 @@ public static class MailTemplate
 {
     public static string EmailContainToken(string token)
     {
-        var verificationLink = $"http://localhost:5173/auth/verify-email?token={token}";
+        var verificationLink = $"https://hkathon.top/auth/verify-email?token={token}";
 
         var htmlBody = """
         <!DOCTYPE html>
@@ -138,7 +138,7 @@ public static class MailTemplate
 
     public static string ForgotPasswordContainToken(string token)
     {
-        var resetPasswordLink = $"http://localhost:5173/auth/reset-password?token={token}";
+        var resetPasswordLink = $"https://hkathon.top/auth/reset-password?token={token}";
 
         var htmlBody = """
         <!DOCTYPE html>
