@@ -1,4 +1,5 @@
 using Hackathon.Api.Extention;
+using Hackathon.Repository.Enum;
 using Hackathon.Service.Admin.Request;
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -20,9 +21,9 @@ public class AdminController : ControllerBase
     }
 
     [HttpGet("users")]
-    public async Task<IActionResult> GetAllUsers([FromQuery] PaginationRequest paginationRequest)
+    public async Task<IActionResult> GetAllUsers([FromQuery] RoleEnum? role, [FromQuery] PaginationRequest paginationRequest)
     {
-        var result = await _adminService.GetAllUsers(paginationRequest);
+        var result = await _adminService.GetAllUsers(role, paginationRequest);
         return Ok(result);
     }
 

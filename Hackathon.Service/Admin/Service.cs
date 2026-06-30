@@ -19,9 +19,16 @@ public class Service : IService
         _dbContext = dbContext;
     }
 
-    public async Task<BasePaginationResponse> GetAllUsers(PaginationRequest paginationRequest)
+    public async Task<BasePaginationResponse> GetAllUsers(RoleEnum? role, PaginationRequest paginationRequest)
     {
-        var q = _dbContext.Users.AsNoTracking();
+        var q = _dbContext.Users
+            .AsNoTracking()
+            .Where(x => !x.IsDisable);
+
+        if (role.HasValue)
+        {
+            q = q.Where(x => x.Role == role.Value);
+        }
 
         var totalCount = await q.CountAsync();
 
