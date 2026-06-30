@@ -179,6 +179,7 @@ public static class Response
         public int? NextRoundLimitTeam { get; set; }
         public int TotalTeams { get; set; }
         public int TotalAdvanced { get; set; }
+        public string? Message { get; set; }
         public List<AdvancedTeamResponse> Teams { get; set; } = new();
     }
 
