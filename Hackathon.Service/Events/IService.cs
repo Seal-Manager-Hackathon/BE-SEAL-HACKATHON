@@ -22,7 +22,6 @@ public interface IService
     Task<string> DeleteAward(Guid awardId);
     Task<Guid> RemoveTrackAssignment(Guid assignTrackId);
     Task<string> UpdateAward(Guid id, Request.UpdateAwardRequest request);
-    Task<string> CancelEvent(Guid eventId);
     Task<string> CloseEvent(Guid eventId);
     Task<string> RestoreEvent(Guid eventId);
     Task<string> UnpublishEvent(Guid eventId);

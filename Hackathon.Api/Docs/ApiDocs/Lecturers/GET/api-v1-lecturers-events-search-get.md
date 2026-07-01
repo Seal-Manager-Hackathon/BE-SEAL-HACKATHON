@@ -72,7 +72,6 @@ Lecturer đã được phân công trong sự kiện (Yêu cầu đăng nhập t
 | `0` | Draft | Sự kiện đang nháp, chưa công bố |
 | `1` | Published | Sự kiện đã công bố và hoạt động |
 | `2` | Closed | Sự kiện đã kết thúc và đóng lại |
-| `3` | Cancelled | Sự kiện đã bị hủy bỏ |
 
 ## Lỗi có thể xảy ra
 *Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*

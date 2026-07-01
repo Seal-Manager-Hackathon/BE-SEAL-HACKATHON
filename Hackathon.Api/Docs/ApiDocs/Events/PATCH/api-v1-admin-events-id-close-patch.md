@@ -39,7 +39,6 @@ Yêu cầu access token hợp lệ với role `Admin`.
 | `0` | Draft | Nháp (Thí sinh không nhìn thấy) |
 | `1` | Published | Đang diễn ra / Mở đăng ký |
 | `2` | Closed | Đã đóng / Kết thúc giải đấu |
-| `3` | Cancelled | Đã hủy |
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
