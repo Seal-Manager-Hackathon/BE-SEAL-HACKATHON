@@ -31,7 +31,9 @@ Yêu cầu access token hợp lệ với role `Staff`.
 }
 ```
 
-### Bảng vai trò EventRoleEnum
+## Business rules
+- Chỉ lấy các sự kiện staff được phân công, đang diễn ra, chưa disable và **không phải trạng thái `Draft`**.
+- Sắp xếp theo `StartTime` giảm dần, sau đó theo `CreatedAt` giảm dần.
 | Giá trị (Value) | Vai trò (Role) | Mô tả (Description) |
 | :--- | :--- | :--- |
 | `0` | Mentor | Người hướng dẫn chuyên môn cho đội thi |

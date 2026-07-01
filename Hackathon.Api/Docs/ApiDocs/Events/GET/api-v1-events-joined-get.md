@@ -54,7 +54,8 @@ Authorization: Bearer <token>
 - Yêu cầu xác thực tài khoản qua Access Token ở Header.
 - Chỉ hiển thị các event mà học sinh đang đăng nhập đã tham gia thông qua việc team của học sinh đó đã đăng ký tham gia event (`RegisterTeams` có trạng thái không bị disable, team và thành viên không bị disable).
 - Ẩn các event bị soft-disable (`IsDisable = true`).
-- Sắp xếp danh sách theo thời gian bắt đầu của event giảm dần (lấy event mới nhất theo năm/thời gian trước - `StartTime` giảm dần).
+- **Chỉ trả về event có trạng thái `Published` hoặc `Closed`** — `Draft` và `Cancelled` bị loại bỏ.
+- Sắp xếp danh sách theo `StartTime` giảm dần, sau đó theo `CreatedAt` giảm dần.
 - Hỗ trợ lọc theo `keyword`, `year` (năm bắt đầu), và `status` (trạng thái event).
 
 ### Bảng trạng thái EventStatusEnum

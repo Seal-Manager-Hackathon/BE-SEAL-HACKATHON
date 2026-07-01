@@ -57,6 +57,7 @@ Không có.
 ## Business rules
 - API không yêu cầu đăng nhập.
 - Không lọc theo thời gian diễn ra event.
+- **Chỉ trả về event có trạng thái `Published` hoặc `Closed`** — bỏ qua `Draft` và `Cancelled`.
 - Số người tham gia được tính từ member của các team đã đăng ký event.
 - Chỉ tính `RegisterTeams` chưa bị soft-disable và có trạng thái `Approved`.
 - `participantCount` tính số member active, chưa disable trong `TeamDetails`.

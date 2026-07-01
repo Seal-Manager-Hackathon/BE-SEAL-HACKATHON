@@ -1,7 +1,8 @@
 # Get Event Detail
 
 ## Tác dụng
-Lấy thông tin chi tiết đầy đủ của một event theo `eventId` (phục vụ khi học sinh hoặc admin bấm vào xem chi tiết event).
+Lấy thông tin chi tiết đầy đủ của một event theo `eventId` (public).  
+**Lưu ý:** Nếu event có trạng thái `Draft` hoặc bị disable → trả về 404 (student/lecturer/staff không xem được Draft).
 
 ## URL
 `GET /api/v1/events/{eventId:guid}`
@@ -45,6 +46,7 @@ Không yêu cầu Access Token (Public API).
 
 ## Business rules
 - Không yêu cầu đăng nhập.
+- **Chỉ trả về event có trạng thái `Published` hoặc `Closed`** — nếu event là `Draft` hoặc bị disable → 404 `EVENT_NOT_FOUND`.
 - Tìm kiếm event theo `eventId` chính xác.
 - Trả về đầy đủ tất cả các trường thông tin của event (bao gồm các trường cấu hình như mô tả, thời gian đăng ký tối hạn, giới hạn số lượng team, số thành viên tối đa/tối thiểu của team, số vòng đấu, v.v.).
 - Nếu không tìm thấy event có `eventId` tương ứng, trả về lỗi `404 Not Found` (`EVENT_NOT_FOUND`).

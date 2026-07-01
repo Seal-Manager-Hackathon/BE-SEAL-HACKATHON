@@ -46,7 +46,9 @@ Staff.
 }
 ```
 
-### Bảng vai trò EventRoleEnum
+## Business rules
+- Chỉ lấy event staff được phân công, chưa disable và **không phải trạng thái `Draft`** (chỉ Published/Closed).
+- Sắp xếp theo `StartTime` giảm dần, sau đó theo tên event tăng dần.
 | Giá trị (Value) | Vai trò (Role) | Mô tả (Description) |
 | :--- | :--- | :--- |
 | `0` | Mentor | Người hướng dẫn chuyên môn cho đội thi |

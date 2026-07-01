@@ -55,6 +55,7 @@ Lecturer đã được phân công trong sự kiện (Yêu cầu đăng nhập t
 ## Business rules
 - Người gọi phải là giảng viên (`role = 3` tương ứng `RoleEnum.Lecturer` trong `Users`).
 - Trích xuất thông tin phân công trong bảng nối `AssignEvents` liên kết với `EventRoles` của giảng viên hiện tại.
+- **Chỉ lấy sự kiện không phải trạng thái `Draft`** (chỉ Published/Closed).
 - Kết quả được sắp xếp theo thời gian bắt đầu sự kiện giảm dần, sau đó theo tên event tăng dần.
 - Nếu không truyền bất kỳ bộ lọc nào, API này sẽ trả về tất cả danh sách sự kiện (giống `GET /api/v1/lecturers/events`).
 

@@ -43,10 +43,10 @@ Không có.
 
 ## Business rules
 - Người gọi phải là giảng viên (`role = 3` tương ứng `RoleEnum.Lecturer` trong `Users`).
-- Chỉ lấy các sự kiện mà giảng viên được phân công trong bảng `AssignEvents` và sự kiện chưa bị disable.
+- Chỉ lấy các sự kiện mà giảng viên được phân công trong bảng `AssignEvents`, sự kiện chưa bị disable và **không phải trạng thái `Draft`**.
 - Thời gian hiện tại phải nằm trong khoảng `StartTime` đến `EndTime` của sự kiện (`StartTime ≤ now ≤ EndTime`).
 - Nếu không có sự kiện nào đang diễn ra, trả về lỗi 404 `NOT_FOUND` với message `NOT_ASSIGNED_TO_ANY_EVENT`.
-- Kết quả được sắp xếp theo thời gian tạo phân công giảm dần.
+- Kết quả được sắp xếp theo `StartTime` giảm dần, sau đó theo `CreatedAt` giảm dần.
 
 ### Bảng vai trò EventRoleEnum
 | Giá trị (Value) | Vai trò (Role) | Mô tả (Description) |

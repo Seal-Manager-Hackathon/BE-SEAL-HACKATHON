@@ -270,7 +270,8 @@ public class Service : IService
                                       && x.RegisterTeam.Status == RegisterTeamStatusEnum.Approved
                                       && x.RegisterTeam.Team.TeamDetails.Any(td => td.UserId == userId
                                                                                    && !td.IsDisable
-                                                                                   && td.Status == TeamDetailStatusEnum.Active));
+                                                                                   && td.Status == TeamDetailStatusEnum.Active
+                                                                                   && td.IsLeader));
 
         if (roundDetail == null)
         {

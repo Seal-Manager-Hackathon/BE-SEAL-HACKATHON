@@ -37,6 +37,10 @@ Staff.
 }
 ```
 
+## Business rules
+- Chỉ lấy các sự kiện staff được phân công, chưa disable và **không phải trạng thái `Draft`** (chỉ Published/Closed).
+- Sắp xếp theo `StartTime` giảm dần, sau đó theo `CreatedAt` giảm dần.
+
 ### Bảng vai trò EventRoleEnum
 | Giá trị (Value) | Vai trò (Role) | Mô tả (Description) |
 | :--- | :--- | :--- |
