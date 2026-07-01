@@ -361,7 +361,7 @@ public class Service : IService
             MinMember = request.MinMember,
             MaxMember = request.MaxMember,
             Status = EventStatusEnum.Draft,
-            NumberRound = request.NumberRound,
+            NumberRound = 0,
             Season = request.Season,
             IsDisable = false,
             CreatedAt = now,
@@ -741,11 +741,6 @@ public class Service : IService
         if (request.Status.HasValue)
         {
             eventEntity.Status = request.Status.Value;
-        }
-
-        if (request.NumberRound.HasValue)
-        {
-            eventEntity.NumberRound = request.NumberRound;
         }
 
         if (request.Season != null)

@@ -145,11 +145,10 @@ public class Service : IService
 
     public async Task<CreateRoundResponse> CreateRound(Guid eventId, CreateRoundRequest request)
     {
-        var eventExists = await _dbContext.Events
-            .AsNoTracking()
-            .AnyAsync(x => x.Id == eventId && !x.IsDisable);
+        var eventEntity = await _dbContext.Events
+            .FirstOrDefaultAsync(x => x.Id == eventId && !x.IsDisable);
 
-        if (!eventExists)
+        if (eventEntity == null)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
@@ -159,18 +158,29 @@ public class Service : IService
             throw new BadRequestException("ROUND_NAME_REQUIRED");
         }
 
-        await ValidateRoundNo(eventId, request.RoundNo, null);
+        // Không thể tạo round mới nếu event đã bắt đầu
+        var now = DateTimeOffset.UtcNow;
+        if (eventEntity.StartTime.HasValue && now >= eventEntity.StartTime.Value)
+        {
+            throw new BadRequestException("EVENT_ALREADY_STARTED");
+        }
+
         ValidateRoundTimes(request.StartTime, request.EndTime, request.StartSubmission, request.EndSubmission);
         ValidateLimitTeam(request.LimitTeam);
 
-        var now = DateTimeOffset.UtcNow;
+        // Auto-assign RoundNo: current max RoundNo + 1 (starts at 1)
+        var maxRoundNo = await _dbContext.Rounds
+            .AsNoTracking()
+            .Where(x => x.EventId == eventId && !x.IsDisable)
+            .MaxAsync(x => (int?)x.RoundNo) ?? 0;
+
         var round = new Hackathon.Repository.Entity.Rounds
         {
             Id = Guid.NewGuid(),
             EventId = eventId,
             Name = request.Name.Trim(),
             Description = request.Description?.Trim(),
-            RoundNo = request.RoundNo,
+            RoundNo = maxRoundNo + 1,
             StartTime = request.StartTime,
             EndTime = request.EndTime,
             StartSubmission = request.StartSubmission,
@@ -181,6 +191,10 @@ public class Service : IService
             UpdatedAt = now,
         };
 
+        // Increment NumberRound on event
+        eventEntity.NumberRound = (eventEntity.NumberRound ?? 0) + 1;
+        eventEntity.UpdatedAt = now;
+
         await _dbContext.Rounds.AddAsync(round);
         await _dbContext.SaveChangesAsync();
 
@@ -190,7 +204,7 @@ public class Service : IService
         };
     }
 
-    public async Task UpdateRound(Guid roundId, CreateRoundRequest request)
+    public async Task UpdateRound(Guid roundId, UpdateRoundRequest request)
     {
         var round = await _dbContext.Rounds.FirstOrDefaultAsync(x => x.Id == roundId && !x.IsDisable);
         if (round == null)
@@ -198,7 +212,34 @@ public class Service : IService
             throw new NotFoundException("ROUND_NOT_FOUND");
         }
 
-        var nextRoundNo = request.RoundNo ?? round.RoundNo;
+        var eventEntity = await _dbContext.Events
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == round.EventId && !x.IsDisable);
+
+        if (eventEntity == null)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        var now = DateTimeOffset.UtcNow;
+
+        // Không thể sửa round nếu event đã bắt đầu
+        if (eventEntity.StartTime.HasValue && now >= eventEntity.StartTime.Value)
+        {
+            // Ngoại lệ: nếu chỉ sửa tên/mô tả và ko đổi thời gian/RoundNo thì vẫn cho phép
+            var isChangingCriticalFields = request.StartTime.HasValue
+                || request.EndTime.HasValue
+                || request.StartSubmission.HasValue
+                || request.EndSubmission.HasValue
+                || request.RoundNo.HasValue
+                || request.LimitTeam.HasValue;
+
+            if (isChangingCriticalFields)
+            {
+                throw new BadRequestException("EVENT_ALREADY_STARTED");
+            }
+        }
+
         var nextStartTime = request.StartTime ?? round.StartTime;
         var nextEndTime = request.EndTime ?? round.EndTime;
         var nextStartSubmission = request.StartSubmission ?? round.StartSubmission;
@@ -210,9 +251,34 @@ public class Service : IService
             throw new BadRequestException("ROUND_NAME_REQUIRED");
         }
 
-        await ValidateRoundNo(round.EventId, nextRoundNo, round.Id);
         ValidateRoundTimes(nextStartTime, nextEndTime, nextStartSubmission, nextEndSubmission);
         ValidateLimitTeam(nextLimitTeam);
+
+        // Swap RoundNo with target round if provided
+        var targetRoundNo = request.RoundNo;
+        if (targetRoundNo.HasValue && targetRoundNo.Value != round.RoundNo)
+        {
+            if (targetRoundNo.Value <= 0)
+            {
+                throw new BadRequestException("ROUND_NO_MUST_BE_POSITIVE");
+            }
+
+            var targetRound = await _dbContext.Rounds
+                .FirstOrDefaultAsync(x => x.EventId == round.EventId
+                    && x.RoundNo == targetRoundNo.Value
+                    && !x.IsDisable
+                    && x.Id != round.Id);
+
+            if (targetRound == null)
+            {
+                throw new NotFoundException("TARGET_ROUND_NOT_FOUND");
+            }
+
+            // Swap RoundNo
+            (targetRound.RoundNo, round.RoundNo) = (round.RoundNo, targetRound.RoundNo);
+            targetRound.UpdatedAt = now;
+            _dbContext.Rounds.Update(targetRound);
+        }
 
         if (request.Name != null)
         {
@@ -222,11 +288,6 @@ public class Service : IService
         if (request.Description != null)
         {
             round.Description = request.Description.Trim();
-        }
-
-        if (request.RoundNo.HasValue)
-        {
-            round.RoundNo = request.RoundNo;
         }
 
         if (request.StartTime.HasValue)
@@ -254,7 +315,7 @@ public class Service : IService
             round.LimitTeam = request.LimitTeam;
         }
 
-        round.UpdatedAt = DateTimeOffset.UtcNow;
+        round.UpdatedAt = now;
         await _dbContext.SaveChangesAsync();
     }
 
@@ -266,9 +327,104 @@ public class Service : IService
             throw new NotFoundException("ROUND_NOT_FOUND");
         }
 
+        var eventEntity = await _dbContext.Events
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == round.EventId && !x.IsDisable);
+
+        var now = DateTimeOffset.UtcNow;
+        if (eventEntity != null && eventEntity.StartTime.HasValue && now >= eventEntity.StartTime.Value)
+        {
+            throw new BadRequestException("EVENT_ALREADY_STARTED");
+        }
+
+        var eventId = round.EventId;
+        var deletedRoundNo = round.RoundNo;
+
         round.IsDisable = true;
-        round.UpdatedAt = DateTimeOffset.UtcNow;
+        round.UpdatedAt = now;
+
+        // Soft-delete all criteria templates and items of this round
+        var templates = await _dbContext.CriteriaTemplates
+            .Include(x => x.CriteriaItems)
+            .Where(x => x.RoundId == roundId && !x.IsDisable)
+            .ToListAsync();
+
+        foreach (var template in templates)
+        {
+            template.IsDisable = true;
+            template.UpdatedAt = now;
+
+            foreach (var item in template.CriteriaItems.Where(x => !x.IsDisable))
+            {
+                item.IsDisable = true;
+                item.UpdatedAt = now;
+            }
+        }
+
+        // Renumber: decrement RoundNo for all rounds > deleted round
+        var roundsToRenumber = await _dbContext.Rounds
+            .Where(x => x.EventId == eventId && !x.IsDisable && x.RoundNo > deletedRoundNo)
+            .ToListAsync();
+
+        foreach (var r in roundsToRenumber)
+        {
+            r.RoundNo--;
+            r.UpdatedAt = now;
+        }
+
+        // Decrement NumberRound on event
+        if (eventEntity != null)
+        {
+            eventEntity.NumberRound = Math.Max(0, (eventEntity.NumberRound ?? 1) - 1);
+            eventEntity.UpdatedAt = now;
+            _dbContext.Events.Update(eventEntity);
+        }
+
         await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<string> RestoreRound(Guid roundId)
+    {
+        var round = await _dbContext.Rounds.FirstOrDefaultAsync(x => x.Id == roundId);
+        if (round == null)
+        {
+            throw new NotFoundException("ROUND_NOT_FOUND");
+        }
+
+        if (!round.IsDisable)
+        {
+            throw new ConflictException("ROUND_NOT_DISABLED");
+        }
+
+        var eventEntity = await _dbContext.Events
+            .FirstOrDefaultAsync(x => x.Id == round.EventId && !x.IsDisable);
+
+        if (eventEntity == null)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        round.IsDisable = false;
+        round.UpdatedAt = now;
+
+        // Restore RoundNo = current max + 1 (put at end)
+        var maxRoundNo = await _dbContext.Rounds
+            .AsNoTracking()
+            .Where(x => x.EventId == round.EventId && !x.IsDisable && x.Id != round.Id)
+            .MaxAsync(x => (int?)x.RoundNo) ?? 0;
+
+        round.RoundNo = maxRoundNo + 1;
+
+        // Increment NumberRound
+        eventEntity.NumberRound = (eventEntity.NumberRound ?? 0) + 1;
+        eventEntity.UpdatedAt = now;
+
+        // NOTE: Criteria templates/items remain disabled — admin must re-create or manually re-enable
+
+        await _dbContext.SaveChangesAsync();
+
+        return "ROUND_RESTORED_SUCCESSFULLY";
     }
 
     public async Task<SendSystemNotificationResponse> SendSystemNotification(SendSystemNotificationRequest request)
