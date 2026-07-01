@@ -133,6 +133,18 @@ builder.Services.AddQuartz(options =>
         .WithSimpleSchedule(schedule => schedule
             .WithIntervalInMinutes(2)
             .RepeatForever()));
+
+    var autoRejectRegistrationsJobKey = new JobKey(nameof(AutoRejectPendingRegistrationsJob));
+
+    options.AddJob<AutoRejectPendingRegistrationsJob>(job =>
+        job.WithIdentity(autoRejectRegistrationsJobKey));
+
+    options.AddTrigger(trigger => trigger
+        .ForJob(autoRejectRegistrationsJobKey)
+        .WithIdentity($"{nameof(AutoRejectPendingRegistrationsJob)}-trigger")
+        .WithSimpleSchedule(schedule => schedule
+            .WithIntervalInHours(12)
+            .RepeatForever()));
 });
 
 builder.Services.AddQuartzHostedService(options =>

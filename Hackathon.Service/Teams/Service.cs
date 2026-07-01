@@ -321,7 +321,7 @@ public class Service : IService
             .AsNoTracking()
             .Include(x => x.TeamDetails)
                 .ThenInclude(td => td.User)
-            .FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
+            .FirstOrDefaultAsync(x => x.Id == teamId);
 
         if (team == null)
         {
