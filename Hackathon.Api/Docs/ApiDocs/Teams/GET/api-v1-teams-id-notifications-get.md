@@ -33,6 +33,7 @@ Yêu cầu access token hợp lệ và người dùng phải là thành viên đ
       "teamId": "c4b5a6d7-e8f9-0a1b-2c3d-4e5f6a7b8c9d",
       "title": "Thông báo duyệt nhóm",
       "description": "Nhóm của bạn đã được duyệt tham gia giải đấu SEAL Hackathon 2026.",
+      "targetType": 1,
       "createdAt": "2026-06-22T08:00:00Z"
     }
   ]
