@@ -1,10 +1,12 @@
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Hackathon.Repository;
 using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
 using Hackathon.Service.Exceptions;
 using Hackathon.Service.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hackathon.Service.Admin;
@@ -12,10 +14,30 @@ namespace Hackathon.Service.Admin;
 public class Service : IService
 {
     private readonly AppDbContext _dbContext;
+    private readonly IHttpContextAccessor _httpContext;
 
-    public Service(AppDbContext dbContext)
+    public Service(AppDbContext dbContext, IHttpContextAccessor httpContext)
     {
         _dbContext = dbContext;
+        _httpContext = httpContext;
+    }
+
+    private Guid GetCurrentUserId()
+    {
+        var userIdValue = _httpContext.HttpContext?.User.FindFirst("UserId")?.Value
+            ?? _httpContext.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrWhiteSpace(userIdValue))
+        {
+            throw new UnauthorizedException("INVALID_ACCESS_TOKEN");
+        }
+
+        if (!Guid.TryParse(userIdValue, out var userId))
+        {
+            throw new UnauthorizedException("INVALID_ACCESS_TOKEN");
+        }
+
+        return userId;
     }
 
     public async Task<BasePaginationResponse> GetAllUsers(RoleEnum? role, PaginationRequest paginationRequest)
@@ -247,6 +269,75 @@ public class Service : IService
         round.IsDisable = true;
         round.UpdatedAt = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<SendSystemNotificationResponse> SendSystemNotification(SendSystemNotificationRequest request)
+    {
+        GetCurrentUserId();
+
+        if (string.IsNullOrWhiteSpace(request.Title))
+        {
+            throw new BadRequestException("TITLE_REQUIRED");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Description))
+        {
+            throw new BadRequestException("DESCRIPTION_REQUIRED");
+        }
+
+        var title = request.Title.Trim();
+        var description = request.Description.Trim();
+        var now = DateTimeOffset.UtcNow;
+        var userIds = await _dbContext.Users
+            .AsNoTracking()
+            .Where(x => !x.IsDisable)
+            .Select(x => x.Id)
+            .ToListAsync();
+
+        var notifications = userIds.Select(userId => new Hackathon.Repository.Entity.Notifications
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            TeamId = null,
+            Title = title,
+            Description = description,
+            Status = NotificationStatusEnum.Unread,
+            TargetType = NotificationTargetTypeEnum.System,
+            IsDisable = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        }).ToList();
+
+        await _dbContext.Notifications.AddRangeAsync(notifications);
+        await _dbContext.SaveChangesAsync();
+
+        return new SendSystemNotificationResponse
+        {
+            NotificationIds = notifications.Select(x => x.Id).ToList(),
+            TotalSent = notifications.Count
+        };
+    }
+
+    public async Task<string> ChangeUserRole(Guid userId, ChangeUserRoleRequest request)
+    {
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
+        if (user == null)
+        {
+            throw new NotFoundException("USER_NOT_FOUND");
+        }
+
+        if (user.Role == request.Role)
+        {
+            throw new BadRequestException("ROLE_ALREADY_SET");
+        }
+
+        user.Role = request.Role;
+        user.UpdatedAt = DateTimeOffset.UtcNow;
+
+        _dbContext.Users.Update(user);
+        await _dbContext.SaveChangesAsync();
+
+        return "USER_ROLE_UPDATED_SUCCESSFULLY";
     }
 
     private async Task<List<AdminRoundResponse>> BuildRoundQuery(IQueryable<Hackathon.Repository.Entity.Rounds> q, PaginationRequest pagination)

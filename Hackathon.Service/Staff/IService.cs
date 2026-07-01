@@ -14,4 +14,5 @@ public interface IService
     Task<Response.ApproveRegradeResponse> ApproveRegrade(Guid reportId);
     Task UpdateReportStatus(Guid reportId, Request.UpdateReportStatusRequest request);
     Task<BasePaginationResponse> GetRegradeSubmissions(Request.GetRegradeSubmissionsRequest request);
+    Task<string> ChangeUserRole(Guid userId, Request.StaffChangeUserRoleRequest request);
 }

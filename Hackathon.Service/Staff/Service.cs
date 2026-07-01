@@ -560,4 +560,32 @@ public class Service : IService
 
         return sourceScores.Count > 0 && sourceScores.All(x => x.HasRetake);
     }
+
+    public async Task<string> ChangeUserRole(Guid userId, Request.StaffChangeUserRoleRequest request)
+    {
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
+        if (user == null)
+        {
+            throw new NotFoundException("USER_NOT_FOUND");
+        }
+
+        // Staff can only set Student or Lecturer, cannot promote to Admin/Staff
+        if (request.Role is RoleEnum.Admin or RoleEnum.Staff)
+        {
+            throw new ForbiddenException("FORBIDDEN");
+        }
+
+        if (user.Role == request.Role)
+        {
+            throw new BadRequestException("ROLE_ALREADY_SET");
+        }
+
+        user.Role = request.Role;
+        user.UpdatedAt = DateTimeOffset.UtcNow;
+
+        _dbContext.Users.Update(user);
+        await _dbContext.SaveChangesAsync();
+
+        return "USER_ROLE_UPDATED_SUCCESSFULLY";
+    }
 }

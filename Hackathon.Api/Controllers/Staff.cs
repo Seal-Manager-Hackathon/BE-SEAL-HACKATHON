@@ -172,6 +172,13 @@ public class Staff : ControllerBase
         return Ok(ApiResponseFactory.Base(new { id = result }, 200, "LECTURER_REMOVED_FROM_TRACK_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
+    [HttpPatch("users/{userId:guid}/role")]
+    public async Task<IActionResult> ChangeUserRole(Guid userId, [FromBody] StaffService.Request.StaffChangeUserRoleRequest request)
+    {
+        var result = await _staffService.ChangeUserRole(userId, request);
+        return Ok(ApiResponseFactory.Base(null, 200, result, traceId: HttpContext.TraceIdentifier));
+    }
+
     [Authorize(Policy = JwtExtensions.StaffPolicy)]
     [HttpGet("events")]
     public async Task<IActionResult> GetStaffEvents([FromQuery] PaginationRequest request)

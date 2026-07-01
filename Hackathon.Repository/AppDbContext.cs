@@ -47,6 +47,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Events>().Property(x => x.Status).HasConversion<string>();
         modelBuilder.Entity<Invitations>().Property(x => x.Status).HasConversion<string>();
         modelBuilder.Entity<Notifications>().Property(x => x.Status).HasConversion<string>();
+        modelBuilder.Entity<Notifications>().Property(x => x.TargetType).HasConversion<string>();
         modelBuilder.Entity<RegisterTeams>().Property(x => x.Status).HasConversion<string>();
         modelBuilder.Entity<Reports>().Property(x => x.Status).HasConversion<string>();
         modelBuilder.Entity<Submissions>().Property(x => x.Status).HasConversion<string>();
@@ -163,12 +164,14 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Notifications>()
             .HasOne(notification => notification.Team)
             .WithMany(team => team.Notifications)
-            .HasForeignKey(notification => notification.TeamId);
+            .HasForeignKey(notification => notification.TeamId)
+            .IsRequired(false);
 
         modelBuilder.Entity<Notifications>()
             .HasOne(notification => notification.User)
             .WithMany(user => user.Notifications)
-            .HasForeignKey(notification => notification.UserId);
+            .HasForeignKey(notification => notification.UserId)
+            .IsRequired(false);
 
         modelBuilder.Entity<AssignEvents>()
             .HasOne(assignEvent => assignEvent.User)
