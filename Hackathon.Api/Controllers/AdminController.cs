@@ -61,4 +61,11 @@ public class AdminController : ControllerBase
         await _adminService.DeleteRound(roundId);
         return Ok(ApiResponseFactory.Base(null, 200, "ROUND_DELETED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
+
+    [HttpPatch("users/{userId:guid}/role")]
+    public async Task<IActionResult> ChangeUserRole(Guid userId, [FromBody] AdminService.ChangeUserRoleRequest request)
+    {
+        var result = await _adminService.ChangeUserRole(userId, request);
+        return Ok(ApiResponseFactory.Base(null, 200, result, traceId: HttpContext.TraceIdentifier));
+    }
 }

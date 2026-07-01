@@ -249,6 +249,28 @@ public class Service : IService
         await _dbContext.SaveChangesAsync();
     }
 
+    public async Task<string> ChangeUserRole(Guid userId, ChangeUserRoleRequest request)
+    {
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
+        if (user == null)
+        {
+            throw new NotFoundException("USER_NOT_FOUND");
+        }
+
+        if (user.Role == request.Role)
+        {
+            throw new BadRequestException("ROLE_ALREADY_SET");
+        }
+
+        user.Role = request.Role;
+        user.UpdatedAt = DateTimeOffset.UtcNow;
+
+        _dbContext.Users.Update(user);
+        await _dbContext.SaveChangesAsync();
+
+        return "USER_ROLE_UPDATED_SUCCESSFULLY";
+    }
+
     private async Task<List<AdminRoundResponse>> BuildRoundQuery(IQueryable<Hackathon.Repository.Entity.Rounds> q, PaginationRequest pagination)
     {
         return await q

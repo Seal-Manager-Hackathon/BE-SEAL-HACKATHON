@@ -34,4 +34,9 @@ public static class Request
         public Guid? TrackId { get; set; }
         public string? RegradeStatus { get; set; }
     }
+
+    public class StaffChangeUserRoleRequest
+    {
+        public RoleEnum Role { get; set; }
+    }
 }

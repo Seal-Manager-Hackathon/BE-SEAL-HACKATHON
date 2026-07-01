@@ -12,4 +12,5 @@ public interface IService
     Task<CreateRoundResponse> CreateRound(Guid eventId, CreateRoundRequest request);
     Task UpdateRound(Guid roundId, CreateRoundRequest request);
     Task DeleteRound(Guid roundId);
+    Task<string> ChangeUserRole(Guid userId, ChangeUserRoleRequest request);
 }

@@ -20,6 +20,11 @@ public class GetAdminRoundsRequest : PaginationRequest
     public bool? IsDisable { get; set; }
 }
 
+public class ChangeUserRoleRequest
+{
+    public RoleEnum Role { get; set; }
+}
+
 public class CreateRoundRequest
 {
     public string? Name { get; set; }
