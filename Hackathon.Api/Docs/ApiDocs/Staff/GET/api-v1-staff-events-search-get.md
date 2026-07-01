@@ -61,7 +61,6 @@ Staff.
 | `0` | Draft | Bản nháp |
 | `1` | Published | Đã xuất bản |
 | `2` | Closed | Đã đóng |
-| `3` | Cancelled | Đã hủy |
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |

@@ -34,8 +34,7 @@ Public API (Không yêu cầu đăng nhập)
     "EventStatusEnum": {
       "0": "Draft",
       "1": "Published",
-      "2": "Closed",
-      "3": "Cancelled"
+      "2": "Closed"
     },
     "InvitationStatusEnum": {
       "0": "Pending",

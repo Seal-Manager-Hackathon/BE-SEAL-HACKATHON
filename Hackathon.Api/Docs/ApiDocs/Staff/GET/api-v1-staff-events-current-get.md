@@ -25,7 +25,7 @@ Yêu cầu access token hợp lệ với role `Staff`.
       "startTime": "2026-07-01T08:00:00Z",
       "endTime": "2026-07-10T17:00:00Z",
       "role": 0, /* 0: Mentor, 1: Judge, 2: Staff */
-      "eventStatus": 1 /* 0: Draft, 1: Published, 2: Closed, 3: Cancelled */
+      "eventStatus": 1 /* 0: Draft, 1: Published, 2: Closed */
     }
   ]
 }
@@ -34,6 +34,8 @@ Yêu cầu access token hợp lệ với role `Staff`.
 ## Business rules
 - Chỉ lấy các sự kiện staff được phân công, đang diễn ra, chưa disable và **không phải trạng thái `Draft`**.
 - Sắp xếp theo `StartTime` giảm dần, sau đó theo `CreatedAt` giảm dần.
+
+### Bảng vai trò EventRoleEnum
 | Giá trị (Value) | Vai trò (Role) | Mô tả (Description) |
 | :--- | :--- | :--- |
 | `0` | Mentor | Người hướng dẫn chuyên môn cho đội thi |

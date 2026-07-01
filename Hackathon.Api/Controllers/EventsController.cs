@@ -132,14 +132,6 @@ public class EventsController : ControllerBase
     }
 
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
-    [HttpPatch("/api/v1/admin/events/{eventId:guid}/cancel")]
-    public async Task<IActionResult> CancelEvent(Guid eventId)
-    {
-        var message = await _eventsService.CancelEvent(eventId);
-        return Ok(ApiResponseFactory.Base(null, 200, message, traceId: HttpContext.TraceIdentifier));
-    }
-
-    [Authorize(Policy = JwtExtensions.AdminPolicy)]
     [HttpPatch("/api/v1/admin/events/{eventId:guid}/close")]
     public async Task<IActionResult> CloseEvent(Guid eventId)
     {

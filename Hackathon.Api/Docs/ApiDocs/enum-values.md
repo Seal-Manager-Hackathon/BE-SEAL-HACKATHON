@@ -20,7 +20,6 @@ Trạng thái của một Event.
 - `0`: Draft (Bản nháp, chưa công bố)
 - `1`: Published (Đã công bố/Đang diễn ra)
 - `2`: Closed (Đã đóng)
-- `3`: Cancelled (Bị hủy)
 
 ## 4. RegisterTeamStatusEnum (Trạng thái đăng ký Event của Team)
 Trạng thái xét duyệt khi một team nộp đơn tham gia Event.

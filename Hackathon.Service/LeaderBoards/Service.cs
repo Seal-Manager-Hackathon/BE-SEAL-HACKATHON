@@ -137,10 +137,9 @@ public class Service : IService
             throw new ForbiddenException("LEADERBOARD_OR_EVENT_DISABLED");
         }
 
-        if (detail.LeaderBoard.Event.Status == EventStatusEnum.Closed
-            || detail.LeaderBoard.Event.Status == EventStatusEnum.Cancelled)
+        if (detail.LeaderBoard.Event.Status == EventStatusEnum.Closed)
         {
-            throw new ForbiddenException("EVENT_IS_CLOSED_OR_CANCELLED");
+            throw new ForbiddenException("EVENT_IS_CLOSED");
         }
 
         // 4. Update the values

@@ -888,34 +888,6 @@ public class Service : IService
         return "AWARD_UPDATED_SUCCESSFULLY";
     }
 
-    public async Task<string> CancelEvent(Guid eventId)
-    {
-        var eventEntity = await _dbContext.Events.FirstOrDefaultAsync(x => x.Id == eventId && !x.IsDisable);
-        if (eventEntity == null)
-        {
-            throw new NotFoundException("EVENT_NOT_FOUND");
-        }
-
-        eventEntity.Status = EventStatusEnum.Cancelled;
-        eventEntity.UpdatedAt = DateTimeOffset.UtcNow;
-
-        var rounds = await _dbContext.Rounds
-            .Where(x => x.EventId == eventId && !x.IsDisable)
-            .ToListAsync();
-
-        var now = DateTimeOffset.UtcNow;
-        foreach (var round in rounds)
-        {
-            round.IsDisable = true;
-            round.UpdatedAt = now;
-        }
-
-        _dbContext.Events.Update(eventEntity);
-        await _dbContext.SaveChangesAsync();
-
-        return "EVENT_CANCELLED_SUCCESSFULLY";
-    }
-
     public async Task<string> CloseEvent(Guid eventId)
     {
         var eventEntity = await _dbContext.Events.FirstOrDefaultAsync(x => x.Id == eventId && !x.IsDisable);

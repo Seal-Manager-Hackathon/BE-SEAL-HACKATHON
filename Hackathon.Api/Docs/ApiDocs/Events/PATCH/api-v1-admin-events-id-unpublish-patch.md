@@ -30,7 +30,7 @@ Yêu cầu access token hợp lệ với role `Admin`.
 
 ## Business rules
 - Event phải tồn tại trong DB, nếu không báo lỗi `EVENT_NOT_FOUND`.
-- Chỉ chấp nhận hủy công bố khi event đang ở trạng thái `Published`. Nếu event đang ở trạng thái `Draft`, `Closed`, hoặc `Cancelled` thì từ chối hành động và báo lỗi `EVENT_NOT_IN_PUBLISHED_STATUS`.
+- Chỉ chấp nhận hủy công bố khi event đang ở trạng thái `Published`. Nếu event đang ở trạng thái `Draft` hoặc `Closed` thì từ chối hành động và báo lỗi `EVENT_NOT_IN_PUBLISHED_STATUS`.
 - Khi unpublish: gán `Status = Draft` (giá trị enum `0`) và cập nhật `UpdatedAt = DateTimeOffset.UtcNow`.
 
 ### Bảng trạng thái EventStatusEnum
@@ -39,7 +39,6 @@ Yêu cầu access token hợp lệ với role `Admin`.
 | `0` | Draft | Nháp (Thí sinh không nhìn thấy) |
 | `1` | Published | Đang diễn ra / Mở đăng ký |
 | `2` | Closed | Đã đóng / Kết thúc giải đấu |
-| `3` | Cancelled | Đã hủy |
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |

@@ -37,7 +37,7 @@ Authorization: Bearer <token>
         "name": "SEAL Hackathon 2026",
         "startTime": "2026-07-01T08:00:00Z",
         "endTime": "2026-07-10T17:00:00Z",
-        "status": 0, /* 0: Draft, 1: Published, 2: Closed, 3: Cancelled */
+        "status": 0, /* 0: Draft, 1: Published, 2: Closed */
         "season": "Mùa hè 2026",
         "isDisable": false,
         "createdAt": "2026-06-22T08:00:00Z"
@@ -66,7 +66,6 @@ Authorization: Bearer <token>
 | `0` | Draft | Sự kiện đang nháp, chưa công bố |
 | `1` | Published | Sự kiện đã công bố và hoạt động |
 | `2` | Closed | Sự kiện đã kết thúc và đóng lại |
-| `3` | Cancelled | Sự kiện đã bị hủy bỏ |
 
 ## Lỗi có thể xảy ra
 *Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
