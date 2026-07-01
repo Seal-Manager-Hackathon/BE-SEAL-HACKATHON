@@ -78,3 +78,9 @@ Các cờ trạng thái dùng trong Bảng xếp hạng và Chấm điểm.
 - `ScoresStatusEnum.IsDisable` = `2`
 
 *(Lưu ý: FE khi gửi request các tham số lọc trạng thái thường có thể dùng string như "Pending", "Approved" (tùy API có parse string hay không), nhưng khi nhận kết quả từ backend nếu kiểu dữ liệu trả về là chuỗi thì sẽ hiện `"Approved"`, nếu kiểu trả về là int thì sẽ hiện `1`. Mapping theo bảng trên là chính xác tuyệt đối).*
+
+## 13. NotificationTargetTypeEnum (Phân loại thông báo)
+Phân loại phạm vi/đối tượng nhận của một thông báo.
+- `0`: Personal (Gửi riêng cho một người dùng)
+- `1`: Team (Gửi cho một team)
+- `2`: System (Gửi toàn hệ thống, tất cả user đều nhận được)

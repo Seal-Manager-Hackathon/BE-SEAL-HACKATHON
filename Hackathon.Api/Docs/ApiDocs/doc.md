@@ -215,6 +215,7 @@ Ngày rà soát: 2026-06-22
 - [`PATCH /api/v1/notifications/{notificationId}/read`](Notifications/PATCH/PATCH-api-v1-notifications-notificationId-read.md) — Đánh dấu thông báo đã đọc. Quyền: Authenticated (Owner). Entity: `Notifications.Status = Read`.
 - [`PATCH /api/v1/notifications/read-all`](Notifications/PATCH/PATCH-api-v1-notifications-read-all.md) — Đánh dấu tất cả thông báo là đã đọc. Quyền: Authenticated. Entity: `Notifications`.
 - [`POST /api/v1/staff/notifications`](Staff/POST/POST-api-v1-staff-notifications.md) — BTC gửi thông báo hệ thống (gửi cho một user, một team hoặc toàn bộ event). Quyền: Staff/Admin. Entity: `Notifications`. Body: `userId` (nullable), `teamId` (nullable), `title`, `description`. Lý do: BTC gửi thông báo chung. *Cần đổi mối quan hệ trong DB thành Nullable.*
+- [`POST /api/v1/admin/notifications`](Admin/POST/api-v1-admin-notifications-post.md) — Admin gửi thông báo toàn hệ thống (tất cả user). Quyền: Admin. Entity: `Notifications`. Body: `title`, `description`. Lý do: Admin broadcast thông báo bảo trì, sự cố, thông báo khẩn cấp đến toàn bộ người dùng.
 - [`GET /api/v1/teams/{teamId}/notifications`](Teams/GET/GET-api-v1-teams-teamId-notifications.md) — Xem thông báo gửi riêng cho team. Quyền: Authenticated (Team member). Entity: `Notifications`.
 
 ## 19. Mentor APIs (Khu vực của Mentor)
