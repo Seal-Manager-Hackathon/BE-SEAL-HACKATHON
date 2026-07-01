@@ -1,7 +1,7 @@
 # Get Events
 
 ## Tác dụng
-Lấy danh sách phân trang các event (mặc định chỉ lấy các event chưa bị disable) dành cho học sinh.
+Lấy danh sách phân trang các event đã Published hoặc Closed (ẩn Draft, Cancelled) dành cho học sinh.
 
 ## URL
 `GET /api/v1/events`
@@ -51,7 +51,8 @@ Không yêu cầu Access Token (Public API).
 ## Business rules
 - Không yêu cầu đăng nhập.
 - Luôn ẩn các event bị soft-disable (`IsDisable = true`).
-- Sắp xếp danh sách mặc định theo thời gian bắt đầu của event tăng dần (`StartTime` tăng dần), sau đó theo thời gian tạo (`CreatedAt` tăng dần).
+- **Chỉ trả về event có trạng thái `Published` hoặc `Closed`** — hoàn toàn không trả `Draft` hoặc `Cancelled`.
+- Sắp xếp danh sách theo `StartTime` giảm dần (event sắp/mới diễn ra lên đầu), sau đó theo `CreatedAt` giảm dần.
 - Lọc theo keyword (tìm kiếm không phân biệt chữ hoa thường trên `Name`, `Description`, `Season`).
 - Lọc theo năm bắt đầu của event (`StartTime.Value.Year`).
 - Lọc theo trạng thái của event (`Status`). Nếu trạng thái không hợp lệ, trả lỗi `400 BadRequest` (`INVALID_EVENT_STATUS`).

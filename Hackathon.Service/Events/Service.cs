@@ -1022,7 +1022,9 @@ public class Service : IService
 
     public async Task<BasePaginationResponse> GetEvents(Request.GetEventsRequest request)
     {
-        var query = _dbContext.Events.AsNoTracking().Where(x => !x.IsDisable);
+        var query = _dbContext.Events.AsNoTracking()
+            .Where(x => !x.IsDisable
+                && (x.Status == EventStatusEnum.Published || x.Status == EventStatusEnum.Closed));
 
         if (!string.IsNullOrWhiteSpace(request.Keyword))
         {
@@ -1049,8 +1051,8 @@ public class Service : IService
 
         var totalCount = await query.CountAsync();
         var items = await query
-            .OrderByDescending(x => x.CreatedAt)
-            .ThenByDescending(x => x.StartTime)
+            .OrderByDescending(x => x.StartTime)
+            .ThenByDescending(x => x.CreatedAt)
             .Skip((request.PageIndex - 1) * request.PageSize)
             .Take(request.PageSize)
             .Select(x => new Response.StudentEventResponse
@@ -1102,8 +1104,7 @@ public class Service : IService
 
         var totalCount = await query.CountAsync();
         var items = await query
-            .OrderByDescending(x => x.StartTime)
-            .ThenByDescending(x => x.CreatedAt)
+            .OrderByDescending(x => x.CreatedAt)
             .Skip((request.PageIndex - 1) * request.PageSize)
             .Take(request.PageSize)
             .Select(x => new Response.AdminEventResponse
@@ -1125,7 +1126,13 @@ public class Service : IService
     public async Task<Response.EventResponse> GetEvent(Guid eventId)
     {
         var eventEntity = await _dbContext.Events.AsNoTracking().FirstOrDefaultAsync(x => x.Id == eventId);
-        if (eventEntity == null)
+        if (eventEntity == null || eventEntity.IsDisable)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        // Student/Lecturer/Staff chỉ thấy Published hoặc Closed, không thấy Draft
+        if (eventEntity.Status == EventStatusEnum.Draft)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
@@ -1147,7 +1154,8 @@ public class Service : IService
                         && !x.Event.IsDisable
                         && x.Team.TeamDetails.Any(td => td.UserId == userId && !td.IsDisable && td.Status == TeamDetailStatusEnum.Active))
             .Select(x => x.Event)
-            .Distinct();
+            .Distinct()
+            .Where(x => x.Status == EventStatusEnum.Published || x.Status == EventStatusEnum.Closed);
 
         if (!string.IsNullOrWhiteSpace(request.Keyword))
         {
@@ -1204,7 +1212,8 @@ public class Service : IService
 
         return await _dbContext.Events
             .AsNoTracking()
-            .Where(x => x.IsDisable == (isDisable ?? false))
+            .Where(x => x.IsDisable == (isDisable ?? false)
+                && (x.Status == EventStatusEnum.Published || x.Status == EventStatusEnum.Closed))
             .Select(x => new Response.EventParticipantResponse
             {
                 Id = x.Id,

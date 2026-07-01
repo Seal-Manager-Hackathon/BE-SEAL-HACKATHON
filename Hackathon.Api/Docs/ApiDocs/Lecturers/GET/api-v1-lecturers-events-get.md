@@ -52,7 +52,8 @@ Lecturer đã được phân công trong sự kiện (Yêu cầu đăng nhập t
 ## Business rules
 - Người gọi phải là giảng viên (`role = 3` tương ứng `RoleEnum.Lecturer` trong `Users`).
 - Trích xuất thông tin phân công trong bảng nối `AssignEvents` liên kết với `EventRoles` của giảng viên hiện tại.
-- Chỉ lấy các sự kiện chưa bị disable.
+- Chỉ lấy các sự kiện chưa bị disable và **không phải trạng thái `Draft`** (chỉ Published/Closed).
+- Sắp xếp theo `StartTime` giảm dần, sau đó theo `CreatedAt` giảm dần.
 
 ### Bảng vai trò EventRoleEnum (Integer)
 | Giá trị (Value) | Vai trò (Role) | Mô tả (Description) |

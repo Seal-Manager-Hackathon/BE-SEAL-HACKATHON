@@ -54,13 +54,15 @@ public class Service : IService
             .Include(x => x.EventRole)
             .Where(x => x.UserId == userId
                         && !x.IsDisable
-                        && !x.Event.IsDisable);
+                        && !x.Event.IsDisable
+                        && x.Event.Status != EventStatusEnum.Draft);
 
         var totalCount = await query.CountAsync();
 
         // 5. Paginate and map to Response DTO
         var items = await query
-            .OrderByDescending(x => x.CreatedAt)
+            .OrderByDescending(x => x.Event.StartTime)
+            .ThenByDescending(x => x.CreatedAt)
             .Skip((pageIndex - 1) * pageSize)
             .Take(pageSize)
             .Select(x => new Response.LecturerEventResponse
@@ -93,7 +95,8 @@ public class Service : IService
             .Include(x => x.EventRole)
             .Where(x => x.UserId == userId
                         && !x.IsDisable
-                        && !x.Event.IsDisable);
+                        && !x.Event.IsDisable
+                        && x.Event.Status != EventStatusEnum.Draft);
 
         // 3. Filter by Keyword (Event.Name)
         if (!string.IsNullOrWhiteSpace(request.Keyword))
@@ -156,7 +159,8 @@ public class Service : IService
                         && x.Event.StartTime.Value <= now
                         && x.Event.EndTime.HasValue
                         && x.Event.EndTime.Value >= now)
-            .OrderByDescending(x => x.CreatedAt)
+            .OrderByDescending(x => x.Event.StartTime)
+            .ThenByDescending(x => x.CreatedAt)
             .Select(x => new Response.LecturerEventResponse
             {
                 AssignEventId = x.Id,

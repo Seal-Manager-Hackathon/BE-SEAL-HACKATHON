@@ -60,6 +60,7 @@ public class Service : IService
             .Where(x => x.UserId == userId
                         && !x.IsDisable
                         && !x.Event.IsDisable
+                        && x.Event.Status != EventStatusEnum.Draft
                         && x.Event.StartTime.HasValue
                         && x.Event.StartTime.Value <= now
                         && x.Event.EndTime.HasValue
@@ -105,12 +106,14 @@ public class Service : IService
             .Include(x => x.EventRole)
             .Where(x => x.UserId == userId
                         && !x.IsDisable
-                        && !x.Event.IsDisable);
+                        && !x.Event.IsDisable
+                        && x.Event.Status != EventStatusEnum.Draft);
 
         var totalCount = await query.CountAsync();
 
         var items = await query
-            .OrderByDescending(x => x.CreatedAt)
+            .OrderByDescending(x => x.Event.StartTime)
+            .ThenByDescending(x => x.CreatedAt)
             .Skip((pageIndex - 1) * pageSize)
             .Take(pageSize)
             .Select(x => new Response.StaffEventResponse
@@ -191,7 +194,8 @@ public class Service : IService
             .Include(x => x.EventRole)
             .Where(x => x.UserId == userId
                         && !x.IsDisable
-                        && !x.Event.IsDisable);
+                        && !x.Event.IsDisable
+                        && x.Event.Status != EventStatusEnum.Draft);
 
         if (!string.IsNullOrWhiteSpace(request.Keyword))
         {
