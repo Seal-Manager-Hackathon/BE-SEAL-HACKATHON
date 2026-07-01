@@ -1,7 +1,10 @@
-# Judge xem lịch sử bài nộp của team
+# Judge xem bài nộp mới nhất của team trong từng round
 
 ## Tác dụng
-Judge xem tất cả bài nộp của một team (theo `registerTeamId`) trong event. Trả về danh sách bài nộp sắp xếp theo thời gian nộp giảm dần. Judge chỉ xem được nếu team thuộc track mà judge được phân công.
+Judge xem bài nộp MỚI NHẤT của một team (theo `registerTeamId`) trong mỗi round.
+
+**Mỗi round chỉ trả về 1 bài nộp duy nhất — bài cuối cùng của team trong round đó.**  
+Các phiên bản cũ của team không được hiển thị cho Judge.
 
 ## URL
 `GET /api/v1/judge/register-teams/{registerTeamId}/submissions`
@@ -20,15 +23,6 @@ Yêu cầu access token hợp lệ với role `Lecturer` và đã được phân
 | `pageIndex` | `int` | Không | Trang hiện tại. Mặc định: 1. |
 | `pageSize` | `int` | Không | Số lượng item mỗi trang. Mặc định: 10. |
 
-## Ví dụ request
-```http
-GET /api/v1/judge/register-teams/33333333-3333-3333-3333-333333333333/submissions?pageIndex=1&pageSize=10
-Authorization: Bearer {accessToken}
-```
-
-## Request body
-Không có.
-
 ## Response body
 Response dùng `ApiResponseFactory.BasePagination` — phân trang.
 
@@ -40,34 +34,39 @@ Response dùng `ApiResponseFactory.BasePagination` — phân trang.
   "status": 200,
   "traceId": "string|null",
   "timestampUtc": "datetime",
-  "data": [
-    {
-      "submissionId": "guid",
-      "roundId": "guid",
-      "roundName": "string",
-      "roundNo": 1,
-      "roundDetailId": "guid",
-      "url": "string|null",
-      "description": "string|null",
-      "status": 0,
-      "submittedAt": "datetime|null",
-      "gradingStatus": "string",
-      "scoreId": "guid|null",
-      "totalScore": "decimal|null"
-    }
-  ],
-  "pageIndex": 1,
-  "pageSize": 10,
-  "totalCount": 5,
-  "message": "SUCCESS"
+  "data": {
+    "items": [
+      {
+        "submissionId": "guid",
+        "roundId": "guid",
+        "roundName": "string",
+        "roundNo": 1,
+        "roundDetailId": "guid",
+        "url": "string|null",
+        "description": "string|null",
+        "status": 0,
+        "submittedAt": "datetime|null",
+        "gradingStatus": "Graded",
+        "scoreId": "guid|null",
+        "totalScore": "decimal|null"
+      }
+    ],
+    "pageIndex": 1,
+    "pageSize": 10,
+    "totalCount": 5,
+    "hasNextPage": false,
+    "hasPreviousPage": false
+  }
 }
 ```
+
+*Mỗi round chỉ có 1 item — bài mới nhất.*
 
 ### Ý nghĩa các trường
 | Trường | Ý nghĩa |
 |--------|---------|
 | `submissionId` | Id bài nộp |
-| `roundId` | Id của round bài nộp thuộc về |
+| `roundId` | Id của round |
 | `roundName` | Tên round |
 | `roundNo` | Số thứ tự round |
 | `roundDetailId` | Id của bản ghi RoundDetails |
@@ -75,19 +74,17 @@ Response dùng `ApiResponseFactory.BasePagination` — phân trang.
 | `description` | Mô tả bài nộp |
 | `status` | Trạng thái bài nộp (0: Submitted, 1: Unsubmitted, 2: Failed) |
 | `submittedAt` | Thời gian nộp bài |
-| `gradingStatus` | `"Graded"` nếu judge đã chấm bài này, `"Pending"` nếu chưa |
-| `scoreId` | Id của điểm số judge đã chấm (null nếu chưa chấm) |
-| `totalScore` | Tổng điểm judge đã chấm (null nếu chưa chấm) |
+| `gradingStatus` | `"Graded"` nếu judge đã chấm, `"Pending"` nếu chưa |
+| `scoreId` | Id điểm số (null nếu chưa chấm) |
+| `totalScore` | Tổng điểm (null nếu chưa chấm) |
 
 ## Business rules
 - Yêu cầu access token hợp lệ với role `Lecturer` và phải là Judge trong event.
-- Endpoint dùng policy `LecturerPolicy`.
 - Judge chỉ xem được team thuộc track mình được phân công (`AssignTracks`).
 - Team phải có trạng thái `Approved` và không bị ban.
-- `registerTeamId` là bắt buộc trên path.
-- Trả về tất cả bài nộp của team trong tất cả round (không lọc round).
-- Sắp xếp submissions theo `SubmittedAt` giảm dần (mới nhất đầu tiên).
-- Hỗ trợ phân trang với `pageIndex` và `pageSize`.
+- **Chỉ lấy bài nộp mới nhất** của mỗi round detail (`.GroupBy().Select(g => g.OrderByDescending().First())`).
+- Sắp xếp theo `SubmittedAt` giảm dần.
+- Hỗ trợ phân trang.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
@@ -99,6 +96,6 @@ Response dùng `ApiResponseFactory.BasePagination` — phân trang.
 | 500 | INTERNAL_SERVER_ERROR | AN_UNEXPECTED_ERROR_OCCURRED |
 
 ## Trạng thái implement
-- Đã implement endpoint trong `Hackathon.Api.Controllers.JudgeController`.
-- Method: `GetJudgeTeamSubmissions(Guid registerTeamId, PaginationRequest paginationRequest)`.
-- Endpoint dùng route `GET /api/v1/judge/register-teams/{registerTeamId:guid}/submissions` và `LecturerPolicy`.
+- ✅ Implement trong `Hackathon.Api.Controllers.JudgeController`.
+- Route: `GET /api/v1/judge/register-teams/{registerTeamId:guid}/submissions`.
+- Policy: `LecturerPolicy`.

@@ -1,22 +1,25 @@
-# Lấy danh sách bài nộp của Vòng thi (Get Round Submissions)
+# Student xem bài nộp của team mình trong round
 
 ## Tác dụng
-Lấy danh sách các bài nộp (submissions) của một vòng thi cụ thể (Round), hỗ trợ phân trang.
+Cho phép student (thành viên team) xem bài nộp MỚI NHẤT của team mình trong 1 round.
+
+**Chỉ trả về 1 bài nộp duy nhất — bài mới nhất của team.**  
+Các phiên bản cũ bị ẩn — student chỉ thấy được bài cuối cùng.
 
 ## URL
 `GET /api/v1/rounds/{roundId}/submissions`
 
 ## Authorization
-Yêu cầu access token hợp lệ. Chỉ trả về các bài nộp của team mà user là thành viên active.
+Yêu cầu access token hợp lệ. Chỉ trả về bài nộp của team mà user là thành viên active.
 
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | `roundId` | `guid` | Có | Id của vòng thi. |
 
 ## Query parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | `PageIndex` | `int` | Không | Trang số bao nhiêu (Mặc định: `1`). Phải >= 1. |
 | `PageSize` | `int` | Không | Số lượng kết quả trên một trang (Mặc định: `10`). Phải >= 1. |
 
@@ -45,31 +48,26 @@ Không có.
         "submissionId": "8fa95f64-5717-4562-b3fc-2c963f66afa6",
         "url": "https://github.com/seal-manager/hackathon-project",
         "submittedAt": "2026-06-19T02:15:27Z",
-        "status": 0, /* 0: Submitted, 1: Unsubmitted, 2: Failed */
+        "status": 0,
         "totalScore": 9.5
-      },
-      {
-        "submissionId": "2cb15a44-1234-4562-a3fc-3d963f66bfb9",
-        "url": "https://drive.google.com/file/d/123456",
-        "submittedAt": "2026-06-19T01:00:10Z",
-        "status": 0, /* 0: Submitted, 1: Unsubmitted, 2: Failed */
-        "totalScore": null
       }
     ],
     "PageIndex": 1,
     "PageSize": 10,
-    "TotalCount": 2,
+    "TotalCount": 1,
     "HasNextPage": false,
     "HasPreviousPage": false
   }
 }
 ```
 
+*Chỉ luôn có 1 item trong mảng — là bài mới nhất. Không có phiên bản cũ.*
+
 ## Business rules
 - Vòng thi (`roundId`) phải tồn tại và chưa bị vô hiệu hóa (`IsDisable = false`).
-- Chỉ trả về các bài nộp thuộc vòng thi được chỉ định, chưa bị vô hiệu hóa và thuộc team mà user là thành viên active.
-- Danh sách trả về được sắp xếp theo thời gian nộp bài (`SubmittedAt`) giảm dần (mới nhất lên đầu).
-- Thuộc tính `totalScore` sẽ lấy tổng điểm từ bảng điểm (`Scores`) mới nhất liên quan đến bài nộp. Có thể `null` nếu bài nộp chưa được chấm điểm.
+- Chỉ trả về các bài nộp thuộc team mà user là thành viên active.
+- **Chỉ trả về bài nộp mới nhất** của team (`.FirstOrDefaultAsync()` sau khi sort `SubmittedAt` desc). Nếu team chưa nộp → mảng rỗng.
+- Thuộc tính `totalScore` lấy tổng điểm từ bảng điểm (`Scores`) mới nhất. Có thể `null` nếu chưa chấm.
 
 ### Bảng trạng thái SubmissionStatusEnum
 | Giá trị (Value) | Trạng thái (Status) | Mô tả (Description) |
@@ -79,8 +77,6 @@ Không có.
 | `2` | Failed | Nộp bài thất bại |
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
-
 | HTTP | messageCode | message/detail |
 |---:|---|---|
 | 400 | BAD_REQUEST | PAGE_INDEX_MUST_BE_GREATER_THAN_ZERO |

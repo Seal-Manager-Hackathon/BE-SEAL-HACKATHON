@@ -76,6 +76,7 @@ Authorization: Bearer {accessToken}
 ```
 
 ## Business rules
+- **Mỗi team chỉ xuất hiện 1 lần trong mỗi round** — chỉ lấy bài nộp mới nhất (`.GroupBy.RegisterTeamId().First()`).
 - Judge chỉ xem được submissions của các track được phân công.
 - Data trả về dạng cây: **Round → Track → Submissions (phân trang)**.
 - Chỉ trả về các round thuộc event và đã đóng nộp bài (`EndSubmission` đã qua).

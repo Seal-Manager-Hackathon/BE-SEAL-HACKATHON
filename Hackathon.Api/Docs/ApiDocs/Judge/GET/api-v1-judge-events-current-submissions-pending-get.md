@@ -21,6 +21,7 @@ Yêu cầu access token hợp lệ với role `Lecturer` và đã được phân
 *Cấu trúc giống `BasePaginationResponse` như các API submissions khác.*
 
 ## Business rules
+- **Mỗi team chỉ xuất hiện 1 lần trong mỗi round** — chỉ lấy bài nộp mới nhất (`.GroupBy().First()`).
 - Tự động tìm event đang diễn ra (`StartTime ≤ now ≤ EndTime`).
 - Chỉ trả bài chưa chấm (pending).
 - Nếu không có event nào đang diễn ra, trả về danh sách rỗng.

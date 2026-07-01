@@ -1283,34 +1283,45 @@ public class Service : IService
 
         var totalCount = await submissionsQuery.CountAsync();
 
-        var items = await submissionsQuery
+        // Judge only sees latest submission per team per round
+        var allSubmissions = await submissionsQuery
             .OrderByDescending(x => x.SubmittedAt)
-            .Skip((pageIndex - 1) * pageSize)
-            .Take(pageSize)
-            .Select(x => new Response.JudgeStatusSubmissionResponse
-            {
-                RegisterTeamId = x.RoundDetail.RegisterTeamId,
-                TeamId = x.RoundDetail.RegisterTeam.TeamId,
-                TeamName = x.RoundDetail.RegisterTeam.Team.Name,
-                TopicId = x.RoundDetail.RegisterTeam.TopicId,
-                TopicTitle = x.RoundDetail.RegisterTeam.Topic != null ? x.RoundDetail.RegisterTeam.Topic.Title : null,
-                SubmissionId = x.Id,
-                SubmissionStatus = x.Status,
-                SubmittedAt = x.SubmittedAt,
-                ScoreId = x.Scores
-                    .Where(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId))
-                    .OrderByDescending(s => s.UpdatedAt)
-                    .Select(s => (Guid?)s.Id)
-                    .FirstOrDefault(),
-                TotalScore = x.Scores
-                    .Where(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId))
-                    .OrderByDescending(s => s.UpdatedAt)
-                    .Select(s => s.TotalScore)
-                    .FirstOrDefault()
-            })
             .ToListAsync();
 
-        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
+        var latestGrouped = allSubmissions
+            .GroupBy(x => x.RoundDetail.RegisterTeamId)
+            .Select(g => g.OrderByDescending(x => x.SubmittedAt).First())
+            .ToList();
+
+        var items = latestGrouped.Select(x => new Response.JudgeStatusSubmissionResponse
+        {
+            RegisterTeamId = x.RoundDetail.RegisterTeamId,
+            TeamId = x.RoundDetail.RegisterTeam.TeamId,
+            TeamName = x.RoundDetail.RegisterTeam.Team.Name,
+            TopicId = x.RoundDetail.RegisterTeam.TopicId,
+            TopicTitle = x.RoundDetail.RegisterTeam.Topic != null ? x.RoundDetail.RegisterTeam.Topic.Title : null,
+            SubmissionId = x.Id,
+            SubmissionStatus = x.Status,
+            SubmittedAt = x.SubmittedAt,
+            ScoreId = x.Scores
+                .Where(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId))
+                .OrderByDescending(s => s.UpdatedAt)
+                .Select(s => (Guid?)s.Id)
+                .FirstOrDefault(),
+            TotalScore = x.Scores
+                .Where(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId))
+                .OrderByDescending(s => s.UpdatedAt)
+                .Select(s => s.TotalScore)
+                .FirstOrDefault()
+        }).ToList();
+
+        var totalCountAfter = items.Count;
+        var paged = items
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        return ApiResponseFactory.BasePagination(paged, pageIndex, pageSize, totalCountAfter);
     }
 
     public async Task<BasePaginationResponse> GetJudgeRoundTeams(Guid eventId, Guid roundId, Guid? trackId, string? status, PaginationRequest paginationRequest)
@@ -1523,21 +1534,16 @@ public class Service : IService
         var roundDetailIds = roundDetails.Select(x => x.Id).ToList();
         var roundDetailLookup = roundDetails.ToDictionary(x => x.Id);
 
-        // Get all submissions
-        var query = _dbContext.Submissions
+        // Get latest submission per round detail (Judge only sees latest)
+        var latestSubmissions = await _dbContext.Submissions
             .AsNoTracking()
             .Include(x => x.Scores.Where(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId)))
-            .Where(x => roundDetailIds.Contains(x.RoundDetailId) && !x.IsDisable);
-
-        var totalCount = await query.CountAsync();
-
-        var submissions = await query
-            .OrderByDescending(x => x.SubmittedAt ?? x.CreatedAt)
-            .Skip((pageIndex - 1) * pageSize)
-            .Take(pageSize)
+            .Where(x => roundDetailIds.Contains(x.RoundDetailId) && !x.IsDisable)
+            .GroupBy(x => x.RoundDetailId)
+            .Select(g => g.OrderByDescending(x => x.SubmittedAt ?? x.CreatedAt).First())
             .ToListAsync();
 
-        var items = submissions.Select(s =>
+        var items = latestSubmissions.Select(s =>
         {
             var rd = roundDetailLookup[s.RoundDetailId];
             var myScore = s.Scores
@@ -1560,6 +1566,12 @@ public class Service : IService
                 TotalScore = myScore?.TotalScore,
             };
         }).ToList();
+
+        var totalCount = items.Count;
+        var paged = items
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
 
         return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
     }

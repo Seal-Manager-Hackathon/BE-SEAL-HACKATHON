@@ -58,6 +58,7 @@ Yêu cầu access token hợp lệ với role `Lecturer` và đã được phân
 ```
 
 ## Business rules
+- **Mỗi team chỉ xuất hiện 1 lần trong mỗi round** — chỉ lấy bài nộp mới nhất (`.GroupBy().First()`).
 - `isGraded = true`: chỉ trả submission đã có điểm của judge này.
 - `isGraded = false` (mặc định): chỉ trả submission chưa có điểm.
 - Judge chỉ xem được submissions của các track được phân công.

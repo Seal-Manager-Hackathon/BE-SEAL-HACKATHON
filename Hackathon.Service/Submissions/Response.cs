@@ -50,5 +50,6 @@ public static class Response
         public string? Description { get; set; }
         public Hackathon.Repository.Enum.SubmissionStatusEnum? Status { get; set; }
         public DateTimeOffset? SubmittedAt { get; set; }
+        public bool IsLatest { get; set; }
     }
 }

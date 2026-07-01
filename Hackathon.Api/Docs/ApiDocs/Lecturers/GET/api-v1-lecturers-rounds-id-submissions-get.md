@@ -1,9 +1,11 @@
 # Judge lấy danh sách bài nộp của vòng thi (Judge Get Round Submissions)
 
 ## Tác dụng
-Judge lấy danh sách bài nộp (submissions) mới nhất của các team trong một vòng thi. 
+Judge lấy danh sách bài nộp (submissions) MỚI NHẤT của các team trong một vòng thi. 
 Chỉ lấy được các team thuộc track mà judge được phân công.
 Chỉ lấy được khi vòng thi đã đóng thời gian nộp bài (`EndSubmission`).
+
+**Quan trọng:** Mỗi team chỉ xuất hiện **1 lần** — chỉ lấy bài nộp mới nhất.
 
 ## URL
 `GET /api/v1/lecturers/rounds/{roundId}/submissions`
