@@ -106,6 +106,11 @@ public class Service : IService
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
 
+        if (eventEntity.Status != EventStatusEnum.Published)
+        {
+            throw new BadRequestException("EVENT_NOT_OPEN_FOR_REGISTRATION");
+        }
+
         var now = DateTimeOffset.UtcNow;
         if (eventEntity.RegisterLimitTime.HasValue && now > eventEntity.RegisterLimitTime.Value)
         {
