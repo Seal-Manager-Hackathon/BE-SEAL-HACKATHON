@@ -44,6 +44,7 @@ public static class NotificationSeed
                 Title = "Registration approved",
                 Status = NotificationStatusEnum.Unread,
                 Description = "Your team registration has been approved",
+                TargetType = NotificationTargetTypeEnum.Personal,
                 IsDisable = false,
                 CreatedAt = SeedConstants.CreatedAt,
                 UpdatedAt = SeedConstants.CreatedAt
@@ -114,6 +115,7 @@ public static class NotificationSeed
             Title = title,
             Status = NotificationStatusEnum.Unread,
             Description = $"Notification for team activity in {title}",
+            TargetType = NotificationTargetTypeEnum.Personal,
             IsDisable = false,
             CreatedAt = SeedConstants.CreatedAt,
             UpdatedAt = SeedConstants.CreatedAt

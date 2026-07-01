@@ -33,7 +33,7 @@ Authenticated User (Yêu cầu đăng nhập, là người sở hữu thông bá
 
 ## Business rules
 - Bản ghi thông báo phải tồn tại và chưa bị disable.
-- Người gọi phải chính là người nhận thông báo đó (`UserId` khớp với token) hoặc thông báo là toàn hệ thống (`TargetType = System`).
+- Người gọi phải chính là người nhận thông báo đó (`UserId` khớp với token), bao gồm cả system notification vì system notification được lưu thành bản ghi riêng theo từng user.
 - Cập nhật trường `Status = Read` (giá trị enum `2`) và cập nhật `UpdatedAt = DateTimeOffset.UtcNow`.
 
 ### Bảng trạng thái NotificationStatusEnum

@@ -1,3 +1,5 @@
+using Hackathon.Repository.Enum;
+
 namespace Hackathon.Service.Teams;
 
 public static class Response
@@ -80,9 +82,10 @@ public static class Response
     public class TeamNotificationResponse
     {
         public Guid Id { get; set; }
-        public Guid TeamId { get; set; }
+        public Guid? TeamId { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
+        public NotificationTargetTypeEnum TargetType { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }
 

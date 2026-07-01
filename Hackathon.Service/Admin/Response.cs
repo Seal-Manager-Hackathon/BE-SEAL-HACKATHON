@@ -39,3 +39,9 @@ public class CreateRoundResponse
 {
     public Guid RoundId { get; set; }
 }
+
+public class SendSystemNotificationResponse
+{
+    public List<Guid> NotificationIds { get; set; } = new();
+    public int TotalSent { get; set; }
+}

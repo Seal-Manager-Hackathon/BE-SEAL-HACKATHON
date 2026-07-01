@@ -61,4 +61,11 @@ public class AdminController : ControllerBase
         await _adminService.DeleteRound(roundId);
         return Ok(ApiResponseFactory.Base(null, 200, "ROUND_DELETED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
+
+    [HttpPost("notifications")]
+    public async Task<IActionResult> SendSystemNotification(AdminService.SendSystemNotificationRequest request)
+    {
+        var result = await _adminService.SendSystemNotification(request);
+        return Ok(ApiResponseFactory.Base(result, 200, "SYSTEM_NOTIFICATION_SENT", traceId: HttpContext.TraceIdentifier));
+    }
 }

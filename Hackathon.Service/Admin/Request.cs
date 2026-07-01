@@ -20,6 +20,12 @@ public class GetAdminRoundsRequest : PaginationRequest
     public bool? IsDisable { get; set; }
 }
 
+public class SendSystemNotificationRequest
+{
+    public string Title { get; set; } = null!;
+    public string Description { get; set; } = null!;
+}
+
 public class CreateRoundRequest
 {
     public string? Name { get; set; }
