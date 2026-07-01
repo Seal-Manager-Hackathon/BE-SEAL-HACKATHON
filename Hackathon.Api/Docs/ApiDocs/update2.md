@@ -2,169 +2,352 @@
 
 ## 1. Xoá EventStatusEnum.Cancelled
 
-**Entity:** `EventStatusEnum` — xoá value `Cancelled` (giá trị enum `3`).
+Xoá value `Cancelled` (giá trị enum `3`) khỏi `EventStatusEnum`.
 
-**API bị ảnh hưởng:**
+**Entity sửa:** `Hackathon.Repository/Enum/EventStatusEnum.cs` — xoá dòng `Cancelled`.
 
-| API | Thay đổi |
-|-----|----------|
-| `PATCH /api/v1/admin/events/{eventId}/cancel` | **❗ XOÁ** endpoint này — không còn cancel event |
-| `GET /api/v1/events` | Response: `status` chỉ còn 0=Draft, 1=Published, 2=Closed |
-| `GET /api/v1/events/{id}` | Response: `status` chỉ còn 0, 1, 2 |
-| `GET /api/v1/events/joined` | Response: `status` chỉ còn 0, 1, 2 |
-| `GET /api/v1/events/most-participants` | Response: `status` chỉ còn 0, 1, 2 |
-| `GET /api/v1/admin/events` | Response: `status` chỉ còn 0, 1, 2 |
-| `PATCH /api/v1/admin/events/{id}` | Request field `status` chỉ nhận 0, 1, 2; không còn 3 |
-| `PATCH /api/v1/admin/events/{id}/close` | Response: `eventStatus` chỉ còn 0, 1, 2 |
-| `PATCH /api/v1/admin/events/{id}/unpublish` | Response: `eventStatus` chỉ còn 0, 1, 2 |
-| `GET /api/v1/staff/events/current` | Response: `eventStatus` chỉ còn 0, 1, 2 |
-| `GET /api/v1/staff/events/search` | Response: `eventStatus` chỉ còn 0, 1, 2 |
-| Tất cả Lecturer events APIs | Response: `eventStatus` chỉ còn 0, 1, 2 |
-| `GET /api/v1/enums` | Response: EventStatusEnum chỉ còn 0, 1, 2 |
-| `enum-values.md` | Xoá Cancelled khỏi danh sách |
+**Code sửa:**
+- `Events/Service.cs`: xoá method `CancelEvent()`, xoá check `Cancelled` trong `GetEvent()`
+- `Events/IService.cs`: xoá `Task<string> CancelEvent(Guid eventId)`
+- `LeaderBoards/Service.cs`: xoá check `Cancelled`
+- `EventsController.cs`: xoá endpoint `PATCH /api/v1/admin/events/{eventId}/cancel`
 
 **Docs bị xoá:**
 - `Events/PATCH/api-v1-admin-events-id-cancel-patch.md` ❌
 
 ---
 
-## 2. Round CRUD thay đổi lớn
+### 1.1 Tất cả API trả về `status` (EventStatusEnum trong response)
+
+**Response cũ:**
+```json
+"status": 0  /* 0: Draft, 1: Published, 2: Closed, 3: Cancelled */
+```
+
+**Response mới:**
+```json
+"status": 0  /* 0: Draft, 1: Published, 2: Closed */
+```
+
+**Các API bị ảnh hưởng:**
+| API | File doc |
+|-----|----------|
+| `GET /api/v1/events` | `Events/GET/api-v1-events-get.md` |
+| `GET /api/v1/events/{id}` | `Events/GET/api-v1-events-id-get.md` |
+| `GET /api/v1/events/joined` | `Events/GET/api-v1-events-joined-get.md` |
+| `GET /api/v1/events/most-participants` | `Events/GET/api-v1-events-most-participants.md` |
+| `GET /api/v1/admin/events` | `Events/GET/api-v1-admin-events-get.md` |
+| `PATCH /api/v1/admin/events/{id}/close` | `Events/PATCH/api-v1-admin-events-id-close-patch.md` |
+| `PATCH /api/v1/admin/events/{id}/unpublish` | `Events/PATCH/api-v1-admin-events-id-unpublish-patch.md` |
+| `GET /api/v1/staff/events/current` | `Staff/GET/api-v1-staff-events-current-get.md` |
+| `GET /api/v1/staff/events/search` | `Staff/GET/api-v1-staff-events-search-get.md` |
+| `GET /api/v1/lecturers/events` | `Lecturers/GET/api-v1-lecturers-events-get.md` |
+| `GET /api/v1/lecturers/events/search` | `Lecturers/GET/api-v1-lecturers-events-search-get.md` |
+| `GET /api/v1/lecturers/events/current` | `Lecturers/GET/api-v1-lecturers-events-current-get.md` |
+
+### 1.2 API `PATCH /api/v1/admin/events/{id}` — Update Event (field status)
+
+**Request cũ:**
+```json
+{ "status": 3  /* 0: Draft, 1: Published, 2: Closed, 3: Cancelled */ }
+```
+
+**Request mới:**
+```json
+{ "status": 2  /* 0: Draft, 1: Published, 2: Closed */ }
+```
+
+### 1.3 API `GET /api/v1/enums`
+
+**Response cũ:**
+```json
+"EventStatusEnum": { "0": "Draft", "1": "Published", "2": "Closed", "3": "Cancelled" }
+```
+
+**Response mới:**
+```json
+"EventStatusEnum": { "0": "Draft", "1": "Published", "2": "Closed" }
+```
+
+### 1.4 File `enum-values.md`
+
+Xoá dòng `- \`3\`: Cancelled (Bị hủy)`
+
+---
+
+## 2. Round CRUD
 
 ### 2.1 POST `/api/v1/admin/events/{eventId}/rounds` — Create Round
 
-**Request thay đổi:**
-
-**Trước:**
+**Request cũ:**
 ```json
 {
   "name": "Vòng 1",
-  "roundNo": 1,       // 👈 người dùng tự nhập
-  "startTime": "...",
-  "endTime": "...",
-  "startSubmission": "...",
-  "endSubmission": "...",
+  "roundNo": 1,
+  "startTime": "2026-07-01T09:00:00+00:00",
+  "endTime": "2026-07-03T18:00:00+00:00",
+  "startSubmission": "2026-07-01T09:00:00+00:00",
+  "endSubmission": "2026-07-03T12:00:00+00:00",
   "limitTeam": 20
 }
 ```
 
-**Sau:**
+**Request mới:**
 ```json
 {
   "name": "Vòng 1",
-  // ❌ KHÔNG còn field roundNo — tự động
-  "startTime": "...",
-  "endTime": "...",
-  "startSubmission": "...",
-  "endSubmission": "...",
+  "startTime": "2026-07-01T09:00:00+00:00",
+  "endTime": "2026-07-03T18:00:00+00:00",
+  "startSubmission": "2026-07-01T09:00:00+00:00",
+  "endSubmission": "2026-07-03T12:00:00+00:00",
   "limitTeam": 20
 }
 ```
 
-**Thay đổi:**
-- ❌ **Xoá field `roundNo`** khỏi request — RoundNo tự động = max current + 1 (bắt đầu từ 1)
-- ❌ **Chặn nếu event đã bắt đầu** (`StartTime <= now`) → 400 `EVENT_ALREADY_STARTED`
-- ✅ **Tự động +1** `NumberRound` của event
+**Khác biệt:**
+- ❌ Xoá field `roundNo` — tự động gán = max RoundNo hiện tại + 1
 
-**Doc:**
-- `Admin/POST/api-v1-admin-events-id-rounds-post.md` ✅ **Viết lại**
+**Code sửa:**
+- `Admin/Request.cs`: xoá `RoundNo` khỏi `CreateRoundRequest`
+- `Admin/Service.cs` `CreateRound()`: xoá `ValidateRoundNo()`, thêm logic `var maxRoundNo = ...MaxAsync()`, set `RoundNo = maxRoundNo + 1`
+
+**Logic mới:**
+- RoundNo tự động bắt đầu từ 1, mỗi round mới = max + 1
+- Tự động +1 `NumberRound` của event
+- Chặn nếu event đã bắt đầu (`StartTime <= now`) → 400 `EVENT_ALREADY_STARTED`
+
+**File doc:** `Admin/POST/api-v1-admin-events-id-rounds-post.md` ✅ Viết lại
+
+---
 
 ### 2.2 PATCH `/api/v1/admin/rounds/{roundId}` — Update Round
 
-**Request tách riêng `UpdateRoundRequest` (không còn dùng chung với CreateRoundRequest):**
+**Chú ý:** Request class tách riêng — không còn dùng chung `CreateRoundRequest`. Dùng `UpdateRoundRequest` (có field `RoundNo`).
 
-**Trước:**
+**Request cũ** (dùng `CreateRoundRequest`):
 ```json
 {
   "name": "...",
-  "roundNo": 1        // ghi đè roundNo
+  "roundNo": 1,
+  "startTime": "..."
 }
 ```
 
-**Sau (logic roundNo thay đổi):**
+**Request mới** (dùng `UpdateRoundRequest`):
 ```json
 {
   "name": "...",
-  "roundNo": 2        // HOÁN ĐỔI với round đang giữ số 2
+  "roundNo": 2,
+  "startTime": "..."
 }
 ```
+Giống nhau về field — khác ở logic xử lý `roundNo`.
 
-**Thay đổi:**
-- 🔄 **`roundNo` bây giờ là SWAP** (hoán đổi): gửi `roundNo` mới → tìm round đang giữ số đó → đổi chỗ RoundNo cho nhau. Không phải ghi đè.
-- ❌ **Chặn critical fields nếu event đã bắt đầu:** khi `StartTime <= now`, chỉ cho sửa `name`/`description`. Các field `startTime`, `endTime`, `startSubmission`, `endSubmission`, `roundNo`, `limitTeam` bị từ chối → 400 `EVENT_ALREADY_STARTED`.
+**Code sửa:**
+- `Admin/Request.cs`: thêm class `UpdateRoundRequest` (giống `CreateRoundRequest` nhưng có `RoundNo`)
+- `Admin/IService.cs`: đổi `Task UpdateRound(Guid roundId, UpdateRoundRequest request)`
+- `AdminController.cs`: đổi parameter từ `CreateRoundRequest` → `UpdateRoundRequest`
+- `Admin/Service.cs` `UpdateRound()`: bỏ `ValidateRoundNo()`, thêm swap logic
 
-**Doc:**
-- `Admin/PATCH/api-v1-admin-rounds-id-patch.md` ✅ **Viết lại**
+**Logic roundNo thay đổi:**
+```
+Trước: ghi đè — round này được gán roundNo mới, không quan tâm round khác
+Sau: SWAP — tìm round đang giữ số target, hoán đổi RoundNo cho nhau
+```
+
+**Logic khác:**
+- Chặn critical fields (`startTime`, `endTime`, `startSubmission`, `endSubmission`, `roundNo`, `limitTeam`) nếu event đã bắt đầu — chỉ cho sửa `name`/`description`
+- Nếu event chưa bắt đầu → cho sửa tất cả
+
+**File doc:** `Admin/PATCH/api-v1-admin-rounds-id-patch.md` ✅ Viết lại
+
+---
 
 ### 2.3 DELETE `/api/v1/admin/rounds/{roundId}` — Delete Round
 
-**Thay đổi logic:**
-- ❌ **Chặn nếu event đã bắt đầu** → 400 `EVENT_ALREADY_STARTED`
-- 🔄 **Chuẩn hoá RoundNo:** các round có `RoundNo > round bị xoá` giảm 1 (để RoundNo luôn liên tục)
-- ✅ **Tự động -1** `NumberRound` của event
+**Request/Response:** Không đổi.
 
-**Doc:**
-- `Admin/DELETE/api-v1-admin-rounds-id-delete.md` ✅ **Viết lại**
+**Code sửa:** `Admin/Service.cs` `DeleteRound()` — thêm:
+1. Chặn nếu event đã bắt đầu → 400 `EVENT_ALREADY_STARTED`
+2. Soft-delete CriteriaTemplates + CriteriaItems của round
+3. Chuẩn hoá RoundNo: các round > deleted giảm 1
+4. -1 `NumberRound` của event
+
+**File doc:** `Admin/DELETE/api-v1-admin-rounds-id-delete.md` ✅ Viết lại
+
+---
 
 ### 2.4 POST `/api/v1/admin/events` — Create Event
 
-**Thay đổi:**
-- ✅ Request vẫn có `numberRound` nhưng **bị IGNORE** — luôn set `NumberRound = 0` khi tạo. NumberRound tự động quản lý qua round CRUD.
+**Request cũ:**
+```json
+{
+  "name": "Hackathon 2026",
+  "numberRound": 3,
+  "startTime": "...",
+  "endTime": "..."
+}
+```
+
+**Request mới:**
+```json
+{
+  "name": "Hackathon 2026",
+  "numberRound": 3,
+  "startTime": "...",
+  "endTime": "..."
+}
+```
+Field `numberRound` vẫn còn trong `CreateEventRequest` nhưng **bị BE IGNORE**.
+
+**Code sửa:** `Events/Service.cs` `CreateEvent()`: `NumberRound = 0` (hardcode thay vì `request.NumberRound`).
+
+**Lưu ý FE:** Field `numberRound` vẫn gửi được nhưng không có tác dụng. Có thể bỏ hoặc giữ.
+
+---
 
 ### 2.5 PATCH `/api/v1/admin/events/{id}` — Update Event
 
-**Thay đổi:**
-- ❌ Request field `numberRound` **bị xoá** — không còn nhập tay qua update event.
+**Request cũ:**
+```json
+{
+  "name": "Hackathon 2026",
+  "numberRound": 5
+}
+```
+
+**Request mới:**
+```json
+{
+  "name": "Hackathon 2026"
+}
+```
+
+**Khác biệt:** ❌ Xoá field `numberRound` — không còn cho phép sửa NumberRound qua update event.
+
+**Code sửa:** `Events/Service.cs` `UpdateEvent()` — xoá block:
+```csharp
+if (request.NumberRound.HasValue)
+{
+    eventEntity.NumberRound = request.NumberRound;
+}
+```
+
+**Lưu ý FE:** Bỏ field `numberRound` khỏi form update event. NumberRound tự động quản lý qua round CRUD.
 
 ---
 
-## 3. Team Detail mở quyền
+### 2.6 API mới: PATCH `/api/v1/admin/rounds/{roundId}/restore` — Restore Round
 
-### GET `/api/v1/teams/{teamId}`
+**Request:** Không có body.
 
-**Thay đổi:**
-- Trước: chỉ member team hoặc Staff/Admin xem được
-- Sau: **tất cả role đã login** đều xem được team detail
-- Vẫn chặn nếu team bị disable (404)
+**Response mới:**
+```json
+{
+  "message": "ROUND_RESTORED_SUCCESSFULLY"
+}
+```
 
----
+**Code:** `Admin/Service.cs` `RestoreRound()` + `Admin/IService.cs` + `AdminController.cs`.
 
-## 4. Register Event check Published
+**Logic:**
+- Round đang disable → set `IsDisable = false`
+- Gán lại `RoundNo = max RoundNo hiện tại + 1` (đặt cuối danh sách)
+- +1 `NumberRound` của event
+- **Criteria templates/items vẫn disable** — admin tự active lại
 
-### POST `/api/v1/register-teams` (RegisterEvent)
-
-**Thay đổi:**
-- ✅ **Thêm check:** event phải có `Status == Published` mới được đăng ký. Draft/Closed → 400 `EVENT_NOT_OPEN_FOR_REGISTRATION`.
-
----
-
-## 5. DeleteRound: soft-delete criteria templates theo
-
-### DELETE `/api/v1/admin/rounds/{roundId}`
-
-**Thay đổi:**
-- **Trước:** chỉ soft-delete round, không động tới criteria
-- **Sau:** ✅ **Soft-delete tất cả CriteriaTemplates + CriteriaItems** của round đó (`IsDisable = true`)
+**File doc mới:** `Admin/PATCH/api-v1-admin-rounds-id-restore-patch.md` ✅
 
 ---
 
-## 7. Submission: CreateSubmission check Leader
+## 3. GET `/api/v1/teams/{teamId}` — Team Detail
 
-### POST `/api/v1/rounds/{roundId}/submit-assignment`
+**Response cũ và mới:** Không đổi.
 
-**Thay đổi:**
-- **Trước:** bất kỳ thành viên nào trong team cũng nộp được
-- **Sau:** ✅ **Chỉ Leader mới nộp được** (thêm `&& td.IsLeader`)
-- API `POST /api/v1/submissions/rounds/{id}/register-teams/{id}` (SubmitRoundProject) đã có check leader từ trước → giữ nguyên.
+**Code sửa:** `Teams/Service.cs` `GetTeamDetail()` — bỏ block check quyền:
+
+```csharp
+// Trước:
+var isMember = team.TeamDetails.Any(x => x.UserId == userId && !x.IsDisable);
+var isStaffOrAdmin = userRole == RoleEnum.Staff || userRole == RoleEnum.Admin;
+if (!isMember && !isStaffOrAdmin)
+    throw new ForbiddenException("TEAM_NOT_VISIBLE_TO_USER");
+
+// Sau: (đã xoá — ai có token cũng xem được)
+```
+
+**Lưu ý FE:** Không thay đổi gì — chỉ BE mở quyền.
 
 ---
 
-## 8. Judge Event Submissions: chỉ lấy latest
+## 4. POST `/api/v1/register-teams` — Register Event
 
-### GET `/api/v1/judge/events/{eventId}/submissions`
+**Request/Response:** Không đổi.
 
-**Thay đổi:**
-- **Trước:** trả tất cả submissions
-- **Sau:** ✅ GroupBy team+round → chỉ lấy **latest submission** (giống các API Judge khác)
+**Code sửa:** `RegisterTeams/Service.cs` `RegisterEvent()` — thêm check:
+
+```csharp
+// Thêm sau block validate event
+if (eventEntity.Status != EventStatusEnum.Published)
+    throw new BadRequestException("EVENT_NOT_OPEN_FOR_REGISTRATION");
+```
+
+**Trước:** Cho đăng ký vào event Draft/Closed.
+**Sau:** Chỉ cho đăng ký khi event `Published`.
+
+---
+
+## 5. POST `/api/v1/rounds/{roundId}/submit-assignment` — Create Submission
+
+**Request/Response:** Không đổi.
+
+**Code sửa:** `Rounds/Service.cs` `CreateSubmission()`:
+
+```csharp
+// Trước: bất kỳ thành viên active
+td => td.UserId == userId && !td.IsDisable && td.Status == TeamDetailStatusEnum.Active
+
+// Sau: chỉ leader
+td => td.UserId == userId && !td.IsDisable && td.Status == TeamDetailStatusEnum.Active && td.IsLeader
+```
+
+**Lưu ý FE:** Chỉ leader mới thấy nút nộp bài. Các thành viên khác bị 403.
+
+---
+
+## 6. GET `/api/v1/judge/events/{eventId}/submissions`
+
+**Response:** Cấu trúc không đổi. Số lượng items giảm vì chỉ trả latest per team per round.
+
+**Code sửa:** `Judges/Service.cs` `GetEventSubmissions()`:
+
+```csharp
+// Trước:
+var submissions = await submissionsQuery
+    .OrderByDescending(x => x.SubmittedAt)
+    .Select(...)
+    .ToListAsync();
+
+// Sau:
+var submissions = await submissionsQuery
+    .OrderByDescending(x => x.SubmittedAt)
+    .ToListAsync();
+var latestPerTeamPerRound = submissions
+    .GroupBy(x => new { x.RoundDetail.RegisterTeamId, x.RoundDetail.RoundId })
+    .Select(g => g.First())
+    .ToList();
+```
+
+---
+
+## 7. Background Job mới: AutoRejectPendingRegistrationsJob
+
+**Chạy mỗi 12 tiếng — không ảnh hưởng request/response.**
+
+**File:** `BackgroundJobService/AutoRejectPendingRegistrationsJob.cs`
+
+**Việc 1:** Event có `EndTime` đã qua → tự động set `Status = Closed`
+**Việc 2:** Event có `RegisterLimitTime` đã qua → tự động reject `RegisterTeams` đang `Pending` với lý do `"registration deadline has passed"`
 
 ---
 
@@ -176,6 +359,7 @@
 | `POST events/{id}/rounds` | ❌ `roundNo` bị xoá | Auto-generated |
 | `PATCH events/{id}` | ❌ `numberRound` bị xoá | Qua round CRUD |
 | `PATCH rounds/{id}` | 🔄 `roundNo` đổi ý nghĩa | Swap, ko ghi đè |
+| `POST events` | 🔄 `numberRound` bị IGNORE | Có thể bỏ field |
 
 ### Response thay đổi:
 | API | Thay đổi |
@@ -186,4 +370,11 @@
 ### Endpoint bị xoá:
 | Endpoint | Thay thế bởi |
 |----------|-------------|
-| `PATCH /api/v1/admin/events/{id}/cancel` | ❌ Không có — dùng `Close` hoặc `Disable` event |
+| `PATCH /api/v1/admin/events/{id}/cancel` | ❌ Không — dùng `Close` hoặc `Disable` |
+
+### Endpoint mới:
+| Endpoint | Mô tả |
+|----------|-------|
+| `PATCH /api/v1/admin/rounds/{id}/restore` | Khôi phục round đã disable |
+| `GET /api/v1/notifications/me/unread-count` | Đếm thông báo chưa đọc |
+| `PATCH /api/v1/notifications/all/disable` | Disable hết thông báo |
