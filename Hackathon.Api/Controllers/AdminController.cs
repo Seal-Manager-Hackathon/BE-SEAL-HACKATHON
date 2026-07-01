@@ -62,6 +62,13 @@ public class AdminController : ControllerBase
         return Ok(ApiResponseFactory.Base(null, 200, "ROUND_DELETED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
+    [HttpPost("notifications")]
+    public async Task<IActionResult> SendSystemNotification(AdminService.SendSystemNotificationRequest request)
+    {
+        var result = await _adminService.SendSystemNotification(request);
+        return Ok(ApiResponseFactory.Base(result, 200, "SYSTEM_NOTIFICATION_SENT", traceId: HttpContext.TraceIdentifier));
+    }
+
     [HttpPatch("users/{userId:guid}/role")]
     public async Task<IActionResult> ChangeUserRole(Guid userId, [FromBody] AdminService.ChangeUserRoleRequest request)
     {

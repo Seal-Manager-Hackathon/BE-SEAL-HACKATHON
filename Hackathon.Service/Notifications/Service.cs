@@ -58,6 +58,7 @@ public class Service : IService
                 Title = x.Title,
                 Description = x.Description,
                 Status = x.Status,
+                TargetType = x.TargetType,
                 CreatedAt = x.CreatedAt
             })
             .ToListAsync();

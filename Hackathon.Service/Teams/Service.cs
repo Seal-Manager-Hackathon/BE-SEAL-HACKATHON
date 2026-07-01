@@ -771,6 +771,7 @@ public class Service : IService
                 TeamId = x.TeamId,
                 Title = x.Title,
                 Description = x.Description,
+                TargetType = x.TargetType,
                 CreatedAt = x.CreatedAt
             })
             .ToListAsync();

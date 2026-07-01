@@ -28,7 +28,7 @@ Authenticated User (Yêu cầu đăng nhập)
 ```
 
 ## Business rules
-- Tìm kiếm toàn bộ các thông báo của user đang đăng nhập có trạng thái `Unread` hoặc `Pending`.
+- Tìm kiếm toàn bộ các thông báo của user đang đăng nhập có trạng thái `Unread` hoặc `Pending`, bao gồm system notification được lưu riêng cho user đó.
 - Thực hiện cập nhật hàng loạt trường `Status = Read` và cập nhật `UpdatedAt = DateTimeOffset.UtcNow` trong cùng một transaction.
 
 ## Lỗi có thể xảy ra
