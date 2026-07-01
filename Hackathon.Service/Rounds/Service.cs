@@ -311,18 +311,12 @@ public class Service : IService
 
         var userId = GetCurrentUserId();
 
-        var submissionsQuery = _dbContext.Submissions
+        var latestSubmission = await _dbContext.Submissions
             .AsNoTracking()
             .Include(x => x.RoundDetail)
             .Where(x => x.RoundDetail.RoundId == roundId && !x.IsDisable)
-            .Where(x => x.RoundDetail.RegisterTeam.Team.TeamDetails.Any(td => td.UserId == userId && !td.IsDisable && td.Status == TeamDetailStatusEnum.Active));
-
-        var totalCount = await submissionsQuery.CountAsync();
-
-        var submissions = await submissionsQuery
+            .Where(x => x.RoundDetail.RegisterTeam.Team.TeamDetails.Any(td => td.UserId == userId && !td.IsDisable && td.Status == TeamDetailStatusEnum.Active))
             .OrderByDescending(x => x.SubmittedAt)
-            .Skip((query.PageIndex - 1) * query.PageSize)
-            .Take(query.PageSize)
             .Select(x => new Response.SubmissionResponse
             {
                 SubmissionId = x.Id,
@@ -331,9 +325,13 @@ public class Service : IService
                 Status = x.Status,
                 TotalScore = x.Scores.Where(s => !s.IsDisable).OrderByDescending(s => s.CreatedAt).Select(s => s.TotalScore).FirstOrDefault()
             })
-            .ToListAsync();
+            .FirstOrDefaultAsync();
 
-        return ApiResponseFactory.BasePagination(submissions, query.PageIndex, query.PageSize, totalCount);
+        var list = latestSubmission != null
+            ? new List<Response.SubmissionResponse> { latestSubmission }
+            : new List<Response.SubmissionResponse>();
+
+        return ApiResponseFactory.BasePagination(list, 1, 10, list.Count);
     }
 
     public async Task<BasePaginationResponse> GetMyRoundSubmissions(Guid roundId, Request.GetSubmissionsQuery query)
@@ -620,43 +618,50 @@ public class Service : IService
         var trackIds = roundDetails.Select(x => x.RegisterTeam.TrackId).Where(x => x.HasValue).Select(x => x!.Value).Distinct().ToList();
         var assignTracks = await GetJudgeAssignTracks(round.EventId, trackIds);
 
-        var items = roundDetails.Select(roundDetail =>
+        var items = roundDetails.SelectMany(roundDetail =>
         {
-            var submission = roundDetail.Submissions
+            var submissions = roundDetail.Submissions
                 .Where(x => !x.IsDisable)
                 .OrderByDescending(x => x.SubmittedAt ?? x.CreatedAt)
-                .FirstOrDefault();
+                .ToList();
+
+            // Staff/Admin sees ALL versions
             var trackAssignTracks = roundDetail.RegisterTeam.TrackId.HasValue
                 ? assignTracks.Where(x => x.TrackId == roundDetail.RegisterTeam.TrackId.Value).ToList()
                 : new List<Hackathon.Repository.Entity.AssignTracks>();
 
-            if (submission == null)
+            if (submissions.Count == 0)
             {
-                return new Response.StaffRoundSubmissionResponse
+                return new List<Response.StaffRoundSubmissionResponse>
                 {
-                    SubmissionId = null,
-                    RoundDetailId = roundDetail.Id,
-                    TeamId = roundDetail.RegisterTeam.TeamId,
-                    TeamName = roundDetail.RegisterTeam.Team.Name,
-                    TrackId = roundDetail.RegisterTeam.TrackId,
-                    TrackTitle = roundDetail.RegisterTeam.Track?.Title,
-                    TopicId = roundDetail.RegisterTeam.TopicId,
-                    TopicTitle = roundDetail.RegisterTeam.Topic?.Title,
-                    SubmissionStatus = SubmissionStatusEnum.Unsubmitted,
-                    GradingStatus = null,
-                    AssignedJudges = BuildAssignedJudges(null, trackAssignTracks),
+                    new()
+                    {
+                        SubmissionId = null,
+                        RoundDetailId = roundDetail.Id,
+                        TeamId = roundDetail.RegisterTeam.TeamId,
+                        TeamName = roundDetail.RegisterTeam.Team.Name,
+                        TrackId = roundDetail.RegisterTeam.TrackId,
+                        TrackTitle = roundDetail.RegisterTeam.Track?.Title,
+                        TopicId = roundDetail.RegisterTeam.TopicId,
+                        TopicTitle = roundDetail.RegisterTeam.Topic?.Title,
+                        SubmissionStatus = SubmissionStatusEnum.Unsubmitted,
+                        GradingStatus = null,
+                        AssignedJudges = BuildAssignedJudges(null, trackAssignTracks),
+                    }
                 };
             }
 
-            var assignedJudges = BuildAssignedJudges(submission, trackAssignTracks);
-            var scoredValues = assignedJudges
-                .Where(x => x.TotalScore.HasValue)
-                .Select(x => x.TotalScore!.Value)
-                .ToList();
-
-            return new Response.StaffRoundSubmissionResponse
+            return submissions.Select(submission =>
             {
-                SubmissionId = submission.Id,
+                var assignedJudges = BuildAssignedJudges(submission, trackAssignTracks);
+                var scoredValues = assignedJudges
+                    .Where(x => x.TotalScore.HasValue)
+                    .Select(x => x.TotalScore!.Value)
+                    .ToList();
+
+                return new Response.StaffRoundSubmissionResponse
+                {
+                    SubmissionId = submission.Id,
                 RoundDetailId = roundDetail.Id,
                 TeamId = roundDetail.RegisterTeam.TeamId,
                 TeamName = roundDetail.RegisterTeam.Team.Name,
@@ -674,6 +679,7 @@ public class Service : IService
                 MinScore = scoredValues.Count == 0 ? null : scoredValues.Min(),
                 MaxScore = scoredValues.Count == 0 ? null : scoredValues.Max(),
             };
+        }).ToList();
         }).ToList();
 
         if (!string.IsNullOrWhiteSpace(query.SubmissionStatus) && !query.SubmissionStatus.Equals("All", StringComparison.OrdinalIgnoreCase))

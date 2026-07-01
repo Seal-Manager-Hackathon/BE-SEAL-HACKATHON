@@ -100,6 +100,7 @@ Response dùng `ApiResponseFactory.Base(data)`.
 | `score.scoreItems` | Điểm chi tiết từng tiêu chí |
 
 ## Business rules
+- **Staff/Admin thấy được TẤT CẢ các phiên bản nộp bài** (không chỉ bài mới nhất). Mỗi lần nộp là 1 item riêng, đánh dấu `isLatest` để biết bài nào là cuối cùng.
 - Yêu cầu access token hợp lệ với role `Staff` hoặc `Admin`.
 - Endpoint dùng policy `StaffOrAdminPolicy`.
 - `registerTeamId` là bắt buộc trên path.

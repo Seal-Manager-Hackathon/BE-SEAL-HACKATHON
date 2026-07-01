@@ -1,7 +1,10 @@
-# Team xem lịch sử bài nộp trong Round (Get My Round Submissions)
+# Team xem bài nộp mới nhất của team trong Round
 
 ## Tác dụng
-Cho phép team xem lịch sử các lần nộp bài của chính team trong một round. FE dùng API này ở màn hình chi tiết round, trong thẻ/nút "Bài nộp" để hiển thị danh sách submission đã nộp; khi hết thời gian nộp bài, hệ thống lấy submission mới nhất làm bài chính thức để chấm.
+Cho phép team xem bài nộp MỚI NHẤT của chính team trong một round.
+
+**Chỉ trả về 1 bài nộp duy nhất — bài cuối cùng của team.**  
+Các lần nộp cũ trước đó không được hiển thị (chỉ dùng để ghi log).
 
 ## URL
 `GET /api/v1/rounds/{roundId}/my-submissions`
@@ -14,10 +17,10 @@ Authenticated Team Member
 
 ## Request Parameters
 *   **Path Parameters:**
-    *   `roundId` (Guid, Bắt buộc): ID của round cần xem lịch sử bài nộp.
+    *   `roundId` (Guid, Bắt buộc): ID của round cần xem.
 *   **Query Parameters:**
-    *   `pageIndex` (int, Không bắt buộc, mặc định: 1): Trang hiện tại.
-    *   `pageSize` (int, Không bắt buộc, mặc định: 10): Số item mỗi trang.
+    *   `pageIndex` (int, Không bắt buộc, mặc định: 1)
+    *   `pageSize` (int, Không bắt buộc, mặc định: 10)
 
 ## Response body (Success - 200 OK)
 *Cấu trúc trả về dạng `BasePaginationResponse`:*
@@ -38,7 +41,7 @@ Authenticated Team Member
         "roundDetailId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         "url": "https://github.com/seal-hackathon/team-project-web",
         "description": "Bài thi hoàn chỉnh.",
-        "status": 0, /* 0: Submitted, 1: Unsubmitted, 2: Failed */
+        "status": 0,
         "submittedAt": "2026-06-22T08:00:00Z",
         "isLatest": true,
         "gradingStatus": "NotGraded"
@@ -55,10 +58,10 @@ Authenticated Team Member
 
 ## Business rules
 - User phải là thành viên của team có `RoundDetails` trong round này.
-- Trả về các submission của team trong round, sắp xếp `submittedAt` giảm dần.
-- Submission đầu tiên sau khi sort giảm dần được đánh dấu `isLatest = true` và là bài cuối cùng hệ thống dùng để chấm khi đã hết hạn nộp bài.
-- Nếu submission chưa có score chính thức thì `gradingStatus = "NotGraded"` để FE hiển thị "Bài chưa được chấm".
-- Nếu đã có score/điểm được công bố thì `gradingStatus = "Graded"` và FE có thể mở chi tiết bằng [`GET /api/v1/submissions/{submissionId}`](Submissions/GET/GET-api-v1-submissions-submissionId.md).
+- **Chỉ trả về 1 bài nộp duy nhất** — bài mới nhất (`.FirstOrDefaultAsync()` sau sort `SubmittedAt` desc).
+- `isLatest` luôn là `true` vì chỉ trả về bài cuối.
+- Nếu chưa có điểm chính thức → `gradingStatus = "NotGraded"`.
+- Nếu đã có điểm → `gradingStatus = "Graded"` và FE có thể mở chi tiết bằng `GET /api/v1/submissions/{submissionId}`.
 
 ### Bảng trạng thái SubmissionStatusEnum
 | Giá trị (Value) | Trạng thái (Status) | Mô tả (Description) |
@@ -68,8 +71,6 @@ Authenticated Team Member
 | `2` | Failed | Nộp bài thất bại |
 
 ## Lỗi có thể xảy ra
-*Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
-
 | HTTP | messageCode | message/detail |
 |---:|---|---|
 | 401 | MISSING_ACCESS_TOKEN | ACCESS_TOKEN_IS_MISSING |

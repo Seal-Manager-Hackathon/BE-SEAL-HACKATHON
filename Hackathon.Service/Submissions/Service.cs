@@ -315,11 +315,13 @@ public class Service : IService
         var trackId = roundDetail.RegisterTeam.TrackId;
 
         bool hasAccess = false;
+        bool isAdminOrStaff = false;
         Enum.TryParse<RoleEnum>(role, true, out var userRole);
 
         if (userRole == RoleEnum.Admin)
         {
             hasAccess = true;
+            isAdminOrStaff = true;
         }
         else if (userRole == RoleEnum.Staff)
         {
@@ -333,6 +335,7 @@ public class Service : IService
             if (isAssignedStaff)
             {
                 hasAccess = true;
+                isAdminOrStaff = true;
             }
         }
         else
@@ -381,9 +384,42 @@ public class Service : IService
             .AsNoTracking()
             .Where(x => x.RoundDetailId == roundDetail.Id && !x.IsDisable);
 
+        if (!isAdminOrStaff)
+        {
+            // Student / Judge — only latest submission
+            var latest = await query
+                .OrderByDescending(x => x.SubmittedAt)
+                .Select(x => new Response.RoundSubmissionItemResponse
+                {
+                    SubmissionId = x.Id,
+                    Url = x.Url,
+                    Description = x.Description,
+                    Status = x.Status,
+                    SubmittedAt = x.SubmittedAt
+                })
+                .FirstOrDefaultAsync();
+
+            var list = latest != null
+                ? new List<Response.RoundSubmissionItemResponse> { latest }
+                : new List<Response.RoundSubmissionItemResponse>();
+
+            return ApiResponseFactory.BasePagination(list, 1, 10, list.Count);
+        }
+
+        // Admin / Staff — all versions
         var totalCount = await query.CountAsync();
         var items = await query
             .OrderByDescending(x => x.SubmittedAt)
+            .ToListAsync();
+
+        // Mark the latest submission
+        var latestSubmittedAt = items
+            .Where(x => x.SubmittedAt.HasValue)
+            .OrderByDescending(x => x.SubmittedAt)
+            .Select(x => x.SubmittedAt)
+            .FirstOrDefault();
+
+        var resultItems = items
             .Skip((reqPageIndex - 1) * reqPageSize)
             .Take(reqPageSize)
             .Select(x => new Response.RoundSubmissionItemResponse
@@ -392,10 +428,11 @@ public class Service : IService
                 Url = x.Url,
                 Description = x.Description,
                 Status = x.Status,
-                SubmittedAt = x.SubmittedAt
+                SubmittedAt = x.SubmittedAt,
+                IsLatest = x.SubmittedAt.HasValue && x.SubmittedAt == latestSubmittedAt
             })
-            .ToListAsync();
+            .ToList();
 
-        return ApiResponseFactory.BasePagination(items, reqPageIndex, reqPageSize, totalCount);
+        return ApiResponseFactory.BasePagination(resultItems, reqPageIndex, reqPageSize, totalCount);
     }
 }

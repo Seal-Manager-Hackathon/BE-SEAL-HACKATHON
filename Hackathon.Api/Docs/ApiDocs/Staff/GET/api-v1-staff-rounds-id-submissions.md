@@ -301,6 +301,7 @@ API cho phép kết hợp đồng thời cả `trackId` và `topicId` trong quer
 | Không | Không | Lấy tất cả submission của round |
 
 ## Business rules
+- **Staff/Admin thấy được TẤT CẢ các phiên bản nộp bài của mỗi team** (không filter lấy bài mới nhất). Mỗi lần team nộp lại là 1 item riêng.
 - Staff hoặc Admin phải đăng nhập bằng access token hợp lệ.
 - Endpoint này yêu cầu role `Staff` hoặc `Admin` qua `[Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]`.
 - `roundId` là bắt buộc trên path.
