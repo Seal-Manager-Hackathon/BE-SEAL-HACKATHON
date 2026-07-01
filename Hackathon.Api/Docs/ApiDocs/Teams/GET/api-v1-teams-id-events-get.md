@@ -7,7 +7,7 @@ API dùng để lấy danh sách toàn bộ các event mà một Team cụ thể
 `GET /api/v1/teams/{teamId}/events`
 
 ## Authorization
-Yêu cầu access token hợp lệ với role `Student`.
+Yêu cầu access token hợp lệ (tất cả role đã đăng nhập đều có thể xem).
 
 ## Path parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |

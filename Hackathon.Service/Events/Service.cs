@@ -1131,8 +1131,10 @@ public class Service : IService
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
 
-        // Student/Lecturer/Staff chỉ thấy Published hoặc Closed, không thấy Draft
-        if (eventEntity.Status == EventStatusEnum.Draft)
+        // Admin thấy tất cả trạng thái; các role khác chỉ thấy Published/Closed
+        var role = _httpContext.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
+        var isAdmin = Enum.TryParse<RoleEnum>(role, true, out var userRole) && userRole == RoleEnum.Admin;
+        if (!isAdmin && eventEntity.Status == EventStatusEnum.Draft)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
