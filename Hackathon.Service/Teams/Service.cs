@@ -328,17 +328,7 @@ public class Service : IService
             throw new NotFoundException("TEAM_NOT_FOUND");
         }
 
-        var isMember = team.TeamDetails.Any(x => x.UserId == userId && !x.IsDisable);
-
-        var userRoleClaim = _httpContext.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
-        Enum.TryParse<RoleEnum>(userRoleClaim, true, out var userRole);
-        var isStaff = userRole == RoleEnum.Staff || userRole == RoleEnum.Admin;
-
-        if (!isMember && !isStaff)
-        {
-            throw new ForbiddenException("TEAM_NOT_VISIBLE_TO_USER");
-        }
-
+        // All authenticated roles can view team details
         var isLeader = false;
         var currentUserDetail = team.TeamDetails.FirstOrDefault(x => x.UserId == userId && !x.IsDisable);
         if (currentUserDetail != null)
