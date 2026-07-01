@@ -1013,6 +1013,16 @@ public class Service : IService
 
         var submissions = await submissionsQuery
             .OrderByDescending(x => x.SubmittedAt)
+            .ToListAsync();
+
+        // Judge only sees the LATEST submission per team per round
+        var latestPerTeamPerRound = submissions
+            .GroupBy(x => new { x.RoundDetail.RegisterTeamId, x.RoundDetail.RoundId })
+            .Select(g => g.First())
+            .OrderByDescending(x => x.SubmittedAt)
+            .ToList();
+
+        var result = latestPerTeamPerRound
             .Select(x => new
             {
                 RoundId = x.RoundDetail.RoundId,
@@ -1041,9 +1051,6 @@ public class Service : IService
                         .FirstOrDefault()
                 }
             })
-            .ToListAsync();
-
-        var result = submissions
             .GroupBy(x => new { x.RoundId, x.RoundName })
             .OrderBy(x => x.Key.RoundName)
             .Select(roundGroup => new Response.JudgeEventRoundSubmissionsResponse
