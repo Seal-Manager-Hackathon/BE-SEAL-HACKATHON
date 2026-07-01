@@ -47,11 +47,14 @@ public class Service : IService
 
         var totalCount = await query.CountAsync();
 
+        var pageIndex = paginationRequest.PageIndex <= 0 ? 1 : paginationRequest.PageIndex;
+        var pageSize = paginationRequest.PageSize <= 0 ? 10 : Math.Min(paginationRequest.PageSize, 100);
+
         var items = await query
             .OrderBy(x => x.Status == NotificationStatusEnum.Unread ? 0 : 1)
             .ThenByDescending(x => x.CreatedAt)
-            .Skip((paginationRequest.PageIndex - 1) * paginationRequest.PageSize)
-            .Take(paginationRequest.PageSize)
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
             .Select(x => new Response.NotificationItemResponse
             {
                 Id = x.Id,
@@ -63,7 +66,18 @@ public class Service : IService
             })
             .ToListAsync();
 
-        return ApiResponseFactory.BasePagination(items, paginationRequest.PageIndex, paginationRequest.PageSize, totalCount);
+        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
+    }
+
+    public async Task<int> GetUnreadCount()
+    {
+        var currentUserId = GetCurrentUserId();
+
+        return await _dbContext.Notifications
+            .AsNoTracking()
+            .CountAsync(x => x.UserId == currentUserId
+                && !x.IsDisable
+                && x.Status == NotificationStatusEnum.Unread);
     }
 
     public async Task<string> MarkAsRead(Guid notificationId)
@@ -116,5 +130,29 @@ public class Service : IService
         }
 
         return "ALL_NOTIFICATIONS_MARKED_AS_READ";
+    }
+
+    public async Task<string> DisableAll()
+    {
+        var currentUserId = GetCurrentUserId();
+
+        var notifications = await _dbContext.Notifications
+            .Where(x => x.UserId == currentUserId && !x.IsDisable)
+            .ToListAsync();
+
+        if (notifications.Count != 0)
+        {
+            var now = DateTimeOffset.UtcNow;
+            foreach (var notification in notifications)
+            {
+                notification.IsDisable = true;
+                notification.UpdatedAt = now;
+            }
+
+            _dbContext.Notifications.UpdateRange(notifications);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        return "ALL_NOTIFICATIONS_DISABLED";
     }
 }
