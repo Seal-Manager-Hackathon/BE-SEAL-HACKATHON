@@ -175,27 +175,43 @@ public class Service : IService
             throw new NotFoundException("ROUND_NOT_FOUND");
 
         var template = await _dbContext.CriteriaTemplates
+            .Include(x => x.CriteriaItems)
             .FirstOrDefaultAsync(x => x.Id == templateId && x.RoundId == roundId);
 
         if (template == null)
             throw new NotFoundException("CRITERIA_TEMPLATE_NOT_FOUND");
 
+        var now = DateTimeOffset.UtcNow;
+
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
-        // Deactivate all active templates of this round
-        var allTemplates = await _dbContext.CriteriaTemplates
-            .Where(x => x.RoundId == roundId && x.IsDisable)
+        // Deactivate all currently active templates (IsDisable = false) of this round
+        var activeTemplates = await _dbContext.CriteriaTemplates
+            .Include(x => x.CriteriaItems)
+            .Where(x => x.RoundId == roundId && !x.IsDisable)
             .ToListAsync();
 
-        foreach (var t in allTemplates)
+        foreach (var t in activeTemplates)
         {
-            t.IsDisable = false;
-            t.UpdatedAt = DateTimeOffset.UtcNow;
+            t.IsDisable = true;
+            t.UpdatedAt = now;
+
+            foreach (var item in t.CriteriaItems.Where(x => !x.IsDisable))
+            {
+                item.IsDisable = true;
+                item.UpdatedAt = now;
+            }
         }
 
         // Activate the selected template
-        template.IsDisable = true;
-        template.UpdatedAt = DateTimeOffset.UtcNow;
+        template.IsDisable = false;
+        template.UpdatedAt = now;
+
+        foreach (var item in template.CriteriaItems.Where(x => x.IsDisable))
+        {
+            item.IsDisable = false;
+            item.UpdatedAt = now;
+        }
 
         await _dbContext.SaveChangesAsync();
         await transaction.CommitAsync();

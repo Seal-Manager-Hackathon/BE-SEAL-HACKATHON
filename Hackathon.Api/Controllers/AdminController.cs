@@ -49,7 +49,7 @@ public class AdminController : ControllerBase
     }
 
     [HttpPatch("rounds/{roundId:guid}")]
-    public async Task<IActionResult> UpdateRound(Guid roundId, AdminService.CreateRoundRequest request)
+    public async Task<IActionResult> UpdateRound(Guid roundId, AdminService.UpdateRoundRequest request)
     {
         await _adminService.UpdateRound(roundId, request);
         return Ok(ApiResponseFactory.Base(null, 200, "ROUND_UPDATED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
@@ -60,6 +60,13 @@ public class AdminController : ControllerBase
     {
         await _adminService.DeleteRound(roundId);
         return Ok(ApiResponseFactory.Base(null, 200, "ROUND_DELETED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpPatch("rounds/{roundId:guid}/restore")]
+    public async Task<IActionResult> RestoreRound(Guid roundId)
+    {
+        var message = await _adminService.RestoreRound(roundId);
+        return Ok(ApiResponseFactory.Base(null, 200, message, traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpPost("notifications")]

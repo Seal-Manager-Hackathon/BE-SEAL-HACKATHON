@@ -38,10 +38,10 @@ Không có.
 - Round phải thuộc event, không bị soft-disable.
 - Template phải tồn tại, thuộc round.
 - Logic xử lý:
-  1. Tìm tất cả template trong round có `IsDisable = true` (đang được gắn).
-  2. Set toàn bộ template đó về `IsDisable = false` (bỏ gắn).
-  3. Set template được chọn thành `IsDisable = true` (gắn vào round).
-- Chỉ đảm bảo 1 template duy nhất được gắn trong 1 round tại 1 thời điểm.
+  1. Tìm tất cả template trong round có `IsDisable = false` (đang được active).
+  2. Set các template đó về `IsDisable = true` (deactivate) — **đồng thời các CriteriaItems của template đó cũng set `IsDisable = true`**.
+  3. Set template được chọn thành `IsDisable = false` (activate) — **đồng thời các CriteriaItems của template đó cũng set `IsDisable = false`**.
+- Chỉ đảm bảo 1 template duy nhất được active trong 1 round tại 1 thời điểm.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |

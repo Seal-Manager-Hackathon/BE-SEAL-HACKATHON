@@ -38,7 +38,6 @@ public static class Request
         public int? LimitTeam { get; set; }
         public int? MinMember { get; set; }
         public int? MaxMember { get; set; }
-        public int? NumberRound { get; set; }
         public string? Season { get; set; }
     }
 
@@ -53,7 +52,6 @@ public static class Request
         public int? MinMember { get; set; }
         public int? MaxMember { get; set; }
         public EventStatusEnum? Status { get; set; }
-        public int? NumberRound { get; set; }
         public string? Season { get; set; }
     }
 

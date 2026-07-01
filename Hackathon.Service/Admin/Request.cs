@@ -35,6 +35,17 @@ public class CreateRoundRequest
 {
     public string? Name { get; set; }
     public string? Description { get; set; }
+    public DateTimeOffset? StartTime { get; set; }
+    public DateTimeOffset? EndTime { get; set; }
+    public DateTimeOffset? StartSubmission { get; set; }
+    public DateTimeOffset? EndSubmission { get; set; }
+    public int? LimitTeam { get; set; }
+}
+
+public class UpdateRoundRequest
+{
+    public string? Name { get; set; }
+    public string? Description { get; set; }
     public int? RoundNo { get; set; }
     public DateTimeOffset? StartTime { get; set; }
     public DateTimeOffset? EndTime { get; set; }
