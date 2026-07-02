@@ -1208,6 +1208,26 @@ public class Service : IService
         };
     }
 
+    public async Task<string> EndRoundFinal(Guid roundId)
+    {
+        var round = await _dbContext.Rounds.FirstOrDefaultAsync(x => x.Id == roundId);
+        if (round == null)
+        {
+            throw new NotFoundException("ROUND_NOT_FOUND");
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        round.EndTime = now;
+        if (round.EndSubmission.HasValue && round.EndSubmission.Value > now)
+        {
+            round.EndSubmission = now;
+        }
+        round.UpdatedAt = now;
+
+        await _dbContext.SaveChangesAsync();
+        return "ROUND_ENDED_IMMEDIATELY";
+    }
+
     /// <summary>
     /// Close an expired round: advance top teams to next round, close current round.
     /// This is the write variant used only by EndRoundJob (not by the read-only API).

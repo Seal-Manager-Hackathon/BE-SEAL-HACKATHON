@@ -4,7 +4,6 @@ using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RoundsService = Hackathon.Service.Rounds;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Hackathon.Api.Controllers;
 
@@ -104,5 +103,13 @@ public class RoundsController : ControllerBase
     {
         var data = await _roundsService.EndRound(roundId);
         return Ok(ApiResponseFactory.Base(data, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpPost("{roundId:guid}/endFinal")]
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    public async Task<IActionResult> EndRoundFinal(Guid roundId)
+    {
+        var message = await _roundsService.EndRoundFinal(roundId);
+        return Ok(ApiResponseFactory.Base(null, 200, message, traceId: HttpContext.TraceIdentifier));
     }
 }
