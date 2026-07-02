@@ -140,27 +140,34 @@ public class Service : IService
 
     private static Response.SubmissionScoreResponse? BuildSubmissionScore(List<Scores> scores)
     {
-        if (scores.Count == 0)
-        {
-            return null;
-        }
+        // Only latest Score per judge (AssignTrackId)
+        var latestScores = scores
+            .GroupBy(s => s.AssignTrackId)
+            .Select(g => g.OrderByDescending(s => s.UpdatedAt).First())
+            .ToList();
 
-        var criteriaScores = scores
+        if (latestScores.Count == 0)
+            return null;
+
+        var criteriaScores = latestScores
             .SelectMany(x => x.ScoreItems)
-            .Where(x => !x.IsDisable)
+            .Where(x => !x.IsDisable && x.Score.HasValue && !x.CriteriaItem.IsDisable)
             .GroupBy(x => x.CriteriaItemId)
             .Select(x => new Response.CriteriaScoreResponse
             {
                 CriteriaItemId = x.Key,
                 CriteriaItemName = x.First().CriteriaItem.Name,
-                AverageCriteriaScore = x.Where(scoreItem => scoreItem.Score.HasValue).Select(scoreItem => scoreItem.Score!.Value).DefaultIfEmpty().Average(),
+                AverageCriteriaScore = x.Average(item => item.Score!.Value),
                 MaxScore = x.First().CriteriaItem.Score,
             })
             .ToList();
 
+        if (criteriaScores.Count == 0)
+            return null;
+
         return new Response.SubmissionScoreResponse
         {
-            AverageTotalScore = scores.Select(x => x.TotalScore!.Value).Average(),
+            AverageTotalScore = criteriaScores.Sum(x => x.AverageCriteriaScore ?? 0),
             IsAppealable = true,
             CriteriaScores = criteriaScores,
         };

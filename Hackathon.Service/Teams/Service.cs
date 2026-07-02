@@ -125,7 +125,7 @@ public class Service : IService
             throw new BadRequestException("USER_PROFILE_NOT_COMPLETED");
         }
 
-        var isDuplicatedName = await _dbContext.Teams.AnyAsync(x => x.Name.ToLower() == teamName.ToLower());
+        var isDuplicatedName = await _dbContext.Teams.AnyAsync(x => x.Name == teamName);
         if (isDuplicatedName)
         {
             throw new ConflictException("TEAM_NAME_ALREADY_EXISTS");

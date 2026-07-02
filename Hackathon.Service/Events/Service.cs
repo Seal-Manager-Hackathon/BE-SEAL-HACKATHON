@@ -556,26 +556,68 @@ public class Service : IService
             await _dbContext.SaveChangesAsync();
         }
 
-        var teamScores = await _dbContext.RegisterTeams
+        // Load all approved teams with their submissions, scores, and score items
+        var registerTeams = await _dbContext.RegisterTeams
+            .AsNoTracking()
+            .Include(rt => rt.Team)
+            .Include(rt => rt.RoundDetails)
+                .ThenInclude(rd => rd.Submissions)
+                    .ThenInclude(s => s.Scores)
+                        .ThenInclude(sc => sc.ScoreItems)
+                            .ThenInclude(si => si.CriteriaItem)
             .Where(rt => rt.EventId == eventId
                          && !rt.IsDisable
                          && rt.Status == RegisterTeamStatusEnum.Approved
                          && !rt.Team.IsDisable)
-            .Select(rt => new
-            {
-                rt.TeamId,
-                Score = rt.RoundDetails
-                    .SelectMany(rd => rd.Submissions)
-                    .SelectMany(s => s.Scores)
-                    .Where(s => !s.IsDisable && s.TotalScore.HasValue)
-                    .Average(s => s.TotalScore)
-            })
             .ToListAsync();
 
-        foreach (var teamScore in teamScores)
+        // Calculate team scores: sum of (avg criteria per judge) per round, averaged across rounds
+        var teamScores = new List<(Guid TeamId, decimal? Score)>();
+        foreach (var rt in registerTeams)
         {
+            var roundScores = new List<decimal>();
+            foreach (var rd in rt.RoundDetails.Where(x => !x.IsDisable))
+            {
+                var latestSubmission = rd.Submissions
+                    .Where(s => !s.IsDisable && s.Status == SubmissionStatusEnum.Submitted)
+                    .OrderByDescending(s => s.SubmittedAt ?? s.CreatedAt)
+                    .FirstOrDefault();
+
+                if (latestSubmission != null)
+                {
+                    // Latest score per judge
+                    var latestScores = latestSubmission.Scores
+                        .Where(s => !s.IsDisable && !s.IsMock)
+                        .GroupBy(s => s.AssignTrackId)
+                        .Select(g => g.OrderByDescending(s => s.UpdatedAt).First())
+                        .ToList();
+
+                    var allScoreItems = latestScores
+                        .SelectMany(s => s.ScoreItems)
+                        .Where(si => !si.IsDisable && si.Score.HasValue && !si.CriteriaItem.IsDisable)
+                        .ToList();
+
+                    if (allScoreItems.Count > 0)
+                    {
+                        // Avg per criteria → sum = round score
+                        var roundScore = allScoreItems
+                            .GroupBy(x => x.CriteriaItemId)
+                            .Select(g => g.Average(x => x.Score!.Value))
+                            .Sum();
+                        roundScores.Add(roundScore);
+                    }
+                }
+            }
+
+            teamScores.Add((rt.TeamId, roundScores.Count > 0 ? roundScores.Average() : null));
+        }
+
+        foreach (var (teamId, score) in teamScores)
+        {
+            if (score == null) continue;
+
             var leaderboardDetail = await _dbContext.LeaderBoardDetails.FirstOrDefaultAsync(x => x.LeaderBoardId == leaderboard.Id
-                && x.TeamId == teamScore.TeamId
+                && x.TeamId == teamId
                 && !x.IsDisable);
 
             if (leaderboardDetail == null)
@@ -584,8 +626,8 @@ public class Service : IService
                 {
                     Id = Guid.NewGuid(),
                     LeaderBoardId = leaderboard.Id,
-                    TeamId = teamScore.TeamId,
-                    Score = teamScore.Score,
+                    TeamId = teamId,
+                    Score = score,
                     IsDisable = false,
                     CreatedAt = now,
                     UpdatedAt = now
@@ -594,7 +636,7 @@ public class Service : IService
             }
             else
             {
-                leaderboardDetail.Score = teamScore.Score;
+                leaderboardDetail.Score = score;
                 leaderboardDetail.UpdatedAt = now;
                 _dbContext.LeaderBoardDetails.Update(leaderboardDetail);
             }
