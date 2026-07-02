@@ -29,18 +29,18 @@ Authorization: Bearer {accessToken}
 ```
 
 ## Response body (Success - 200 OK)
-*Trả về danh sách rounds, mỗi round chứa danh sách tracks, mỗi track chứa danh sách submissions (phân trang theo submission).*
+*Trả về danh sách rounds (dạng paginated), mỗi round chứa danh sách tracks, mỗi track chứa danh sách submissions (phân trang theo submission).*
 ```json
 {
   "isSuccess": true,
   "isFailed": false,
   "status": 200,
-  "message": "SUCCESS",
   "error": null,
   "traceId": "0HN1A2B3C4D5E",
   "timestampUtc": "2026-06-22T08:00:00Z",
-  "data": [
-    {
+  "data": {
+    "items": [
+      {
       "roundId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
       "roundName": "Vòng loại",
       "tracks": [
@@ -71,7 +71,13 @@ Authorization: Bearer {accessToken}
         }
       ]
     }
-  ]
+    ],
+    "pageIndex": 1,
+    "pageSize": 10,
+    "totalCount": 1,
+    "hasNextPage": false,
+    "hasPreviousPage": false
+  }
 }
 ```
 

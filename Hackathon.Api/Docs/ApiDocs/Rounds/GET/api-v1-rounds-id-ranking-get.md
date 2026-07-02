@@ -47,8 +47,13 @@ Public API (Không yêu cầu đăng nhập)
 ## Business rules
 - Round đấu phải tồn tại trong DB và không bị soft-disable.
 - Hệ thống lấy tất cả bài nộp mới nhất (`Submissions`) của các team trong round đấu (`RoundDetails`).
-- Điểm trung bình của team trong round được tính bằng trung bình cộng điểm số (`Scores.TotalScore`) của các giám khảo chấm thi (BR-SCO-04).
 - Kết quả được sắp xếp theo `averageScore` giảm dần để ra thứ hạng.
+- **Cách tính điểm:**
+   - `averageScore` ≠ trung bình `Scores.TotalScore`
+   - Mỗi tiêu chí: lấy trung bình điểm của các judge **đã chấm** (có ScoreItems)
+   - Điểm tổng = tổng điểm trung bình của từng tiêu chí
+   - Chỉ lấy Score mới nhất của mỗi judge (retake thay thế bản cũ)
+   - Xem chi tiết: [Scoring Formula](../../scoring-formula.md)
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |

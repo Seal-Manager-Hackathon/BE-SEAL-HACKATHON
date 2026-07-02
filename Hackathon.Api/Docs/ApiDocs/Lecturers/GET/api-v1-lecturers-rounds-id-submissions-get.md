@@ -72,8 +72,6 @@ Không có.
 - Nếu vòng thi chưa đóng → lỗi `ROUND_SUBMISSION_STILL_OPEN`.
 - Sắp xếp theo tên team.
 - **Team chưa nộp bài:** trả về đầy đủ thông tin team, `submissionId = null`, `submissionStatus = null`, `url = null`, `averageScore = null`.
-- **Team đã nộp bài nhưng chưa được chấm:** `averageScore` là `0` (do `DefaultIfEmpty().Average()`).
-- **Team đã nộp bài và được chấm:** `averageScore` là điểm trung bình từ tất cả judge (không bao gồm mock score).
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |

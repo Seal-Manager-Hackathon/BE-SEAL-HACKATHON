@@ -311,8 +311,8 @@ API cho phép kết hợp đồng thời cả `trackId` và `topicId` trong quer
 - `trackId` và `topicId` có thể dùng đồng thời để lọc chéo (intersection filter).
 - Nếu team đã được duyệt vào event và có `RoundDetails` cho round này nhưng chưa có submission, trả về `submissionStatus = "Unsubmitted"` để Staff biết đội nào chưa nộp.
 - Đối với team chưa nộp bài, danh sách `assignedJudges` vẫn được trả về dựa trên `AssignTracks` của track (nếu track có judge).
-- `averageScore` được tính là trung bình cộng tổng điểm của các judge đã chấm (`totalScore` có giá trị).
-- `minScore` và `maxScore` là điểm thấp nhất và cao nhất trong các judge đã chấm.
+- `averageScore` được tính theo công thức: trung bình điểm từng tiêu chí (các judge đã chấm) → tổng.
+- `minScore` và `maxScore` hiện bằng `averageScore` (chỉ có 1 giá trị tổng).
 - `isFinalized` ở cấp judge cho biết judge đó đã chốt điểm chưa (không cho sửa nữa).
 - Khi tất cả judge đã `isFinalized = true` thì `gradingStatus` chuyển thành `"Finalized"`.
 - Bài nộp bị disable (`IsDisable = true`) được loại khỏi danh sách kết quả.
