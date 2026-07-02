@@ -214,8 +214,11 @@ public class Service : IService
                 !x.IsMock &&
                 !x.IsRetake &&
                 x.AssignTrack.AssignEvent.UserId == userId &&
-                x.AssignTrack.AssignEvent.EventRole != null &&
-                x.AssignTrack.AssignEvent.EventRole.Name == EventRoleEnum.Judge &&
+                x.AssignTrack.AssignEvent.EventRoleId != null &&
+                _dbContext.EventRoles.Any(er =>
+                    er.Id == x.AssignTrack.AssignEvent.EventRoleId &&
+                    er.Name == EventRoleEnum.Judge &&
+                    !er.IsDisable) &&
                 x.Submission.IsRegrade &&
                 !x.Submission.IsDisable &&
                 x.Submission.Report != null &&
@@ -484,6 +487,74 @@ public class Service : IService
         return await BuildScoreResponse(score.Id);
     }
 
+    public async Task<Response.JudgeScoreItemResponse> UpdateScoreItem(Guid scoreId, Guid scoreItemId, Request.UpdateScoreItemRequest request)
+    {
+        var userId = GetCurrentUserId();
+        var score = await LoadOwnedScore(scoreId, userId);
+
+        var scoreItem = score.ScoreItems.FirstOrDefault(x => x.Id == scoreItemId && !x.IsDisable);
+        if (scoreItem == null)
+        {
+            throw new NotFoundException("SCORE_ITEM_NOT_FOUND");
+        }
+
+        if (scoreItem.AssignTrackId != score.AssignTrackId)
+        {
+            throw new ForbiddenException("SCORE_ITEM_NOT_OWNED_BY_JUDGE");
+        }
+
+        var now = DateTimeOffset.UtcNow;
+
+        if (request.Score.HasValue)
+        {
+            if (request.Score.Value < 0)
+            {
+                throw new BadRequestException("SCORE_MUST_BE_NON_NEGATIVE");
+            }
+
+            // Validate score does not exceed max score
+            var maxScore = scoreItem.CriteriaItem.Score;
+            if (request.Score.Value > maxScore)
+            {
+                throw new BadRequestException("SCORE_LIMIT_EXCEEDED");
+            }
+
+            scoreItem.Score = request.Score.Value;
+        }
+
+        if (request.Comment != null)
+        {
+            scoreItem.Comment = request.Comment;
+        }
+
+        scoreItem.UpdatedAt = now;
+        score.UpdatedAt = now;
+
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            score.TotalScore = score.ScoreItems
+                .Where(si => !si.IsDisable && si.Score.HasValue)
+                .Sum(si => si.Score!.Value);
+
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
+        return new Response.JudgeScoreItemResponse
+        {
+            CriteriaItemId = scoreItem.CriteriaItemId,
+            CriteriaItemName = scoreItem.CriteriaItem.Name,
+            Score = scoreItem.Score,
+            Comment = scoreItem.Comment
+        };
+    }
+
     public async Task<string> FinalizeScore(Guid scoreId)
     {
         var userId = GetCurrentUserId();
@@ -683,8 +754,19 @@ public class Service : IService
             throw new NotFoundException("SCORE_NOT_FOUND");
         }
 
-        if (score.AssignTrack.AssignEvent.UserId != userId ||
-            score.AssignTrack.AssignEvent.EventRole?.Name != EventRoleEnum.Judge)
+        // Verify ownership via subquery (reliable across all EF versions)
+        var isOwnedByJudge = await _dbContext.AssignEvents
+            .AsNoTracking()
+            .AnyAsync(x =>
+                x.Id == score.AssignTrack.AssignEventId &&
+                x.UserId == userId &&
+                x.EventRoleId != null &&
+                _dbContext.EventRoles.Any(er =>
+                    er.Id == x.EventRoleId &&
+                    er.Name == EventRoleEnum.Judge &&
+                    !er.IsDisable));
+
+        if (!isOwnedByJudge)
         {
             throw new ForbiddenException("SCORE_NOT_OWNED_BY_JUDGE");
         }
@@ -1435,7 +1517,7 @@ public class Service : IService
         // Get active criteria template for this round to know total criteria items count
         var activeTemplate = await _dbContext.CriteriaTemplates
             .AsNoTracking()
-            .Where(x => x.RoundId == roundId && x.IsDisable)
+            .Where(x => x.RoundId == roundId && !x.IsDisable)
             .Select(x => new
             {
                 x.Id,

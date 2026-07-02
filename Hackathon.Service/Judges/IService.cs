@@ -17,6 +17,7 @@ public interface IService
     Task<Response.JudgeSubmissionScoreResponse> SubmitScore(Guid submissionId, Request.SubmitScoreRequest request);
     Task<Response.JudgeSubmissionScoreResponse> SubmitMockScore(Guid submissionId, Request.SubmitScoreRequest request);
     Task<Response.JudgeSubmissionScoreResponse> UpdateScore(Guid scoreId, Request.SubmitScoreRequest request);
+    Task<Response.JudgeScoreItemResponse> UpdateScoreItem(Guid scoreId, Guid scoreItemId, Request.UpdateScoreItemRequest request);
     Task<string> FinalizeScore(Guid scoreId);
     Task<Response.JudgeSubmissionScoreResponse> SubmitRetakeScore(Guid scoreId, Request.SubmitScoreRequest request);
     Task<(List<Response.JudgeTrackTeamResponse> Data, string Message)> GetJudgeTeamsByEvent(Guid eventId, Guid? roundId);

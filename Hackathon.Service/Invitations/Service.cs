@@ -5,6 +5,7 @@ using Hackathon.Repository;
 using Hackathon.Repository.Enum;
 using Hackathon.Service.Exceptions;
 using Hackathon.Service.Models;
+using Hackathon.Service.Notifications;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -220,9 +221,9 @@ public class Service : IService
             Id = Guid.NewGuid(),
             TeamId = team.Id,
             UserId = leaderId,
-            Title = "TEAM_INVITATION_ACCEPTED",
+            Title = NotificationTemplates.TeamInvitationAcceptedTitle,
             Status = NotificationStatusEnum.Unread,
-            Description = $"Thành viên {user.FirstName} {user.LastName} đã chấp nhận lời mời vào team {team.Name}.",
+            Description = string.Format(NotificationTemplates.TeamInvitationAcceptedBody, $"{user.FirstName} {user.LastName}", team.Name),
             CreatedAt = now,
             UpdatedAt = now
         };
@@ -309,9 +310,9 @@ public class Service : IService
             Id = Guid.NewGuid(),
             TeamId = invitation.TeamId,
             UserId = leaderId,
-            Title = "TEAM_INVITATION_REJECTED",
+            Title = NotificationTemplates.TeamInvitationRejectedTitle,
             Status = NotificationStatusEnum.Unread,
-            Description = $"Thành viên {user.FirstName} {user.LastName} đã từ chối lời mời vào team {invitation.Team?.Name}.",
+            Description = string.Format(NotificationTemplates.TeamInvitationRejectedBody, $"{user.FirstName} {user.LastName}", invitation.Team?.Name ?? ""),
             CreatedAt = now,
             UpdatedAt = now
         };

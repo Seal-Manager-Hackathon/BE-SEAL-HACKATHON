@@ -84,6 +84,13 @@ public class JudgeController : ControllerBase
         return Ok(ApiResponseFactory.Base(result, 200, "SCORE_UPDATED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
     }
 
+    [HttpPatch("scores/{scoreId:guid}/items/{scoreItemId:guid}")]
+    public async Task<IActionResult> UpdateScoreItem(Guid scoreId, Guid scoreItemId, [FromBody] JudgesService.Request.UpdateScoreItemRequest request)
+    {
+        var result = await _judgeService.UpdateScoreItem(scoreId, scoreItemId, request);
+        return Ok(ApiResponseFactory.Base(result, 200, "SCORE_ITEM_UPDATED_SUCCESSFULLY", traceId: HttpContext.TraceIdentifier));
+    }
+
     [HttpPost("scores/{scoreId:guid}/finalize")]
     public async Task<IActionResult> FinalizeScore(Guid scoreId)
     {

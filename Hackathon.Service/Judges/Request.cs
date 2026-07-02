@@ -14,4 +14,10 @@ public static class Request
         public decimal Score { get; set; }
         public string? Comment { get; set; }
     }
+
+    public class UpdateScoreItemRequest
+    {
+        public decimal? Score { get; set; }
+        public string? Comment { get; set; }
+    }
 }
