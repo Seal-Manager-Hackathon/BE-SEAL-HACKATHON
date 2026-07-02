@@ -98,3 +98,15 @@ Authorization: Bearer {accessToken}
 ## Trạng thái implement
 - ✅ Route: `GET /api/v1/judge/events/{eventId:guid}/submissions`.
 - Sử dụng policy `LecturerPolicy`.
+
+## Bug fix (2026-07-02)
+**Lỗi:** 500 `NullReferenceException` khi load submissions in-memory.
+
+**Root cause:** Query thiếu `.Include()` cho `RegisterTeam → Team/Track/Topic` — code truy cập `x.RoundDetail.RegisterTeam.Team.Name` sau `.ToListAsync()` nhưng EF chưa load chain navigation này → null → crash.
+
+**Fix:** Thêm 3 dòng Include:
+```csharp
+.Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Team)
+.Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Track)
+.Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Topic)
+```

@@ -995,6 +995,10 @@ public class Service : IService
         var submissionsQuery = _dbContext.Submissions
             .AsNoTracking()
             .Include(x => x.Scores.Where(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId)))
+            .Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Team)
+            .Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Track)
+            .Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Topic)
+            .Include(x => x.RoundDetail).ThenInclude(x => x.Round)
             .Where(x => !x.IsDisable
                         && x.RoundDetail.Round.EventId == eventId
                         && x.RoundDetail.Round.EndSubmission.HasValue
@@ -1263,6 +1267,9 @@ public class Service : IService
         var submissionsQuery = _dbContext.Submissions
             .AsNoTracking()
             .Include(x => x.Scores.Where(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId)))
+            .Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Team)
+            .Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Track)
+            .Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Topic)
             .Include(x => x.RoundDetail).ThenInclude(x => x.Round)
             .Where(x => !x.IsDisable
                         && x.RoundDetail.RegisterTeam.EventId == eventId

@@ -73,3 +73,15 @@ Yêu cầu access token hợp lệ với role `Lecturer` và đã được phân
 ## Trạng thái implement
 - ✅ Route: `GET /api/v1/judge/events/{eventId:guid}/submissions/pending`.
 - Sử dụng policy `LecturerPolicy`.
+
+## Bug fix (2026-07-02)
+**Lỗi:** 500 `NullReferenceException` khi load submissions in-memory.
+
+**Root cause:** Query thiếu `.Include()` cho `RegisterTeam → Team/Track/Topic` — cùng root cause với `GET /api/v1/judge/events/{eventId}/submissions`.
+
+**Fix:** Thêm 3 dòng Include:
+```csharp
+.Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Team)
+.Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Track)
+.Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Topic)
+```
