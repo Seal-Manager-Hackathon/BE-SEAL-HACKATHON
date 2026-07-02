@@ -51,7 +51,7 @@ Không có.
         "description": "string|null",
         "submissionStatus": "Submitted|null",
         "submittedAt": "datetime|null",
-        "averageScore": 0.0
+        "averageScore": 0.0|null
       }
     ],
     "pagination": {
@@ -71,6 +71,9 @@ Không có.
 - Chỉ cho phép xem khi **vòng thi đã đóng nộp bài** (`EndSubmission` đã qua).
 - Nếu vòng thi chưa đóng → lỗi `ROUND_SUBMISSION_STILL_OPEN`.
 - Sắp xếp theo tên team.
+- **Team chưa nộp bài:** trả về đầy đủ thông tin team, `submissionId = null`, `submissionStatus = null`, `url = null`, `averageScore = null`.
+- **Team đã nộp bài nhưng chưa được chấm:** `averageScore` là `0` (do `DefaultIfEmpty().Average()`).
+- **Team đã nộp bài và được chấm:** `averageScore` là điểm trung bình từ tất cả judge (không bao gồm mock score).
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
@@ -85,3 +88,12 @@ Không có.
 - Đã implement trong `Hackathon.Api.Controllers.LecturersController`.
 - Route: `GET /api/v1/lecturers/rounds/{roundId}/submissions`.
 - Sử dụng policy `LecturerPolicy`.
+
+## Bug fix (2026-07-02)
+**Lỗi:** 500 `ArgumentNullException` khi team chưa có submission.
+
+**Root cause:** Code `submission?.Scores.Where(...)` — khi `submission == null`, `submission?.Scores` trả về `null`, rồi extension method `.Where()` được gọi trên `null` → `ArgumentNullException`.
+
+**Fix:**
+- `Rounds/Service.cs` `GetLecturerRoundSubmissions()`: Thêm null check `submission?.Scores != null ? ... : null`, trả về `null` cho `averageScore` khi team chưa nộp.
+- `Rounds/Service.cs` `BuildAssignedJudges()`: Thêm `?.` propagation (`?.Where()`, `?.OrderByDescending()`, `?.FirstOrDefault()`) để null lan truyền an toàn khi `submission` là `null`.
