@@ -182,6 +182,7 @@ Ngày rà soát: 2026-06-22
 - `PATCH /api/v1/staff/rounds/{roundId}/scores/reveal` — BTC công bố điểm số của vòng thi cho thí sinh biết. Quyền: Staff/Admin. Entity: `Rounds`. Lý do: Cho phép thí sinh xem điểm. Trước thời điểm này, judge không được xem điểm judge khác (BR-SCO-05). *DB chưa có ScoreRevealAt.*
 - [`GET /api/v1/events/{eventId}/teams/{teamId}/scores`](Events/GET/GET-api-v1-events-eventId-teams-teamId-scores.md) — Xem chi tiết điểm của một team trong event theo từng round và từng tiêu chí chấm điểm. Quyền: Public/Auth tùy thời điểm reveal. Entity: `Scores` + `ScoreItems` + `CriteriaItems`. Lý do: Từ leaderboard event, user bấm vào một team để xem breakdown điểm theo round/criteria.
 - [`GET /api/v1/rounds/{roundId}/scores/me`](Rounds/GET/api-v1-rounds-id-scores-me-get.md) — Team xem kết quả/điểm round hiện tại; nếu chưa chấm thì trả trạng thái bài chưa được chấm. Quyền: Team member. Entity: `Scores` + `RoundDetails` + `Submissions`.
+- [`GET /api/v1/rounds/{roundId}/teams/{teamId}/latest-submission-score`](Rounds/GET/api-v1-rounds-id-teams-id-latest-submission-score-get.md) — Kiểm tra submission mới nhất của team trong round đã được chấm chưa và trả điểm nếu có. Quyền: Public/Auth theo rule. Entity: `Scores` + `ScoreItems` + `Submissions` + `RoundDetails`.
 
 ## 15. Advancement & Round Results (Thăng vòng)
 57. [`POST /api/v1/rounds/{roundId}/end`](Rounds/POST/POST-api-v1-rounds-roundId-end.md) — Staff/Admin kết thúc round, chốt sổ điểm và tự động tạo `RoundDetails` cho top team vào round kế tiếp theo `LimitTeam` của round sau.

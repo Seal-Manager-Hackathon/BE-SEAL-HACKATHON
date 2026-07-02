@@ -13,6 +13,7 @@ public interface IService
     Task<BasePaginationResponse> GetMyRoundSubmissions(Guid roundId, Request.GetSubmissionsQuery query);
     Task<BasePaginationResponse> GetRoundRanking(Guid roundId, Request.GetSubmissionsQuery query);
     Task<Response.MyRoundScoreResponse> GetMyRoundScore(Guid roundId);
+    Task<Response.TeamLatestSubmissionScoreResponse> GetTeamLatestSubmissionScore(Guid roundId, Guid teamId);
     Task<BasePaginationResponse> GetStaffRoundSubmissions(Guid roundId, Request.GetStaffRoundSubmissionsQuery query);
     Task<BasePaginationResponse> GetLecturerRoundSubmissions(Guid roundId, Request.GetSubmissionsQuery query);
     Task<Response.AssignJudgesToSubmissionResponse> AssignJudgesToSubmission(Guid submissionId, Request.AssignJudgesToSubmissionRequest request);

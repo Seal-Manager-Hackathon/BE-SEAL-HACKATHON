@@ -145,9 +145,6 @@ public class Service : IService
     {
         var userId = GetCurrentUserId();
 
-        var now = DateTimeOffset.UtcNow;
-
-        // 2. Query AssignEvents where Event.StartTime <= now <= Event.EndTime
         var items = await _dbContext.AssignEvents
             .AsNoTracking()
             .Include(x => x.Event)
@@ -155,10 +152,7 @@ public class Service : IService
             .Where(x => x.UserId == userId
                         && !x.IsDisable
                         && !x.Event.IsDisable
-                        && x.Event.StartTime.HasValue
-                        && x.Event.StartTime.Value <= now
-                        && x.Event.EndTime.HasValue
-                        && x.Event.EndTime.Value >= now)
+                        && x.Event.Status != EventStatusEnum.Draft)
             .OrderByDescending(x => x.Event.StartTime)
             .ThenByDescending(x => x.CreatedAt)
             .Select(x => new Response.LecturerEventResponse
@@ -174,12 +168,7 @@ public class Service : IService
             })
             .ToListAsync();
 
-        if (items.Count == 0)
-        {
-            throw new NotFoundException("NOT_ASSIGNED_TO_ANY_EVENT");
-        }
-
-        return items;
+        return items.Count == 0 ? new List<Response.LecturerEventResponse>() : items;
     }
 
     public async Task<Response.LecturerEventTracksResponse> GetLecturerTracks(Guid eventId)

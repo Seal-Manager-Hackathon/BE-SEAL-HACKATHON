@@ -299,36 +299,21 @@ public class Service : IService
 
         return rounds.Select(roundDetail =>
         {
-            var scores = roundDetail.Submissions
-                .Where(submission => !submission.IsDisable)
-                .SelectMany(submission => submission.Scores)
-                .Where(score => !score.IsDisable)
-                .ToList();
+            var latestSubmission = roundDetail.Submissions
+                .Where(submission => !submission.IsDisable && submission.Status == SubmissionStatusEnum.Submitted)
+                .OrderByDescending(submission => submission.SubmittedAt ?? submission.CreatedAt)
+                .FirstOrDefault();
 
-            var criteriaScores = scores
-                .SelectMany(score => score.ScoreItems)
-                .Where(scoreItem => !scoreItem.IsDisable && !scoreItem.CriteriaItem.IsDisable)
-                .GroupBy(scoreItem => new
-                {
-                    scoreItem.CriteriaItemId,
-                    scoreItem.CriteriaItem.Name,
-                    scoreItem.CriteriaItem.Score
-                })
-                .Select(group => new Response.CriteriaScoreResponse
-                {
-                    CriteriaItemId = group.Key.CriteriaItemId,
-                    CriteriaItemName = group.Key.Name,
-                    AverageCriteriaScore = group.Where(x => x.Score.HasValue).Select(x => x.Score).Average(),
-                    MaxScore = group.Key.Score
-                })
-                .ToList();
+            var criteriaScores = CalculateCriteriaScores(latestSubmission);
 
             return new Response.TeamScoreResponse
             {
                 RoundId = roundDetail.RoundId,
                 RoundName = roundDetail.Round.Name,
                 RoundNo = roundDetail.Round.RoundNo,
-                AverageTotalScore = scores.Where(x => x.TotalScore.HasValue).Select(x => x.TotalScore).Average(),
+                AverageTotalScore = criteriaScores.Count == 0
+                    ? null
+                    : criteriaScores.Sum(x => x.AverageCriteriaScore ?? 0m),
                 CriteriaScores = criteriaScores
             };
         }).ToList();
@@ -540,6 +525,12 @@ public class Service : IService
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
         var now = DateTimeOffset.UtcNow;
+        var eventInfo = await _dbContext.Events
+            .AsNoTracking()
+            .Where(x => x.Id == eventId && !x.IsDisable)
+            .Select(x => new { x.EndTime })
+            .FirstAsync();
+
         var leaderboard = await _dbContext.LeaderBoards.FirstOrDefaultAsync(x => x.EventId == eventId && !x.IsDisable);
         if (leaderboard == null)
         {
@@ -547,13 +538,17 @@ public class Service : IService
             {
                 Id = Guid.NewGuid(),
                 EventId = eventId,
-                Year = DateTimeOffset.UtcNow.Year,
+                Year = eventInfo.EndTime?.Year,
                 IsDisable = false,
                 CreatedAt = now,
                 UpdatedAt = now
             };
             await _dbContext.LeaderBoards.AddAsync(leaderboard);
             await _dbContext.SaveChangesAsync();
+        }
+        else
+        {
+            leaderboard.Year = eventInfo.EndTime?.Year;
         }
 
         // Load all approved teams with their submissions, scores, and score items
@@ -648,6 +643,41 @@ public class Service : IService
         await transaction.CommitAsync();
 
         return "LEADERBOARD_RECALCULATED";
+    }
+
+    private static List<Response.CriteriaScoreResponse> CalculateCriteriaScores(Hackathon.Repository.Entity.Submissions? submission)
+    {
+        if (submission == null)
+        {
+            return new List<Response.CriteriaScoreResponse>();
+        }
+
+        var latestScores = submission.Scores
+            .Where(score => !score.IsDisable && !score.IsMock)
+            .GroupBy(score => score.AssignTrackId)
+            .Select(group => group.OrderByDescending(score => score.UpdatedAt).First())
+            .ToList();
+
+        return latestScores
+            .SelectMany(score => score.ScoreItems)
+            .Where(scoreItem => !scoreItem.IsDisable
+                && scoreItem.Score.HasValue
+                && !scoreItem.CriteriaItem.IsDisable)
+            .GroupBy(scoreItem => new
+            {
+                scoreItem.CriteriaItemId,
+                scoreItem.CriteriaItem.Name,
+                scoreItem.CriteriaItem.Score
+            })
+            .Select(group => new Response.CriteriaScoreResponse
+            {
+                CriteriaItemId = group.Key.CriteriaItemId,
+                CriteriaItemName = group.Key.Name,
+                AverageCriteriaScore = group.Average(item => item.Score!.Value),
+                MaxScore = group.Key.Score
+            })
+            .OrderBy(x => x.CriteriaItemName)
+            .ToList();
     }
 
     public async Task<string> LockLeaderboard(Guid eventId)

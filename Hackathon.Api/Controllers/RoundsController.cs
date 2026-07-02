@@ -57,6 +57,13 @@ public class RoundsController : ControllerBase
         return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
+    [HttpGet("{roundId:guid}/teams/{teamId:guid}/latest-submission-score")]
+    public async Task<IActionResult> GetTeamLatestSubmissionScore(Guid roundId, Guid teamId)
+    {
+        var result = await _roundsService.GetTeamLatestSubmissionScore(roundId, teamId);
+        return Ok(ApiResponseFactory.Base(result,200,result.Message ?? "SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
+
     [HttpGet("teams/{teamId:guid}")]
     [Authorize]
     public async Task<IActionResult> GetMyRounds(Guid teamId, [FromQuery] Guid? eventId)

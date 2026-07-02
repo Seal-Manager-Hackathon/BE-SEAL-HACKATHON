@@ -459,14 +459,8 @@ public class Service : IService
             throw new NotFoundException("SUBMISSION_NOT_FOUND");
         }
 
-        // Only latest Score per judge (AssignTrackId)
-        var latestScores = submission.Scores
-            .Where(s => !s.IsDisable && !s.IsMock)
-            .GroupBy(s => s.AssignTrackId)
-            .Select(g => g.OrderByDescending(s => s.UpdatedAt).First())
-            .ToList();
-
-        if (latestScores.Count == 0 || !latestScores.Any(s => s.ScoreItems.Any(si => !si.IsDisable && si.Score.HasValue)))
+        var criteriaScores = CalculateCriteriaScores(submission);
+        if (criteriaScores.Count == 0)
         {
             return new Response.MyRoundScoreResponse
             {
@@ -483,22 +477,6 @@ public class Service : IService
             };
         }
 
-        // Calculate average score per criteria across ALL judges who actually scored
-        // Then total = sum of those averages
-        var criteriaScores = latestScores
-            .SelectMany(x => x.ScoreItems)
-            .Where(x => !x.IsDisable && x.Score.HasValue && !x.CriteriaItem.IsDisable)
-            .GroupBy(x => new { x.CriteriaItemId, x.CriteriaItem.Name, x.CriteriaItem.Score })
-            .Select(x => new Response.MyRoundCriteriaScoreResponse
-            {
-                CriteriaItemId = x.Key.CriteriaItemId,
-                CriteriaItemName = x.Key.Name,
-                AverageCriteriaScore = x.Average(item => item.Score!.Value),
-                MaxScore = x.Key.Score
-            })
-            .OrderBy(x => x.CriteriaItemName)
-            .ToList();
-
         var totalScore = criteriaScores.Sum(x => x.AverageCriteriaScore);
 
         return new Response.MyRoundScoreResponse
@@ -511,6 +489,103 @@ public class Service : IService
             GradingStatus = "Graded",
             AverageTotalScore = totalScore,
             IsAppealable = true,
+            CriteriaScores = criteriaScores
+        };
+    }
+
+    public async Task<Response.TeamLatestSubmissionScoreResponse> GetTeamLatestSubmissionScore(Guid roundId, Guid teamId)
+    {
+        var roundExists = await _dbContext.Rounds
+            .AsNoTracking()
+            .AnyAsync(x => x.Id == roundId && !x.IsDisable && !x.Event.IsDisable);
+
+        if (!roundExists)
+        {
+            throw new NotFoundException("ROUND_NOT_FOUND");
+        }
+
+        var teamExists = await _dbContext.Teams
+            .AsNoTracking()
+            .AnyAsync(x => x.Id == teamId && !x.IsDisable);
+
+        if (!teamExists)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        var roundDetail = await _dbContext.RoundDetails
+            .AsNoTracking()
+            .Include(x => x.Round)
+            .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
+            .Include(x => x.Submissions).ThenInclude(x => x.Scores).ThenInclude(x => x.ScoreItems).ThenInclude(x => x.CriteriaItem)
+            .Where(x => x.RoundId == roundId
+                && !x.IsDisable
+                && !x.Round.IsDisable
+                && !x.Round.Event.IsDisable
+                && !x.RegisterTeam.IsDisable
+                && !x.RegisterTeam.Team.IsDisable
+                && x.RegisterTeam.TeamId == teamId)
+            .FirstOrDefaultAsync();
+
+        if (roundDetail == null)
+        {
+            throw new NotFoundException("ROUND_DETAIL_NOT_FOUND");
+        }
+
+        var submission = roundDetail.Submissions
+            .Where(x => !x.IsDisable && x.Status == SubmissionStatusEnum.Submitted)
+            .OrderByDescending(x => x.SubmittedAt ?? x.CreatedAt)
+            .FirstOrDefault();
+
+        if (submission == null)
+        {
+            return new Response.TeamLatestSubmissionScoreResponse
+            {
+                RoundId = roundDetail.RoundId,
+                RoundName = roundDetail.Round.Name,
+                TeamId = roundDetail.RegisterTeam.TeamId,
+                TeamName = roundDetail.RegisterTeam.Team.Name,
+                HasSubmission = false,
+                IsGraded = false,
+                GradingStatus = "NoSubmission",
+                Message = "NO_SUBMISSION",
+                AverageTotalScore = null,
+                CriteriaScores = new List<Response.MyRoundCriteriaScoreResponse>()
+            };
+        }
+
+        var criteriaScores = CalculateCriteriaScores(submission);
+        if (criteriaScores.Count == 0)
+        {
+            return new Response.TeamLatestSubmissionScoreResponse
+            {
+                RoundId = roundDetail.RoundId,
+                RoundName = roundDetail.Round.Name,
+                TeamId = roundDetail.RegisterTeam.TeamId,
+                TeamName = roundDetail.RegisterTeam.Team.Name,
+                SubmissionId = submission.Id,
+                SubmittedAt = submission.SubmittedAt,
+                HasSubmission = true,
+                IsGraded = false,
+                GradingStatus = "NotGraded",
+                Message = "NOT_GRADED",
+                AverageTotalScore = null,
+                CriteriaScores = new List<Response.MyRoundCriteriaScoreResponse>()
+            };
+        }
+
+        return new Response.TeamLatestSubmissionScoreResponse
+        {
+            RoundId = roundDetail.RoundId,
+            RoundName = roundDetail.Round.Name,
+            TeamId = roundDetail.RegisterTeam.TeamId,
+            TeamName = roundDetail.RegisterTeam.Team.Name,
+            SubmissionId = submission.Id,
+            SubmittedAt = submission.SubmittedAt,
+            HasSubmission = true,
+            IsGraded = true,
+            GradingStatus = "Graded",
+            AverageTotalScore = criteriaScores.Sum(x => x.AverageCriteriaScore),
             CriteriaScores = criteriaScores
         };
     }
@@ -833,6 +908,34 @@ public class Service : IService
             .GroupBy(x => x.CriteriaItemId)
             .Select(g => g.Average(x => x.Score!.Value))
             .Sum();
+    }
+
+    private static List<Response.MyRoundCriteriaScoreResponse> CalculateCriteriaScores(Hackathon.Repository.Entity.Submissions? submission)
+    {
+        if (submission == null)
+        {
+            return new List<Response.MyRoundCriteriaScoreResponse>();
+        }
+
+        var latestScores = submission.Scores
+            .Where(s => !s.IsDisable && !s.IsMock)
+            .GroupBy(s => s.AssignTrackId)
+            .Select(g => g.OrderByDescending(s => s.UpdatedAt).First())
+            .ToList();
+
+        return latestScores
+            .SelectMany(x => x.ScoreItems)
+            .Where(x => !x.IsDisable && x.Score.HasValue && !x.CriteriaItem.IsDisable)
+            .GroupBy(x => new { x.CriteriaItemId, x.CriteriaItem.Name, x.CriteriaItem.Score })
+            .Select(x => new Response.MyRoundCriteriaScoreResponse
+            {
+                CriteriaItemId = x.Key.CriteriaItemId,
+                CriteriaItemName = x.Key.Name,
+                AverageCriteriaScore = x.Average(item => item.Score!.Value),
+                MaxScore = x.Key.Score
+            })
+            .OrderBy(x => x.CriteriaItemName)
+            .ToList();
     }
 
     private static string? GetGradingStatus(Hackathon.Repository.Entity.Submissions submission, List<Response.AssignedJudgeResponse> assignedJudges)
