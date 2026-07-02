@@ -79,12 +79,12 @@ Authorization: Bearer {accessToken}
 - **Mỗi team chỉ xuất hiện 1 lần trong mỗi round** — chỉ lấy bài nộp mới nhất (`.GroupBy.RegisterTeamId().First()`).
 - Judge chỉ xem được submissions của các track được phân công.
 - Data trả về dạng cây: **Round → Track → Submissions (phân trang)**.
-- Chỉ trả về các round thuộc event và đã đóng nộp bài (`EndSubmission` đã qua).
+- Chỉ trả về các round thuộc event mà judge được phân công.
 - Chỉ trả về các track mà judge được phân công trong event.
-- Nếu truyền `roundId`: chỉ trả về round đó nếu round thuộc event và đã đóng nộp bài.
+- Nếu truyền `roundId`: chỉ trả về round đó nếu round thuộc event.
 - Nếu truyền `trackId`: chỉ trả về track đó nếu judge được phân công track này.
 - Nếu truyền cả `roundId` và `trackId`: trả về giao của round + track; data vẫn giữ cấu trúc `rounds[].tracks[].submissions`.
-- Nếu không truyền `roundId`/`trackId`: trả về tất cả round đã đóng và tất cả track được phân công có submissions hợp lệ.
+- Nếu không truyền `roundId`/`trackId`: trả về tất cả round và tất cả track được phân công có submissions hợp lệ.
 - Phân trang áp dụng trên danh sách submissions trong từng track.
 - `scoreId` / `totalScore` = null nếu judge chưa chấm bài này.
 

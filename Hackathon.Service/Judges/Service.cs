@@ -1001,8 +1001,6 @@ public class Service : IService
             .Include(x => x.RoundDetail).ThenInclude(x => x.Round)
             .Where(x => !x.IsDisable
                         && x.RoundDetail.Round.EventId == eventId
-                        && x.RoundDetail.Round.EndSubmission.HasValue
-                        && x.RoundDetail.Round.EndSubmission.Value <= now
                         && x.RoundDetail.RegisterTeam.TrackId.HasValue
                         && trackIds.Contains(x.RoundDetail.RegisterTeam.TrackId.Value)
                         && x.RoundDetail.RegisterTeam.Status == RegisterTeamStatusEnum.Approved
