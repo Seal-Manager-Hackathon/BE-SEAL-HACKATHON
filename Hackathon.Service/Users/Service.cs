@@ -163,7 +163,7 @@ public class Service : IService
             Id = Guid.NewGuid(),
             UserId = userId,
             AssignEventId = request.AssignEventId,
-            SubmissionId = request.SubmissionId,
+            SubmissionId = request.SubmissionId ?? Guid.Empty,
             Title = request.Title,
             Description = request.Description,
             ImgUrl = request.ImgUrl,

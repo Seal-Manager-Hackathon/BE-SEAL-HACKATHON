@@ -1,7 +1,10 @@
 # Judge tìm kiếm submissions theo tên team (Judge Search Submissions)
 
 ## Tác dụng
-Giúp Judge tìm kiếm các team/submissions theo tên team trong event. Hỗ trợ lọc theo track và phân trang.
+Giúp Judge tìm kiếm các team/submissions theo tên team trong event. Hỗ trợ lọc theo track, lọc theo trạng thái chấm và phân trang.
+
+**Chỉ lấy bài nộp MỚI NHẤT của mỗi team.**  
+Bỏ qua các lần nộp cũ hơn — mỗi team chỉ xuất hiện 1 lần.
 
 ## URL
 `GET /api/v1/judge/events/{eventId}/submissions/search`
@@ -19,6 +22,7 @@ Yêu cầu access token hợp lệ với role `Lecturer` và đã được phân
 |---|---|---|---:|---|
 | `trackId` | `guid` | Không | Lọc theo track cụ thể. |
 | `keyword` | `string` | Không | Từ khóa tìm kiếm theo tên team. |
+| `isGraded` | `bool` | Không | `true`: chỉ bài đã chấm, `false`: chỉ bài chưa chấm, không truyền: tất cả. |
 | `pageIndex` | `int` | Không | Số trang (mặc định: 1). |
 | `pageSize` | `int` | Không | Số phần tử trên trang (mặc định: 10, tối đa: 100). |
 
@@ -39,7 +43,12 @@ Yêu cầu access token hợp lệ với role `Lecturer` và đã được phân
         "teamId": "c4b5a6d7-e8f9-0a1b-2c3d-4e5f6a7b8c9d",
         "teamName": "Chiến binh công nghệ",
         "topicId": "e5f6a7b8-c9d0-e1f2-a3b4-c5d6e7f8a9b0",
-        "topicTitle": "Hệ thống quản lý y tế thông minh"
+        "topicTitle": "Hệ thống quản lý y tế thông minh",
+        "submissionId": "f7b6d5c4-129b-4e6f-adbd-2c5ea56789ff",
+        "submissionStatus": 0,
+        "submittedAt": "2026-06-22T08:00:00Z",
+        "scoreId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "totalScore": 85.5
       }
     ],
     "pageIndex": 1,
@@ -54,6 +63,10 @@ Yêu cầu access token hợp lệ với role `Lecturer` và đã được phân
 ## Business rules
 - `keyword` tìm kiếm không phân biệt hoa thường theo tên team.
 - Nếu không truyền `keyword`, trả về tất cả team trong event.
+- Mỗi team chỉ xuất hiện 1 lần — lấy submission mới nhất của team.
+- `isGraded = true`: chỉ trả team đã được judge này chấm điểm.
+- `isGraded = false`: chỉ trả team chưa được judge này chấm điểm.
+- `scoreId` / `totalScore` = null nếu judge chưa chấm bài này.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
@@ -65,3 +78,8 @@ Yêu cầu access token hợp lệ với role `Lecturer` và đã được phân
 ## Trạng thái implement
 - ✅ Route: `GET /api/v1/judge/events/{eventId:guid}/submissions/search`.
 - Sử dụng policy `LecturerPolicy`.
+
+## Thay đổi (2026-07-03)
+- Thêm query parameter `isGraded` lọc theo trạng thái chấm.
+- Response bổ sung: `submissionId`, `submissionStatus`, `submittedAt`, `scoreId`, `totalScore`.
+- Logic mới: chỉ lấy submission mới nhất của mỗi team.

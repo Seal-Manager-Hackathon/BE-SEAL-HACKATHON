@@ -21,8 +21,8 @@ public static class Request
 
     public class CreateSystemReportRequest
     {
-        public Guid AssignEventId { get; set; }
-        public Guid SubmissionId { get; set; }
+        public Guid? AssignEventId { get; set; }
+        public Guid? SubmissionId { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string? ImgUrl { get; set; }

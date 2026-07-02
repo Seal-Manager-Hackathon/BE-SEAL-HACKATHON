@@ -84,8 +84,8 @@ public static class Reponse
     public class MyReportDetailResponse
     {
         public Guid Id { get; set; }
-        public Guid AssignEventId { get; set; }
-        public Guid SubmissionId { get; set; }
+        public Guid? AssignEventId { get; set; }
+        public Guid? SubmissionId { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
         public string? ImgUrl { get; set; }

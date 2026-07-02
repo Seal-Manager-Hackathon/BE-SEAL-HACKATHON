@@ -294,8 +294,8 @@ public class Service : IService
             {
                 ReportId = x.Id,
                 SubmissionId = x.SubmissionId,
-                TeamName = x.Submission.RoundDetail.RegisterTeam.Team.Name,
-                EventName = x.AssignEvent.Event.Name,
+                TeamName = x.Submission != null ? x.Submission.RoundDetail.RegisterTeam.Team.Name : null,
+                EventName = x.AssignEvent != null ? x.AssignEvent.Event.Name : null,
                 Title = x.Title,
                 TypeReport = x.TypeReport,
                 Status = x.Status,
@@ -303,10 +303,10 @@ public class Service : IService
                 CreatedAt = x.CreatedAt
             })
             .ToListAsync();
-
+ 
         return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
     }
-
+ 
     public async Task<Response.StaffReportDetailResponse> GetReportDetail(Guid reportId)
     {
         var userId = GetCurrentUserId();
@@ -319,11 +319,11 @@ public class Service : IService
                 UserId = x.UserId,
                 UserName = x.User.FirstName + " " + x.User.LastName,
                 AssignEventId = x.AssignEventId,
-                EventName = x.AssignEvent.Event.Name,
-                TeamId = x.Submission.RoundDetail.RegisterTeam.TeamId,
-                TeamName = x.Submission.RoundDetail.RegisterTeam.Team.Name,
-                RoundId = x.Submission.RoundDetail.RoundId,
-                RoundNo = x.Submission.RoundDetail.Round.RoundNo,
+                EventName = x.AssignEvent != null ? x.AssignEvent.Event.Name : null,
+                TeamId = x.Submission != null ? (Guid?)x.Submission.RoundDetail.RegisterTeam.TeamId : null,
+                TeamName = x.Submission != null ? x.Submission.RoundDetail.RegisterTeam.Team.Name : null,
+                RoundId = x.Submission != null ? (Guid?)x.Submission.RoundDetail.RoundId : null,
+                RoundNo = x.Submission != null ? x.Submission.RoundDetail.Round.RoundNo : null,
                 Title = x.Title,
                 Description = x.Description,
                 ImgUrl = x.ImgUrl,
@@ -332,7 +332,7 @@ public class Service : IService
                 Status = x.Status,
                 StatusName = x.Status.ToString(),
                 Reason = x.Reason,
-                IsRegrade = x.Submission.IsRegrade,
+                IsRegrade = x.Submission != null ? x.Submission.IsRegrade : false,
                 CreatedAt = x.CreatedAt,
                 UpdatedAt = x.UpdatedAt
             })
@@ -366,34 +366,44 @@ public class Service : IService
             throw new BadRequestException("NOT_APPEAL_TYPE_REPORT");
         }
 
+        if (report.SubmissionId == null)
+        {
+            throw new BadRequestException("REPORT_NOT_LINKED_TO_SUBMISSION");
+        }
+ 
+        if (report.Submission == null)
+        {
+            throw new NotFoundException("SUBMISSION_NOT_FOUND");
+        }
+ 
         if (report.Submission.IsDisable)
         {
             throw new NotFoundException("SUBMISSION_NOT_FOUND");
         }
-
+ 
         if (report.Submission.IsRegrade)
         {
             throw new ConflictException("SUBMISSION_ALREADY_IN_REGRADE");
         }
-
+ 
         var hasSourceScore = await _dbContext.Scores.AnyAsync(x =>
             !x.IsDisable &&
             !x.IsMock &&
             !x.IsRetake &&
-            x.SubmissionId == report.SubmissionId);
-
+            x.SubmissionId == report.SubmissionId.Value);
+ 
         if (!hasSourceScore)
         {
             throw new BadRequestException("SUBMISSION_NOT_GRADED");
         }
-
+ 
         report.Status = ReportStatusEnum.Approved;
         report.UpdatedAt = DateTimeOffset.UtcNow;
         report.Submission.IsRegrade = true;
         report.Submission.UpdatedAt = report.UpdatedAt;
-
+ 
         await _dbContext.SaveChangesAsync();
-
+ 
         return new Response.ApproveRegradeResponse
         {
             ReportId = report.Id,
@@ -403,7 +413,7 @@ public class Service : IService
             IsRegrade = true
         };
     }
-
+ 
     public async Task UpdateReportStatus(Guid reportId, Request.UpdateReportStatusRequest request)
     {
         var userId = GetCurrentUserId();
@@ -411,43 +421,51 @@ public class Service : IService
             .Include(x => x.AssignEvent)
             .Include(x => x.Submission)
             .FirstOrDefaultAsync(x => x.Id == reportId && !x.IsDisable);
-
+ 
         if (report == null)
         {
             throw new NotFoundException("REPORT_NOT_FOUND");
         }
-
+ 
+        if (report.AssignEvent == null)
+        {
+            throw new BadRequestException("REPORT_NOT_LINKED_TO_EVENT");
+        }
+ 
         await EnsureCanAccessEvent(userId, report.AssignEvent.EventId);
-
+ 
         if (request.Status == ReportStatusEnum.Approved)
         {
             throw new BadRequestException("CANNOT_SET_APPROVED_DIRECTLY");
         }
-
+ 
         if (report.Status == ReportStatusEnum.Closed)
         {
             throw new BadRequestException("CANNOT_REOPEN_CLOSED_REPORT");
         }
-
+ 
         if (request.Status != ReportStatusEnum.Closed)
         {
             throw new BadRequestException("CANNOT_REOPEN_CLOSED_REPORT");
         }
-
+ 
         if (string.IsNullOrWhiteSpace(request.Reason))
         {
             throw new BadRequestException("REASON_REQUIRED_WHEN_CLOSING");
         }
-
-        if (report.Status == ReportStatusEnum.Approved && !await IsRegradeCompleted(report.SubmissionId))
+ 
+        if (report.Status == ReportStatusEnum.Approved)
         {
-            throw new BadRequestException("REGRADE_NOT_COMPLETED");
+            if (report.SubmissionId == null || !await IsRegradeCompleted(report.SubmissionId.Value))
+            {
+                throw new BadRequestException("REGRADE_NOT_COMPLETED");
+            }
         }
-
+ 
         report.Status = ReportStatusEnum.Closed;
         report.Reason = request.Reason.Trim();
         report.UpdatedAt = DateTimeOffset.UtcNow;
-
+ 
         await _dbContext.SaveChangesAsync();
     }
 
@@ -502,15 +520,15 @@ public class Service : IService
             return new Response.StaffRegradeSubmissionResponse
             {
                 SubmissionId = report.SubmissionId,
-                RoundDetailId = report.Submission.RoundDetailId,
-                RoundName = report.Submission.RoundDetail.Round.Name,
-                RoundNo = report.Submission.RoundDetail.Round.RoundNo,
-                TeamId = report.Submission.RoundDetail.RegisterTeam.TeamId,
-                TeamName = report.Submission.RoundDetail.RegisterTeam.Team.Name,
-                TrackId = report.Submission.RoundDetail.RegisterTeam.TrackId,
-                TrackTitle = report.Submission.RoundDetail.RegisterTeam.Track?.Title,
-                EventId = report.AssignEvent.EventId,
-                EventName = report.AssignEvent.Event.Name,
+                RoundDetailId = report.Submission != null ? report.Submission.RoundDetailId : Guid.Empty,
+                RoundName = report.Submission != null ? report.Submission.RoundDetail.Round.Name : string.Empty,
+                RoundNo = report.Submission != null ? report.Submission.RoundDetail.Round.RoundNo : null,
+                TeamId = report.Submission != null ? report.Submission.RoundDetail.RegisterTeam.TeamId : Guid.Empty,
+                TeamName = report.Submission != null ? report.Submission.RoundDetail.RegisterTeam.Team.Name : string.Empty,
+                TrackId = report.Submission != null ? report.Submission.RoundDetail.RegisterTeam.TrackId : null,
+                TrackTitle = report.Submission != null ? report.Submission.RoundDetail.RegisterTeam.Track?.Title : null,
+                EventId = report.AssignEvent != null ? report.AssignEvent.EventId : Guid.Empty,
+                EventName = report.AssignEvent != null ? report.AssignEvent.Event.Name : string.Empty,
                 ReportId = report.Id,
                 ReportTitle = report.Title,
                 RegradeStatus = regradeStatus,

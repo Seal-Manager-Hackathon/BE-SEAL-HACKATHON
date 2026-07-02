@@ -1,7 +1,7 @@
 # Admin gắn/kích hoạt tiêu chí chấm điểm cho vòng thi (Admin Activate Criteria)
 
 ## Tác dụng
-Admin gắn 1 bộ tiêu chí (CriteriaTemplate) vào vòng thi. Khi gắn, hệ thống tự động bỏ gắn tất cả template khác của round đó và chỉ giữ template được chọn ở trạng thái đã gắn (`IsDisable = true`).
+Admin gắn/kích hoạt 1 bộ tiêu chí (CriteriaTemplate) vào vòng thi. Khi gắn, hệ thống tự động hủy kích hoạt tất cả template khác của round đó và chỉ giữ template được chọn ở trạng thái active (`IsDisable = false`).
 
 ## URL
 `PATCH /api/v1/admin/events/{eventId}/rounds/{roundId}/criteria/{templateId}/activate`

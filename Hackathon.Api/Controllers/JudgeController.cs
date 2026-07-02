@@ -123,9 +123,9 @@ public class JudgeController : ControllerBase
     }
 
     [HttpGet("events/{eventId:guid}/submissions/search")]
-    public async Task<IActionResult> SearchSubmissions(Guid eventId, [FromQuery] Guid? trackId, [FromQuery] string? keyword, [FromQuery] PaginationRequest paginationRequest)
+    public async Task<IActionResult> SearchSubmissions(Guid eventId, [FromQuery] Guid? trackId, [FromQuery] string? keyword, [FromQuery] bool? isGraded, [FromQuery] PaginationRequest paginationRequest)
     {
-        var result = await _judgeService.SearchSubmissions(eventId, trackId, keyword, paginationRequest);
+        var result = await _judgeService.SearchSubmissions(eventId, trackId, keyword, isGraded, paginationRequest);
         result.TraceId = HttpContext.TraceIdentifier;
         return Ok(result);
     }

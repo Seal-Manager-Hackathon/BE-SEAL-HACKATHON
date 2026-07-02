@@ -248,12 +248,14 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Reports>()
             .HasOne(report => report.AssignEvent)
             .WithMany(assignEvent => assignEvent.Reports)
-            .HasForeignKey(report => report.AssignEventId);
-
+            .HasForeignKey(report => report.AssignEventId)
+            .IsRequired(false);
+ 
         modelBuilder.Entity<Reports>()
             .HasOne(report => report.Submission)
             .WithOne(submission => submission.Report)
-            .HasForeignKey<Reports>(report => report.SubmissionId);
+            .HasForeignKey<Reports>(report => report.SubmissionId)
+            .IsRequired(false);
 
         modelBuilder.Entity<LeaderBoardDetails>()
             .HasOne(leaderBoardDetail => leaderBoardDetail.LeaderBoard)
