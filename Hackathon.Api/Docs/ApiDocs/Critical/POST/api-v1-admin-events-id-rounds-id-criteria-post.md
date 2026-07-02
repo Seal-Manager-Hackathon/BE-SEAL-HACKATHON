@@ -1,7 +1,7 @@
 # Admin tạo tiêu chí chấm điểm cho vòng thi (Admin Create Criteria)
 
 ## Tác dụng
-Admin tạo một bộ tiêu chí chấm điểm (CriteriaTemplate) kèm danh sách các tiêu chí chi tiết (CriteriaItems) cho một vòng thi trong sự kiện. Mặc định template được tạo ở trạng thái chưa gắn (`IsDisable = false`) — cần gọi API activate để gắn vào round.
+Admin tạo một bộ tiêu chí chấm điểm (CriteriaTemplate) kèm danh sách các tiêu chí chi tiết (CriteriaItems) cho một vòng thi trong sự kiện. Mặc định template được tạo ở trạng thái inactive (`IsDisable = true`) — cần gọi API activate để gắn vào round.
 
 ## URL
 `POST /api/v1/admin/events/{eventId}/rounds/{roundId}/criteria`

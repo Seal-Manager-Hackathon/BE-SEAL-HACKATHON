@@ -97,5 +97,9 @@ Response dùng `ApiResponseFactory.BasePagination` — phân trang.
 
 ## Trạng thái implement
 - ✅ Implement trong `Hackathon.Api.Controllers.JudgeController`.
+
+## Bug fix (2026-07-03)
+**Lỗi:** Phân trang không hoạt động — dùng `BasePagination(items, ...)` (full list) thay vì `BasePagination(paged, ...)`.
+**Fix:** Đổi `items` → `paged` trong return.
 - Route: `GET /api/v1/judge/register-teams/{registerTeamId:guid}/submissions`.
 - Policy: `LecturerPolicy`.

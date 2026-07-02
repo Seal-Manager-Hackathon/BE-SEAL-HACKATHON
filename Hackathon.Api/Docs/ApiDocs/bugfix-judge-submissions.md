@@ -38,3 +38,37 @@ Trong khi `GET /api/v1/judge/tracks/{trackId}/submissions` **không có** filter
 && x.RoundDetail.Round.EndSubmission.HasValue
 && x.RoundDetail.Round.EndSubmission.Value <= now
 ```
+
+## Bug 3: `GetJudgeAssignmentsQuery` luôn trả về rỗng (Judge không thấy track/submission nào)
+
+### API bị ảnh hưởng
+- `GET /api/v1/judge/tracks` (GetMyTracks)
+- Tất cả Judge APIs lấy submissions
+
+### Root cause
+`GetJudgeAssignmentsQuery` dùng **2-step navigation** `x.AssignEvent.EventRole.Name` để filter judge role:
+```csharp
+x.AssignEvent.EventRole != null && x.AssignEvent.EventRole.Name == EventRoleEnum.Judge
+```
+EF Core dịch thành JOIN `AssignTracks → AssignEvents → EventRoles`. Trong 1 số trường hợp, JOIN 2-step không translate đúng → trả về 0 records → tất cả Judge API trả rỗng.
+
+### Fix
+Thay navigation 2-step bằng **subquery**:
+```csharp
+// Trước (có thể fail):
+x.AssignEvent.EventRole != null &&
+x.AssignEvent.EventRole.Name == EventRoleEnum.Judge
+
+// Sau (subquery):
+x.AssignEvent.EventRoleId != null &&
+_dbContext.EventRoles.Any(er =>
+    er.Id == x.AssignEvent.EventRoleId &&
+    er.Name == EventRoleEnum.Judge &&
+    !er.IsDisable)
+```
+
+### Vị trí fix
+`Judges/Service.cs` — 2 chỗ:
+1. `GetJudgeAssignmentsQuery()` — filter Judge role
+2. `GetCurrentEventPendingSubmissions()` — filter Judge role
+

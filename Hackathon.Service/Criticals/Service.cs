@@ -32,24 +32,9 @@ public class Service : IService
             throw new NotFoundException("ROUND_NOT_FOUND");
         }
 
-        // Get all rounds of the same event
-        var rounds = await _dbContext.Rounds
-            .AsNoTracking()
-            .Where(x => x.EventId == round.EventId && !x.IsDisable)
-            .OrderBy(x => x.RoundNo)
-            .Select(x => new
-            {
-                x.Id,
-                x.EventId,
-                x.Name,
-            })
-            .ToListAsync();
-
-        var roundIds = rounds.Select(r => r.Id).ToList();
-
         var criteriaTemplates = await _dbContext.CriteriaTemplates
             .AsNoTracking()
-            .Where(x => roundIds.Contains(x.RoundId) && x.IsDisable)
+            .Where(x => x.RoundId == round.Id && !x.IsDisable)
             .Select(x => new
             {
                 x.RoundId,
@@ -83,17 +68,14 @@ public class Service : IService
             .ToDictionary(g => g.Key, g => g.FirstOrDefault()?.Template);
 
         var result = new List<Response.RoundCriteriaResponse>();
-        foreach (var r in rounds)
+        templateDict.TryGetValue(round.Id, out var template);
+        result.Add(new Response.RoundCriteriaResponse
         {
-            templateDict.TryGetValue(r.Id, out var template);
-            result.Add(new Response.RoundCriteriaResponse
-            {
-                RoundId = r.Id,
-                EventId = r.EventId,
-                RoundName = r.Name,
-                Template = template,
-            });
-        }
+            RoundId = round.Id,
+            EventId = round.EventId,
+            RoundName = round.Name,
+            Template = template,
+        });
 
         return result;
     }
@@ -125,7 +107,7 @@ public class Service : IService
             RoundId = roundId,
             Title = request.Title,
             Description = request.Description,
-            IsDisable = false,
+            IsDisable = true,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow
         };
@@ -290,7 +272,7 @@ public class Service : IService
 
         var criteriaTemplates = await _dbContext.CriteriaTemplates
             .AsNoTracking()
-            .Where(x => roundIds.Contains(x.RoundId) && x.IsDisable)
+            .Where(x => roundIds.Contains(x.RoundId) && !x.IsDisable)
             .Select(x => new
             {
                 x.RoundId,

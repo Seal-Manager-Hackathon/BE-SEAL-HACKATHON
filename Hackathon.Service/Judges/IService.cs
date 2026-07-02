@@ -9,7 +9,7 @@ public interface IService
     Task<BasePaginationResponse> GetEventSubmissions(Guid eventId, Guid? trackId, Guid? roundId, PaginationRequest paginationRequest);
     Task<BasePaginationResponse> GetPendingSubmissions(Guid eventId, Guid? trackId, Guid? roundId, bool? isGraded, PaginationRequest paginationRequest);
     Task<BasePaginationResponse> GetCurrentEventPendingSubmissions(Guid? trackId, Guid? roundId, PaginationRequest paginationRequest);
-    Task<BasePaginationResponse> SearchSubmissions(Guid eventId, Guid? trackId, string? keyword, PaginationRequest paginationRequest);
+    Task<BasePaginationResponse> SearchSubmissions(Guid eventId, Guid? trackId, string? keyword, bool? isGraded, PaginationRequest paginationRequest);
     Task<BasePaginationResponse> GetRegradeSubmissions(Guid? eventId, Guid? trackId, bool? isRegraded, PaginationRequest paginationRequest);
     Task<Response.SubmissionCriteriaResponse> GetSubmissionCriteria(Guid submissionId);
     Task<Response.JudgeSubmissionScoreResponse?> GetMySubmissionScore(Guid submissionId);

@@ -750,10 +750,12 @@ public class Service : IService
                 !x.AssignEvent.IsDisable &&
                 !x.AssignEvent.Event.IsDisable &&
                 !x.Track.IsDisable &&
-                !x.Track.Event.IsDisable &&
                 x.AssignEvent.UserId == userId &&
-                x.AssignEvent.EventRole != null &&
-                x.AssignEvent.EventRole.Name == EventRoleEnum.Judge);
+                x.AssignEvent.EventRoleId != null &&
+                _dbContext.EventRoles.Any(er =>
+                    er.Id == x.AssignEvent.EventRoleId &&
+                    er.Name == EventRoleEnum.Judge &&
+                    !er.IsDisable));
     }
 
     private async Task<Guid> EnsureJudgeAssignedToTrack(Guid userId, Guid trackId)
@@ -1124,8 +1126,11 @@ public class Service : IService
             .Where(x => x.UserId == userId
                         && !x.IsDisable
                         && !x.Event.IsDisable
-                        && x.EventRole != null
-                        && x.EventRole.Name == EventRoleEnum.Judge
+                        && x.EventRoleId != null
+                        && _dbContext.EventRoles.Any(er =>
+                            er.Id == x.EventRoleId &&
+                            er.Name == EventRoleEnum.Judge &&
+                            !er.IsDisable)
                         && x.Event.StartTime.HasValue
                         && x.Event.StartTime.Value <= now
                         && x.Event.EndTime.HasValue
@@ -1158,32 +1163,35 @@ public class Service : IService
         return await BuildSubmissionsResponse(currentEventId.Value, roundId, assignTrackIds, false, paginationRequest);
     }
 
-    public async Task<BasePaginationResponse> SearchSubmissions(Guid eventId, Guid? trackId, string? keyword, PaginationRequest paginationRequest)
+    public async Task<BasePaginationResponse> SearchSubmissions(Guid eventId, Guid? trackId, string? keyword, bool? isGraded, PaginationRequest paginationRequest)
     {
         var userId = GetCurrentUserId();
         var pageIndex = paginationRequest.PageIndex <= 0 ? 1 : paginationRequest.PageIndex;
         var pageSize = paginationRequest.PageSize <= 0 ? 10 : Math.Min(paginationRequest.PageSize, 100);
 
-        // Get judge's assigned tracks
-        var trackIds = await GetJudgeAssignmentsQuery(userId)
-            .Where(x => x.Track.EventId == eventId)
-            .Select(x => x.TrackId)
-            .Distinct()
-            .ToListAsync();
+        // Get judge's assigned tracks with their assignTrackIds
+        var assignmentsQuery = GetJudgeAssignmentsQuery(userId)
+            .Where(x => x.Track.EventId == eventId);
 
         if (trackId.HasValue)
         {
-            if (!trackIds.Contains(trackId.Value))
-                throw new ForbiddenException("FORBIDDEN");
-            trackIds = new List<Guid> { trackId.Value };
+            assignmentsQuery = assignmentsQuery.Where(x => x.TrackId == trackId.Value);
         }
 
-        if (trackIds.Count == 0)
+        var assignments = await assignmentsQuery
+            .Select(x => new { x.Id, x.TrackId })
+            .ToListAsync();
+
+        if (assignments.Count == 0)
         {
             return ApiResponseFactory.BasePagination(new List<object>(), pageIndex, pageSize, 0);
         }
 
-        var query = _dbContext.RegisterTeams
+        var assignTrackIds = assignments.Select(x => x.Id).ToList();
+        var trackIds = assignments.Select(x => x.TrackId).ToHashSet();
+
+        // Get approved register teams matching keyword
+        var registerTeamsQuery = _dbContext.RegisterTeams
             .AsNoTracking()
             .Include(x => x.Team)
             .Include(x => x.Topic)
@@ -1198,26 +1206,85 @@ public class Service : IService
         if (!string.IsNullOrWhiteSpace(keyword))
         {
             var normalizedKeyword = keyword.Trim().ToLower();
-            query = query.Where(x => x.Team.Name.ToLower().Contains(normalizedKeyword));
+            registerTeamsQuery = registerTeamsQuery.Where(x =>
+                x.Team.Name.ToLower().Contains(normalizedKeyword));
         }
 
-        var totalCount = await query.CountAsync();
+        var registerTeams = await registerTeamsQuery.ToListAsync();
 
-        var items = await query
-            .OrderBy(x => x.Team.Name)
-            .Skip((pageIndex - 1) * pageSize)
-            .Take(pageSize)
-            .Select(x => new Response.JudgeStatusSubmissionResponse
-            {
-                RegisterTeamId = x.Id,
-                TeamId = x.TeamId,
-                TeamName = x.Team.Name,
-                TopicId = x.TopicId,
-                TopicTitle = x.Topic != null ? x.Topic.Title : null,
-            })
+        if (registerTeams.Count == 0)
+        {
+            return ApiResponseFactory.BasePagination(new List<object>(), pageIndex, pageSize, 0);
+        }
+
+        var registerTeamIds = registerTeams.Select(x => x.Id).ToList();
+        var teamLookup = registerTeams.ToDictionary(x => x.Id);
+
+        // Get latest submissions for these teams
+        var submissions = await _dbContext.Submissions
+            .AsNoTracking()
+            .Include(x => x.Scores.Where(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId)))
+            .Include(x => x.RoundDetail)
+            .Where(x => !x.IsDisable
+                        && registerTeamIds.Contains(x.RoundDetail.RegisterTeamId)
+                        && x.RoundDetail.RegisterTeam.EventId == eventId)
+            .OrderByDescending(x => x.SubmittedAt)
             .ToListAsync();
 
-        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
+        // Latest per team
+        var latestPerTeam = submissions
+            .GroupBy(x => x.RoundDetail.RegisterTeamId)
+            .Select(g => g.First())
+            .ToList();
+
+        // Filter by graded status
+        if (isGraded.HasValue)
+        {
+            if (isGraded.Value)
+            {
+                latestPerTeam = latestPerTeam
+                    .Where(x => x.Scores.Any(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId)))
+                    .ToList();
+            }
+            else
+            {
+                latestPerTeam = latestPerTeam
+                    .Where(x => !x.Scores.Any(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId)))
+                    .ToList();
+            }
+        }
+
+        var items = latestPerTeam.Select(x =>
+        {
+            var rt = teamLookup[x.RoundDetail.RegisterTeamId];
+            var myScore = x.Scores
+                .Where(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId))
+                .OrderByDescending(s => s.UpdatedAt)
+                .Select(s => new { s.Id, s.TotalScore })
+                .FirstOrDefault();
+
+            return new Response.JudgeStatusSubmissionResponse
+            {
+                RegisterTeamId = rt.Id,
+                TeamId = rt.TeamId,
+                TeamName = rt.Team.Name,
+                TopicId = rt.TopicId,
+                TopicTitle = rt.Topic?.Title,
+                SubmissionId = x.Id,
+                SubmissionStatus = x.Status,
+                SubmittedAt = x.SubmittedAt,
+                ScoreId = myScore?.Id,
+                TotalScore = myScore?.TotalScore,
+            };
+        }).ToList();
+
+        var totalCount = items.Count;
+        var paged = items
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        return ApiResponseFactory.BasePagination(paged, pageIndex, pageSize, totalCount);
     }
 
     private async Task<BasePaginationResponse> BuildSubmissionsResponse(Guid eventId, Guid? roundId, List<Guid> assignTrackIds, bool? isGraded, PaginationRequest paginationRequest)
@@ -1585,7 +1652,7 @@ public class Service : IService
             .Take(pageSize)
             .ToList();
 
-        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
+        return ApiResponseFactory.BasePagination(paged, pageIndex, pageSize, totalCount);
     }
 
     public async Task<BasePaginationResponse> GetJudgeRoundAllSubmissions(Guid roundId, string? status, PaginationRequest paginationRequest)
