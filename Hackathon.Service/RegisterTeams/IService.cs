@@ -21,4 +21,5 @@ public interface IService
     Task<(List<Response.RegisterTeamApprovedResponse> Data, string Message)> GetApprovedTeams(Guid eventId, Request.GetApprovedTeamsRequest request);
     Task<(List<Response.RegisterTeamByRoundResponse> Data, string Message)> GetTeamsByRound(Guid eventId, Request.GetTeamsByRoundRequest request);
     Task<Response.TeamRoundSubmissionResponse> GetTeamRoundSubmissions(Guid registerTeamId, Guid? roundId);
+    Task<Response.RegisterTeamAssignmentStatusResponse> GetRegisterTeamAssignmentStatus(Guid registerTeamId);
 }

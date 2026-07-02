@@ -131,4 +131,11 @@ public class RegisterTeamController : ControllerBase
         var result = await _registerTeamService.GetTeamRoundSubmissions(registerTeamId, roundId);
         return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
+
+    [HttpGet("{registerTeamId:guid}/assignment-status")]
+    public async Task<IActionResult> GetRegisterTeamAssignmentStatus(Guid registerTeamId)
+    {
+        var result = await _registerTeamService.GetRegisterTeamAssignmentStatus(registerTeamId);
+        return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
 }
