@@ -8,7 +8,7 @@ using RoundsService = Hackathon.Service.Rounds;
 namespace Hackathon.Api.Controllers;
 
 [ApiController]
-[Authorize(Policy = JwtExtensions.LecturerPolicy)]
+// [Authorize(Policy = JwtExtensions.LecturerPolicy)]
 [Route("api/v1/lecturers")]
 public class LecturersController : ControllerBase
 {

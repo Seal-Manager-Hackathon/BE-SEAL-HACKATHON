@@ -6,7 +6,7 @@ using SubmissionsService = Hackathon.Service.Submissions;
 namespace Hackathon.Api.Controllers;
 
 [ApiController]
-[Authorize]
+// [Authorize]
 [Route("api/v1/submissions")]
 public class SubmissionsController : ControllerBase
 {

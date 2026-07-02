@@ -4,6 +4,7 @@ using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RoundsService = Hackathon.Service.Rounds;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Hackathon.Api.Controllers;
 

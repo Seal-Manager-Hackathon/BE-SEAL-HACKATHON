@@ -445,7 +445,6 @@ public class Service : IService
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            score.TotalScore = request.TotalScore;
             score.UpdatedAt = now;
 
             foreach (var item in score.ScoreItems.Where(x => !x.IsDisable))
@@ -469,6 +468,9 @@ public class Service : IService
                     IsDisable = false
                 });
             }
+
+            // Auto-calculate total score from request items (in-memory, not yet saved)
+            score.TotalScore = request.Scores.Sum(si => si.Score);
 
             await _dbContext.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -570,6 +572,10 @@ public class Service : IService
         }
 
         var now = DateTimeOffset.UtcNow;
+
+        // Auto-calculate total score from criteria items
+        var autoTotalScore = request.Scores.Sum(x => x.Score);
+
         var score = new Scores
         {
             Id = Guid.NewGuid(),
@@ -577,7 +583,7 @@ public class Service : IService
             AssignTrackId = submissionAccess.AssignTrackId,
             IsRetake = isRetake,
             RetakeFromScoreId = sourceScore?.Id,
-            TotalScore = request.TotalScore,
+            TotalScore = autoTotalScore,
             IsMock = isMock,
             CreatedAt = now,
             UpdatedAt = now,
@@ -637,12 +643,6 @@ public class Service : IService
         if (request.Scores.Select(x => x.CriteriaItemId).Distinct().Count() != request.Scores.Count)
         {
             throw new BadRequestException("DUPLICATE_CRITERIA_ITEM");
-        }
-
-        var total = request.Scores.Sum(x => x.Score);
-        if (total != request.TotalScore)
-        {
-            throw new BadRequestException("SCORE_TOTAL_MISMATCH");
         }
 
         var criteriaIds = request.Scores.Select(x => x.CriteriaItemId).ToList();

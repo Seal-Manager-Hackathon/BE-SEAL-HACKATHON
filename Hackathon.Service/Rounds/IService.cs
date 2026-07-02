@@ -18,5 +18,6 @@ public interface IService
     Task<BasePaginationResponse> GetLecturerRoundSubmissions(Guid roundId, Request.GetSubmissionsQuery query);
     Task<Response.AssignJudgesToSubmissionResponse> AssignJudgesToSubmission(Guid submissionId, Request.AssignJudgesToSubmissionRequest request);
     Task<Response.EndRoundResponse> EndRound(Guid roundId);
+    Task<string> EndRoundFinal(Guid roundId);
     Task UpdateRound(Guid roundId, Request.UpdateRoundRequest request);
 }

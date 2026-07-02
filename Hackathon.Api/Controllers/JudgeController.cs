@@ -7,7 +7,7 @@ using JudgesService = Hackathon.Service.Judges;
 namespace Hackathon.Api.Controllers;
 
 [ApiController]
-[Authorize(Policy = JwtExtensions.LecturerPolicy)]
+// [Authorize(Policy = JwtExtensions.LecturerPolicy)]
 [Route("api/v1/judge")]
 public class JudgeController : ControllerBase
 {
