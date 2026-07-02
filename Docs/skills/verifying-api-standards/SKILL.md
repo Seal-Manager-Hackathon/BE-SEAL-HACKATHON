@@ -9,6 +9,8 @@ description: Use when checking, auditing, or reviewing newly created or modified
 
 Use this skill to audit code modifications, pull requests, or newly created API endpoints to ensure they conform perfectly to the project's standards.
 
+**Base rules are defined in `create-api-skill/SKILL.md`.** This skill builds on top of those rules to check compliance. Always verify against BOTH sets of rules.
+
 ## Auditing Checklist
 
 When auditing API changes, verify each of the following points:
@@ -33,6 +35,11 @@ When auditing API changes, verify each of the following points:
 - **Database Context Usage**: The database context must be injected and queried ONLY inside the Service layer.
 - **Exceptions**: Use existing project-defined exception classes (e.g. `NotFoundException`, `BadRequestException`, `ConflictException`) instead of generic exceptions.
 - **Transactions**: Any state mutation (Create, Update, Delete) or multi-step database action **must be wrapped in a database transaction** using `await _dbContext.Database.BeginTransactionAsync()` inside the Service layer.
+- **Null Safety** (see `create-api-skill/SKILL.md` Null Safety Rules):
+  - **NotFound check**: Every `FirstOrDefaultAsync()` that looks up an entity MUST have a null check immediately after — throw `NotFoundException` if null. Không được để NullReferenceException → 500.
+  - **Empty list**: Nếu query không tìm thấy kết quả nào, trả về list rỗng (paginated: `totalCount = 0`), không throw exception.
+  - **`?.` + LINQ chain**: Nếu dùng `?.` để truy cập property rồi gọi LINQ method, PHẢI có `?.` ở MỖI bước LINQ. Pattern `obj?.Prop.Where(...)` là **BUG** vì `obj?.Prop` → null → `.Where()` throw `ArgumentNullException`.
+  - **Include trước khi truy cập navigation**: Entity có navigation property collection mà không Include → có thể null → crash. Luôn kiểm tra xem đã Include đủ chưa hoặc thêm null check.
 
 ### 3. Request & Response DTOs
 - **Entity Exposure**: Never return Entity Framework database models directly to the controller or client. Always project them to a specific DTO in `Response.cs`.
@@ -76,6 +83,9 @@ Use these files in the repository to compare patterns:
 | Service method mutating DB state without `BeginTransactionAsync()` | Wrap the save operations in `try-catch` block with transaction commit & rollback |
 | Route parameter `[HttpGet("events/{eventId}")]` missing guid check | Suggest changing to `[HttpGet("events/{eventId:guid}")]` |
 | Service registering is missing in DI | Add `builder.Services.AddScoped<IService, Service>();` in `Program.cs` |
+| `FirstOrDefaultAsync()` không có null check → truy cập property trên null → 500 | Thêm `if (entity == null) throw new NotFoundException("...");` ngay sau dòng query |
+| `obj?.Collection.Where(...)` — `?.` chỉ bảo vệ property, `.Where()` vẫn gọi trên null → 500 | Thêm `?.` ở MỖI bước LINQ: `?.Where()`, `?.Select()`, `?.FirstOrDefault()`, v.v. |
+| Navigation property collection bị null vì thiếu `.Include()` → 500 | Thêm `.Include(x => x.Collection)` vào query hoặc null check trước khi truy cập |
 
 ## Reporting Template
 

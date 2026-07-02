@@ -787,9 +787,9 @@ public class Service : IService
         return assignTracks.Select(assignTrack =>
         {
             var score = submission?.Scores
-                .Where(x => !x.IsDisable && x.AssignTrackId == assignTrack.Id)
-                .OrderByDescending(x => x.CreatedAt)
-                .FirstOrDefault();
+                ?.Where(x => !x.IsDisable && x.AssignTrackId == assignTrack.Id)
+                ?.OrderByDescending(x => x.CreatedAt)
+                ?.FirstOrDefault();
 
             return new Response.AssignedJudgeResponse
             {
@@ -901,11 +901,13 @@ public class Service : IService
                 Description = submission?.Description,
                 SubmissionStatus = submission?.Status,
                 SubmittedAt = submission?.SubmittedAt,
-                AverageScore = submission?.Scores
-                    .Where(s => !s.IsDisable && !s.IsMock && s.TotalScore.HasValue)
-                    .Select(s => s.TotalScore!.Value)
-                    .DefaultIfEmpty()
-                    .Average()
+                AverageScore = submission?.Scores != null
+                    ? submission.Scores
+                        .Where(s => !s.IsDisable && !s.IsMock && s.TotalScore.HasValue)
+                        .Select(s => s.TotalScore!.Value)
+                        .DefaultIfEmpty()
+                        .Average()
+                    : null
             };
         }).ToList();
 

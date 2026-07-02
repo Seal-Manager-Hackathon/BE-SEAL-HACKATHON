@@ -209,6 +209,76 @@ Only use database transactions (`BeginTransactionAsync`) when atomicity is stric
 - **Not Required**: Simple or idempotent actions where duplicate checks prevent issues under network lag or multiple submissions (e.g., sending an invitation which checks for pending invitation first).
 - **Rule**: Keep read-only query steps outside of the transaction block. Only start the transaction right before write operations.
 
+## Null Safety Rules
+
+Khi query database hoặc làm việc với collection mà kết quả **có thể rỗng/null**, phải xử lý tường minh — **KHÔNG được để crash 500**.
+
+### 1. Không tìm thấy entity → throw NotFoundException
+
+Mọi `FirstOrDefaultAsync()` tìm entity phải có null check ngay sau đó:
+
+```csharp
+// ✅ ĐÚNG
+var round = await _dbContext.Rounds.FirstOrDefaultAsync(x => x.Id == roundId && !x.IsDisable);
+if (round == null)
+    throw new NotFoundException("ROUND_NOT_FOUND");
+
+// ❌ SAI — nếu null thì dòng sau throw NullReferenceException → 500
+var round = await _dbContext.Rounds.FirstOrDefaultAsync(x => x.Id == roundId && !x.IsDisable);
+round.Name = request.Name; // crash nếu round == null
+```
+
+### 2. Danh sách rỗng → trả về empty list, không crash
+
+Với API trả về danh sách (paginated hoặc không):
+- Không tìm thấy item nào → trả về list rỗng + `totalCount = 0` (KHÔNG throw)
+
+```csharp
+// ✅ ĐÚNG — paginated list rỗng
+if (items.Count == 0)
+    return ApiResponseFactory.BasePagination(new List<...>(), pageIndex, pageSize, 0);
+```
+
+### 3. Null-conditional `?.` + LINQ chain → DÙNG `?.` TOÀN BỘ CHAIN
+
+`?.` chỉ bảo vệ member access **ngay trước nó**, không bảo vệ các method phía sau.
+
+```csharp
+// ❌ SAI — submission?.Scores == null, rồi .Where() gọi trên null → ArgumentNullException → 500
+var score = submission?.Scores
+    .Where(x => !x.IsDisable)
+    .FirstOrDefault();
+
+// ✅ ĐÚNG — mỗi bước LINQ đều có ?. để null propagate an toàn
+var score = submission?.Scores
+    ?.Where(x => !x.IsDisable)
+    ?.OrderByDescending(x => x.CreatedAt)
+    ?.FirstOrDefault();
+
+// ✅ ĐÚNG — null check tường minh trước khi gọi LINQ chain
+var scores = submission?.Scores;
+var avg = scores != null
+    ? scores.Where(s => !s.IsDisable).Select(s => s.TotalScore!.Value).DefaultIfEmpty().Average()
+    : null;
+```
+
+### 4. Check null trước khi `.Include().ThenInclude()` lồng sâu
+
+Entity load từ DB qua `Include` thì navigation property được EF khởi tạo (không null). Nhưng entity lấy từ `FirstOrDefault()` **không dùng Include** có thể có navigation property = null.
+
+```csharp
+// ✅ ĐÚNG — có Include nên Scores được khởi tạo
+var submission = await _dbContext.Submissions
+    .Include(x => x.Scores)
+    .FirstOrDefaultAsync(x => x.Id == id);
+var avg = submission.Scores.Average(...); // an toàn vì đã Include
+
+// ❌ SAI — không Include, Scores có thể null
+var submission = await _dbContext.Submissions
+    .FirstOrDefaultAsync(x => x.Id == id);
+var avg = submission.Scores.Average(...); // crash nếu Scores chưa load
+```
+
 ## Hard Rules
 
 - Do not use verbs in standard CRUD route paths (e.g., avoid `/delete`, `/update`, `/get` inside resource paths).
@@ -218,6 +288,7 @@ Only use database transactions (`BeginTransactionAsync`) when atomicity is stric
 - Do not return EF entities directly; always map to a response DTO.
 - Do not use DataAnnotations validation attributes on Request DTO classes directly.
 - Do not perform simple input validation inline in controllers or services; delegate them to FluentValidation.
+- **Do not let null reference crash as 500**: khi không tìm thấy entity → `NotFoundException`. Khi collection có thể null → null check hoặc `?.` toàn bộ LINQ chain. Khi danh sách rỗng → trả về empty list.
 
 ## Common Mistakes
 
@@ -228,3 +299,6 @@ Only use database transactions (`BeginTransactionAsync`) when atomicity is stric
 | Querying the database context inside a controller action | Always put queries in the Service implementation |
 | Returning EF entities inside the pagination list | Project entities to response DTOs using `.Select()` before `.ToListAsync()` |
 | Returning `Ok(ApiResponseFactory.BasePagination(...))` in the controller when the service returns `BasePaginationResponse` | Return `Ok(result)` directly |
+| `submission?.Scores.Where(...)` — `?.` chỉ bảo vệ `.Scores`, `.Where()` vẫn gọi trên null | Thêm `?.` trước mỗi LINQ method: `?.Where()`, `?.OrderByDescending()`, v.v. HOẶC null check tường minh trước LINQ chain |
+| `FirstOrDefaultAsync()` không null check → truy cập property trên null → 500 | Luôn check null ngay sau `FirstOrDefaultAsync()`, throw `NotFoundException` nếu không tìm thấy |
+| Navigation property chưa Include mà vẫn truy cập → null → 500 | Include đầy đủ navigation property cần dùng, hoặc null check trước khi truy cập |
