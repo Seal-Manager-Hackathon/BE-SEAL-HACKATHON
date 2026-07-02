@@ -64,7 +64,10 @@ public class Service : IService
     {
         // 1. Verify that the year exists and has active leaderboards/events
         var hasLeaderBoards = await _dbContext.LeaderBoards
-            .AnyAsync(lb => lb.Year == year && !lb.IsDisable && !lb.Event.IsDisable);
+            .AnyAsync(lb => lb.Event.EndTime.HasValue
+                && lb.Event.EndTime.Value.Year == year
+                && !lb.IsDisable
+                && !lb.Event.IsDisable);
 
         if (!hasLeaderBoards)
         {
@@ -79,7 +82,8 @@ public class Service : IService
             .Include(lbd => lbd.Team)
             .Include(lbd => lbd.LeaderBoard)
             .ThenInclude(lb => lb.Event)
-            .Where(lbd => lbd.LeaderBoard.Year == year
+            .Where(lbd => lbd.LeaderBoard.Event.EndTime.HasValue
+                          && lbd.LeaderBoard.Event.EndTime.Value.Year == year
                           && !lbd.LeaderBoard.IsDisable
                           && !lbd.LeaderBoard.Event.IsDisable
                           && !lbd.IsDisable

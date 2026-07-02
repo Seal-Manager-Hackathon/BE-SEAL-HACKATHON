@@ -124,6 +124,22 @@ public static class Response
         public List<MyRoundCriteriaScoreResponse> CriteriaScores { get; set; } = new();
     }
 
+    public class TeamLatestSubmissionScoreResponse
+    {
+        public Guid RoundId { get; set; }
+        public string? RoundName { get; set; }
+        public Guid TeamId { get; set; }
+        public string? TeamName { get; set; }
+        public Guid? SubmissionId { get; set; }
+        public DateTimeOffset? SubmittedAt { get; set; }
+        public bool HasSubmission { get; set; }
+        public bool IsGraded { get; set; }
+        public string GradingStatus { get; set; } = null!;
+        public string? Message { get; set; }
+        public decimal? AverageTotalScore { get; set; }
+        public List<MyRoundCriteriaScoreResponse> CriteriaScores { get; set; } = new();
+    }
+
     public class MyRoundCriteriaScoreResponse
     {
         public Guid CriteriaItemId { get; set; }

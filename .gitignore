@@ -16,7 +16,7 @@ SYSTEM_WORKFLOW.md
 *.user
 *.userosscache
 *.sln.docstates
-.py
+*.py
 # doc.md
 .obsidian/
 # User-specific files (MonoDevelop/Xamarin Studio)
@@ -480,3 +480,4 @@ $RECYCLE.BIN/
 Hackathon.Api/appsettings.json
 Hackathon.Api/appsettings.Development.json
 .claude/
+swagger-local.json

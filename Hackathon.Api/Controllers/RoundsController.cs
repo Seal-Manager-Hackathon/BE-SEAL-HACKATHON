@@ -57,6 +57,13 @@ public class RoundsController : ControllerBase
         return Ok(ApiResponseFactory.Base(result,200,"SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
+    [HttpGet("{roundId:guid}/teams/{teamId:guid}/latest-submission-score")]
+    public async Task<IActionResult> GetTeamLatestSubmissionScore(Guid roundId, Guid teamId)
+    {
+        var result = await _roundsService.GetTeamLatestSubmissionScore(roundId, teamId);
+        return Ok(ApiResponseFactory.Base(result,200,result.Message ?? "SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
+
     [HttpGet("teams/{teamId:guid}")]
     [Authorize]
     public async Task<IActionResult> GetMyRounds(Guid teamId, [FromQuery] Guid? eventId)
@@ -96,5 +103,13 @@ public class RoundsController : ControllerBase
     {
         var data = await _roundsService.EndRound(roundId);
         return Ok(ApiResponseFactory.Base(data, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpPost("{roundId:guid}/endFinal")]
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    public async Task<IActionResult> EndRoundFinal(Guid roundId)
+    {
+        var message = await _roundsService.EndRoundFinal(roundId);
+        return Ok(ApiResponseFactory.Base(null, 200, message, traceId: HttpContext.TraceIdentifier));
     }
 }

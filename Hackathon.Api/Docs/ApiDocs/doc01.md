@@ -128,6 +128,7 @@ Luồng này mô tả hành trình của một sinh viên từ lúc tham gia h�
    > **Lưu ý:** Team chỉ được nộp bài khi đã được duyệt (`Approved`), không bị ban, đã gán Track + Topic, và đang trong thời gian mở nộp bài.
 4. **Xem kết quả bài nộp**:
    * [`- GET /api/v1/rounds/{roundId}/scores/me`](Rounds/GET/api-v1-rounds-id-scores-me-get.md) — Xem kết quả/điểm của team trong round; nếu chưa có kết quả thì hiển thị "Bài chưa được chấm".
+   * [`- GET /api/v1/rounds/{roundId}/teams/{teamId}/latest-submission-score`](Rounds/GET/api-v1-rounds-id-teams-id-latest-submission-score-get.md) — Kiểm tra submission mới nhất của team trong round đã được chấm chưa.
    * [`- GET /api/v1/submissions/{submissionId}`](Submissions/GET/GET-api-v1-submissions-submissionId.md) — Xem chi tiết bài nộp kèm trạng thái `NotGraded` hoặc điểm đã chấm nếu có.
 
 ---
@@ -138,6 +139,7 @@ Luồng này mô tả hành trình của một sinh viên từ lúc tham gia h�
 1. **Xem điểm số của đội mình**:
    * [`- GET /api/v1/events/{eventId}/teams/{teamId}/scores`](Events/GET/GET-api-v1-events-eventId-teams-teamId-scores.md) — Khi bấm chi tiết điểm, xem điểm của team trong event theo từng round và điểm chi tiết của từng tiêu chí.
    * [`- GET /api/v1/rounds/{roundId}/scores/me`](Rounds/GET/api-v1-rounds-id-scores-me-get.md) — Xem điểm/kết quả của team ở round đang chọn.
+   * [`- GET /api/v1/rounds/{roundId}/teams/{teamId}/latest-submission-score`](Rounds/GET/api-v1-rounds-id-teams-id-latest-submission-score-get.md) — Kiểm tra submission mới nhất của team trong round đang chọn đã được chấm chưa.
 2. **Xem bảng xếp hạng**:
    * [`- GET /api/v1/rounds/{roundId}/ranking`](Rounds/GET/api-v1-rounds-id-ranking-get.md) — Xem bảng xếp hạng theo round.
    * [`- GET /api/v1/events/{eventId}/leaderboard`](Events/GET/GET-api-v1-events-eventId-leaderboard.md) — Xem bảng xếp hạng event; trong danh sách này team biết mình đang đứng hạng thứ mấy trong event.
