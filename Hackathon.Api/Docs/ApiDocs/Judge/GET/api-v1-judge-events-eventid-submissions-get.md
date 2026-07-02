@@ -29,18 +29,18 @@ Authorization: Bearer {accessToken}
 ```
 
 ## Response body (Success - 200 OK)
-*Trả về danh sách rounds, mỗi round chứa danh sách tracks, mỗi track chứa danh sách submissions (phân trang theo submission).*
+*Trả về danh sách rounds (dạng paginated), mỗi round chứa danh sách tracks, mỗi track chứa danh sách submissions (phân trang theo submission).*
 ```json
 {
   "isSuccess": true,
   "isFailed": false,
   "status": 200,
-  "message": "SUCCESS",
   "error": null,
   "traceId": "0HN1A2B3C4D5E",
   "timestampUtc": "2026-06-22T08:00:00Z",
-  "data": [
-    {
+  "data": {
+    "items": [
+      {
       "roundId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
       "roundName": "Vòng loại",
       "tracks": [
@@ -71,7 +71,13 @@ Authorization: Bearer {accessToken}
         }
       ]
     }
-  ]
+    ],
+    "pageIndex": 1,
+    "pageSize": 10,
+    "totalCount": 1,
+    "hasNextPage": false,
+    "hasPreviousPage": false
+  }
 }
 ```
 
@@ -79,12 +85,12 @@ Authorization: Bearer {accessToken}
 - **Mỗi team chỉ xuất hiện 1 lần trong mỗi round** — chỉ lấy bài nộp mới nhất (`.GroupBy.RegisterTeamId().First()`).
 - Judge chỉ xem được submissions của các track được phân công.
 - Data trả về dạng cây: **Round → Track → Submissions (phân trang)**.
-- Chỉ trả về các round thuộc event và đã đóng nộp bài (`EndSubmission` đã qua).
+- Chỉ trả về các round thuộc event mà judge được phân công.
 - Chỉ trả về các track mà judge được phân công trong event.
-- Nếu truyền `roundId`: chỉ trả về round đó nếu round thuộc event và đã đóng nộp bài.
+- Nếu truyền `roundId`: chỉ trả về round đó nếu round thuộc event.
 - Nếu truyền `trackId`: chỉ trả về track đó nếu judge được phân công track này.
 - Nếu truyền cả `roundId` và `trackId`: trả về giao của round + track; data vẫn giữ cấu trúc `rounds[].tracks[].submissions`.
-- Nếu không truyền `roundId`/`trackId`: trả về tất cả round đã đóng và tất cả track được phân công có submissions hợp lệ.
+- Nếu không truyền `roundId`/`trackId`: trả về tất cả round và tất cả track được phân công có submissions hợp lệ.
 - Phân trang áp dụng trên danh sách submissions trong từng track.
 - `scoreId` / `totalScore` = null nếu judge chưa chấm bài này.
 
@@ -98,3 +104,15 @@ Authorization: Bearer {accessToken}
 ## Trạng thái implement
 - ✅ Route: `GET /api/v1/judge/events/{eventId:guid}/submissions`.
 - Sử dụng policy `LecturerPolicy`.
+
+## Bug fix (2026-07-02)
+**Lỗi:** 500 `NullReferenceException` khi load submissions in-memory.
+
+**Root cause:** Query thiếu `.Include()` cho `RegisterTeam → Team/Track/Topic` — code truy cập `x.RoundDetail.RegisterTeam.Team.Name` sau `.ToListAsync()` nhưng EF chưa load chain navigation này → null → crash.
+
+**Fix:** Thêm 3 dòng Include:
+```csharp
+.Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Team)
+.Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Track)
+.Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Topic)
+```

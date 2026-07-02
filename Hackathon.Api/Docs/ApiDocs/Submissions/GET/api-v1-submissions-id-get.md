@@ -100,7 +100,12 @@ Không có.
 - Submission phải tồn tại và chưa bị disable.
 - Team member chỉ được xem submission của team mình; Judge chỉ được xem submission thuộc track được phân công; Staff/Admin xem theo quyền event.
 - Nếu chưa có score hoặc điểm chưa được công bố, trả `gradingStatus = "NotGraded"`, `score = null`, `message = "NOT_GRADED"`.
-- Nếu đã có kết quả, trả điểm tổng trung bình và điểm theo tiêu chí. Khi `isAppealable = true`, FE hiển thị nút khiếu nại/phúc khảo.
+- Nếu đã có kết quả, trả điểm tổng và điểm theo từng tiêu chí. Khi `isAppealable = true`, FE hiển thị nút khiếu nại/phúc khảo.
+- **Cách tính điểm:**
+   - `averageTotalScore` = tổng điểm trung bình của từng tiêu chí
+   - Với mỗi tiêu chí: `averageCriteriaScore` = trung bình điểm của **các judge đã chấm** (có ScoreItems), không tính judge chưa chấm
+   - Chỉ lấy Score mới nhất của mỗi judge (retake thay thế bản cũ)
+   - Xem chi tiết: [Scoring Formula](../../scoring-formula.md)
 - Nút khiếu nại dùng [`POST /api/v1/teams/{teamId}/submissions/{submissionId}/appeal`](../Report/POST-api-v1-teams-teamId-submissions-submissionId-appeal.md) để tạo report gắn trực tiếp với `submissionId`.
 
 ### Bảng trạng thái SubmissionStatusEnum

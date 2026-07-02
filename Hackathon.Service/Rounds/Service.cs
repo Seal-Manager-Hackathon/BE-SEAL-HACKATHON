@@ -459,11 +459,14 @@ public class Service : IService
             throw new NotFoundException("SUBMISSION_NOT_FOUND");
         }
 
-        var scores = submission.Scores
-            .Where(x => !x.IsDisable && !x.IsMock && x.TotalScore.HasValue)
+        // Only latest Score per judge (AssignTrackId)
+        var latestScores = submission.Scores
+            .Where(s => !s.IsDisable && !s.IsMock)
+            .GroupBy(s => s.AssignTrackId)
+            .Select(g => g.OrderByDescending(s => s.UpdatedAt).First())
             .ToList();
 
-        if (scores.Count == 0)
+        if (latestScores.Count == 0 || !latestScores.Any(s => s.ScoreItems.Any(si => !si.IsDisable && si.Score.HasValue)))
         {
             return new Response.MyRoundScoreResponse
             {
@@ -480,7 +483,9 @@ public class Service : IService
             };
         }
 
-        var criteriaScores = scores
+        // Calculate average score per criteria across ALL judges who actually scored
+        // Then total = sum of those averages
+        var criteriaScores = latestScores
             .SelectMany(x => x.ScoreItems)
             .Where(x => !x.IsDisable && x.Score.HasValue && !x.CriteriaItem.IsDisable)
             .GroupBy(x => new { x.CriteriaItemId, x.CriteriaItem.Name, x.CriteriaItem.Score })
@@ -494,6 +499,8 @@ public class Service : IService
             .OrderBy(x => x.CriteriaItemName)
             .ToList();
 
+        var totalScore = criteriaScores.Sum(x => x.AverageCriteriaScore);
+
         return new Response.MyRoundScoreResponse
         {
             RoundId = roundDetail.RoundId,
@@ -502,7 +509,7 @@ public class Service : IService
             TeamName = roundDetail.RegisterTeam.Team.Name,
             SubmissionId = submission.Id,
             GradingStatus = "Graded",
-            AverageTotalScore = scores.Average(x => x.TotalScore!.Value),
+            AverageTotalScore = totalScore,
             IsAppealable = true,
             CriteriaScores = criteriaScores
         };
@@ -522,7 +529,7 @@ public class Service : IService
         var roundDetails = await _dbContext.RoundDetails
             .AsNoTracking()
             .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
-            .Include(x => x.Submissions).ThenInclude(x => x.Scores)
+            .Include(x => x.Submissions).ThenInclude(x => x.Scores).ThenInclude(x => x.ScoreItems).ThenInclude(x => x.CriteriaItem)
             .Where(x => x.RoundId == roundId
                 && !x.IsDisable
                 && !x.RegisterTeam.IsDisable
@@ -544,18 +551,15 @@ public class Service : IService
                 x.RoundDetail.RegisterTeam.TeamId,
                 TeamName = x.RoundDetail.RegisterTeam.Team.Name,
                 SubmissionId = x.Submission!.Id,
-                Scores = x.Submission.Scores
-                    .Where(s => !s.IsDisable && !s.IsMock && s.TotalScore.HasValue)
-                    .Select(s => s.TotalScore!.Value)
-                    .ToList()
+                TotalScore = CalculateTotalScore(x.Submission)
             })
-            .Where(x => x.Scores.Count > 0)
+            .Where(x => x.TotalScore.HasValue)
             .Select(x => new
             {
                 x.TeamId,
                 x.TeamName,
                 x.SubmissionId,
-                AverageScore = x.Scores.Average()
+                AverageScore = x.TotalScore!.Value
             })
             .OrderByDescending(x => x.AverageScore)
             .ThenBy(x => x.TeamName)
@@ -596,7 +600,7 @@ public class Service : IService
             .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
             .Include(x => x.RegisterTeam).ThenInclude(x => x.Track)
             .Include(x => x.RegisterTeam).ThenInclude(x => x.Topic)
-            .Include(x => x.Submissions).ThenInclude(x => x.Scores)
+            .Include(x => x.Submissions).ThenInclude(x => x.Scores).ThenInclude(x => x.ScoreItems).ThenInclude(x => x.CriteriaItem)
             .Where(x => x.RoundId == roundId && !x.IsDisable && !x.RegisterTeam.IsDisable && !x.RegisterTeam.Team.IsDisable);
 
         if (query.TrackId.HasValue)
@@ -655,10 +659,7 @@ public class Service : IService
             return submissions.Select(submission =>
             {
                 var assignedJudges = BuildAssignedJudges(submission, trackAssignTracks);
-                var scoredValues = assignedJudges
-                    .Where(x => x.TotalScore.HasValue)
-                    .Select(x => x.TotalScore!.Value)
-                    .ToList();
+                var totalScore = CalculateTotalScore(submission);
 
                 return new Response.StaffRoundSubmissionResponse
                 {
@@ -676,9 +677,9 @@ public class Service : IService
                 SubmittedAt = submission.SubmittedAt,
                 GradingStatus = GetGradingStatus(submission, assignedJudges),
                 AssignedJudges = assignedJudges,
-                AverageScore = scoredValues.Count == 0 ? null : scoredValues.Average(),
-                MinScore = scoredValues.Count == 0 ? null : scoredValues.Min(),
-                MaxScore = scoredValues.Count == 0 ? null : scoredValues.Max(),
+                AverageScore = totalScore,
+                MinScore = totalScore,
+                MaxScore = totalScore,
             };
         }).ToList();
         }).ToList();
@@ -803,6 +804,37 @@ public class Service : IService
         }).ToList();
     }
 
+    /// <summary>
+    /// Calculate the total score for a submission by averaging each criteria across all judges,
+    /// then summing the averages. Only judges who actually scored (have ScoreItems) are counted.
+    /// </summary>
+    private static decimal? CalculateTotalScore(Hackathon.Repository.Entity.Submissions? submission)
+    {
+        if (submission == null)
+            return null;
+
+        // Only the latest Score per judge (AssignTrackId) — retakes replace originals
+        var latestScores = submission.Scores
+            .Where(s => !s.IsDisable && !s.IsMock)
+            .GroupBy(s => s.AssignTrackId)
+            .Select(g => g.OrderByDescending(s => s.UpdatedAt).First())
+            .ToList();
+
+        var allScoreItems = latestScores
+            .SelectMany(s => s.ScoreItems)
+            .Where(si => !si.IsDisable && si.Score.HasValue && !si.CriteriaItem.IsDisable)
+            .ToList();
+
+        if (allScoreItems.Count == 0)
+            return null;
+
+        // Group by criteria item, average across judges, then sum
+        return allScoreItems
+            .GroupBy(x => x.CriteriaItemId)
+            .Select(g => g.Average(x => x.Score!.Value))
+            .Sum();
+    }
+
     private static string? GetGradingStatus(Hackathon.Repository.Entity.Submissions submission, List<Response.AssignedJudgeResponse> assignedJudges)
     {
         if (submission.Status != SubmissionStatusEnum.Submitted)
@@ -871,7 +903,7 @@ public class Service : IService
             .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
             .Include(x => x.RegisterTeam).ThenInclude(x => x.Track)
             .Include(x => x.RegisterTeam).ThenInclude(x => x.Topic)
-            .Include(x => x.Submissions).ThenInclude(x => x.Scores)
+            .Include(x => x.Submissions).ThenInclude(x => x.Scores).ThenInclude(x => x.ScoreItems).ThenInclude(x => x.CriteriaItem)
             .Where(x => x.RoundId == roundId
                 && !x.IsDisable
                 && !x.RegisterTeam.IsDisable
@@ -901,13 +933,7 @@ public class Service : IService
                 Description = submission?.Description,
                 SubmissionStatus = submission?.Status,
                 SubmittedAt = submission?.SubmittedAt,
-                AverageScore = submission?.Scores != null
-                    ? submission.Scores
-                        .Where(s => !s.IsDisable && !s.IsMock && s.TotalScore.HasValue)
-                        .Select(s => s.TotalScore!.Value)
-                        .DefaultIfEmpty()
-                        .Average()
-                    : null
+                AverageScore = CalculateTotalScore(submission),
             };
         }).ToList();
 
@@ -996,6 +1022,8 @@ public class Service : IService
             .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
             .Include(x => x.Submissions.Where(s => !s.IsDisable && s.Status == SubmissionStatusEnum.Submitted))
                 .ThenInclude(s => s.Scores.Where(sc => !sc.IsDisable && !sc.IsMock))
+                .ThenInclude(sc => sc.ScoreItems)
+                .ThenInclude(si => si.CriteriaItem)
             .Where(x => x.RoundId == roundId && !x.IsDisable && !x.RegisterTeam.IsDisable && !x.RegisterTeam.Team.IsDisable
                 && x.RegisterTeam.Status == RegisterTeamStatusEnum.Approved && !x.RegisterTeam.IsBanned)
             .ToListAsync();
@@ -1012,15 +1040,10 @@ public class Service : IService
                 var hasScore = false;
                 if (latestSubmission != null)
                 {
-                    var validScores = latestSubmission.Scores
-                        .Where(s => s.TotalScore.HasValue)
-                        .GroupBy(s => s.AssignTrackId)
-                        .Select(g => g.OrderByDescending(s => s.CreatedAt).First().TotalScore!.Value)
-                        .ToList();
-
-                    if (validScores.Count != 0)
+                    var totalScore = CalculateTotalScore(latestSubmission);
+                    if (totalScore.HasValue)
                     {
-                        avgScore = validScores.Average();
+                        avgScore = totalScore.Value;
                         hasScore = true;
                     }
                 }
@@ -1099,6 +1122,8 @@ public class Service : IService
             .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
             .Include(x => x.Submissions.Where(s => !s.IsDisable && s.Status == SubmissionStatusEnum.Submitted))
                 .ThenInclude(s => s.Scores.Where(sc => !sc.IsDisable && !sc.IsMock))
+                .ThenInclude(sc => sc.ScoreItems)
+                .ThenInclude(si => si.CriteriaItem)
             .Where(x => x.RoundId == round.Id && !x.IsDisable && !x.RegisterTeam.IsDisable && !x.RegisterTeam.Team.IsDisable
                 && x.RegisterTeam.Status == RegisterTeamStatusEnum.Approved && !x.RegisterTeam.IsBanned)
             .ToListAsync();
@@ -1115,15 +1140,10 @@ public class Service : IService
                 var hasScore = false;
                 if (latestSubmission != null)
                 {
-                    var validScores = latestSubmission.Scores
-                        .Where(s => s.TotalScore.HasValue)
-                        .GroupBy(s => s.AssignTrackId)
-                        .Select(g => g.OrderByDescending(s => s.CreatedAt).First().TotalScore!.Value)
-                        .ToList();
-
-                    if (validScores.Count != 0)
+                    var totalScore = CalculateTotalScore(latestSubmission);
+                    if (totalScore.HasValue)
                     {
-                        avgScore = validScores.Average();
+                        avgScore = totalScore.Value;
                         hasScore = true;
                     }
                 }

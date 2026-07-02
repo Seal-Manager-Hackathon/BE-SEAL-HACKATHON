@@ -960,7 +960,7 @@ public class Service : IService
         return (result, result.Count == 0 ? "NO_TEAMS_FOUND" : "SUCCESS");
     }
 
-    public async Task<BaseResponse> GetEventSubmissions(Guid eventId, Guid? trackId, Guid? roundId, PaginationRequest paginationRequest)
+    public async Task<BasePaginationResponse> GetEventSubmissions(Guid eventId, Guid? trackId, Guid? roundId, PaginationRequest paginationRequest)
     {
         var userId = GetCurrentUserId();
         var now = DateTimeOffset.UtcNow;
@@ -986,7 +986,7 @@ public class Service : IService
 
         if (assignments.Count == 0)
         {
-            return ApiResponseFactory.Base(new List<Response.JudgeEventRoundSubmissionsResponse>(), 200, "SUCCESS");
+            return ApiResponseFactory.BasePagination(new List<object>(), pageIndex, pageSize, 0);
         }
 
         var assignTrackIds = assignments.Select(x => x.AssignTrackId).ToList();
@@ -995,10 +995,12 @@ public class Service : IService
         var submissionsQuery = _dbContext.Submissions
             .AsNoTracking()
             .Include(x => x.Scores.Where(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId)))
+            .Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Team)
+            .Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Track)
+            .Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Topic)
+            .Include(x => x.RoundDetail).ThenInclude(x => x.Round)
             .Where(x => !x.IsDisable
                         && x.RoundDetail.Round.EventId == eventId
-                        && x.RoundDetail.Round.EndSubmission.HasValue
-                        && x.RoundDetail.Round.EndSubmission.Value <= now
                         && x.RoundDetail.RegisterTeam.TrackId.HasValue
                         && trackIds.Contains(x.RoundDetail.RegisterTeam.TrackId.Value)
                         && x.RoundDetail.RegisterTeam.Status == RegisterTeamStatusEnum.Approved
@@ -1087,7 +1089,7 @@ public class Service : IService
             })
             .ToList();
 
-        return ApiResponseFactory.Base(result, 200, "SUCCESS");
+        return ApiResponseFactory.BasePagination(result, pageIndex, pageSize, result.Count);
     }
 
     public async Task<BasePaginationResponse> GetPendingSubmissions(Guid eventId, Guid? trackId, Guid? roundId, bool? isGraded, PaginationRequest paginationRequest)
@@ -1263,6 +1265,9 @@ public class Service : IService
         var submissionsQuery = _dbContext.Submissions
             .AsNoTracking()
             .Include(x => x.Scores.Where(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId)))
+            .Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Team)
+            .Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Track)
+            .Include(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Topic)
             .Include(x => x.RoundDetail).ThenInclude(x => x.Round)
             .Where(x => !x.IsDisable
                         && x.RoundDetail.RegisterTeam.EventId == eventId

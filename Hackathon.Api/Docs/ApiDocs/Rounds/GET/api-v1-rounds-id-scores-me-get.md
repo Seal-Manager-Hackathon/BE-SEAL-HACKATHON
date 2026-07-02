@@ -80,6 +80,12 @@ Authenticated Team Member
 - Hệ thống lấy submission mới nhất của team trong round để xem kết quả.
 - Nếu submission chưa có điểm hoặc điểm chưa được công bố, trả trạng thái `NotGraded` và message "NOT_GRADED".
 - Khi đã có điểm và còn trong thời gian/điều kiện phúc khảo, `isAppealable = true` để FE hiển thị nút khiếu nại.
+- **Cách tính điểm:**
+   - `averageTotalScore` = tổng điểm trung bình của từng tiêu chí
+   - Với mỗi tiêu chí: `averageCriteriaScore` = trung bình điểm của **các judge đã chấm** (có ScoreItems)
+   - Chỉ lấy Score mới nhất của mỗi judge (retake thay thế bản cũ)
+   - Không tính judge chưa chấm
+   - Xem chi tiết: [Scoring Formula](../../scoring-formula.md)
 
 ## Lỗi có thể xảy ra
 *Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn `ErrorResponse` từ Middleware:*
