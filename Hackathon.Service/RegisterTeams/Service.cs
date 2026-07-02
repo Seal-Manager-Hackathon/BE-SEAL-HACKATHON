@@ -3,6 +3,7 @@ using Hackathon.Repository;
 using Hackathon.Repository.Enum;
 using Hackathon.Service.Exceptions;
 using Hackathon.Service.Models;
+using Hackathon.Service.Notifications;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -648,9 +649,31 @@ public class Service : IService
             });
         }
 
+        // Notify all active team members
+        var teamMembers = await _dbContext.TeamDetails
+            .Include(x => x.User)
+            .Where(x => x.TeamId == registerTeam.TeamId && !x.IsDisable && x.Status == TeamDetailStatusEnum.Active)
+            .Select(x => x.User)
+            .ToListAsync();
+
+        var notifications = teamMembers.Select(m => new Hackathon.Repository.Entity.Notifications
+        {
+            Id = Guid.NewGuid(),
+            UserId = m.Id,
+            TeamId = registerTeam.TeamId,
+            Title = NotificationTemplates.RegisterApprovedTitle,
+            Status = NotificationStatusEnum.Unread,
+            Description = string.Format(NotificationTemplates.RegisterApprovedBody, registerTeam.Team.Name, registerTeam.Event.Name),
+            CreatedAt = now,
+            UpdatedAt = now,
+            IsDisable = false
+        }).ToList();
+
         var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
+            await _dbContext.SaveChangesAsync();
+            _dbContext.Notifications.AddRange(notifications);
             await _dbContext.SaveChangesAsync();
             await transaction.CommitAsync();
         }
@@ -726,9 +749,31 @@ public class Service : IService
         _dbContext.RegisterTeams.Update(registerTeam);
         _dbContext.Teams.Update(registerTeam.Team);
 
+        // Notify all active team members
+        var teamMembers = await _dbContext.TeamDetails
+            .Include(x => x.User)
+            .Where(x => x.TeamId == registerTeam.TeamId && !x.IsDisable && x.Status == TeamDetailStatusEnum.Active)
+            .Select(x => x.User)
+            .ToListAsync();
+
+        var notifications = teamMembers.Select(m => new Hackathon.Repository.Entity.Notifications
+        {
+            Id = Guid.NewGuid(),
+            UserId = m.Id,
+            TeamId = registerTeam.TeamId,
+            Title = NotificationTemplates.RegisterRejectedTitle,
+            Status = NotificationStatusEnum.Unread,
+            Description = string.Format(NotificationTemplates.RegisterRejectedBody, registerTeam.Team.Name, registerTeam.Event.Name, reason),
+            CreatedAt = now,
+            UpdatedAt = now,
+            IsDisable = false
+        }).ToList();
+
         var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
+            await _dbContext.SaveChangesAsync();
+            _dbContext.Notifications.AddRange(notifications);
             await _dbContext.SaveChangesAsync();
             await transaction.CommitAsync();
         }

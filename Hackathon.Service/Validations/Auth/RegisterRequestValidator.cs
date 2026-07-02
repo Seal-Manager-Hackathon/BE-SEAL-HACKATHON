@@ -20,12 +20,12 @@ public class RegisterRequestValidator : AbstractValidator<Request.RegisterReques
             .EmailAddress().WithMessage("INVALID_EMAIL_FORMAT");
 
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage("PASSWORD_REQUIRED")
-            .Length(6, 128).WithMessage("PASSWORD_LENGTH_INVALID")
-            .Matches(@"[A-Z]").WithMessage("PASSWORD_UPPERCASE_REQUIRED")
-            .Matches(@"[0-9]").WithMessage("PASSWORD_DIGIT_REQUIRED")
-            .Matches(@"[^a-zA-Z0-9]").WithMessage("PASSWORD_SPECIAL_CHARACTER_REQUIRED");
-
+            .NotEmpty().WithMessage("PASSWORD_REQUIRED");
+        //     .Length(6, 128).WithMessage("PASSWORD_LENGTH_INVALID")
+        //     .Matches(@"[A-Z]").WithMessage("PASSWORD_UPPERCASE_REQUIRED")
+        //     .Matches(@"[0-9]").WithMessage("PASSWORD_DIGIT_REQUIRED")
+        //     .Matches(@"[^a-zA-Z0-9]").WithMessage("PASSWORD_SPECIAL_CHARACTER_REQUIRED");
+        
         RuleFor(x => x.ConfirmPassword)
             .NotEmpty().WithMessage("CONFIRM_PASSWORD_REQUIRED")
             .Equal(x => x.Password).WithMessage("CONFIRM_PASSWORD_NOT_MATCH");

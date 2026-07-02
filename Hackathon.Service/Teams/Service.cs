@@ -4,6 +4,7 @@ using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
 using Hackathon.Service.Exceptions;
 using Hackathon.Service.Models;
+using Hackathon.Service.Notifications;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using UserEntity = Hackathon.Repository.Entity.Users;
@@ -268,9 +269,9 @@ public class Service : IService
             Id = Guid.NewGuid(),
             TeamId = teamId,
             UserId = invitedUser.Id,
-            Title = "TEAM_INVITATION_RECEIVED",
+            Title = NotificationTemplates.TeamInvitationReceivedTitle,
             Status = NotificationStatusEnum.Unread,
-            Description = $"Bạn nhận được lời mời tham gia team {team.Name}.",
+            Description = string.Format(NotificationTemplates.TeamInvitationReceivedBody, team.Name),
             CreatedAt = now,
             UpdatedAt = now,
         };
@@ -450,10 +451,30 @@ public class Service : IService
             member.UpdatedAt = now;
         }
 
+        // Notify removed members
+        var leader = await _dbContext.Users
+            .Where(x => x.Id == leaderId)
+            .Select(x => $"{x.FirstName} {x.LastName}")
+            .FirstOrDefaultAsync() ?? "";
+
+        var removedNotifications = membersToRemove.Select(m => new Hackathon.Repository.Entity.Notifications
+        {
+            Id = Guid.NewGuid(),
+            TeamId = teamId,
+            UserId = m.UserId,
+            Title = NotificationTemplates.TeamMemberRemovedTitle,
+            Status = NotificationStatusEnum.Unread,
+            Description = string.Format(NotificationTemplates.TeamMemberRemovedBody, leader, team.Name),
+            CreatedAt = now,
+            UpdatedAt = now,
+            IsDisable = false
+        }).ToList();
+
         var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             _dbContext.TeamDetails.UpdateRange(membersToRemove);
+            _dbContext.Notifications.AddRange(removedNotifications);
             await _dbContext.SaveChangesAsync();
             await transaction.CommitAsync();
         }
