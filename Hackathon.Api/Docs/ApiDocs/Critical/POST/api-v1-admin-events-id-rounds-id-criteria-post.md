@@ -66,8 +66,8 @@ Yêu cầu access token hợp lệ với role `Admin`.
 - Event phải tồn tại, không bị soft-disable.
 - Round phải thuộc event, không bị soft-disable.
 - `title` là bắt buộc, không được để trống.
-- Khi tạo mới, template có `IsDisable = false` (chưa gắn vào round) và items có `IsDisable = false`.
-- Một round có thể có nhiều template, nhưng chỉ 1 template được gắn (activate) — tương ứng `IsDisable = true`.
+- Khi tạo mới, template có `IsDisable = true` (inactive, chưa gắn) và items có `IsDisable = false`.
+- Một round có thể có nhiều template, nhưng chỉ 1 template được active (`IsDisable = false`).
 - Sau khi tạo, cần gọi API activate để gắn template vào round.
 
 ## Lỗi có thể xảy ra
