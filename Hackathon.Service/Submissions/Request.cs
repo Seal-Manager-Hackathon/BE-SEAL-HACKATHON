@@ -1,3 +1,5 @@
+using Hackathon.Service.Models;
+
 namespace Hackathon.Service.Submissions;
 
 public static class Request
@@ -9,10 +11,7 @@ public static class Request
         public string? Description { get; set; }
     }
 
-    public class GetSubmissionsRequest
+        public class GetSubmissionsRequest : PaginationRequest
     {
-        public int PageIndex { get; set; } = 1;
-
-        public int PageSize { get; set; } = 10;
     }
 }
