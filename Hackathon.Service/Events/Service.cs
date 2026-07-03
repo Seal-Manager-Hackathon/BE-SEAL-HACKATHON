@@ -265,9 +265,10 @@ public class Service : IService
             teamScores.Add((rt.TeamId, rt.Team.Name, roundScores.Count > 0 ? roundScores.Average() : null));
         }
 
-        // Build sorted leaderboard
+        // Build sorted leaderboard: teams with scores first (highest first), then teams without scores
         var ranked = teamScores
-            .OrderByDescending(x => x.Score)
+            .OrderByDescending(x => x.Score.HasValue)
+            .ThenByDescending(x => x.Score)
             .ThenBy(x => x.TeamName)
             .ToList();
 
