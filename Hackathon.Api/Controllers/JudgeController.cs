@@ -26,7 +26,7 @@ public class JudgeController : ControllerBase
     }
 
     [HttpGet("tracks/{trackId:guid}/submissions")]
-    public async Task<IActionResult> GetTrackSubmissions(Guid trackId, [FromQuery] Guid roundId, [FromQuery] bool? isGraded, [FromQuery] PaginationRequest paginationRequest)
+    public async Task<IActionResult> GetTrackSubmissions(Guid trackId, [FromQuery] Guid? roundId, [FromQuery] bool? isGraded, [FromQuery] PaginationRequest paginationRequest)
     {
         var result = await _judgeService.GetTrackSubmissions(trackId, roundId, isGraded, paginationRequest);
         result.TraceId = HttpContext.TraceIdentifier;
