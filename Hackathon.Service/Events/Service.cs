@@ -1123,8 +1123,7 @@ public class Service : IService
     public async Task<BasePaginationResponse> GetEvents(Request.GetEventsRequest request)
     {
         var query = _dbContext.Events.AsNoTracking()
-            .Where(x => !x.IsDisable
-                && (x.Status == EventStatusEnum.Published || x.Status == EventStatusEnum.Closed));
+            .Where(x => (x.Status == EventStatusEnum.Published || x.Status == EventStatusEnum.Closed));
 
         if (!string.IsNullOrWhiteSpace(request.Keyword))
         {
