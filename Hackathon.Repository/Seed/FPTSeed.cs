@@ -207,7 +207,7 @@ public static class FPTSeed
                 MaxMember = 4,
                 Status = EventStatusEnum.Published,
                 NumberRound = 2,
-                Season = "Spring 2026",
+                Season = SeasonEnum.Spring,
                 IsDisable = false,
                 CreatedAt = Now,
                 UpdatedAt = Now
@@ -225,7 +225,7 @@ public static class FPTSeed
                 MaxMember = 4,
                 Status = EventStatusEnum.Published,
                 NumberRound = 2,
-                Season = "Summer 2026",
+                Season = SeasonEnum.Summer,
                 IsDisable = false,
                 CreatedAt = Now,
                 UpdatedAt = Now

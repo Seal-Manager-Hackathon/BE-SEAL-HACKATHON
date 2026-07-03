@@ -1131,8 +1131,7 @@ public class Service : IService
         {
             var normalizedKeyword = request.Keyword.Trim().ToLower();
             query = query.Where(x => x.Name.ToLower().Contains(normalizedKeyword)
-                                     || (x.Description != null && x.Description.ToLower().Contains(normalizedKeyword))
-                                     || (x.Season != null && x.Season.ToLower().Contains(normalizedKeyword)));
+                                     || (x.Description != null && x.Description.ToLower().Contains(normalizedKeyword)));
         }
 
         if (request.Year.HasValue)
@@ -1184,8 +1183,7 @@ public class Service : IService
         {
             var normalizedKeyword = request.Keyword.Trim().ToLower();
             query = query.Where(x => x.Name.ToLower().Contains(normalizedKeyword)
-                                     || (x.Description != null && x.Description.ToLower().Contains(normalizedKeyword))
-                                     || (x.Season != null && x.Season.ToLower().Contains(normalizedKeyword)));
+                                     || (x.Description != null && x.Description.ToLower().Contains(normalizedKeyword)));
         }
 
         if (request.Year.HasValue)
@@ -1279,13 +1277,7 @@ public class Service : IService
         {
             var normalizedKeyword = request.Keyword.Trim().ToLower();
             query = query.Where(x => x.Name.ToLower().Contains(normalizedKeyword)
-                                     || (x.Description != null && x.Description.ToLower().Contains(normalizedKeyword))
-                                     || (x.Season != null && x.Season.ToLower().Contains(normalizedKeyword)));
-        }
-
-        if (request.Year.HasValue)
-        {
-            query = query.Where(x => x.StartTime.HasValue && x.StartTime.Value.Year == request.Year.Value);
+                                     || (x.Description != null && x.Description.ToLower().Contains(normalizedKeyword)));
         }
 
         if (!string.IsNullOrWhiteSpace(request.Status))

@@ -15,7 +15,7 @@ public class Events : BaseEntity<Guid>, IAuditableEntity
     public int? MaxMember { get; set; }
     public EventStatusEnum? Status { get; set; }
     public int? NumberRound { get; set; }
-    public string? Season { get; set; }
+    public SeasonEnum? Season { get; set; }
 
     public ICollection<Rounds> Rounds { get; set; } = new List<Rounds>();
     public ICollection<Tracks> Tracks { get; set; } = new List<Tracks>();

@@ -9,7 +9,7 @@ public static class Response
         public Guid AssignEventId { get; set; }
         public Guid EventId { get; set; }
         public string EventName { get; set; } = null!;
-        public string? Season { get; set; }
+        public Hackathon.Repository.Enum.SeasonEnum? Season { get; set; }
         public DateTimeOffset? StartTime { get; set; }
         public DateTimeOffset? EndTime { get; set; }
         public EventRoleEnum? Role { get; set; }

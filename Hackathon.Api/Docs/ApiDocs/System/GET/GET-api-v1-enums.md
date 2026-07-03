@@ -60,6 +60,12 @@ Public API (Không yêu cầu đăng nhập)
       "1": "Closed",
       "2": "Approved"
     },
+    "SeasonEnum": {
+      "0": "Spring",
+      "1": "Summer",
+      "2": "Autumn",
+      "3": "Winter"
+    },
     "RoleEnum": {
       "0": "Admin",
       "1": "Staff",
