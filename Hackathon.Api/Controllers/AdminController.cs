@@ -1,6 +1,7 @@
 using Hackathon.Api.Extention;
 using Hackathon.Repository.Enum;
 using Hackathon.Service.Models;
+using Hackathon.Service.Rounds;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using AdminService = Hackathon.Service.Admin;
@@ -81,5 +82,13 @@ public class AdminController : ControllerBase
     {
         var result = await _adminService.ChangeUserRole(userId, request);
         return Ok(ApiResponseFactory.Base(null, 200, result, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("rounds/{roundId:guid}/submissions")]
+    public async Task<IActionResult> GetRoundSubmissions(Guid roundId, [FromQuery] Request.GetStaffRoundSubmissionsQuery query)
+    {
+        var result = await _adminService.GetRoundSubmissions(roundId, query);
+        result.TraceId = HttpContext.TraceIdentifier;
+        return Ok(result);
     }
 }
