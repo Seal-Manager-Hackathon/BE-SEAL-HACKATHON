@@ -3,7 +3,6 @@ using Hackathon.Repository;
 using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
 using Hackathon.Service.Exceptions;
-using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,14 +46,12 @@ public class Service : IService
             RoundName = submission.RoundDetail.Round.Name,
             TeamId = submission.RoundDetail.RegisterTeam.TeamId,
             TeamName = submission.RoundDetail.RegisterTeam.Team.Name,
-            RegisterTeamId = submission.RoundDetail.RegisterTeamId,
-            EventId = submission.RoundDetail.Round.EventId,
             Url = submission.Url,
             Description = submission.Description,
-            Status = submission.Status,
+            Status = submission.Status?.ToString(),
             SubmittedAt = submission.SubmittedAt,
             GradingStatus = scoreResponse == null ? "NotGraded" : "Graded",
-            Message = scoreResponse == null ? "NOT_GRADED" : null,
+            Message = scoreResponse == null ? "Bài chưa được chấm" : null,
             Score = scoreResponse,
         };
     }
@@ -85,14 +82,12 @@ public class Service : IService
         var teamId = submission.RoundDetail.RegisterTeam.TeamId;
         var trackId = submission.RoundDetail.RegisterTeam.TrackId;
 
-        Enum.TryParse<RoleEnum>(role, true, out var userRole);
-
-        if (userRole == RoleEnum.Admin)
+        if (role == RoleEnum.Admin.ToString())
         {
             return;
         }
 
-        if (userRole == RoleEnum.Staff)
+        if (role == RoleEnum.Staff.ToString())
         {
             var isAssignedStaff = await _dbContext.AssignEvents
                 .AsNoTracking()
@@ -142,306 +137,29 @@ public class Service : IService
 
     private static Response.SubmissionScoreResponse? BuildSubmissionScore(List<Scores> scores)
     {
-        // Only latest Score per judge (AssignTrackId)
-        var latestScores = scores
-            .GroupBy(s => s.AssignTrackId)
-            .Select(g => g.OrderByDescending(s => s.UpdatedAt).First())
-            .ToList();
-
-        if (latestScores.Count == 0)
+        if (scores.Count == 0)
+        {
             return null;
+        }
 
-        var criteriaScores = latestScores
+        var criteriaScores = scores
             .SelectMany(x => x.ScoreItems)
-            .Where(x => !x.IsDisable && x.Score.HasValue && !x.CriteriaItem.IsDisable)
+            .Where(x => !x.IsDisable)
             .GroupBy(x => x.CriteriaItemId)
             .Select(x => new Response.CriteriaScoreResponse
             {
                 CriteriaItemId = x.Key,
                 CriteriaItemName = x.First().CriteriaItem.Name,
-                AverageCriteriaScore = x.Average(item => item.Score!.Value),
+                AverageCriteriaScore = x.Where(scoreItem => scoreItem.Score.HasValue).Select(scoreItem => scoreItem.Score!.Value).DefaultIfEmpty().Average(),
                 MaxScore = x.First().CriteriaItem.Score,
             })
             .ToList();
 
-        if (criteriaScores.Count == 0)
-            return null;
-
         return new Response.SubmissionScoreResponse
         {
-            AverageTotalScore = criteriaScores.Sum(x => x.AverageCriteriaScore ?? 0),
+            AverageTotalScore = scores.Select(x => x.TotalScore!.Value).Average(),
             IsAppealable = true,
             CriteriaScores = criteriaScores,
         };
-    }
-
-    public async Task<Response.SubmitRoundProjectResponse> SubmitRoundProject(Guid roundId, Guid registerTeamId, Request.SubmitRoundProjectRequest request)
-    {
-        var userId = GetCurrentUserId();
-        var now = DateTimeOffset.UtcNow;
-
-        // 1. Validate RegisterTeam
-        var registerTeam = await _dbContext.RegisterTeams
-            .Include(x => x.Topic)
-            .FirstOrDefaultAsync(x => x.Id == registerTeamId && !x.IsDisable);
-
-        if (registerTeam == null)
-        {
-            throw new NotFoundException("REGISTER_TEAM_NOT_FOUND");
-        }
-
-        // 1b. Validate team approved & not banned
-        if (registerTeam.Status != RegisterTeamStatusEnum.Approved)
-        {
-            throw new BadRequestException("REGISTER_TEAM_NOT_APPROVED");
-        }
-
-        if (registerTeam.IsBanned)
-        {
-            throw new BadRequestException("REGISTER_TEAM_BANNED");
-        }
-
-        // 1c. Validate team assigned to track & topic
-        if (!registerTeam.TrackId.HasValue || !registerTeam.TopicId.HasValue)
-        {
-            throw new BadRequestException("TRACK_OR_TOPIC_NOT_ASSIGNED");
-        }
-
-        if (registerTeam.Topic == null || registerTeam.Topic.TrackId != registerTeam.TrackId)
-        {
-            throw new BadRequestException("TRACK_OR_TOPIC_ASSIGNMENT_INVALID");
-        }
-
-        // 2. Validate leadership
-        var leaderDetail = await _dbContext.TeamDetails
-            .FirstOrDefaultAsync(x => x.TeamId == registerTeam.TeamId
-                                      && x.UserId == userId
-                                      && x.IsLeader
-                                      && !x.IsDisable
-                                      && x.Status == TeamDetailStatusEnum.Active);
-
-        if (leaderDetail == null)
-        {
-            throw new ForbiddenException("ONLY_TEAM_LEADER_CAN_SUBMIT");
-        }
-
-        // 3. Validate Round
-        var round = await _dbContext.Rounds
-            .FirstOrDefaultAsync(x => x.Id == roundId && x.EventId == registerTeam.EventId && !x.IsDisable);
-
-        if (round == null)
-        {
-            throw new NotFoundException("ROUND_NOT_FOUND");
-        }
-
-        // 4. Validate round submission open time
-        if (!round.StartSubmission.HasValue || !round.EndSubmission.HasValue
-            || now < round.StartSubmission.Value || now > round.EndSubmission.Value)
-        {
-            throw new BadRequestException("ROUND_SUBMISSION_CLOSED");
-        }
-
-        var transaction = await _dbContext.Database.BeginTransactionAsync();
-        try
-        {
-            // 5. Check or create RoundDetails
-            var roundDetail = await _dbContext.RoundDetails
-                .FirstOrDefaultAsync(x => x.RoundId == roundId
-                                          && x.RegisterTeamId == registerTeamId
-                                          && !x.IsDisable);
-
-            if (roundDetail == null)
-            {
-                roundDetail = new RoundDetails
-                {
-                    Id = Guid.NewGuid(),
-                    RoundId = roundId,
-                    RegisterTeamId = registerTeamId,
-                    IsDisable = false,
-                    CreatedAt = now,
-                    UpdatedAt = now
-                };
-                await _dbContext.RoundDetails.AddAsync(roundDetail);
-                await _dbContext.SaveChangesAsync();
-            }
-
-            // 6. Create Submission record
-            var submission = new Hackathon.Repository.Entity.Submissions
-            {
-                Id = Guid.NewGuid(),
-                RoundDetailId = roundDetail.Id,
-                Url = request.Url,
-                Description = request.Description,
-                Status = SubmissionStatusEnum.Submitted,
-                SubmittedAt = now,
-                IsDisable = false,
-                CreatedAt = now,
-                UpdatedAt = now
-            };
-
-            await _dbContext.Submissions.AddAsync(submission);
-            await _dbContext.SaveChangesAsync();
-
-            await transaction.CommitAsync();
-
-            return new Response.SubmitRoundProjectResponse
-            {
-                SubmissionId = submission.Id,
-                TeamId = registerTeam.TeamId,
-                SubmittedAt = now,
-                Status = submission.Status,
-                IsSuccess = true
-            };
-        }
-        catch
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
-    }
-
-    public async Task<BasePaginationResponse> GetSubmissions(Guid roundId, Guid registerTeamId, Request.GetSubmissionsRequest request)
-    {
-        var userId = GetCurrentUserId();
-
-        var roundDetail = await _dbContext.RoundDetails
-            .AsNoTracking()
-            .Include(x => x.Round)
-            .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
-            .FirstOrDefaultAsync(x => x.RoundId == roundId
-                                      && x.RegisterTeamId == registerTeamId
-                                      && !x.IsDisable);
-
-        if (roundDetail == null)
-        {
-            throw new NotFoundException("ROUND_DETAIL_NOT_FOUND");
-        }
-
-        // Apply same security policy as EnsureCanViewSubmission
-        var role = _httpContext.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
-        var eventId = roundDetail.Round.EventId;
-        var teamId = roundDetail.RegisterTeam.TeamId;
-        var trackId = roundDetail.RegisterTeam.TrackId;
-
-        bool hasAccess = false;
-        bool isAdminOrStaff = false;
-        Enum.TryParse<RoleEnum>(role, true, out var userRole);
-
-        if (userRole == RoleEnum.Admin)
-        {
-            hasAccess = true;
-            isAdminOrStaff = true;
-        }
-        else if (userRole == RoleEnum.Staff)
-        {
-            var isAssignedStaff = await _dbContext.AssignEvents
-                .AsNoTracking()
-                .AnyAsync(x => x.UserId == userId
-                    && x.EventId == eventId
-                    && !x.IsDisable
-                    && !x.Event.IsDisable);
-
-            if (isAssignedStaff)
-            {
-                hasAccess = true;
-                isAdminOrStaff = true;
-            }
-        }
-        else
-        {
-            // Check if user is a member of the team
-            var isTeamMember = await _dbContext.TeamDetails
-                .AsNoTracking()
-                .AnyAsync(x => x.TeamId == teamId
-                    && x.UserId == userId
-                    && !x.IsDisable
-                    && x.Status == TeamDetailStatusEnum.Active);
-
-            if (isTeamMember)
-            {
-                hasAccess = true;
-            }
-            else if (trackId.HasValue)
-            {
-                // Check if user is assigned as Judge for this track
-                var isAssignedJudge = await _dbContext.AssignTracks
-                    .AsNoTracking()
-                    .AnyAsync(x => x.TrackId == trackId.Value
-                        && !x.IsDisable
-                        && !x.AssignEvent.IsDisable
-                        && x.AssignEvent.UserId == userId
-                        && x.AssignEvent.EventId == eventId
-                        && x.AssignEvent.EventRole != null
-                        && x.AssignEvent.EventRole.Name == EventRoleEnum.Judge);
-
-                if (isAssignedJudge)
-                {
-                    hasAccess = true;
-                }
-            }
-        }
-
-        if (!hasAccess)
-        {
-            throw new ForbiddenException("FORBIDDEN");
-        }
-
-        var reqPageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
-        var reqPageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
-
-        var query = _dbContext.Submissions
-            .AsNoTracking()
-            .Where(x => x.RoundDetailId == roundDetail.Id && !x.IsDisable);
-
-        if (!isAdminOrStaff)
-        {
-            // Student / Judge — only latest submission
-            var latest = await query
-                .OrderByDescending(x => x.SubmittedAt)
-                .Select(x => new Response.RoundSubmissionItemResponse
-                {
-                    SubmissionId = x.Id,
-                    Url = x.Url,
-                    Description = x.Description,
-                    Status = x.Status,
-                    SubmittedAt = x.SubmittedAt
-                })
-                .FirstOrDefaultAsync();
-
-            var list = latest != null
-                ? new List<Response.RoundSubmissionItemResponse> { latest }
-                : new List<Response.RoundSubmissionItemResponse>();
-
-            return ApiResponseFactory.BasePagination(list, 1, 10, list.Count);
-        }
-
-        // Admin / Staff — all versions
-        var totalCount = await query.CountAsync();
-        var items = await query
-            .OrderByDescending(x => x.SubmittedAt)
-            .ToListAsync();
-
-        // Mark the latest submission
-        var latestSubmittedAt = items
-            .Where(x => x.SubmittedAt.HasValue)
-            .OrderByDescending(x => x.SubmittedAt)
-            .Select(x => x.SubmittedAt)
-            .FirstOrDefault();
-
-        var resultItems = items
-            .Skip((reqPageIndex - 1) * reqPageSize)
-            .Take(reqPageSize)
-            .Select(x => new Response.RoundSubmissionItemResponse
-            {
-                SubmissionId = x.Id,
-                Url = x.Url,
-                Description = x.Description,
-                Status = x.Status,
-                SubmittedAt = x.SubmittedAt,
-                IsLatest = x.SubmittedAt.HasValue && x.SubmittedAt == latestSubmittedAt
-            })
-            .ToList();
-
-        return ApiResponseFactory.BasePagination(resultItems, reqPageIndex, reqPageSize, totalCount);
     }
 }

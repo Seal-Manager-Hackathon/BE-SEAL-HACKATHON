@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Hackathon.Service.AssignTracks.Request;
+using Hackathon.Service.AssignTracks.Response;
 
 namespace Hackathon.Service.AssignTracks;
 
 public interface IService
 {
-    Task<Response.AssignTrackResponse> AssignLecturerToTrack(Guid eventId, Guid trackId, Request.AssignJudgeRequest request);
-    Task<List<Response.AssignTrackLecturerResponse>> GetLecturersAssignedToTrack(Guid eventId, Guid trackId, bool? isDisable);
-    Task<Guid> RemoveLecturerFromTrack(Guid assignTrackId);
+    Task<AssignTrackResponse> AssignJudgeToTrack(Guid trackId, AssignJudgeRequest request);
 }

@@ -2,6 +2,8 @@ using System.Security.Claims;
 using Hackathon.Repository;
 using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
+using Hackathon.Service.AssignEvents.Request;
+using Hackathon.Service.AssignEvents.Response;
 using Hackathon.Service.Exceptions;
 using Hackathon.Service.Models;
 using Microsoft.AspNetCore.Http;
@@ -40,8 +42,7 @@ public class Service : IService
 
     private bool IsCurrentUserAdmin()
     {
-        var role = _httpContext.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
-        return Enum.TryParse<RoleEnum>(role, true, out var userRole) && userRole == RoleEnum.Admin;
+        return _httpContext.HttpContext?.User.IsInRole(RoleEnum.Admin.ToString()) == true;
     }
 
     private async Task EnsureStaffAssignedToEvent(Guid eventId)
@@ -58,7 +59,7 @@ public class Service : IService
         }
     }
 
-    public async Task<BasePaginationResponse> GetEventAssignments(Guid eventId, EventRoleEnum? eventRole, string? keyword, Guid? trackId, bool? isDisable, PaginationRequest paginationRequest)
+    public async Task<BasePaginationResponse> GetAssignedLecturersByEvent(Guid eventId, Guid? eventRoleId, string? keyword, bool? isDisable, PaginationRequest paginationRequest)
     {
         var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
         if (!eventExists)
@@ -74,26 +75,16 @@ public class Service : IService
         var query = _dbContext.AssignEvents
             .Include(x => x.User)
             .Include(x => x.EventRole)
-            .Include(x => x.AssignTracks)
-                .ThenInclude(at => at.Track)
             .AsNoTracking()
             .Where(x => x.EventId == eventId
-                     && x.IsDisable == (isDisable ?? false));
+                     && x.EventRoleId != null
+                     && x.EventRole != null
+                     && x.IsDisable == (isDisable ?? false)
+                     && x.User.Role == RoleEnum.Lecturer);
 
-        // Staff chỉ thấy Lecturer (ko thấy Staff assignments)
-        if (!IsCurrentUserAdmin())
+        if (eventRoleId.HasValue)
         {
-            query = query.Where(x => x.User.Role == RoleEnum.Lecturer);
-        }
-
-        if (eventRole.HasValue)
-        {
-            query = query.Where(x => x.EventRole != null && x.EventRole.Name == eventRole.Value);
-        }
-
-        if (trackId.HasValue)
-        {
-            query = query.Where(x => x.AssignTracks.Any(at => at.TrackId == trackId && !at.IsDisable));
+            query = query.Where(x => x.EventRoleId == eventRoleId.Value);
         }
 
         if (!string.IsNullOrWhiteSpace(keyword))
@@ -112,98 +103,20 @@ public class Service : IService
             .OrderByDescending(x => x.CreatedAt)
             .Skip((paginationRequest.PageIndex - 1) * paginationRequest.PageSize)
             .Take(paginationRequest.PageSize)
-            .Select(x => new Response.AssignLecturerDetailResponse
+            .Select(x => new AssignLecturerDetailResponse
             {
                 Id = x.Id,
                 UserId = x.UserId,
-                FirstName = x.User.FirstName,
-                LastName = x.User.LastName,
+                FullName = x.User.FirstName + " " + x.User.LastName,
                 Email = x.User.Email,
                 EventRoleId = x.EventRoleId,
-                EventRole = x.EventRole != null ? (EventRoleEnum?)x.EventRole.Name : null,
-                Role = x.User.Role,
+                EventRoleName = x.EventRole.Name.ToString(),
                 IsDisable = x.IsDisable,
-                CreatedAt = x.CreatedAt,
-                AssignedTracks = x.AssignTracks
-                    .Where(at => !at.IsDisable)
-                    .Select(at => new Response.AssignedTrackInfo
-                    {
-                        AssignTrackId = at.Id,
-                        TrackId = at.TrackId,
-                        TrackTitle = at.Track.Title,
-                        IsDisable = at.IsDisable
-                    }).ToList()
+                CreatedAt = x.CreatedAt
             })
             .ToListAsync();
-
-        if (items.Count == 0)
-        {
-            throw new NotFoundException("NO_ONE_ASSIGNED_TO_EVENT");
-        }
 
         return ApiResponseFactory.BasePagination(items, paginationRequest.PageIndex, paginationRequest.PageSize, totalCount);
-    }
-
-    public async Task<BasePaginationResponse> GetAvailableLecturers(Guid eventId, Request.GetAvailableLecturersRequest request)
-    {
-        var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
-        if (!eventExists)
-        {
-            throw new NotFoundException("EVENT_NOT_FOUND");
-        }
-
-        if (!IsCurrentUserAdmin())
-        {
-            await EnsureStaffAssignedToEvent(eventId);
-        }
-
-        var unavailableLecturerIds = _dbContext.AssignEvents.AsNoTracking()
-            .Where(x => x.EventId == eventId && !x.IsDisable)
-            .Select(x => x.UserId);
-
-        var query = _dbContext.Users.AsNoTracking()
-            .Where(x => x.Role == RoleEnum.Lecturer
-                        && !x.IsDisable
-                        && x.Status == UserStatusEnum.Active
-                        && !unavailableLecturerIds.Contains(x.Id));
-
-        if (request.UserId.HasValue)
-        {
-            query = query.Where(x => x.Id == request.UserId.Value);
-        }
-
-        if (!string.IsNullOrWhiteSpace(request.Keyword))
-        {
-            var normalizedKeyword = request.Keyword.Trim().ToLower();
-            query = query.Where(x => (x.FirstName + " " + x.LastName).ToLower().Contains(normalizedKeyword)
-                                  || x.FirstName.ToLower().Contains(normalizedKeyword)
-                                  || x.LastName.ToLower().Contains(normalizedKeyword)
-                                  || x.Email.ToLower().Contains(normalizedKeyword));
-        }
-
-        var totalCount = await query.CountAsync();
-
-        request.PageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
-        request.PageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
-
-        var items = await query
-            .OrderBy(x => x.FirstName)
-            .ThenBy(x => x.LastName)
-            .Skip((request.PageIndex - 1) * request.PageSize)
-            .Take(request.PageSize)
-            .Select(x => new Response.AvailableLecturerResponse
-            {
-                Id = x.Id,
-                FirstName = x.FirstName,
-                LastName = x.LastName,
-                FullName = (x.FirstName + " " + x.LastName).Trim(),
-                Email = x.Email,
-                PhoneNumber = x.PhoneNumber,
-                AvatarUrl = x.AvatarUrl,
-            })
-            .ToListAsync();
-
-        return ApiResponseFactory.BasePagination(items, request.PageIndex, request.PageSize, totalCount);
     }
 
     public async Task<Guid> RemoveLecturerAssignment(Guid assignEventId)
@@ -242,7 +155,7 @@ public class Service : IService
         return assignEvent.Id;
     }
 
-    public async Task<Response.AssignEventResponse> AssignLecturerToEvent(Guid eventId, Request.AssignLecturerRequest request)
+    public async Task<AssignEventResponse> AssignLecturerToEvent(Guid eventId, AssignLecturerRequest request)
     {
         var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
         if (!eventExists)
@@ -257,14 +170,14 @@ public class Service : IService
 
         var lecturer = await _dbContext.Users.AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == request.LecturerId && !x.IsDisable && x.Status == UserStatusEnum.Active);
-
+        
         if (lecturer == null || lecturer.Role != RoleEnum.Lecturer)
         {
             throw new NotFoundException("LECTURER_NOT_FOUND");
         }
 
         var eventRole = await _dbContext.EventRoles.AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Name == request.EventRole && !x.IsDisable);
+            .FirstOrDefaultAsync(x => x.Id == request.EventRoleId && !x.IsDisable);
 
         if (eventRole == null)
         {
@@ -276,12 +189,12 @@ public class Service : IService
             .Where(x => x.UserId == request.LecturerId && x.EventId == eventId && !x.IsDisable)
             .ToListAsync();
 
-        if (existingAssignments.Any(x => x.EventRoleId == eventRole.Id))
+        if (existingAssignments.Any(x => x.EventRoleId == request.EventRoleId))
         {
             throw new ConflictException("LECTURER_ALREADY_ASSIGNED_THIS_ROLE");
         }
 
-        if (existingAssignments.Any(x => x.EventRoleId != eventRole.Id))
+        if (existingAssignments.Any(x => x.EventRoleId != request.EventRoleId))
         {
             // Already assigned as the other role
             throw new ConflictException("LECTURER_CANNOT_BE_BOTH_MENTOR_AND_JUDGE");
@@ -290,7 +203,7 @@ public class Service : IService
         var newAssignment = new Repository.Entity.AssignEvents
         {
             UserId = request.LecturerId,
-            EventRoleId = eventRole.Id,
+            EventRoleId = request.EventRoleId,
             EventId = eventId,
             IsDisable = false,
             CreatedAt = DateTimeOffset.UtcNow,
@@ -300,7 +213,7 @@ public class Service : IService
         _dbContext.AssignEvents.Add(newAssignment);
         await _dbContext.SaveChangesAsync();
 
-        return new Response.AssignEventResponse
+        return new AssignEventResponse
         {
             Id = newAssignment.Id,
             UserId = newAssignment.UserId,

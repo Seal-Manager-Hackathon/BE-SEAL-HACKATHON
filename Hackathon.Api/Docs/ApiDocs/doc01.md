@@ -50,11 +50,11 @@ Luồng này mô tả hành trình của một sinh viên từ lúc tham gia h�
    * API 17: [`GET /api/v1/events/{eventId}/tracks`](Events/GET/GET-api-v1-events-eventId-tracks.md) — Từ event lấy danh sách track/bảng đấu của event.
    * [`- GET /api/v1/events/{eventId}/summary`](Events/GET/GET-api-v1-events-eventId-summary.md) — Thống kê số team đã duyệt, số track, số round.
 3. **Xem chi tiết Round trong Event**:
-   * [`- GET /api/v1/rounds/{roundId}`](Rounds/GET/api-v1-rounds-id-get.md) — Khi bấm vào chi tiết round, lấy thông tin timeline, hạn nộp bài và cấu hình của round.
+   * [`- GET /api/v1/rounds/{roundId}`](Rounds/GET/GET-api-v1-rounds-roundId.md) — Khi bấm vào chi tiết round, lấy thông tin timeline, hạn nộp bài và cấu hình của round.
    * API 58: [`GET /api/v1/rounds/{roundId}/criteria`](Rounds/GET/GET-api-v1-rounds-roundId-criteria.md) — Trong chi tiết round, hiển thị tiêu chí chấm điểm của round đó.
    * API 50: [`GET /api/v1/tracks/{trackId}/topics`](Tracks/GET/GET-api-v1-tracks-trackId-topics.md) — Khi bấm vào một track, lấy danh sách topic/đề bài của track.
 4. **Xem bảng xếp hạng khi khám phá event**:
-   * [`- GET /api/v1/rounds/{roundId}/ranking`](Rounds/GET/api-v1-rounds-id-ranking-get.md) — Từ round xem bảng xếp hạng theo điểm trung bình submission của round đó.
+   * [`- GET /api/v1/rounds/{roundId}/ranking`](Rounds/GET/GET-api-v1-rounds-roundId-ranking.md) — Từ round xem bảng xếp hạng theo điểm trung bình submission của round đó.
    * [`- GET /api/v1/events/{eventId}/leaderboard`](Events/GET/GET-api-v1-events-eventId-leaderboard.md) — Từ event xem bảng xếp hạng chung của event, trả về `teamId` và tổng điểm của từng team.
    * [`- GET /api/v1/events/{eventId}/teams/{teamId}/scores`](Events/GET/GET-api-v1-events-eventId-teams-teamId-scores.md) — Khi bấm vào một team trong leaderboard, xem điểm của team đó theo từng round và điểm chi tiết của từng tiêu chí.
 5. **Xem cơ cấu giải thưởng**:
@@ -119,16 +119,13 @@ Luồng này mô tả hành trình của một sinh viên từ lúc tham gia h�
    * API 53: [`GET /api/v1/rounds/teams/{teamId}`](Rounds/GET/GET-api-v1-rounds-teams-teamId.md) — Lấy danh sách các round mà team được quyền tham gia thi đấu, có thể lọc theo event. Team mới được gán Track + Topic sẽ mặc định thấy `RoundNo = 1`; các round sau chỉ xuất hiện nếu team được chọn đi tiếp khi kết thúc round trước.
    * API 58: [`GET /api/v1/rounds/{roundId}/criteria`](Rounds/GET/GET-api-v1-rounds-roundId-criteria.md) — Xem tiêu chí chấm điểm của round.
 2. **Xem chi tiết round và danh sách bài nộp**:
-   * [`- GET /api/v1/rounds/{roundId}`](Rounds/GET/api-v1-rounds-id-get.md) — Khi bấm vào chi tiết round, xem timeline, hạn nộp và cấu hình round.
-   * [`- GET /api/v1/rounds/{roundId}/my-submissions`](Rounds/GET/api-v1-rounds-id-my-submissions-get.md) — Trong chi tiết round có nút/thẻ "Bài nộp" để xem lịch sử bài nộp của team trong round; hệ thống lấy bài nộp cuối cùng để chấm khi đến thời gian kết thúc.
+   * [`- GET /api/v1/rounds/{roundId}`](Rounds/GET/GET-api-v1-rounds-roundId.md) — Khi bấm vào chi tiết round, xem timeline, hạn nộp và cấu hình round.
+   * [`- GET /api/v1/rounds/{roundId}/my-submissions`](Rounds/GET/GET-api-v1-rounds-roundId-my-submissions.md) — Trong chi tiết round có nút/thẻ "Bài nộp" để xem lịch sử bài nộp của team trong round; hệ thống lấy bài nộp cuối cùng để chấm khi đến thời gian kết thúc.
    * [`- GET /api/v1/submissions/{submissionId}`](Submissions/GET/GET-api-v1-submissions-submissionId.md) — Xem chi tiết một bài nộp trong lịch sử.
 3. **Nộp bài thi cho round (Chỉ dành cho Team Leader)**:
    * API 55: [`POST /api/v1/rounds/{roundId}/submit-assignment`](Rounds/POST/POST-api-v1-rounds-roundId-submit-assignment.md) — Phần nộp bài của round, ghi nhận link sản phẩm và mô tả bài làm.
-   * API 56: [`POST /api/v1/submissions/rounds/{roundId}/register-teams/{registerTeamId}`](Submissions/POST/api-v1-rounds-id-register-teams-id-submissions-post.md) — Nộp bài mới (route chi tiết, kèm kiểm tra track/topic).
-   > **Lưu ý:** Team chỉ được nộp bài khi đã được duyệt (`Approved`), không bị ban, đã gán Track + Topic, và đang trong thời gian mở nộp bài.
 4. **Xem kết quả bài nộp**:
-   * [`- GET /api/v1/rounds/{roundId}/scores/me`](Rounds/GET/api-v1-rounds-id-scores-me-get.md) — Xem kết quả/điểm của team trong round; nếu chưa có kết quả thì hiển thị "Bài chưa được chấm".
-   * [`- GET /api/v1/rounds/{roundId}/teams/{teamId}/latest-submission-score`](Rounds/GET/api-v1-rounds-id-teams-id-latest-submission-score-get.md) — Kiểm tra submission mới nhất của team trong round đã được chấm chưa.
+   * [`- GET /api/v1/rounds/{roundId}/scores/me`](Rounds/GET/GET-api-v1-rounds-roundId-scores-me.md) — Xem kết quả/điểm của team trong round; nếu chưa có kết quả thì hiển thị "Bài chưa được chấm".
    * [`- GET /api/v1/submissions/{submissionId}`](Submissions/GET/GET-api-v1-submissions-submissionId.md) — Xem chi tiết bài nộp kèm trạng thái `NotGraded` hoặc điểm đã chấm nếu có.
 
 ---
@@ -138,14 +135,13 @@ Luồng này mô tả hành trình của một sinh viên từ lúc tham gia h�
 
 1. **Xem điểm số của đội mình**:
    * [`- GET /api/v1/events/{eventId}/teams/{teamId}/scores`](Events/GET/GET-api-v1-events-eventId-teams-teamId-scores.md) — Khi bấm chi tiết điểm, xem điểm của team trong event theo từng round và điểm chi tiết của từng tiêu chí.
-   * [`- GET /api/v1/rounds/{roundId}/scores/me`](Rounds/GET/api-v1-rounds-id-scores-me-get.md) — Xem điểm/kết quả của team ở round đang chọn.
-   * [`- GET /api/v1/rounds/{roundId}/teams/{teamId}/latest-submission-score`](Rounds/GET/api-v1-rounds-id-teams-id-latest-submission-score-get.md) — Kiểm tra submission mới nhất của team trong round đang chọn đã được chấm chưa.
+   * [`- GET /api/v1/rounds/{roundId}/scores/me`](Rounds/GET/GET-api-v1-rounds-roundId-scores-me.md) — Xem điểm/kết quả của team ở round đang chọn.
 2. **Xem bảng xếp hạng**:
-   * [`- GET /api/v1/rounds/{roundId}/ranking`](Rounds/GET/api-v1-rounds-id-ranking-get.md) — Xem bảng xếp hạng theo round.
+   * [`- GET /api/v1/rounds/{roundId}/ranking`](Rounds/GET/GET-api-v1-rounds-roundId-ranking.md) — Xem bảng xếp hạng theo round.
    * [`- GET /api/v1/events/{eventId}/leaderboard`](Events/GET/GET-api-v1-events-eventId-leaderboard.md) — Xem bảng xếp hạng event; trong danh sách này team biết mình đang đứng hạng thứ mấy trong event.
    * `- GET /api/v1/teams/{teamId}/round-results` — Xem kết quả tổng hợp của team qua từng vòng (Đi tiếp - Advanced / Dừng lại - Stopped).
 3. **Gửi khiếu nại/phúc khảo khi bài đã có kết quả**:
-   * [`- POST /api/v1/teams/{teamId}/submissions/{submissionId}/appeal`](Teams/POST/POST-api-v1-teams-teamId-submissions-submissionId-appeal.md) — Khi bài nộp đã có kết quả, FE hiển thị nút khiếu nại; request truyền `submissionId` để Staff/Admin xem đúng bài và duyệt regrade nếu cần.
+   * [`- POST /api/v1/teams/{teamId}/submissions/{submissionId}/appeal`](Teams/POST/POST-api-v1-teams-teamId-submissions-submissionId-appeal.md) — Khi bài nộp đã có kết quả, FE hiển thị nút khiếu nại; request truyền `submissionId` để Staff/Admin xem đúng bài và phân công judge khác chấm lại nếu cần.
 
 ---
 
@@ -189,10 +185,8 @@ Luồng này dành cho Admin/BTC để khởi tạo, cấu hình, phân công nh
 *Mô tả*: Admin thiết lập cơ cấu các vòng thi trong event và xây dựng bộ rubric tiêu chí chấm điểm chi tiết cho từng vòng.
 
 1. **Tạo các vòng thi (Rounds)**:
-   * [`- POST /api/v1/admin/events/{eventId}/rounds`](Admin/POST/api-v1-admin-events-id-rounds-post.md) — Tạo round (Vòng 1, Vòng 2) kèm mốc thời gian làm bài, hạn nộp bài (`StartSubmission`, `EndSubmission`).
-   * [`- GET /api/v1/admin/events/{eventId}/rounds`](Admin/GET/api-v1-admin-events-id-rounds-get.md) — Admin xem danh sách round của event, filter theo trạng thái disable, có phân trang.
-   * [`- PATCH /api/v1/admin/rounds/{roundId}`](Admin/PATCH/api-v1-admin-rounds-id-patch.md) — Điều chỉnh timeline nộp bài hoặc tên vòng thi.
-   * [`- DELETE /api/v1/admin/rounds/{roundId}`](Admin/DELETE/api-v1-admin-rounds-id-delete.md) — Admin xóa mềm vòng thi.
+   * `- POST /api/v1/admin/events/{eventId}/rounds` — Tạo round (Vòng 1, Vòng 2) kèm mốc thời gian làm bài, hạn nộp bài (`StartSubmission`, `EndSubmission`).
+   * `- PATCH /api/v1/admin/rounds/{roundId}` — Điều chỉnh timeline nộp bài hoặc tên vòng thi.
 2. **Thiết lập bộ tiêu chí chấm điểm (Criteria templates)**:
    * `- POST /api/v1/admin/rounds/{roundId}/criteria-templates` — Tạo nhóm tiêu chí (ví dụ: Bộ tiêu chí chấm Source Code, Bộ chấm Pitching).
 3. **Thêm tiêu chí chi tiết (Criteria items)**:
@@ -282,16 +276,15 @@ Luồng này dành cho Admin/BTC để khởi tạo, cấu hình, phân công nh
 ---
 
 ## Luồng 2.8: Giải quyết phúc khảo (Regrade Workflow)
-*Mô tả*: BTC tiếp nhận đơn khiếu nại điểm số từ thí sinh và phê duyệt chấm lại. Judge được chấm lại là judge đã chấm score gốc của bài đó.
+*Mô tả*: BTC tiếp nhận đơn khiếu nại điểm số từ thí sinh, phê duyệt chấm lại và chỉ định giám khảo thực hiện chấm lại.
 
 1. **Xem danh sách và chi tiết khiếu nại**:
-   * [`- GET /api/v1/staff/reports`](Staff/GET/api-v1-staff-reports-get.md) — BTC lọc danh sách khiếu nại của thí sinh.
-   * [`- GET /api/v1/staff/reports/{reportId}`](Staff/GET/api-v1-staff-reports-reportId-get.md) — BTC xem chi tiết report, trong đó có `submissionId` để mở đúng bài nộp cần xử lý.
+   * [`- GET /api/v1/staff/reports`](Staff/GET/GET-api-v1-staff-reports.md) — BTC lọc danh sách khiếu nại của thí sinh.
+   * [`- GET /api/v1/staff/reports/{reportId}`](Staff/GET/GET-api-v1-staff-reports-reportId.md) — BTC xem chi tiết report, trong đó có `submissionId` để mở đúng bài nộp cần xử lý.
 2. **Xử lý đơn phúc khảo**:
-   * *Đồng ý chấm lại*: [`- POST /api/v1/staff/reports/{reportId}/regrade`](Staff/POST/api-v1-staff-reports-reportId-regrade-post.md) — BTC đồng ý cho chấm lại bài nộp gắn với report, set `Submissions.IsRegrade = true`.
-   * *Từ chối đơn*: [`- PATCH /api/v1/staff/reports/{reportId}/status`](Staff/PATCH/api-v1-staff-reports-reportId-status-patch.md) — BTC từ chối phúc khảo (chuyển trạng thái Closed) kèm lý do giải thích rõ ràng.
-3. **Theo dõi tiến độ**:
-   * [`- GET /api/v1/staff/submissions/regrade`](Staff/GET/api-v1-staff-submissions-regrade-get.md) — BTC xem danh sách bài nộp đã duyệt regrade, biết score gốc nào chưa chấm lại, đã chấm một phần hay hoàn tất.
+   * *Đồng ý chấm lại*: [`- POST /api/v1/staff/reports/{reportId}/regrade`](Staff/POST/POST-api-v1-staff-reports-reportId-regrade.md) — BTC đồng ý cho chấm lại bài nộp gắn với report.
+   * *Giao việc cho Giám khảo*: [`- POST /api/v1/staff/reports/{reportId}/assign-judge`](Staff/POST/POST-api-v1-staff-reports-reportId-assign-judge.md) — Phân công judge khác/phù hợp chấm lại bài nộp theo `submissionId` của report (BR-REP-05).
+   * *Từ chối đơn*: [`- PATCH /api/v1/staff/reports/{reportId}/status`](Staff/PATCH/PATCH-api-v1-staff-reports-reportId-status.md) — BTC từ chối phúc khảo (chuyển trạng thái Closed) kèm lý do giải thích rõ ràng.
 
 ---
 
@@ -344,6 +337,5 @@ Luồng này mô tả hoạt động của giảng viên được BTC phân côn
    * *Xem lại điểm đã chấm*: [`- GET /api/v1/judge/submissions/{submissionId}/scores/me`](Judge/GET/GET-api-v1-judge-submissions-submissionId-scores-me.md) — Judge xem lại điểm của chính mình trên submission thuộc track được phân công.
    * *Sửa điểm*: [`- PATCH /api/v1/judge/scores/{scoreId}`](Judge/PATCH/PATCH-api-v1-judge-scores-scoreId.md) — Judge sửa điểm trước khi finalized, chỉ với score do chính judge tạo trong track được phân công.
    * *Khóa điểm*: [`- POST /api/v1/judge/scores/{scoreId}/finalize`](Judge/POST/POST-api-v1-judge-scores-scoreId-finalize.md) — Judge xác nhận kết quả chấm điểm của mình.
-5. **Chấm lại phúc khảo (Khi bài đã được BTC duyệt)**:
-   * *Xem danh sách regrade*: [`- GET /api/v1/judge/submissions/regrade`](Judge/GET/api-v1-judge-submissions-regrade-get.md) — Judge xem danh sách bài phúc khảo dựa trên score gốc do chính mình đã chấm.
-   * *Chấm lại*: [`- POST /api/v1/judge/scores/{scoreId}/retake`](Judge/POST/api-v1-judge-scores-scoreId-retake-post.md) — Nhập điểm chấm lại từ score gốc của chính judge; score mới lưu `IsRetake = true` và `RetakeFromScoreId = scoreId`.
+5. **Chấm lại phúc khảo (Khi được BTC phân công)**:
+   * *Chấm lại*: [`- POST /api/v1/judge/scores/{scoreId}/retake`](Judge/POST/POST-api-v1-judge-scores-scoreId-retake.md) — Nhập điểm chấm lại cho bài thi phúc khảo nếu judge được phân công xử lý phúc khảo trong track liên quan.

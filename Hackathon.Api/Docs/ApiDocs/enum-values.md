@@ -20,6 +20,7 @@ Trạng thái của một Event.
 - `0`: Draft (Bản nháp, chưa công bố)
 - `1`: Published (Đã công bố/Đang diễn ra)
 - `2`: Closed (Đã đóng)
+- `3`: Cancelled (Bị hủy)
 
 ## 4. RegisterTeamStatusEnum (Trạng thái đăng ký Event của Team)
 Trạng thái xét duyệt khi một team nộp đơn tham gia Event.
@@ -55,7 +56,6 @@ Trạng thái của một thông báo gửi đến người dùng.
 Trạng thái các Report/Feedback của người dùng gửi cho Admin.
 - `0`: Open (Đang mở/Chưa xử lý)
 - `1`: Closed (Đã đóng/Đã giải quyết)
-- `2`: Approved (Đã duyệt/Chấp nhận chấm lại)
 
 ## 10. SubmissionStatusEnum (Trạng thái nộp bài)
 Trạng thái nộp bài tập / Assignment.
@@ -67,7 +67,6 @@ Trạng thái nộp bài tập / Assignment.
 Vai trò cụ thể của một User (Staff/Lecturer) trong một Event.
 - `0`: Mentor (Người hướng dẫn)
 - `1`: Judge (Giám khảo)
-- `2`: Staff (Nhân viên vận hành)
 
 ## 12. LeaderBoardsStatusEnum / ScoresStatusEnum
 Các cờ trạng thái dùng trong Bảng xếp hạng và Chấm điểm.
@@ -77,9 +76,3 @@ Các cờ trạng thái dùng trong Bảng xếp hạng và Chấm điểm.
 - `ScoresStatusEnum.IsDisable` = `2`
 
 *(Lưu ý: FE khi gửi request các tham số lọc trạng thái thường có thể dùng string như "Pending", "Approved" (tùy API có parse string hay không), nhưng khi nhận kết quả từ backend nếu kiểu dữ liệu trả về là chuỗi thì sẽ hiện `"Approved"`, nếu kiểu trả về là int thì sẽ hiện `1`. Mapping theo bảng trên là chính xác tuyệt đối).*
-
-## 13. NotificationTargetTypeEnum (Phân loại thông báo)
-Phân loại phạm vi/đối tượng nhận của một thông báo.
-- `0`: Personal (Gửi riêng cho một người dùng)
-- `1`: Team (Gửi cho một team)
-- `2`: System (Gửi toàn hệ thống, tất cả user đều nhận được)

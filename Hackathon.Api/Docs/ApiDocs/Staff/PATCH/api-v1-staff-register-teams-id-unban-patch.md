@@ -34,14 +34,11 @@ Response dùng `ApiResponseFactory.Base(...)`.
   "traceId": "string|null",
   "timestampUtc": "datetime",
   "data": {
-    "id": "guid",
+    "registerId": "guid",
     "teamId": "guid",
-    "teamName": "string",
     "eventId": "guid",
-    "eventName": "string",
-    "status": 2 /* Rejected */,
-    "rejectionReason": "string|null",
-    "isBanned": false
+    "isBanned": false,
+    "status": 2 /* Rejected */
   },
   "message": "TEAM_UNBANNED_SUCCESSFULLY"
 }

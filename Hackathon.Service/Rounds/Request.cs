@@ -5,7 +5,7 @@ namespace Hackathon.Service.Rounds;
 
 public static class Request
 {
-    public class CreateSubmissionRequest
+    public class SubmitAssignmentRequest
     {
         public string? Url { get; set; }
         public string? Description { get; set; }
@@ -27,17 +27,5 @@ public static class Request
     public class AssignJudgesToSubmissionRequest
     {
         public List<Guid> JudgeIds { get; set; } = new();
-    }
-
-    public class UpdateRoundRequest
-    {
-        public string? Name { get; set; }
-        public string? Description { get; set; }
-        public int? RoundNo { get; set; }
-        public DateTimeOffset? StartTime { get; set; }
-        public DateTimeOffset? EndTime { get; set; }
-        public DateTimeOffset? StartSubmission { get; set; }
-        public DateTimeOffset? EndSubmission { get; set; }
-        public int? LimitTeam { get; set; }
     }
 }

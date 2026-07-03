@@ -4,7 +4,6 @@ using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
 using Hackathon.Service.Exceptions;
 using Hackathon.Service.Models;
-using Hackathon.Service.Notifications;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using UserEntity = Hackathon.Repository.Entity.Users;
@@ -47,6 +46,8 @@ public class Service : IService
                && !string.IsNullOrWhiteSpace(user.FirstName)
                && !string.IsNullOrWhiteSpace(user.LastName)
                && !string.IsNullOrWhiteSpace(user.PhoneNumber)
+               && !string.IsNullOrWhiteSpace(user.Address)
+               && user.DateOfBirth != DateTimeOffset.MinValue
                && !string.IsNullOrWhiteSpace(user.StudentId)
                && !string.IsNullOrWhiteSpace(user.College);
     }
@@ -121,16 +122,10 @@ public class Service : IService
 
         if (!IsProfileCompleted(user))
         {
-            var missing = new System.Collections.Generic.List<string>();
-            if (string.IsNullOrWhiteSpace(user.FirstName)) missing.Add("firstName");
-            if (string.IsNullOrWhiteSpace(user.LastName)) missing.Add("lastName");
-            if (string.IsNullOrWhiteSpace(user.PhoneNumber)) missing.Add("phoneNumber");
-            if (string.IsNullOrWhiteSpace(user.StudentId)) missing.Add("studentId");
-            if (string.IsNullOrWhiteSpace(user.College)) missing.Add("college");
-            throw new BadRequestException($"USER_PROFILE_NOT_COMPLETED: missing {string.Join(", ", missing)}");
+            throw new BadRequestException("USER_PROFILE_NOT_COMPLETED");
         }
 
-        var isDuplicatedName = await _dbContext.Teams.AnyAsync(x => x.Name == teamName);
+        var isDuplicatedName = await _dbContext.Teams.AnyAsync(x => x.Name.ToLower() == teamName.ToLower());
         if (isDuplicatedName)
         {
             throw new ConflictException("TEAM_NAME_ALREADY_EXISTS");
@@ -183,7 +178,7 @@ public class Service : IService
                 {
                     UserId = leader.UserId,
                     IsLeader = leader.IsLeader,
-                    Status = leader.Status,
+                    Status = leader.Status?.ToString(),
                 }
             }
         };
@@ -273,9 +268,9 @@ public class Service : IService
             Id = Guid.NewGuid(),
             TeamId = teamId,
             UserId = invitedUser.Id,
-            Title = NotificationTemplates.TeamInvitationReceivedTitle,
+            Title = "TEAM_INVITATION_RECEIVED",
             Status = NotificationStatusEnum.Unread,
-            Description = string.Format(NotificationTemplates.TeamInvitationReceivedBody, team.Name),
+            Description = $"Bạn nhận được lời mời tham gia team {team.Name}.",
             CreatedAt = now,
             UpdatedAt = now,
         };
@@ -311,7 +306,7 @@ public class Service : IService
                 TeamName = x.Team.Name,
                 CanEdit = x.Team.CanEdit,
                 IsLeader = x.IsLeader,
-                MemberStatus = x.Status,
+                MemberStatus = x.Status.ToString(),
                 JoinedAt = x.CreatedAt
             })
             .ToListAsync();
@@ -326,14 +321,21 @@ public class Service : IService
             .AsNoTracking()
             .Include(x => x.TeamDetails)
                 .ThenInclude(td => td.User)
-            .FirstOrDefaultAsync(x => x.Id == teamId);
+            .FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
 
         if (team == null)
         {
             throw new NotFoundException("TEAM_NOT_FOUND");
         }
 
-        // All authenticated roles can view team details
+        var isMember = team.TeamDetails.Any(x => x.UserId == userId && !x.IsDisable);
+        var isStaff = _httpContext.HttpContext?.User.IsInRole(RoleEnum.Staff.ToString()) == true
+                      || _httpContext.HttpContext?.User.IsInRole(RoleEnum.Admin.ToString()) == true;
+        if (!isMember && !isStaff)
+        {
+            throw new ForbiddenException("TEAM_NOT_VISIBLE_TO_USER");
+        }
+
         var isLeader = false;
         var currentUserDetail = team.TeamDetails.FirstOrDefault(x => x.UserId == userId && !x.IsDisable);
         if (currentUserDetail != null)
@@ -361,7 +363,7 @@ public class Service : IService
                     StudentId = x.User.StudentId,
                     College = x.User.College,
                     IsLeader = x.IsLeader,
-                    Status = x.Status
+                    Status = x.Status?.ToString()
                 })
                 .ToList()
         };
@@ -455,30 +457,10 @@ public class Service : IService
             member.UpdatedAt = now;
         }
 
-        // Notify removed members
-        var leader = await _dbContext.Users
-            .Where(x => x.Id == leaderId)
-            .Select(x => $"{x.FirstName} {x.LastName}")
-            .FirstOrDefaultAsync() ?? "";
-
-        var removedNotifications = membersToRemove.Select(m => new Hackathon.Repository.Entity.Notifications
-        {
-            Id = Guid.NewGuid(),
-            TeamId = teamId,
-            UserId = m.UserId,
-            Title = NotificationTemplates.TeamMemberRemovedTitle,
-            Status = NotificationStatusEnum.Unread,
-            Description = string.Format(NotificationTemplates.TeamMemberRemovedBody, leader, team.Name),
-            CreatedAt = now,
-            UpdatedAt = now,
-            IsDisable = false
-        }).ToList();
-
         var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             _dbContext.TeamDetails.UpdateRange(membersToRemove);
-            _dbContext.Notifications.AddRange(removedNotifications);
             await _dbContext.SaveChangesAsync();
             await transaction.CommitAsync();
         }
@@ -570,7 +552,14 @@ public class Service : IService
 
         var totalCount = await query.CountAsync();
 
-        query = query.OrderByDescending(x => x.CreatedAt);
+        if (string.IsNullOrWhiteSpace(request.Status))
+        {
+            query = query.OrderBy(x => x.Status == RegisterTeamStatusEnum.Pending ? 0 : (x.Status == RegisterTeamStatusEnum.Approved ? 1 : 2)).ThenByDescending(x => x.CreatedAt);
+        }
+        else
+        {
+            query = query.OrderByDescending(x => x.CreatedAt);
+        }
 
         var items = await query
             .Skip((paginationRequest.PageIndex - 1) * paginationRequest.PageSize)
@@ -582,7 +571,7 @@ public class Service : IService
                 TeamName = team.Name,
                 EventId = x.EventId,
                 EventName = x.Event.Name,
-                Status = x.Status,
+                Status = x.Status.ToString() ?? string.Empty,
                 Description = x.Description,
                 CreatedAt = x.CreatedAt
             })
@@ -626,7 +615,7 @@ public class Service : IService
                 RegisterId = x.Id,
                 EventId = x.EventId,
                 EventName = x.Event.Name,
-                Status = x.Status,
+                Status = x.Status.ToString()!,
                 CreatedAt = x.CreatedAt
             })
             .FirstOrDefaultAsync();
@@ -668,489 +657,12 @@ public class Service : IService
                 RegisterTeamId = x.Id,
                 TeamId = x.TeamId,
                 TeamName = x.Team.Name,
-                Status = x.Status,
+                Status = x.Status.ToString()!,
                 RejectionReason = x.RejectionReason,
                 CreatedAt = x.CreatedAt
             })
             .ToListAsync();
 
         return ApiResponseFactory.BasePagination(items, reqPageIndex, reqPageSize, totalCount);
-    }
-
-    public async Task<BasePaginationResponse> GetAdminTeams(string? keyword, bool? isDisable, PaginationRequest paginationRequest)
-    {
-        var query = _dbContext.Teams.AsNoTracking().AsQueryable();
-
-        if (isDisable.HasValue)
-        {
-            query = query.Where(x => x.IsDisable == isDisable.Value);
-        }
-
-        if (!string.IsNullOrWhiteSpace(keyword))
-        {
-            var normalizedKeyword = keyword.Trim().ToLower();
-            query = query.Where(x => x.Name.ToLower().Contains(normalizedKeyword));
-        }
-
-        var totalCount = await query.CountAsync();
-
-        var items = await query
-            .OrderByDescending(x => x.CreatedAt)
-            .Skip((paginationRequest.PageIndex - 1) * paginationRequest.PageSize)
-            .Take(paginationRequest.PageSize)
-            .Select(x => new Response.AdminTeamResponse
-            {
-                Id = x.Id,
-                Name = x.Name,
-                CanEdit = x.CanEdit,
-                IsDisable = x.IsDisable,
-                CreatedAt = x.CreatedAt,
-                MemberCount = x.TeamDetails.Count(td => !td.IsDisable && td.Status == TeamDetailStatusEnum.Active)
-            })
-            .ToListAsync();
-
-        return ApiResponseFactory.BasePagination(items, paginationRequest.PageIndex, paginationRequest.PageSize, totalCount);
-    }
-
-    public async Task<List<Response.TeamMemberResponse>> GetTeamMembers(Guid teamId)
-    {
-        var userId = GetCurrentUserId();
-        var team = await _dbContext.Teams
-            .AsNoTracking()
-            .Include(x => x.TeamDetails)
-                .ThenInclude(td => td.User)
-            .FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
-
-        if (team == null)
-        {
-            throw new NotFoundException("TEAM_NOT_FOUND");
-        }
-
-        var isMember = team.TeamDetails.Any(x => x.UserId == userId && !x.IsDisable);
-
-        var userRoleClaim = _httpContext.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
-        Enum.TryParse<RoleEnum>(userRoleClaim, true, out var userRole);
-        var isStaff = userRole == RoleEnum.Staff || userRole == RoleEnum.Admin;
-
-        if (!isMember && !isStaff)
-        {
-            throw new ForbiddenException("TEAM_NOT_VISIBLE_TO_USER");
-        }
-
-        var members = team.TeamDetails
-            .Where(x => !x.IsDisable)
-            .OrderByDescending(x => x.IsLeader)
-            .ThenBy(x => x.CreatedAt)
-            .Select(x => new Response.TeamMemberResponse
-            {
-                UserId = x.UserId,
-                FirstName = x.User.FirstName,
-                LastName = x.User.LastName,
-                DateOfBirth = x.User.DateOfBirth,
-                StudentId = x.User.StudentId,
-                College = x.User.College,
-                IsLeader = x.IsLeader,
-                Status = x.Status
-            })
-            .ToList();
-
-        return members;
-    }
-
-    public async Task<List<Response.TeamNotificationResponse>> GetTeamNotifications(Guid teamId)
-    {
-        var userId = GetCurrentUserId();
-        var teamExists = await _dbContext.Teams.AnyAsync(x => x.Id == teamId && !x.IsDisable);
-        if (!teamExists)
-        {
-            throw new NotFoundException("TEAM_NOT_FOUND");
-        }
-
-        var isMember = await _dbContext.TeamDetails.AnyAsync(x => x.TeamId == teamId
-            && x.UserId == userId
-            && x.Status == TeamDetailStatusEnum.Active
-            && !x.IsDisable);
-
-        if (!isMember)
-        {
-            throw new ForbiddenException("NOT_A_TEAM_MEMBER");
-        }
-
-        var notifications = await _dbContext.Notifications
-            .AsNoTracking()
-            .Where(x => x.TeamId == teamId && !x.IsDisable)
-            .OrderByDescending(x => x.CreatedAt)
-            .Select(x => new Response.TeamNotificationResponse
-            {
-                Id = x.Id,
-                TeamId = x.TeamId,
-                Title = x.Title,
-                Description = x.Description,
-                TargetType = x.TargetType,
-                CreatedAt = x.CreatedAt
-            })
-            .ToListAsync();
-
-        return notifications;
-    }
-
-    public async Task<BasePaginationResponse> GetMyTeamRegisterEvents(string? status, PaginationRequest paginationRequest)
-    {
-        var userId = GetCurrentUserId();
-
-        // Query active memberships of current student user, prioritizing leadership
-        var myActiveMemberships = await _dbContext.TeamDetails
-            .AsNoTracking()
-            .Where(x => x.UserId == userId
-                        && x.Status == TeamDetailStatusEnum.Active
-                        && !x.IsDisable
-                        && !x.Team.IsDisable)
-            .OrderByDescending(x => x.IsLeader)
-            .ThenBy(x => x.CreatedAt)
-            .ToListAsync();
-
-        if (myActiveMemberships.Count == 0)
-        {
-            throw new ForbiddenException("NOT_TEAM_MEMBER");
-        }
-
-        // Pick the primary active team of the user
-        var chosenMembership = myActiveMemberships[0];
-        var teamId = chosenMembership.TeamId;
-
-        var query = _dbContext.RegisterTeams
-            .AsNoTracking()
-            .Include(x => x.Team)
-            .Include(x => x.Event)
-            .Where(x => x.TeamId == teamId && !x.IsDisable);
-
-        if (!string.IsNullOrWhiteSpace(status))
-        {
-            if (!Enum.TryParse<RegisterTeamStatusEnum>(status.Trim(), true, out var statusEnum))
-            {
-                throw new BadRequestException("INVALID_STATUS");
-            }
-            query = query.Where(x => x.Status == statusEnum);
-        }
-
-        var pageIndex = paginationRequest.PageIndex <= 0 ? 1 : paginationRequest.PageIndex;
-        var pageSize = paginationRequest.PageSize <= 0 ? 10 : Math.Min(paginationRequest.PageSize, 100);
-
-        var totalCount = await query.CountAsync();
-        var items = await query
-            .OrderByDescending(x => x.CreatedAt)
-            .Skip((pageIndex - 1) * pageSize)
-            .Take(pageSize)
-            .Select(x => new Response.MyTeamRegisterEventResponse
-            {
-                RegisterId = x.Id,
-                TeamId = x.TeamId,
-                TeamName = x.Team.Name,
-                EventId = x.EventId,
-                EventName = x.Event.Name,
-                Status = x.Status,
-                StatusName = x.Status.HasValue ? x.Status.Value.ToString() : string.Empty,
-                Description = x.Description,
-                RejectionReason = x.RejectionReason,
-                CreatedAt = x.CreatedAt
-            })
-            .ToListAsync();
-
-        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
-    }
-
-    public async Task<string> DisableTeam(Guid teamId)
-    {
-        var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
-        if (team == null)
-        {
-            throw new NotFoundException("TEAM_NOT_FOUND");
-        }
-
-        team.IsDisable = true;
-        team.UpdatedAt = DateTimeOffset.UtcNow;
-
-        _dbContext.Teams.Update(team);
-        await _dbContext.SaveChangesAsync();
-
-        return "TEAM_DISABLED_SUCCESSFULLY";
-    }
-
-    public async Task<string> EnableTeam(Guid teamId)
-    {
-        var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && x.IsDisable);
-        if (team == null)
-        {
-            throw new NotFoundException("TEAM_NOT_FOUND");
-        }
-
-        team.IsDisable = false;
-        team.UpdatedAt = DateTimeOffset.UtcNow;
-
-        _dbContext.Teams.Update(team);
-        await _dbContext.SaveChangesAsync();
-
-        return "TEAM_ENABLED_SUCCESSFULLY";
-    }
-
-    public async Task<string> LockTeam(Guid teamId)
-    {
-        var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
-        if (team == null)
-        {
-            throw new NotFoundException("TEAM_NOT_FOUND");
-        }
-
-        team.CanEdit = false;
-        team.UpdatedAt = DateTimeOffset.UtcNow;
-
-        _dbContext.Teams.Update(team);
-        await _dbContext.SaveChangesAsync();
-
-        return "TEAM_LOCKED_SUCCESSFULLY";
-    }
-
-    public async Task<string> UnlockTeam(Guid teamId)
-    {
-        var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
-        if (team == null)
-        {
-            throw new NotFoundException("TEAM_NOT_FOUND");
-        }
-
-        team.CanEdit = true;
-        team.UpdatedAt = DateTimeOffset.UtcNow;
-
-        _dbContext.Teams.Update(team);
-        await _dbContext.SaveChangesAsync();
-
-        return "TEAM_UNLOCKED_SUCCESSFULLY";
-    }
-
-    public async Task<string> LeaveTeam(Guid teamId)
-    {
-        var userId = GetCurrentUserId();
-
-        await ValidateAndGetStudentAsync(userId);
-
-        await ValidateAndGetEditableTeamAsync(teamId);
-
-        var member = await _dbContext.TeamDetails.FirstOrDefaultAsync(x =>
-            x.TeamId == teamId &&
-            x.UserId == userId &&
-            !x.IsDisable &&
-            x.Status == TeamDetailStatusEnum.Active);
-
-        if (member == null)
-        {
-            throw new NotFoundException("NOT_A_TEAM_MEMBER");
-        }
-
-        if (member.IsLeader)
-        {
-            throw new ForbiddenException("LEADER_CANNOT_LEAVE_TEAM");
-        }
-
-        member.Status = TeamDetailStatusEnum.Inactive;
-        member.IsDisable = true;
-        member.UpdatedAt = DateTimeOffset.UtcNow;
-
-        var transaction = await _dbContext.Database.BeginTransactionAsync();
-        try
-        {
-            _dbContext.TeamDetails.Update(member);
-            await _dbContext.SaveChangesAsync();
-            await transaction.CommitAsync();
-        }
-        catch
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
-
-        return "TEAM_LEFT_SUCCESSFULLY";
-    }
-
-    public async Task<Response.AppealResponse> AppealRound(Guid teamId, Guid roundId, Request.RoundAppealRequest request)
-    {
-        var userId = GetCurrentUserId();
-
-        await ValidateAndGetStudentAsync(userId);
-
-        await ValidateAndGetLeaderDetailAsync(teamId, userId, "ONLY_TEAM_LEADER_CAN_APPEAL");
-
-        var roundDetail = await _dbContext.RoundDetails
-            .Include(x => x.RegisterTeam)
-            .FirstOrDefaultAsync(x => x.RoundId == roundId
-                                      && x.RegisterTeam.TeamId == teamId
-                                      && !x.IsDisable
-                                      && !x.RegisterTeam.IsDisable);
-
-        if (roundDetail == null)
-        {
-            throw new NotFoundException("TEAM_NOT_FOUND");
-        }
-
-        var submission = await _dbContext.Submissions
-            .FirstOrDefaultAsync(x => x.RoundDetailId == roundDetail.Id && !x.IsDisable);
-
-        if (submission == null)
-        {
-            throw new NotFoundException("SUBMISSION_NOT_FOUND");
-        }
-
-        var alreadyAppealed = await _dbContext.Reports
-            .AnyAsync(r => r.Submission.RoundDetailId == roundDetail.Id
-                           && r.TypeReport == "Phúc khảo"
-                           && !r.IsDisable);
-
-        if (alreadyAppealed)
-        {
-            throw new ConflictException("APPEAL_ALREADY_SUBMITTED_FOR_ROUND");
-        }
-
-        var assignEventId = await _dbContext.Scores
-            .Where(s => s.SubmissionId == submission.Id && !s.IsDisable)
-            .Select(s => s.AssignTrack.AssignEventId)
-            .FirstOrDefaultAsync();
-
-        if (assignEventId == Guid.Empty)
-        {
-            var assignEvent = await _dbContext.AssignEvents
-                .FirstOrDefaultAsync(ae => ae.EventId == roundDetail.RegisterTeam.EventId && !ae.IsDisable);
-
-            if (assignEvent == null)
-            {
-                throw new NotFoundException("ASSIGN_EVENT_NOT_FOUND");
-            }
-            assignEventId = assignEvent.Id;
-        }
-
-        var report = new Reports
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            AssignEventId = assignEventId,
-            SubmissionId = submission.Id,
-            Title = request.Title,
-            Description = request.Description,
-            ImgUrl = request.ImgUrl,
-            FileUrl = request.FileUrl,
-            TypeReport = "Phúc khảo",
-            Status = ReportStatusEnum.Open,
-            CreatedAt = DateTimeOffset.UtcNow,
-            UpdatedAt = DateTimeOffset.UtcNow
-        };
-
-        var transaction = await _dbContext.Database.BeginTransactionAsync();
-        try
-        {
-            await _dbContext.Reports.AddAsync(report);
-            await _dbContext.SaveChangesAsync();
-            await transaction.CommitAsync();
-        }
-        catch
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
-
-        return new Response.AppealResponse
-        {
-            ReportId = report.Id,
-            SubmissionId = submission.Id
-        };
-    }
-
-    public async Task<Response.AppealResponse> AppealSubmission(Guid teamId, Guid submissionId, Request.SubmissionAppealRequest request)
-    {
-        var userId = GetCurrentUserId();
-
-        await ValidateAndGetStudentAsync(userId);
-
-        await ValidateAndGetLeaderDetailAsync(teamId, userId, "ONLY_TEAM_LEADER_CAN_APPEAL");
-
-        var submission = await _dbContext.Submissions
-            .Include(s => s.RoundDetail)
-                .ThenInclude(rd => rd.RegisterTeam)
-            .FirstOrDefaultAsync(s => s.Id == submissionId && !s.IsDisable);
-
-        if (submission == null)
-        {
-            throw new NotFoundException("SUBMISSION_NOT_FOUND");
-        }
-
-        if (submission.RoundDetail.RegisterTeam.TeamId != teamId)
-        {
-            throw new ForbiddenException("SUBMISSION_NOT_BELONG_TO_TEAM");
-        }
-
-        var isGraded = await _dbContext.Scores
-            .AnyAsync(x => x.SubmissionId == submissionId && !x.IsDisable && !x.IsMock && x.TotalScore.HasValue);
-
-        if (!isGraded)
-        {
-            throw new BadRequestException("SUBMISSION_NOT_GRADED");
-        }
-
-        var alreadyAppealed = await _dbContext.Reports
-            .AnyAsync(r => r.SubmissionId == submissionId && r.TypeReport == "Phúc khảo" && !r.IsDisable);
-
-        if (alreadyAppealed)
-        {
-            throw new ConflictException("APPEAL_ALREADY_SUBMITTED_FOR_SUBMISSION");
-        }
-
-        var assignEventId = await _dbContext.Scores
-            .Where(s => s.SubmissionId == submissionId && !s.IsDisable)
-            .Select(s => s.AssignTrack.AssignEventId)
-            .FirstOrDefaultAsync();
-
-        if (assignEventId == Guid.Empty)
-        {
-            var assignEvent = await _dbContext.AssignEvents
-                .FirstOrDefaultAsync(ae => ae.EventId == submission.RoundDetail.RegisterTeam.EventId && !ae.IsDisable);
-
-            if (assignEvent == null)
-            {
-                throw new NotFoundException("ASSIGN_EVENT_NOT_FOUND");
-            }
-            assignEventId = assignEvent.Id;
-        }
-
-        var report = new Reports
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            AssignEventId = assignEventId,
-            SubmissionId = submissionId,
-            Title = request.Title,
-            Description = request.Description,
-            ImgUrl = request.ImgUrl,
-            FileUrl = request.FileUrl,
-            TypeReport = "Phúc khảo",
-            Status = ReportStatusEnum.Open,
-            CreatedAt = DateTimeOffset.UtcNow,
-            UpdatedAt = DateTimeOffset.UtcNow
-        };
-
-        var transaction = await _dbContext.Database.BeginTransactionAsync();
-        try
-        {
-            await _dbContext.Reports.AddAsync(report);
-            await _dbContext.SaveChangesAsync();
-            await transaction.CommitAsync();
-        }
-        catch
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
-
-        return new Response.AppealResponse
-        {
-            ReportId = report.Id,
-            SubmissionId = submissionId
-        };
     }
 }

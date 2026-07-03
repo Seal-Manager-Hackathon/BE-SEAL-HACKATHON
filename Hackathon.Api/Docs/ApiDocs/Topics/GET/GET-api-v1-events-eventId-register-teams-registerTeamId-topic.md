@@ -21,8 +21,8 @@ Authenticated User (Yêu cầu đăng nhập, dành cho thành viên của team)
 *Cấu trúc trả về dạng `BaseResponse`:*
 ```json
 {
-  "isSuccess": true,
-  "isFailed": false,
+  "IsSuccess": true,
+  "IsFailed": false,
   "Value": {
     "registerTeamId": "d1e2f3a4-b5c6-d7e8-f9a0-b1c2d3e4f5a6",
     "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -33,38 +33,35 @@ Authenticated User (Yêu cầu đăng nhập, dành cho thành viên của team)
     "topicTitle": "Quản lý Bệnh viện",
     "topicDescription": "Xây dựng hệ thống số hóa quy trình khám chữa bệnh"
   },
-  "error": null,
-  "traceId": "00-84a1e9df64619d8...",
-  "timestampUtc": "2026-06-19T10:00:00.0000000Z"
+  "Error": null,
+  "TraceId": "00-84a1e9df64619d8...",
+  "TimestampUtc": "2026-06-19T10:00:00.0000000Z"
 }
 ```
 
 ## Business rules
 - Trả về Track và Topic của team đã được assign trong bảng `RegisterTeams`.
 - `registerTeamId` and `eventId` phải khớp với bản ghi thực tế, nếu không trả `REGISTER_TEAM_NOT_FOUND`.
-- Nếu cả Track và Topic của đơn đăng ký đều chưa được assign (bằng `null`) -> trả lỗi `400 BadRequest` với mã lỗi `TRACK_NOT_ASSIGNED`.
-- Nếu một trong hai trường Track hoặc Topic bị `null` (gặp lỗi phân công chưa hoàn thiện) -> trả lỗi `400 BadRequest` với mã lỗi `TRACK_OR_TOPIC_ASSIGNMENT_INCOMPLETE_CONTACT_ADMIN` để báo người dùng liên hệ ban tổ chức/admin hỗ trợ.
+- Nếu chưa được assign Topic hay Track nào, các trường Id/Title sẽ là `null`.
 
 ## Lỗi có thể xảy ra
 *Khi gặp lỗi, API trả về cấu trúc lỗi chuẩn \`ErrorResponse\`:*
 
 ```json
 {
-  "title": "Not Found",
-  "status": 404,
+  "Title": "Not Found",
+  "Status": 404,
   "Detail": "Không tìm thấy thông tin đơn đăng ký của đội.",
-  "messageCode": "REGISTER_TEAM_NOT_FOUND",
-  "errors": null,
-  "traceId": "0HN1A2B3C4D5E",
-  "timestampUtc": "2026-06-22T08:00:00Z"
+  "MessageCode": "REGISTER_TEAM_NOT_FOUND",
+  "Errors": null,
+  "TraceId": "0HN1A2B3C4D5E",
+  "TimestampUtc": "2026-06-22T08:00:00Z"
 }
 ```
 
 ### Các mã lỗi cụ thể:
 | HTTP | messageCode | message/detail |
 |---:|---|---|
-| 400 | TRACK_NOT_ASSIGNED | Đội thi chưa được phân công ban thi đấu (Track). |
-| 400 | TRACK_OR_TOPIC_ASSIGNMENT_INCOMPLETE_CONTACT_ADMIN | Quá trình phân ban hoặc đề tài chưa hoàn tất. Vui lòng liên hệ Admin/Staff. |
 | 401 | UNAUTHORIZED | Access token không hợp lệ hoặc thiếu. |
 | 404 | REGISTER_TEAM_NOT_FOUND | Đơn đăng ký không tồn tại. |
 | 500 | INTERNAL_SERVER_ERROR | Gặp lỗi hệ thống. |

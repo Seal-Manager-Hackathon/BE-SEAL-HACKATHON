@@ -87,4 +87,9 @@ public static class Request
     {
         public EventRoleEnum? EventRole { get; set; }
     }
+
+    public class AssignStaffToEventRequest
+    {
+        public Guid UserId { get; set; }
+    }
 }

@@ -16,10 +16,4 @@ public interface IService
     Task<Response.RegisterTeamActionResponse> RejectRegisterTeam(Guid registerTeamId, Request.RejectRegisterTeamRequest request);
     Task<Response.RegisterTeamActionResponse> BanRegisterTeam(Guid registerTeamId, Request.BanTeamRequest request);
     Task<Response.RegisterTeamActionResponse> UnbanRegisterTeam(Guid registerTeamId);
-
-    Task<(List<Response.RegisterTeamTrackResponse> Data, string Message)> GetTeamsByTrack(Guid eventId, Guid trackId, Request.GetTeamsByTrackRequest request);
-    Task<(List<Response.RegisterTeamApprovedResponse> Data, string Message)> GetApprovedTeams(Guid eventId, Request.GetApprovedTeamsRequest request);
-    Task<(List<Response.RegisterTeamByRoundResponse> Data, string Message)> GetTeamsByRound(Guid eventId, Request.GetTeamsByRoundRequest request);
-    Task<Response.TeamRoundSubmissionResponse> GetTeamRoundSubmissions(Guid registerTeamId, Guid? roundId);
-    Task<Response.RegisterTeamAssignmentStatusResponse> GetRegisterTeamAssignmentStatus(Guid registerTeamId);
 }

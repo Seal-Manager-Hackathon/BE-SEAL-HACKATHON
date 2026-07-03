@@ -40,8 +40,7 @@ public class Service : IService
 
     private bool IsCurrentUserAdmin()
     {
-        var role = _httpContext.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
-        return Enum.TryParse<RoleEnum>(role, true, out var userRole) && userRole == RoleEnum.Admin;
+        return _httpContext.HttpContext?.User.IsInRole(RoleEnum.Admin.ToString()) == true;
     }
 
     private async Task EnsureStaffAssignedToEvent(Guid eventId)
@@ -74,7 +73,6 @@ public class Service : IService
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
 
-        var now = DateTimeOffset.UtcNow;
         var rounds = await _dbContext.Rounds
             .AsNoTracking()
             .Where(x => x.EventId == eventId && !x.IsDisable)
@@ -93,44 +91,11 @@ public class Service : IService
                 EndSubmission = x.EndSubmission,
                 LimitTeam = x.LimitTeam,
                 IsDisable = x.IsDisable,
-                IsEnded = x.EndTime.HasValue && x.EndTime.Value <= now,
                 CreatedAt = x.CreatedAt
             })
             .ToListAsync();
 
         return rounds;
-    }
-
-    public async Task<Response.RoundDetailResponse> GetRound(Guid roundId)
-    {
-        var now = DateTimeOffset.UtcNow;
-        var round = await _dbContext.Rounds
-            .AsNoTracking()
-            .Where(x => x.Id == roundId && !x.IsDisable && !x.Event.IsDisable)
-            .Select(x => new Response.RoundDetailResponse
-            {
-                Id = x.Id,
-                EventId = x.EventId,
-                EventName = x.Event.Name,
-                Name = x.Name,
-                Description = x.Description,
-                RoundNo = x.RoundNo,
-                StartTime = x.StartTime,
-                EndTime = x.EndTime,
-                StartSubmission = x.StartSubmission,
-                EndSubmission = x.EndSubmission,
-                LimitTeam = x.LimitTeam,
-                IsDisable = x.IsDisable,
-                IsEnded = x.EndTime.HasValue && x.EndTime.Value <= now
-            })
-            .FirstOrDefaultAsync();
-
-        if (round == null)
-        {
-            throw new NotFoundException("ROUND_NOT_FOUND");
-        }
-
-        return round;
     }
 
     public async Task<List<Response.MyRoundResponse>> GetMyRounds(Guid? eventId, Guid teamId)
@@ -188,8 +153,7 @@ public class Service : IService
                 StartTime = x.Round.StartTime,
                 EndTime = x.Round.EndTime,
                 StartSubmission = x.Round.StartSubmission,
-                EndSubmission = x.Round.EndSubmission,
-                IsEnded = x.Round.EndTime.HasValue && x.Round.EndTime.Value <= DateTimeOffset.UtcNow
+                EndSubmission = x.Round.EndSubmission
             })
             .ToListAsync();
 
@@ -234,7 +198,7 @@ public class Service : IService
         return detail;
     }
 
-    public async Task<Response.CreateSubmissionResponse> CreateSubmission(Guid roundId, Request.CreateSubmissionRequest request)
+    public async Task<Response.SubmitAssignmentResponse> SubmitAssignment(Guid roundId, Request.SubmitAssignmentRequest request)
     {
         if (roundId == Guid.Empty)
         {
@@ -275,12 +239,19 @@ public class Service : IService
                                       && x.RegisterTeam.Status == RegisterTeamStatusEnum.Approved
                                       && x.RegisterTeam.Team.TeamDetails.Any(td => td.UserId == userId
                                                                                    && !td.IsDisable
-                                                                                   && td.Status == TeamDetailStatusEnum.Active
-                                                                                   && td.IsLeader));
+                                                                                   && td.Status == TeamDetailStatusEnum.Active));
 
         if (roundDetail == null)
         {
             throw new ForbiddenException("USER_TEAM_NOT_ALLOWED_TO_SUBMIT_THIS_ROUND");
+        }
+
+        var submission = await _dbContext.Submissions
+            .FirstOrDefaultAsync(x => x.RoundDetailId == roundDetail.Id && !x.IsDisable);
+
+        if (submission != null)
+        {
+            throw new ConflictException("ALREADY_SUBMITTED");
         }
 
         var newSubmission = new Hackathon.Repository.Entity.Submissions
@@ -298,7 +269,7 @@ public class Service : IService
         await _dbContext.Submissions.AddAsync(newSubmission);
         await _dbContext.SaveChangesAsync();
 
-        return new Response.CreateSubmissionResponse
+        return new Response.SubmitAssignmentResponse
         {
             SubmissionId = newSubmission.Id,
             TeamId = roundDetail.RegisterTeam.TeamId,
@@ -315,351 +286,28 @@ public class Service : IService
             throw new NotFoundException("ROUND_NOT_FOUND");
         }
 
-        var userId = GetCurrentUserId();
-
-        var latestSubmission = await _dbContext.Submissions
+        var submissionsQuery = _dbContext.Submissions
             .AsNoTracking()
             .Include(x => x.RoundDetail)
-            .Where(x => x.RoundDetail.RoundId == roundId && !x.IsDisable)
-            .Where(x => x.RoundDetail.RegisterTeam.Team.TeamDetails.Any(td => td.UserId == userId && !td.IsDisable && td.Status == TeamDetailStatusEnum.Active))
+            .Where(x => x.RoundDetail.RoundId == roundId && !x.IsDisable);
+
+        var totalCount = await submissionsQuery.CountAsync();
+
+        var submissions = await submissionsQuery
             .OrderByDescending(x => x.SubmittedAt)
+            .Skip((query.PageIndex - 1) * query.PageSize)
+            .Take(query.PageSize)
             .Select(x => new Response.SubmissionResponse
             {
                 SubmissionId = x.Id,
                 Url = x.Url,
                 SubmittedAt = x.SubmittedAt,
-                Status = x.Status,
-                TotalScore = x.Scores.Where(s => !s.IsDisable).OrderByDescending(s => s.CreatedAt).Select(s => s.TotalScore).FirstOrDefault()
+                Status = x.Status.ToString(),
+                TotalScore = x.Scores.OrderByDescending(s => s.CreatedAt).FirstOrDefault().TotalScore
             })
-            .FirstOrDefaultAsync();
-
-        var list = latestSubmission != null
-            ? new List<Response.SubmissionResponse> { latestSubmission }
-            : new List<Response.SubmissionResponse>();
-
-        return ApiResponseFactory.BasePagination(list, 1, 10, list.Count);
-    }
-
-    public async Task<BasePaginationResponse> GetMyRoundSubmissions(Guid roundId, Request.GetSubmissionsQuery query)
-    {
-        var roundExists = await _dbContext.Rounds
-            .AsNoTracking()
-            .AnyAsync(x => x.Id == roundId && !x.IsDisable && !x.Event.IsDisable);
-
-        if (!roundExists)
-        {
-            throw new NotFoundException("ROUND_NOT_FOUND");
-        }
-
-        var userId = GetCurrentUserId();
-
-        var isUserInAnyTeam = await _dbContext.TeamDetails
-            .AsNoTracking()
-            .AnyAsync(td => td.UserId == userId && !td.IsDisable && td.Status == TeamDetailStatusEnum.Active);
-
-        if (!isUserInAnyTeam)
-        {
-            throw new ForbiddenException("FORBIDDEN");
-        }
-
-        var hasRoundDetail = await _dbContext.RoundDetails
-            .AsNoTracking()
-            .AnyAsync(x => x.RoundId == roundId
-                && !x.IsDisable
-                && !x.Round.IsDisable
-                && !x.Round.Event.IsDisable
-                && !x.RegisterTeam.IsDisable
-                && !x.RegisterTeam.Team.IsDisable
-                && x.RegisterTeam.Team.TeamDetails.Any(td => td.UserId == userId
-                    && !td.IsDisable
-                    && td.Status == TeamDetailStatusEnum.Active));
-
-        if (!hasRoundDetail)
-        {
-            throw new NotFoundException("ROUND_DETAIL_NOT_FOUND");
-        }
-
-        var latestSubmission = await _dbContext.Submissions
-            .AsNoTracking()
-            .Where(x => x.RoundDetail.RoundId == roundId
-                && !x.IsDisable
-                && !x.RoundDetail.IsDisable
-                && !x.RoundDetail.Round.IsDisable
-                && !x.RoundDetail.Round.Event.IsDisable
-                && !x.RoundDetail.RegisterTeam.IsDisable
-                && !x.RoundDetail.RegisterTeam.Team.IsDisable
-                && x.RoundDetail.RegisterTeam.Team.TeamDetails.Any(td => td.UserId == userId
-                    && !td.IsDisable
-                    && td.Status == TeamDetailStatusEnum.Active))
-            .OrderByDescending(x => x.SubmittedAt ?? x.CreatedAt)
-            .Select(x => new Response.MyRoundSubmissionResponse
-            {
-                SubmissionId = x.Id,
-                RoundId = x.RoundDetail.RoundId,
-                RoundName = x.RoundDetail.Round.Name,
-                RoundDetailId = x.RoundDetailId,
-                Url = x.Url,
-                Description = x.Description,
-                Status = x.Status,
-                SubmittedAt = x.SubmittedAt,
-                IsLatest = true,
-                GradingStatus = x.Scores.Any(s => !s.IsDisable && s.TotalScore.HasValue) ? "Graded" : "NotGraded"
-            })
-            .FirstOrDefaultAsync();
-
-        var list = latestSubmission != null ? new List<Response.MyRoundSubmissionResponse> { latestSubmission } : new List<Response.MyRoundSubmissionResponse>();
-        return ApiResponseFactory.BasePagination(list, 1, 10, list.Count);
-    }
-
-    public async Task<Response.MyRoundScoreResponse> GetMyRoundScore(Guid roundId)
-    {
-        var roundExists = await _dbContext.Rounds
-            .AsNoTracking()
-            .AnyAsync(x => x.Id == roundId && !x.IsDisable && !x.Event.IsDisable);
-
-        if (!roundExists)
-        {
-            throw new NotFoundException("ROUND_NOT_FOUND");
-        }
-
-        var userId = GetCurrentUserId();
-
-        var isUserInAnyTeam = await _dbContext.TeamDetails
-            .AsNoTracking()
-            .AnyAsync(td => td.UserId == userId && !td.IsDisable && td.Status == TeamDetailStatusEnum.Active);
-
-        if (!isUserInAnyTeam)
-        {
-            throw new ForbiddenException("FORBIDDEN");
-        }
-
-        var roundDetail = await _dbContext.RoundDetails
-            .AsNoTracking()
-            .Include(x => x.Round)
-            .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
-            .Include(x => x.Submissions).ThenInclude(x => x.Scores).ThenInclude(x => x.ScoreItems).ThenInclude(x => x.CriteriaItem)
-            .Where(x => x.RoundId == roundId
-                && !x.IsDisable
-                && !x.Round.IsDisable
-                && !x.Round.Event.IsDisable
-                && !x.RegisterTeam.IsDisable
-                && !x.RegisterTeam.Team.IsDisable
-                && x.RegisterTeam.Team.TeamDetails.Any(td => td.UserId == userId
-                    && !td.IsDisable
-                    && td.Status == TeamDetailStatusEnum.Active))
-            .FirstOrDefaultAsync();
-
-        if (roundDetail == null)
-        {
-            throw new NotFoundException("ROUND_DETAIL_NOT_FOUND");
-        }
-
-        var submission = roundDetail.Submissions
-            .Where(x => !x.IsDisable && x.Status == SubmissionStatusEnum.Submitted)
-            .OrderByDescending(x => x.SubmittedAt ?? x.CreatedAt)
-            .FirstOrDefault();
-
-        if (submission == null)
-        {
-            throw new NotFoundException("SUBMISSION_NOT_FOUND");
-        }
-
-        var criteriaScores = CalculateCriteriaScores(submission);
-        if (criteriaScores.Count == 0)
-        {
-            return new Response.MyRoundScoreResponse
-            {
-                RoundId = roundDetail.RoundId,
-                RoundName = roundDetail.Round.Name,
-                TeamId = roundDetail.RegisterTeam.TeamId,
-                TeamName = roundDetail.RegisterTeam.Team.Name,
-                SubmissionId = submission.Id,
-                GradingStatus = "NotGraded",
-                Message = "NOT_GRADED",
-                AverageTotalScore = null,
-                IsAppealable = false,
-                CriteriaScores = new List<Response.MyRoundCriteriaScoreResponse>()
-            };
-        }
-
-        var totalScore = criteriaScores.Sum(x => x.AverageCriteriaScore);
-
-        return new Response.MyRoundScoreResponse
-        {
-            RoundId = roundDetail.RoundId,
-            RoundName = roundDetail.Round.Name,
-            TeamId = roundDetail.RegisterTeam.TeamId,
-            TeamName = roundDetail.RegisterTeam.Team.Name,
-            SubmissionId = submission.Id,
-            GradingStatus = "Graded",
-            AverageTotalScore = totalScore,
-            IsAppealable = true,
-            CriteriaScores = criteriaScores
-        };
-    }
-
-    public async Task<Response.TeamLatestSubmissionScoreResponse> GetTeamLatestSubmissionScore(Guid roundId, Guid teamId)
-    {
-        var roundExists = await _dbContext.Rounds
-            .AsNoTracking()
-            .AnyAsync(x => x.Id == roundId && !x.IsDisable && !x.Event.IsDisable);
-
-        if (!roundExists)
-        {
-            throw new NotFoundException("ROUND_NOT_FOUND");
-        }
-
-        var teamExists = await _dbContext.Teams
-            .AsNoTracking()
-            .AnyAsync(x => x.Id == teamId && !x.IsDisable);
-
-        if (!teamExists)
-        {
-            throw new NotFoundException("TEAM_NOT_FOUND");
-        }
-
-        var roundDetail = await _dbContext.RoundDetails
-            .AsNoTracking()
-            .Include(x => x.Round)
-            .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
-            .Include(x => x.Submissions).ThenInclude(x => x.Scores).ThenInclude(x => x.ScoreItems).ThenInclude(x => x.CriteriaItem)
-            .Where(x => x.RoundId == roundId
-                && !x.IsDisable
-                && !x.Round.IsDisable
-                && !x.Round.Event.IsDisable
-                && !x.RegisterTeam.IsDisable
-                && !x.RegisterTeam.Team.IsDisable
-                && x.RegisterTeam.TeamId == teamId)
-            .FirstOrDefaultAsync();
-
-        if (roundDetail == null)
-        {
-            throw new NotFoundException("ROUND_DETAIL_NOT_FOUND");
-        }
-
-        var submission = roundDetail.Submissions
-            .Where(x => !x.IsDisable && x.Status == SubmissionStatusEnum.Submitted)
-            .OrderByDescending(x => x.SubmittedAt ?? x.CreatedAt)
-            .FirstOrDefault();
-
-        if (submission == null)
-        {
-            return new Response.TeamLatestSubmissionScoreResponse
-            {
-                RoundId = roundDetail.RoundId,
-                RoundName = roundDetail.Round.Name,
-                TeamId = roundDetail.RegisterTeam.TeamId,
-                TeamName = roundDetail.RegisterTeam.Team.Name,
-                HasSubmission = false,
-                IsGraded = false,
-                GradingStatus = "NoSubmission",
-                Message = "NO_SUBMISSION",
-                AverageTotalScore = null,
-                CriteriaScores = new List<Response.MyRoundCriteriaScoreResponse>()
-            };
-        }
-
-        var criteriaScores = CalculateCriteriaScores(submission);
-        if (criteriaScores.Count == 0)
-        {
-            return new Response.TeamLatestSubmissionScoreResponse
-            {
-                RoundId = roundDetail.RoundId,
-                RoundName = roundDetail.Round.Name,
-                TeamId = roundDetail.RegisterTeam.TeamId,
-                TeamName = roundDetail.RegisterTeam.Team.Name,
-                SubmissionId = submission.Id,
-                SubmittedAt = submission.SubmittedAt,
-                HasSubmission = true,
-                IsGraded = false,
-                GradingStatus = "NotGraded",
-                Message = "NOT_GRADED",
-                AverageTotalScore = null,
-                CriteriaScores = new List<Response.MyRoundCriteriaScoreResponse>()
-            };
-        }
-
-        return new Response.TeamLatestSubmissionScoreResponse
-        {
-            RoundId = roundDetail.RoundId,
-            RoundName = roundDetail.Round.Name,
-            TeamId = roundDetail.RegisterTeam.TeamId,
-            TeamName = roundDetail.RegisterTeam.Team.Name,
-            SubmissionId = submission.Id,
-            SubmittedAt = submission.SubmittedAt,
-            HasSubmission = true,
-            IsGraded = true,
-            GradingStatus = "Graded",
-            AverageTotalScore = criteriaScores.Sum(x => x.AverageCriteriaScore),
-            CriteriaScores = criteriaScores
-        };
-    }
-
-    public async Task<BasePaginationResponse> GetRoundRanking(Guid roundId, Request.GetSubmissionsQuery query)
-    {
-        var roundExists = await _dbContext.Rounds
-            .AsNoTracking()
-            .AnyAsync(x => x.Id == roundId && !x.IsDisable && !x.Event.IsDisable);
-
-        if (!roundExists)
-        {
-            throw new NotFoundException("ROUND_NOT_FOUND");
-        }
-
-        var roundDetails = await _dbContext.RoundDetails
-            .AsNoTracking()
-            .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
-            .Include(x => x.Submissions).ThenInclude(x => x.Scores).ThenInclude(x => x.ScoreItems).ThenInclude(x => x.CriteriaItem)
-            .Where(x => x.RoundId == roundId
-                && !x.IsDisable
-                && !x.RegisterTeam.IsDisable
-                && !x.RegisterTeam.Team.IsDisable)
             .ToListAsync();
 
-        var rankings = roundDetails
-            .Select(x => new
-            {
-                RoundDetail = x,
-                Submission = x.Submissions
-                    .Where(s => !s.IsDisable && s.Status == SubmissionStatusEnum.Submitted)
-                    .OrderByDescending(s => s.SubmittedAt ?? s.CreatedAt)
-                    .FirstOrDefault()
-            })
-            .Where(x => x.Submission != null)
-            .Select(x => new
-            {
-                x.RoundDetail.RegisterTeam.TeamId,
-                TeamName = x.RoundDetail.RegisterTeam.Team.Name,
-                SubmissionId = x.Submission!.Id,
-                TotalScore = CalculateTotalScore(x.Submission)
-            })
-            .Where(x => x.TotalScore.HasValue)
-            .Select(x => new
-            {
-                x.TeamId,
-                x.TeamName,
-                x.SubmissionId,
-                AverageScore = x.TotalScore!.Value
-            })
-            .OrderByDescending(x => x.AverageScore)
-            .ThenBy(x => x.TeamName)
-            .Select((x, index) => new Response.RoundRankingResponse
-            {
-                Rank = index + 1,
-                TeamId = x.TeamId,
-                TeamName = x.TeamName,
-                SubmissionId = x.SubmissionId,
-                AverageScore = x.AverageScore
-            })
-            .ToList();
-
-        var totalCount = rankings.Count;
-        var pagedRankings = rankings
-            .Skip((query.PageIndex - 1) * query.PageSize)
-            .Take(query.PageSize)
-            .ToList();
-
-        return ApiResponseFactory.BasePagination(pagedRankings, query.PageIndex, query.PageSize, totalCount);
+        return ApiResponseFactory.BasePagination(submissions, query.PageIndex, query.PageSize, totalCount);
     }
 
     public async Task<BasePaginationResponse> GetStaffRoundSubmissions(Guid roundId, Request.GetStaffRoundSubmissionsQuery query)
@@ -680,7 +328,7 @@ public class Service : IService
             .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
             .Include(x => x.RegisterTeam).ThenInclude(x => x.Track)
             .Include(x => x.RegisterTeam).ThenInclude(x => x.Topic)
-            .Include(x => x.Submissions).ThenInclude(x => x.Scores).ThenInclude(x => x.ScoreItems).ThenInclude(x => x.CriteriaItem)
+            .Include(x => x.Submissions).ThenInclude(x => x.Scores)
             .Where(x => x.RoundId == roundId && !x.IsDisable && !x.RegisterTeam.IsDisable && !x.RegisterTeam.Team.IsDisable);
 
         if (query.TrackId.HasValue)
@@ -703,47 +351,43 @@ public class Service : IService
         var trackIds = roundDetails.Select(x => x.RegisterTeam.TrackId).Where(x => x.HasValue).Select(x => x!.Value).Distinct().ToList();
         var assignTracks = await GetJudgeAssignTracks(round.EventId, trackIds);
 
-        var items = roundDetails.SelectMany(roundDetail =>
+        var items = roundDetails.Select(roundDetail =>
         {
-            var submissions = roundDetail.Submissions
+            var submission = roundDetail.Submissions
                 .Where(x => !x.IsDisable)
                 .OrderByDescending(x => x.SubmittedAt ?? x.CreatedAt)
-                .ToList();
-
-            // Staff/Admin sees ALL versions
+                .FirstOrDefault();
             var trackAssignTracks = roundDetail.RegisterTeam.TrackId.HasValue
                 ? assignTracks.Where(x => x.TrackId == roundDetail.RegisterTeam.TrackId.Value).ToList()
                 : new List<Hackathon.Repository.Entity.AssignTracks>();
 
-            if (submissions.Count == 0)
+            if (submission == null)
             {
-                return new List<Response.StaffRoundSubmissionResponse>
+                return new Response.StaffRoundSubmissionResponse
                 {
-                    new()
-                    {
-                        SubmissionId = null,
-                        RoundDetailId = roundDetail.Id,
-                        TeamId = roundDetail.RegisterTeam.TeamId,
-                        TeamName = roundDetail.RegisterTeam.Team.Name,
-                        TrackId = roundDetail.RegisterTeam.TrackId,
-                        TrackTitle = roundDetail.RegisterTeam.Track?.Title,
-                        TopicId = roundDetail.RegisterTeam.TopicId,
-                        TopicTitle = roundDetail.RegisterTeam.Topic?.Title,
-                        SubmissionStatus = SubmissionStatusEnum.Unsubmitted,
-                        GradingStatus = null,
-                        AssignedJudges = BuildAssignedJudges(null, trackAssignTracks),
-                    }
+                    SubmissionId = null,
+                    RoundDetailId = roundDetail.Id,
+                    TeamId = roundDetail.RegisterTeam.TeamId,
+                    TeamName = roundDetail.RegisterTeam.Team.Name,
+                    TrackId = roundDetail.RegisterTeam.TrackId,
+                    TrackTitle = roundDetail.RegisterTeam.Track?.Title,
+                    TopicId = roundDetail.RegisterTeam.TopicId,
+                    TopicTitle = roundDetail.RegisterTeam.Topic?.Title,
+                    SubmissionStatus = SubmissionStatusEnum.Unsubmitted.ToString(),
+                    GradingStatus = null,
+                    AssignedJudges = BuildAssignedJudges(null, trackAssignTracks),
                 };
             }
 
-            return submissions.Select(submission =>
-            {
-                var assignedJudges = BuildAssignedJudges(submission, trackAssignTracks);
-                var totalScore = CalculateTotalScore(submission);
+            var assignedJudges = BuildAssignedJudges(submission, trackAssignTracks);
+            var scoredValues = assignedJudges
+                .Where(x => x.TotalScore.HasValue)
+                .Select(x => x.TotalScore!.Value)
+                .ToList();
 
-                return new Response.StaffRoundSubmissionResponse
-                {
-                    SubmissionId = submission.Id,
+            return new Response.StaffRoundSubmissionResponse
+            {
+                SubmissionId = submission.Id,
                 RoundDetailId = roundDetail.Id,
                 TeamId = roundDetail.RegisterTeam.TeamId,
                 TeamName = roundDetail.RegisterTeam.Team.Name,
@@ -753,23 +397,19 @@ public class Service : IService
                 TopicTitle = roundDetail.RegisterTeam.Topic?.Title,
                 Url = submission.Url,
                 Description = submission.Description,
-                SubmissionStatus = submission.Status ?? SubmissionStatusEnum.Unsubmitted,
+                SubmissionStatus = submission.Status?.ToString() ?? SubmissionStatusEnum.Unsubmitted.ToString(),
                 SubmittedAt = submission.SubmittedAt,
                 GradingStatus = GetGradingStatus(submission, assignedJudges),
                 AssignedJudges = assignedJudges,
-                AverageScore = totalScore,
-                MinScore = totalScore,
-                MaxScore = totalScore,
+                AverageScore = scoredValues.Count == 0 ? null : scoredValues.Average(),
+                MinScore = scoredValues.Count == 0 ? null : scoredValues.Min(),
+                MaxScore = scoredValues.Count == 0 ? null : scoredValues.Max(),
             };
-        }).ToList();
         }).ToList();
 
         if (!string.IsNullOrWhiteSpace(query.SubmissionStatus) && !query.SubmissionStatus.Equals("All", StringComparison.OrdinalIgnoreCase))
         {
-            if (Enum.TryParse<SubmissionStatusEnum>(query.SubmissionStatus, true, out var filterStatus))
-            {
-                items = items.Where(x => x.SubmissionStatus == filterStatus).ToList();
-            }
+            items = items.Where(x => x.SubmissionStatus.Equals(query.SubmissionStatus, StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
         if (!string.IsNullOrWhiteSpace(query.GradingStatus) && !query.GradingStatus.Equals("All", StringComparison.OrdinalIgnoreCase))
@@ -868,9 +508,9 @@ public class Service : IService
         return assignTracks.Select(assignTrack =>
         {
             var score = submission?.Scores
-                ?.Where(x => !x.IsDisable && x.AssignTrackId == assignTrack.Id)
-                ?.OrderByDescending(x => x.CreatedAt)
-                ?.FirstOrDefault();
+                .Where(x => !x.IsDisable && x.AssignTrackId == assignTrack.Id)
+                .OrderByDescending(x => x.CreatedAt)
+                .FirstOrDefault();
 
             return new Response.AssignedJudgeResponse
             {
@@ -882,65 +522,6 @@ public class Service : IService
                 IsFinalized = false,
             };
         }).ToList();
-    }
-
-    /// <summary>
-    /// Calculate the total score for a submission by averaging each criteria across all judges,
-    /// then summing the averages. Only judges who actually scored (have ScoreItems) are counted.
-    /// </summary>
-    private static decimal? CalculateTotalScore(Hackathon.Repository.Entity.Submissions? submission)
-    {
-        if (submission == null)
-            return null;
-
-        // Only the latest Score per judge (AssignTrackId) — retakes replace originals
-        var latestScores = submission.Scores
-            .Where(s => !s.IsDisable && !s.IsMock)
-            .GroupBy(s => s.AssignTrackId)
-            .Select(g => g.OrderByDescending(s => s.UpdatedAt).First())
-            .ToList();
-
-        var allScoreItems = latestScores
-            .SelectMany(s => s.ScoreItems)
-            .Where(si => !si.IsDisable && si.Score.HasValue && !si.CriteriaItem.IsDisable)
-            .ToList();
-
-        if (allScoreItems.Count == 0)
-            return null;
-
-        // Group by criteria item, average across judges, then sum
-        return allScoreItems
-            .GroupBy(x => x.CriteriaItemId)
-            .Select(g => g.Average(x => x.Score!.Value))
-            .Sum();
-    }
-
-    private static List<Response.MyRoundCriteriaScoreResponse> CalculateCriteriaScores(Hackathon.Repository.Entity.Submissions? submission)
-    {
-        if (submission == null)
-        {
-            return new List<Response.MyRoundCriteriaScoreResponse>();
-        }
-
-        var latestScores = submission.Scores
-            .Where(s => !s.IsDisable && !s.IsMock)
-            .GroupBy(s => s.AssignTrackId)
-            .Select(g => g.OrderByDescending(s => s.UpdatedAt).First())
-            .ToList();
-
-        return latestScores
-            .SelectMany(x => x.ScoreItems)
-            .Where(x => !x.IsDisable && x.Score.HasValue && !x.CriteriaItem.IsDisable)
-            .GroupBy(x => new { x.CriteriaItemId, x.CriteriaItem.Name, x.CriteriaItem.Score })
-            .Select(x => new Response.MyRoundCriteriaScoreResponse
-            {
-                CriteriaItemId = x.Key.CriteriaItemId,
-                CriteriaItemName = x.Key.Name,
-                AverageCriteriaScore = x.Average(item => item.Score!.Value),
-                MaxScore = x.Key.Score
-            })
-            .OrderBy(x => x.CriteriaItemName)
-            .ToList();
     }
 
     private static string? GetGradingStatus(Hackathon.Repository.Entity.Submissions submission, List<Response.AssignedJudgeResponse> assignedJudges)
@@ -969,369 +550,80 @@ public class Service : IService
         return assignedJudges.All(x => x.IsFinalized) ? "Finalized" : "Graded";
     }
 
-    public async Task<BasePaginationResponse> GetLecturerRoundSubmissions(Guid roundId, Request.GetSubmissionsQuery query)
+    public async Task<(Response.EndRoundResponse Data, string Message)> EndRound(Guid roundId)
     {
         var round = await _dbContext.Rounds
-            .AsNoTracking()
             .Include(x => x.Event)
             .FirstOrDefaultAsync(x => x.Id == roundId && !x.IsDisable);
 
         if (round == null)
-            throw new NotFoundException("ROUND_NOT_FOUND");
-
-        // Check judge is assigned to this event
-        var userId = GetCurrentUserId();
-        var judgeAssignEvents = await _dbContext.AssignEvents
-            .AsNoTracking()
-            .Where(x => x.UserId == userId
-                && x.EventId == round.EventId
-                && !x.IsDisable
-                && x.EventRole != null
-                && x.EventRole.Name == EventRoleEnum.Judge)
-            .Select(x => x.Id)
-            .ToListAsync();
-
-        if (judgeAssignEvents.Count == 0)
-            throw new ForbiddenException("JUDGE_NOT_ASSIGNED_TO_EVENT");
-
-        // Get tracks assigned to this judge
-        var judgeTrackIds = await _dbContext.AssignTracks
-            .AsNoTracking()
-            .Where(x => judgeAssignEvents.Contains(x.AssignEventId) && !x.IsDisable)
-            .Select(x => x.TrackId)
-            .ToListAsync();
-
-        // Check round submission time — if still open, judge cannot view
-        var now = DateTimeOffset.UtcNow;
-        if (!round.EndSubmission.HasValue || now <= round.EndSubmission.Value)
-            throw new BadRequestException("ROUND_SUBMISSION_STILL_OPEN");
-
-        var roundDetails = await _dbContext.RoundDetails
-            .AsNoTracking()
-            .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
-            .Include(x => x.RegisterTeam).ThenInclude(x => x.Track)
-            .Include(x => x.RegisterTeam).ThenInclude(x => x.Topic)
-            .Include(x => x.Submissions).ThenInclude(x => x.Scores).ThenInclude(x => x.ScoreItems).ThenInclude(x => x.CriteriaItem)
-            .Where(x => x.RoundId == roundId
-                && !x.IsDisable
-                && !x.RegisterTeam.IsDisable
-                && !x.RegisterTeam.Team.IsDisable
-                && x.RegisterTeam.TrackId.HasValue
-                && judgeTrackIds.Contains(x.RegisterTeam.TrackId.Value))
-            .ToListAsync();
-
-        var items = roundDetails.Select(roundDetail =>
-        {
-            var submission = roundDetail.Submissions
-                .Where(x => !x.IsDisable)
-                .OrderByDescending(x => x.SubmittedAt ?? x.CreatedAt)
-                .FirstOrDefault();
-
-            return new Response.StaffRoundSubmissionResponse
-            {
-                SubmissionId = submission?.Id,
-                RoundDetailId = roundDetail.Id,
-                TeamId = roundDetail.RegisterTeam.TeamId,
-                TeamName = roundDetail.RegisterTeam.Team.Name,
-                TrackId = roundDetail.RegisterTeam.TrackId,
-                TrackTitle = roundDetail.RegisterTeam.Track?.Title,
-                TopicId = roundDetail.RegisterTeam.TopicId,
-                TopicTitle = roundDetail.RegisterTeam.Topic?.Title,
-                Url = submission?.Url,
-                Description = submission?.Description,
-                SubmissionStatus = submission?.Status,
-                SubmittedAt = submission?.SubmittedAt,
-                AverageScore = CalculateTotalScore(submission),
-            };
-        }).ToList();
-
-        var totalCount = items.Count;
-        var pagedItems = items
-            .OrderBy(x => x.TeamName)
-            .Skip((query.PageIndex - 1) * query.PageSize)
-            .Take(query.PageSize)
-            .ToList();
-
-        return ApiResponseFactory.BasePagination(pagedItems, query.PageIndex, query.PageSize, totalCount);
-    }
-
-    public async Task UpdateRound(Guid roundId, Request.UpdateRoundRequest request)
-    {
-        var round = await _dbContext.Rounds.FirstOrDefaultAsync(x => x.Id == roundId && !x.IsDisable);
-        if (round == null)
-            throw new NotFoundException("ROUND_NOT_FOUND");
-
-        if (request.Name != null)
-        {
-            if (string.IsNullOrWhiteSpace(request.Name))
-                throw new BadRequestException("ROUND_NAME_REQUIRED");
-            round.Name = request.Name.Trim();
-        }
-
-        if (request.Description != null)
-            round.Description = request.Description?.Trim();
-
-        if (request.RoundNo.HasValue)
-            round.RoundNo = request.RoundNo;
-
-        if (request.StartTime.HasValue)
-            round.StartTime = request.StartTime;
-
-        if (request.EndTime.HasValue)
-            round.EndTime = request.EndTime;
-
-        if (request.StartSubmission.HasValue)
-            round.StartSubmission = request.StartSubmission;
-
-        if (request.EndSubmission.HasValue)
-            round.EndSubmission = request.EndSubmission;
-
-        if (request.LimitTeam.HasValue)
-            round.LimitTeam = request.LimitTeam;
-
-        round.UpdatedAt = DateTimeOffset.UtcNow;
-        await _dbContext.SaveChangesAsync();
-    }
-
-    public async Task<Response.EndRoundResponse> EndRound(Guid roundId)
-    {
-        var round = await _dbContext.Rounds
-            .Include(x => x.Event)
-            .FirstOrDefaultAsync(x => x.Id == roundId);
-
-        if (round == null)
         {
             throw new NotFoundException("ROUND_NOT_FOUND");
         }
 
-        await EnsureStaffAssignedToEvent(round.EventId);
-
-        // Check time: round must be ended (current time > round.EndTime)
-        var now = DateTimeOffset.UtcNow;
-        if (!round.EndTime.HasValue || now <= round.EndTime.Value)
-        {
-            throw new BadRequestException("ROUND_NOT_ENDED_YET");
-        }
-
-        // If round is not yet closed by the job, do advancement now
-        var isAlreadyClosed = round.IsDisable;
-        if (!isAlreadyClosed)
-        {
-            await CloseAndAdvanceRoundAsync(_dbContext, round, now);
-        }
-
-        // Build ranking response
         var nextRound = await _dbContext.Rounds
-            .Where(x => x.EventId == round.EventId && x.RoundNo == round.RoundNo + 1)
+            .Where(x => x.EventId == round.EventId && !x.IsDisable && x.RoundNo == round.RoundNo + 1)
             .FirstOrDefaultAsync();
 
         var roundDetails = await _dbContext.RoundDetails
-            .AsNoTracking()
-            .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
-            .Include(x => x.Submissions.Where(s => !s.IsDisable && s.Status == SubmissionStatusEnum.Submitted))
-                .ThenInclude(s => s.Scores.Where(sc => !sc.IsDisable && !sc.IsMock))
-                .ThenInclude(sc => sc.ScoreItems)
-                .ThenInclude(si => si.CriteriaItem)
-            .Where(x => x.RoundId == roundId && !x.IsDisable && !x.RegisterTeam.IsDisable && !x.RegisterTeam.Team.IsDisable
-                && x.RegisterTeam.Status == RegisterTeamStatusEnum.Approved && !x.RegisterTeam.IsBanned)
+            .Include(x => x.Submissions)
+                .ThenInclude(s => s.Scores)
+            .Where(x => x.RoundId == roundId && !x.IsDisable)
             .ToListAsync();
 
-        // Calculate team scores
-        var teamScores = roundDetails
-            .Select(rd =>
-            {
-                var latestSubmission = rd.Submissions
-                    .OrderByDescending(s => s.SubmittedAt ?? s.CreatedAt)
-                    .FirstOrDefault();
-
-                decimal avgScore = 0;
-                var hasScore = false;
-                if (latestSubmission != null)
-                {
-                    var totalScore = CalculateTotalScore(latestSubmission);
-                    if (totalScore.HasValue)
-                    {
-                        avgScore = totalScore.Value;
-                        hasScore = true;
-                    }
-                }
-
-                return new
-                {
-                    RoundDetail = rd,
-                    LatestSubmission = latestSubmission,
-                    AverageScore = avgScore,
-                    HasScore = hasScore
-                };
-            })
-            .OrderByDescending(x => x.HasScore)
-            .ThenByDescending(x => x.AverageScore)
-            .ThenBy(x => x.RoundDetail.RegisterTeam.Team.Name)
-            .ToList();
-
-        var limit = nextRound?.LimitTeam ?? int.MaxValue;
-        var advancedTeams = new List<Response.AdvancedTeamResponse>();
-        int rank = 0;
-
-        foreach (var ts in teamScores)
-        {
-            rank++;
-
-            advancedTeams.Add(new Response.AdvancedTeamResponse
-            {
-                Rank = rank,
-                TeamId = ts.RoundDetail.RegisterTeam.TeamId,
-                TeamName = ts.RoundDetail.RegisterTeam.Team.Name,
-                AverageScore = ts.AverageScore,
-                LatestSubmissionId = ts.LatestSubmission?.Id ?? Guid.Empty,
-                IsAdvanced = ts.HasScore && ts.AverageScore > 0 && rank <= limit,
-            });
-        }
-
-        string message;
-        if (isAlreadyClosed)
-        {
-            message = nextRound == null ? "FINAL_ROUND_CLOSED_HACKATHON_ENDED" : "ROUND_ALREADY_CLOSED";
-        }
-        else
-        {
-            message = nextRound == null ? "FINAL_ROUND_CLOSED_HACKATHON_ENDED" : "ROUND_ENDED_SUCCESSFULLY";
-        }
-
-        return new Response.EndRoundResponse
-        {
-            RoundId = round.Id,
-            RoundName = round.Name,
-            EventId = round.EventId,
-            NextRoundId = nextRound?.Id,
-            NextRoundName = nextRound?.Name,
-            NextRoundLimitTeam = nextRound?.LimitTeam,
-            TotalTeams = advancedTeams.Count,
-            TotalAdvanced = nextRound == null ? advancedTeams.Count : advancedTeams.Count(x => x.IsAdvanced),
-            Message = message,
-            Teams = advancedTeams,
-        };
-    }
-
-    public async Task<string> EndRoundFinal(Guid roundId)
-    {
-        var round = await _dbContext.Rounds.FirstOrDefaultAsync(x => x.Id == roundId);
-        if (round == null)
-        {
-            throw new NotFoundException("ROUND_NOT_FOUND");
-        }
-
-        var now = DateTimeOffset.UtcNow;
-        round.EndTime = now;
-        if (round.EndSubmission.HasValue && round.EndSubmission.Value > now)
-        {
-            round.EndSubmission = now;
-        }
-        round.UpdatedAt = now;
-
-        await _dbContext.SaveChangesAsync();
-        return "ROUND_ENDED_IMMEDIATELY";
-    }
-
-    /// <summary>
-    /// Close an expired round: advance top teams to next round, close current round.
-    /// This is the write variant used only by EndRoundJob (not by the read-only API).
-    /// </summary>
-    internal static async Task CloseAndAdvanceRoundAsync(AppDbContext dbContext, Repository.Entity.Rounds round, DateTimeOffset now)
-    {
-        var eventId = round.EventId;
-
-        var nextRound = await dbContext.Rounds
-            .Where(x => x.EventId == eventId && !x.IsDisable && x.RoundNo == round.RoundNo + 1)
-            .FirstOrDefaultAsync();
-
-        var roundDetails = await dbContext.RoundDetails
-            .AsNoTracking()
-            .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
-            .Include(x => x.Submissions.Where(s => !s.IsDisable && s.Status == SubmissionStatusEnum.Submitted))
-                .ThenInclude(s => s.Scores.Where(sc => !sc.IsDisable && !sc.IsMock))
-                .ThenInclude(sc => sc.ScoreItems)
-                .ThenInclude(si => si.CriteriaItem)
-            .Where(x => x.RoundId == round.Id && !x.IsDisable && !x.RegisterTeam.IsDisable && !x.RegisterTeam.Team.IsDisable
-                && x.RegisterTeam.Status == RegisterTeamStatusEnum.Approved && !x.RegisterTeam.IsBanned)
-            .ToListAsync();
-
-        // Calculate team scores
-        var teamScores = roundDetails
-            .Select(rd =>
-            {
-                var latestSubmission = rd.Submissions
-                    .OrderByDescending(s => s.SubmittedAt ?? s.CreatedAt)
-                    .FirstOrDefault();
-
-                decimal avgScore = 0;
-                var hasScore = false;
-                if (latestSubmission != null)
-                {
-                    var totalScore = CalculateTotalScore(latestSubmission);
-                    if (totalScore.HasValue)
-                    {
-                        avgScore = totalScore.Value;
-                        hasScore = true;
-                    }
-                }
-
-                return new { RoundDetail = rd, AverageScore = avgScore, HasScore = hasScore };
-            })
-            .OrderByDescending(x => x.HasScore)
-            .ThenByDescending(x => x.AverageScore)
-            .ThenBy(x => x.RoundDetail.RegisterTeam.Team.Name)
-            .ToList();
+        int totalTeamsAdvanced = 0;
 
         if (nextRound != null)
         {
             var limit = nextRound.LimitTeam ?? int.MaxValue;
             if (limit > 0)
             {
-                var topTeams = teamScores
-                    .Where(x => x.HasScore && x.AverageScore > 0)
-                    .Take(limit)
-                    .ToList();
-
-                await using var transaction = await dbContext.Database.BeginTransactionAsync();
-
-                var existingRegisterTeamIds = await dbContext.RoundDetails
-                    .Where(x => x.RoundId == nextRound.Id)
-                    .Select(x => x.RegisterTeamId)
-                    .ToListAsync();
-
-                var existingSet = new HashSet<Guid>(existingRegisterTeamIds);
-                var nextRoundDetails = new List<Repository.Entity.RoundDetails>();
-
-                foreach (var ts in topTeams)
+                var teamScores = roundDetails.Select(rd => new
                 {
-                    if (!existingSet.Contains(ts.RoundDetail.RegisterTeamId))
+                    RoundDetail = rd,
+                    MaxScore = rd.Submissions
+                        .Where(s => !s.IsDisable)
+                        .SelectMany(s => s.Scores)
+                        .Where(sc => !sc.IsDisable)
+                        .OrderByDescending(sc => sc.CreatedAt)
+                        .FirstOrDefault()?.TotalScore ?? 0
+                })
+                .OrderByDescending(x => x.MaxScore)
+                .Take(limit)
+                .ToList();
+
+                var nextRoundDetails = new List<RoundDetails>();
+                foreach (var ts in teamScores)
+                {
+                    nextRoundDetails.Add(new RoundDetails
                     {
-                        nextRoundDetails.Add(new Repository.Entity.RoundDetails
-                        {
-                            Id = Guid.NewGuid(),
-                            RoundId = nextRound.Id,
-                            RegisterTeamId = ts.RoundDetail.RegisterTeamId,
-                            CreatedAt = now,
-                            UpdatedAt = now
-                        });
-                    }
+                        Id = Guid.NewGuid(),
+                        RoundId = nextRound.Id,
+                        RegisterTeamId = ts.RoundDetail.RegisterTeamId,
+                        CreatedAt = DateTimeOffset.UtcNow,
+                        UpdatedAt = DateTimeOffset.UtcNow
+                    });
+                    totalTeamsAdvanced++;
                 }
 
-                if (nextRoundDetails.Count != 0)
+                if (nextRoundDetails.Any())
                 {
-                    await dbContext.RoundDetails.AddRangeAsync(nextRoundDetails);
+                    await _dbContext.RoundDetails.AddRangeAsync(nextRoundDetails);
                 }
-
-                round.UpdatedAt = now;
-                await dbContext.SaveChangesAsync();
-                await transaction.CommitAsync();
-                return;
             }
         }
 
-        // No next round or limit = 0: just close the round
-        round.UpdatedAt = now;
-        await dbContext.SaveChangesAsync();
+        // Close current round
+        round.IsDisable = true;
+        await _dbContext.SaveChangesAsync();
+
+        var message = nextRound == null ? "FINAL_ROUND_CLOSED_HACKATHON_ENDED" : "ROUND_ENDED_SUCCESSFULLY";
+
+        return (new Response.EndRoundResponse
+        {
+            ClosedRoundId = round.Id,
+            NextRoundId = nextRound?.Id,
+            TotalTeamsAdvanced = totalTeamsAdvanced,
+        }, message);
     }
 }
