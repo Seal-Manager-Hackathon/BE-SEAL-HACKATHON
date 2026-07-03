@@ -1427,23 +1427,6 @@ public class Service : IService
             submissionsQuery = submissionsQuery.Where(x => x.RoundDetail.RoundId == roundId.Value);
         }
 
-        // Filter by graded status
-        if (isGraded.HasValue)
-        {
-            if (isGraded.Value)
-            {
-                submissionsQuery = submissionsQuery.Where(x =>
-                    x.Scores.Any(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId)));
-            }
-            else
-            {
-                submissionsQuery = submissionsQuery.Where(x =>
-                    !x.Scores.Any(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId)));
-            }
-        }
-
-        var totalCount = await submissionsQuery.CountAsync();
-
         // Judge only sees latest submission per team per round
         var allSubmissions = await submissionsQuery
             .OrderByDescending(x => x.SubmittedAt)
@@ -1453,6 +1436,23 @@ public class Service : IService
             .GroupBy(x => x.RoundDetail.RegisterTeamId)
             .Select(g => g.OrderByDescending(x => x.SubmittedAt).First())
             .ToList();
+
+        // Filter by graded status AFTER grouping to ensure only the latest submission per team is considered
+        if (isGraded.HasValue)
+        {
+            if (isGraded.Value)
+            {
+                latestGrouped = latestGrouped
+                    .Where(x => x.Scores.Any(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId)))
+                    .ToList();
+            }
+            else
+            {
+                latestGrouped = latestGrouped
+                    .Where(x => !x.Scores.Any(s => !s.IsDisable && !s.IsMock && assignTrackIds.Contains(s.AssignTrackId)))
+                    .ToList();
+            }
+        }
 
         var items = latestGrouped.Select(x => new Response.JudgeStatusSubmissionResponse
         {
