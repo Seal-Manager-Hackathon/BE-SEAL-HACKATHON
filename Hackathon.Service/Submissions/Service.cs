@@ -47,6 +47,7 @@ public class Service : IService
             RoundName = submission.RoundDetail.Round.Name,
             TeamId = submission.RoundDetail.RegisterTeam.TeamId,
             TeamName = submission.RoundDetail.RegisterTeam.Team.Name,
+            RegisterTeamId = submission.RoundDetail.RegisterTeamId,
             Url = submission.Url,
             Description = submission.Description,
             Status = submission.Status,

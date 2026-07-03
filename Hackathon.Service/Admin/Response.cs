@@ -45,3 +45,32 @@ public class SendSystemNotificationResponse
     public List<Guid> NotificationIds { get; set; } = new();
     public int TotalSent { get; set; }
 }
+
+public class AdminRoundTeamSubmissionResponse
+{
+    public Guid RegisterTeamId { get; set; }
+    public Guid TeamId { get; set; }
+    public string TeamName { get; set; } = null!;
+    public Guid? TrackId { get; set; }
+    public string? TrackTitle { get; set; }
+    public Guid? TopicId { get; set; }
+    public string? TopicTitle { get; set; }
+    public List<AdminSubmissionHistoryResponse> Submissions { get; set; } = new();
+    public bool HasLatestSubmission { get; set; }
+    public decimal? AverageScore { get; set; }
+    public string? GradingStatus { get; set; }
+    public List<Rounds.Response.AssignedJudgeResponse> AssignedJudges { get; set; } = new();
+}
+
+public class AdminSubmissionHistoryResponse
+{
+    public Guid SubmissionId { get; set; }
+    public string? Url { get; set; }
+    public string? Description { get; set; }
+    public Hackathon.Repository.Enum.SubmissionStatusEnum? Status { get; set; }
+    public DateTimeOffset? SubmittedAt { get; set; }
+    public bool IsLatest { get; set; }
+    public decimal? AverageScore { get; set; }
+    public string? GradingStatus { get; set; }
+    public List<Rounds.Response.AssignedJudgeResponse> AssignedJudges { get; set; } = new();
+}

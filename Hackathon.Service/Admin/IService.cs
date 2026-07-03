@@ -15,4 +15,5 @@ public interface IService
     Task<string> RestoreRound(Guid roundId);
     Task<SendSystemNotificationResponse> SendSystemNotification(SendSystemNotificationRequest request);
     Task<string> ChangeUserRole(Guid userId, ChangeUserRoleRequest request);
+    Task<BasePaginationResponse> GetRoundSubmissions(Guid roundId, Rounds.Request.GetStaffRoundSubmissionsQuery query);
 }

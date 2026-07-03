@@ -10,6 +10,7 @@ public static class Response
         public string RoundName { get; set; } = null!;
         public Guid TeamId { get; set; }
         public string TeamName { get; set; } = null!;
+        public Guid RegisterTeamId { get; set; }
         public string? Url { get; set; }
         public string? Description { get; set; }
         public Hackathon.Repository.Enum.SubmissionStatusEnum? Status { get; set; }

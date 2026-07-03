@@ -474,6 +474,187 @@ public class Service : IService
         };
     }
 
+    public async Task<BasePaginationResponse> GetRoundSubmissions(Guid roundId, Rounds.Request.GetStaffRoundSubmissionsQuery query)
+    {
+        var round = await _dbContext.Rounds
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == roundId && !x.IsDisable);
+
+        if (round == null)
+        {
+            throw new NotFoundException("ROUND_NOT_FOUND");
+        }
+
+        var roundDetailsQuery = _dbContext.RoundDetails
+            .AsNoTracking()
+            .Include(x => x.RegisterTeam).ThenInclude(x => x.Team)
+            .Include(x => x.RegisterTeam).ThenInclude(x => x.Track)
+            .Include(x => x.RegisterTeam).ThenInclude(x => x.Topic)
+            .Include(x => x.Submissions).ThenInclude(x => x.Scores).ThenInclude(x => x.ScoreItems).ThenInclude(x => x.CriteriaItem)
+            .Where(x => x.RoundId == roundId && !x.IsDisable && !x.RegisterTeam.IsDisable && !x.RegisterTeam.Team.IsDisable);
+
+        if (query.TrackId.HasValue)
+        {
+            roundDetailsQuery = roundDetailsQuery.Where(x => x.RegisterTeam.TrackId == query.TrackId.Value);
+        }
+
+        if (query.TopicId.HasValue)
+        {
+            roundDetailsQuery = roundDetailsQuery.Where(x => x.RegisterTeam.TopicId == query.TopicId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.Keyword))
+        {
+            var keyword = query.Keyword.Trim().ToLower();
+            roundDetailsQuery = roundDetailsQuery.Where(x => x.RegisterTeam.Team.Name.ToLower().Contains(keyword));
+        }
+
+        var roundDetails = await roundDetailsQuery.ToListAsync();
+
+        var items = roundDetails.Select(roundDetail =>
+        {
+            var submissions = roundDetail.Submissions
+                .Where(x => !x.IsDisable)
+                .OrderByDescending(x => x.SubmittedAt ?? x.CreatedAt)
+                .ToList();
+
+            var allSubmissions = submissions.Select(submission =>
+            {
+                var judges = BuildAssignedJudges(submission);
+                var score = CalculateTotalScore(submission);
+                var gradingStatus = GetGradingStatus(submission, judges);
+
+                return new AdminSubmissionHistoryResponse
+                {
+                    SubmissionId = submission.Id,
+                    Url = submission.Url,
+                    Description = submission.Description,
+                    Status = submission.Status,
+                    SubmittedAt = submission.SubmittedAt,
+                    IsLatest = false,
+                    AverageScore = score,
+                    GradingStatus = gradingStatus,
+                    AssignedJudges = judges,
+                };
+            }).ToList();
+
+            // Mark latest
+            if (allSubmissions.Count > 0)
+            {
+                allSubmissions[0].IsLatest = true;
+            }
+
+            // Overall status from latest submission
+            var latestSubmission = submissions.FirstOrDefault();
+            List<Rounds.Response.AssignedJudgeResponse> latestJudges = new();
+            decimal? overallScore = null;
+            string? overallGradingStatus = null;
+            if (latestSubmission != null)
+            {
+                latestJudges = BuildAssignedJudges(latestSubmission);
+                overallScore = CalculateTotalScore(latestSubmission);
+                overallGradingStatus = GetGradingStatus(latestSubmission, latestJudges);
+            }
+
+            return new AdminRoundTeamSubmissionResponse
+            {
+                RegisterTeamId = roundDetail.RegisterTeamId,
+                TeamId = roundDetail.RegisterTeam.TeamId,
+                TeamName = roundDetail.RegisterTeam.Team.Name,
+                TrackId = roundDetail.RegisterTeam.TrackId,
+                TrackTitle = roundDetail.RegisterTeam.Track?.Title,
+                TopicId = roundDetail.RegisterTeam.TopicId,
+                TopicTitle = roundDetail.RegisterTeam.Topic?.Title,
+                Submissions = allSubmissions,
+                HasLatestSubmission = latestSubmission != null,
+                AverageScore = overallScore,
+                GradingStatus = overallGradingStatus,
+                AssignedJudges = latestJudges,
+            };
+        }).ToList();
+
+        if (!string.IsNullOrWhiteSpace(query.SubmissionStatus) && !query.SubmissionStatus.Equals("All", StringComparison.OrdinalIgnoreCase))
+        {
+            if (Enum.TryParse<Hackathon.Repository.Enum.SubmissionStatusEnum>(query.SubmissionStatus, true, out var filterStatus))
+            {
+                items = items.Where(x => x.Submissions.Any(s => s.Status == filterStatus)).ToList();
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.GradingStatus) && !query.GradingStatus.Equals("All", StringComparison.OrdinalIgnoreCase))
+        {
+            items = items.Where(x => string.Equals(x.GradingStatus, query.GradingStatus, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        var totalCount = items.Count;
+        var paged = items
+            .OrderBy(x => x.TrackTitle)
+            .ThenBy(x => x.TeamName)
+            .Skip((query.PageIndex - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .ToList();
+
+        return ApiResponseFactory.BasePagination(paged, query.PageIndex, query.PageSize, totalCount);
+    }
+
+    private static List<Rounds.Response.AssignedJudgeResponse> BuildAssignedJudges(Hackathon.Repository.Entity.Submissions submission)
+    {
+        return submission.Scores
+            .Where(s => !s.IsDisable && !s.IsMock)
+            .GroupBy(s => s.AssignTrackId)
+            .Select(g => g.OrderByDescending(s => s.UpdatedAt).First())
+            .Select(s => new Rounds.Response.AssignedJudgeResponse
+            {
+                JudgeId = s.AssignTrack.AssignEvent.UserId,
+                JudgeName = $"{s.AssignTrack.AssignEvent.User.FirstName} {s.AssignTrack.AssignEvent.User.LastName}".Trim(),
+                Email = s.AssignTrack.AssignEvent.User.Email,
+                HasScored = s.TotalScore.HasValue,
+                TotalScore = s.TotalScore,
+                IsFinalized = false,
+            })
+            .ToList();
+    }
+
+    private static decimal? CalculateTotalScore(Hackathon.Repository.Entity.Submissions submission)
+    {
+        var latestScores = submission.Scores
+            .Where(s => !s.IsDisable && !s.IsMock)
+            .GroupBy(s => s.AssignTrackId)
+            .Select(g => g.OrderByDescending(s => s.UpdatedAt).First())
+            .ToList();
+
+        var allScoreItems = latestScores
+            .SelectMany(s => s.ScoreItems)
+            .Where(si => !si.IsDisable && si.Score.HasValue && !si.CriteriaItem.IsDisable)
+            .ToList();
+
+        if (allScoreItems.Count == 0)
+            return null;
+
+        return allScoreItems
+            .GroupBy(x => x.CriteriaItemId)
+            .Select(g => g.Average(x => x.Score!.Value))
+            .Sum();
+    }
+
+    private static string? GetGradingStatus(Hackathon.Repository.Entity.Submissions submission, List<Rounds.Response.AssignedJudgeResponse> assignedJudges)
+    {
+        if (submission.Status != Hackathon.Repository.Enum.SubmissionStatusEnum.Submitted)
+            return null;
+
+        if (assignedJudges.Count == 0)
+            return "NoJudgesAssigned";
+
+        var scoredCount = assignedJudges.Count(x => x.HasScored);
+        if (scoredCount == 0)
+            return "PendingGrading";
+
+        if (scoredCount < assignedJudges.Count)
+            return "PartialGraded";
+
+        return "Graded";
+    }
+
     public async Task<string> ChangeUserRole(Guid userId, ChangeUserRoleRequest request)
     {
         var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
