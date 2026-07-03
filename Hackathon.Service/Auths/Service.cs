@@ -185,7 +185,7 @@ public class Service : IService
             IpAddress = _httpContext.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
             UserAgent = _httpContext.HttpContext?.Request.Headers["User-Agent"].ToString() ?? "Unknown",
             DeviceLabel = storedToken.DeviceLabel,
-            ExpiredAt = DateTimeOffset.UtcNow.AddDays(7),
+            ExpiredAt = DateTimeOffset.UtcNow.AddDays(15),
             CreatedAt = DateTimeOffset.UtcNow,
         };
         _dbContext.RefreshTokens.Add(newRefreshTokenEntity);
@@ -275,7 +275,7 @@ public class Service : IService
                 DeviceLabel = "",
                 UserId = user.Id,
                 CreatedAt = DateTimeOffset.UtcNow,
-                ExpiredAt = DateTimeOffset.UtcNow.AddDays(7),
+                ExpiredAt = DateTimeOffset.UtcNow.AddDays(15),
             };
             await _dbContext.RefreshTokens.AddAsync(refreshTokenEntity);
 
@@ -440,7 +440,7 @@ public class Service : IService
             IpAddress = ipAddress,
             UserAgent = userAgent,
             DeviceLabel = "",
-            ExpiredAt = DateTimeOffset.UtcNow.AddDays(7),
+            ExpiredAt = DateTimeOffset.UtcNow.AddDays(15),
             UserId = user.Id,
             CreatedAt = DateTimeOffset.UtcNow,
         };
