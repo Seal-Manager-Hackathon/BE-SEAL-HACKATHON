@@ -208,34 +208,94 @@ public class Service : IService
         var leaderboard = await _dbContext.LeaderBoards
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.EventId == eventId && !x.IsDisable);
-        if (leaderboard == null)
-        {
-            return new List<Response.LeaderboardResponse>();
-        }
 
-        var items = await _dbContext.LeaderBoardDetails
+        // Load all approved teams with their submissions, scores, and score items
+        var registerTeams = await _dbContext.RegisterTeams
             .AsNoTracking()
-            .Include(x => x.Team)
-            .Where(x => x.LeaderBoardId == leaderboard.Id && !x.IsDisable && !x.Team.IsDisable)
-            .OrderByDescending(x => x.Score)
-            .ThenBy(x => x.Team.Name)
-            .Select(x => new
-            {
-                x.TeamId,
-                TeamName = x.Team.Name,
-                x.Score,
-                x.LevelAward
-            })
+            .Include(rt => rt.Team)
+            .Include(rt => rt.RoundDetails)
+                .ThenInclude(rd => rd.Submissions)
+                    .ThenInclude(s => s.Scores)
+                        .ThenInclude(sc => sc.ScoreItems)
+                            .ThenInclude(si => si.CriteriaItem)
+            .Where(rt => rt.EventId == eventId
+                         && !rt.IsDisable
+                         && rt.Status == RegisterTeamStatusEnum.Approved
+                         && !rt.Team.IsDisable)
             .ToListAsync();
 
-        return items.Select((x, index) => new Response.LeaderboardResponse
+        // Calculate team scores: per round = latest submission score, total = average across rounds
+        var teamScores = new List<(Guid TeamId, string TeamName, decimal? Score)>();
+        foreach (var rt in registerTeams)
         {
-            Rank = index + 1,
-            TeamId = x.TeamId,
-            TeamName = x.TeamName,
-            TotalScore = x.Score,
-            LevelAward = x.LevelAward
-        }).ToList();
+            var roundScores = new List<decimal>();
+            foreach (var rd in rt.RoundDetails.Where(x => !x.IsDisable))
+            {
+                var latestSubmission = rd.Submissions
+                    .Where(s => !s.IsDisable && s.Status == SubmissionStatusEnum.Submitted)
+                    .OrderByDescending(s => s.SubmittedAt ?? s.CreatedAt)
+                    .FirstOrDefault();
+
+                if (latestSubmission != null)
+                {
+                    // Latest score per judge
+                    var latestScores = latestSubmission.Scores
+                        .Where(s => !s.IsDisable && !s.IsMock)
+                        .GroupBy(s => s.AssignTrackId)
+                        .Select(g => g.OrderByDescending(s => s.UpdatedAt).First())
+                        .ToList();
+
+                    var allScoreItems = latestScores
+                        .SelectMany(s => s.ScoreItems)
+                        .Where(si => !si.IsDisable && si.Score.HasValue && !si.CriteriaItem.IsDisable)
+                        .ToList();
+
+                    if (allScoreItems.Count > 0)
+                    {
+                        // Avg per criteria → sum = round score
+                        var roundScore = allScoreItems
+                            .GroupBy(x => x.CriteriaItemId)
+                            .Select(g => g.Average(x => x.Score!.Value))
+                            .Sum();
+                        roundScores.Add(roundScore);
+                    }
+                }
+            }
+
+            teamScores.Add((rt.TeamId, rt.Team.Name, roundScores.Count > 0 ? roundScores.Average() : null));
+        }
+
+        // Build sorted leaderboard
+        var ranked = teamScores
+            .OrderByDescending(x => x.Score)
+            .ThenBy(x => x.TeamName)
+            .ToList();
+
+        var items = new List<Response.LeaderboardResponse>();
+        int rank = 0;
+        foreach (var (teamId, teamName, score) in ranked)
+        {
+            rank++;
+            int? levelAward = null;
+            if (leaderboard != null)
+            {
+                var detail = await _dbContext.LeaderBoardDetails
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.LeaderBoardId == leaderboard.Id && x.TeamId == teamId && !x.IsDisable);
+                levelAward = detail?.LevelAward;
+            }
+
+            items.Add(new Response.LeaderboardResponse
+            {
+                Rank = rank,
+                TeamId = teamId,
+                TeamName = teamName,
+                TotalScore = score,
+                LevelAward = levelAward
+            });
+        }
+
+        return items;
     }
 
     public async Task<Response.EventSummaryResponse> GetSummary(Guid eventId)
