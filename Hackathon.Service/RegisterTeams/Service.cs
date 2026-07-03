@@ -1366,4 +1366,37 @@ public class Service : IService
             Submissions = submissionDtos,
         };
     }
+
+    public async Task<Response.RegisterTeamAssignmentStatusResponse> GetRegisterTeamAssignmentStatus(Guid registerTeamId)
+    {
+        var registerTeam = await _dbContext.RegisterTeams
+            .AsNoTracking()
+            .Include(x => x.Team)
+            .Include(x => x.Event)
+            .Include(x => x.Track)
+            .Include(x => x.Topic)
+            .FirstOrDefaultAsync(x => x.Id == registerTeamId && !x.IsDisable);
+
+        if (registerTeam == null)
+        {
+            throw new NotFoundException("REGISTER_TEAM_NOT_FOUND");
+        }
+
+        return new Response.RegisterTeamAssignmentStatusResponse
+        {
+            RegisterTeamId = registerTeam.Id,
+            TeamId = registerTeam.TeamId,
+            TeamName = registerTeam.Team.Name,
+            EventId = registerTeam.EventId,
+            EventName = registerTeam.Event.Name,
+            Status = registerTeam.Status,
+            IsApproved = registerTeam.Status == RegisterTeamStatusEnum.Approved,
+            TrackId = registerTeam.TrackId,
+            TrackTitle = registerTeam.Track?.Title,
+            TrackDescription = registerTeam.Track?.Description,
+            TopicId = registerTeam.TopicId,
+            TopicTitle = registerTeam.Topic?.Title,
+            TopicDescription = registerTeam.Topic?.Description
+        };
+    }
 }

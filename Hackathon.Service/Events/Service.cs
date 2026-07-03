@@ -1090,7 +1090,7 @@ public class Service : IService
 
         var totalCount = await query.CountAsync();
         var items = await query
-            .OrderByDescending(x => x.StartTime)
+            .OrderBy(x => x.StartTime)
             .ThenByDescending(x => x.CreatedAt)
             .Skip((request.PageIndex - 1) * request.PageSize)
             .Take(request.PageSize)

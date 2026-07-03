@@ -187,4 +187,21 @@ public static class Response
         public decimal MaxScore { get; set; }
         public string? Comment { get; set; }
     }
+
+    public class RegisterTeamAssignmentStatusResponse
+    {
+        public Guid RegisterTeamId { get; set; }
+        public Guid TeamId { get; set; }
+        public string TeamName { get; set; } = null!;
+        public Guid EventId { get; set; }
+        public string EventName { get; set; } = null!;
+        public RegisterTeamStatusEnum? Status { get; set; }
+        public bool IsApproved { get; set; }
+        public Guid? TrackId { get; set; }
+        public string? TrackTitle { get; set; }
+        public string? TrackDescription { get; set; }
+        public Guid? TopicId { get; set; }
+        public string? TopicTitle { get; set; }
+        public string? TopicDescription { get; set; }
+    }
 }
