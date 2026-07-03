@@ -1225,17 +1225,21 @@ public class Service : IService
     public async Task<Response.EventResponse> GetEvent(Guid eventId)
     {
         var eventEntity = await _dbContext.Events.AsNoTracking().FirstOrDefaultAsync(x => x.Id == eventId);
-        if (eventEntity == null || eventEntity.IsDisable)
+        if (eventEntity == null)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
 
-        // Admin thấy tất cả trạng thái; các role khác chỉ thấy Published/Closed
+        // Admin thấy tất cả (kể cả đã xoá/disable); các role khác không thấy disabled
         var role = _httpContext.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
         var isAdmin = Enum.TryParse<RoleEnum>(role, true, out var userRole) && userRole == RoleEnum.Admin;
-        if (!isAdmin && eventEntity.Status == EventStatusEnum.Draft)
+
+        if (!isAdmin)
         {
-            throw new NotFoundException("EVENT_NOT_FOUND");
+            if (eventEntity.IsDisable)
+                throw new NotFoundException("EVENT_NOT_FOUND");
+            if (eventEntity.Status == EventStatusEnum.Draft)
+                throw new NotFoundException("EVENT_NOT_FOUND");
         }
 
         return ToResponse(eventEntity);
