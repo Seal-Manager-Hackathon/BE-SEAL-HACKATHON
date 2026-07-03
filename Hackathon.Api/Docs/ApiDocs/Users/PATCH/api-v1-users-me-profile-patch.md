@@ -35,14 +35,14 @@ Content-Type: multipart/form-data
 ```
 
 ## Request body
-Gửi dưới dạng `multipart/form-data`.
+Gửi dưới dạng `application/json`.
 
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
 |---|---|---|---:|---|
 | `firstName` | `string` | Không | Tên của người dùng. |
 | `lastName` | `string` | Không | Họ của người dùng. |
 | `phoneNumber` | `string` | Không | Số điện thoại. |
-| `avatarUrl` | `file` | Không | File ảnh đại diện (jpg, jpeg, png, gif, webp, tối đa 5MB). |
+| `avatarUrl` | `string` | Không | URL ảnh đại diện. Upload file qua API `PATCH /api/v1/users/avatar`. |
 | `bio` | `string` | Không | Giới thiệu ngắn về bản thân. |
 | `address` | `string` | Không | Địa chỉ. |
 | `dateOfBirth` | `date` | Không | Ngày tháng năm sinh (VD: 2002-10-18). |
@@ -68,9 +68,8 @@ Gửi dưới dạng `multipart/form-data`.
 ## Business rules
 - Các trường gửi lên nếu khác null sẽ được cập nhật.
 - User đang gọi API phải tồn tại trong hệ thống.
-- `avatarUrl` là file upload, không phải URL string. Ảnh được upload lên Cloudinary.
-- File ảnh phải có định dạng: `.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`.
-- File ảnh tối đa 5MB.
+- `avatarUrl` là string URL (link ảnh).
+- Upload file ảnh dùng API riêng `PATCH /api/v1/users/avatar` (`multipart/form-data`).
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
@@ -84,4 +83,4 @@ Gửi dưới dạng `multipart/form-data`.
 - Đã implement endpoint trong `Hackathon.Api.Controllers.UserController`.
 - Method: `UpdateProfile(Request.UpdateProfileRequest requestBody)`.
 - Route: `PATCH /api/v1/users/profile`.
-- Sử dụng `[FromForm]` để nhận dữ liệu multipart/form-data.
+- Sử dụng `[FromBody]` để nhận dữ liệu JSON.

@@ -127,6 +127,7 @@ public class Service : IService
         if (request.FirstName != null) user.FirstName = request.FirstName;
         if (request.LastName != null) user.LastName = request.LastName;
         if (request.PhoneNumber != null) user.PhoneNumber = request.PhoneNumber;
+        if (request.AvatarUrl != null) user.AvatarUrl = await _mediaService.UploadImageAsync(request.AvatarUrl);
         if (request.Bio != null) user.Bio = request.Bio;
         if (request.Address != null) user.Address = request.Address;
         if (request.DateOfBirth != null)
@@ -142,9 +143,9 @@ public class Service : IService
         }
         if (request.StudentId != null) user.StudentId = request.StudentId;
         if (request.College != null) user.College = request.College;
+        if (request.ImgUrl != null) user.ImgUrl = request.ImgUrl;
+        if (request.LinkUrl != null) user.LinkUrl = request.LinkUrl;
 
-
-        
         user.UpdatedAt = DateTimeOffset.UtcNow;
 
         _dbContext.Users.Update(user);

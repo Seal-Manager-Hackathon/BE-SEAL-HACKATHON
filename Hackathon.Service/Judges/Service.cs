@@ -50,7 +50,7 @@ public class Service : IService
             .ToListAsync();
     }
 
-    public async Task<BasePaginationResponse> GetTrackSubmissions(Guid trackId, Guid roundId, string? status, PaginationRequest paginationRequest)
+    public async Task<BasePaginationResponse> GetTrackSubmissions(Guid trackId, Guid roundId, bool? isGraded, PaginationRequest paginationRequest)
     {
         var userId = GetCurrentUserId();
         var assignTrackId = await EnsureJudgeAssignedToTrack(userId, trackId);
@@ -161,14 +161,14 @@ public class Service : IService
             };
         }).ToList();
 
-        // Filter by status
-        if (!string.IsNullOrWhiteSpace(status) && !status.Equals("all", StringComparison.OrdinalIgnoreCase))
+        // Filter by isGraded: null = all, true = graded, false = pending
+        if (isGraded.HasValue)
         {
-            if (status.Equals("graded", StringComparison.OrdinalIgnoreCase))
+            if (isGraded.Value)
             {
                 items = items.Where(x => x.GradingStatus == "Graded").ToList();
             }
-            else if (status.Equals("pending", StringComparison.OrdinalIgnoreCase))
+            else
             {
                 items = items.Where(x => x.GradingStatus != "Graded").ToList();
             }

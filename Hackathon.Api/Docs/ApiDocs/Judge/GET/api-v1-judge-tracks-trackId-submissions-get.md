@@ -21,7 +21,7 @@ Yêu cầu access token hợp lệ của tài khoản Giảng viên được ph�
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
 |---|---|---|---:|---|
 | `roundId` | `guid` | **Có** | ID của vòng cần xem. |
-| `status` | `string` | Không | Lọc theo trạng thái chấm: `all` (tất cả, mặc định), `pending` (chưa chấm), `graded` (đã chấm). |
+| `isGraded` | `bool` | Không | `true`: bài đã chấm, `false` hoặc ko truyền: bài chưa chấm (mặc định: `false`). |
 | `pageIndex` | `int` | Không | Số trang hiện tại (mặc định: 1). |
 | `pageSize` | `int` | Không | Số phần tử trên trang (mặc định: 10, tối đa: 100). |
 
@@ -80,7 +80,6 @@ Yêu cầu access token hợp lệ của tài khoản Giảng viên được ph�
 - Mỗi team chỉ xuất hiện **1 lần duy nhất** (lấy bài nộp mới nhất của team trong round đó).
 - Nếu team chưa nộp bài → `submissionId = null`, `gradingStatus = "NoSubmission"`, không có score.
 - `gradingStatus` so sánh **số lượng ScoreItem judge đã chấm** với tổng criteria items của template active.
-- Support lọc theo `status`: `all` (mặc định), `pending` (gồm NoSubmission + Pending), `graded`.
 - Support phân trang qua `pageIndex` và `pageSize`, đếm theo số lượng **team** (không phải submission).
 
 ## Lỗi có thể xảy ra
