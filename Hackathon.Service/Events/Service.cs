@@ -119,13 +119,15 @@ public class Service : IService
 
     public async Task<Response.SetupStatusResponse> GetSetupStatus(Guid eventId)
     {
-        var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
+        var isAdmin = IsCurrentUserAdmin();
+
+        var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && (isAdmin || !x.IsDisable));
         if (!eventExists)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
 
-        if (!IsCurrentUserAdmin())
+        if (!isAdmin)
         {
             await EnsureStaffAssignedToEvent(eventId);
         }
@@ -409,7 +411,7 @@ public class Service : IService
             Status = EventStatusEnum.Draft,
             NumberRound = 0,
             Season = request.Season,
-            IsDisable = false,
+            IsDisable = true,
             CreatedAt = now,
             UpdatedAt = now,
         };
@@ -1123,15 +1125,13 @@ public class Service : IService
     public async Task<BasePaginationResponse> GetEvents(Request.GetEventsRequest request)
     {
         var query = _dbContext.Events.AsNoTracking()
-            .Where(x => !x.IsDisable
-                && (x.Status == EventStatusEnum.Published || x.Status == EventStatusEnum.Closed));
+            .Where(x => !x.IsDisable && (x.Status == EventStatusEnum.Published || x.Status == EventStatusEnum.Closed));
 
         if (!string.IsNullOrWhiteSpace(request.Keyword))
         {
             var normalizedKeyword = request.Keyword.Trim().ToLower();
             query = query.Where(x => x.Name.ToLower().Contains(normalizedKeyword)
-                                     || (x.Description != null && x.Description.ToLower().Contains(normalizedKeyword))
-                                     || (x.Season != null && x.Season.ToLower().Contains(normalizedKeyword)));
+                                     || (x.Description != null && x.Description.ToLower().Contains(normalizedKeyword)));
         }
 
         if (request.Year.HasValue)
@@ -1183,8 +1183,7 @@ public class Service : IService
         {
             var normalizedKeyword = request.Keyword.Trim().ToLower();
             query = query.Where(x => x.Name.ToLower().Contains(normalizedKeyword)
-                                     || (x.Description != null && x.Description.ToLower().Contains(normalizedKeyword))
-                                     || (x.Season != null && x.Season.ToLower().Contains(normalizedKeyword)));
+                                     || (x.Description != null && x.Description.ToLower().Contains(normalizedKeyword)));
         }
 
         if (request.Year.HasValue)
@@ -1226,15 +1225,30 @@ public class Service : IService
     public async Task<Response.EventResponse> GetEvent(Guid eventId)
     {
         var eventEntity = await _dbContext.Events.AsNoTracking().FirstOrDefaultAsync(x => x.Id == eventId);
-        if (eventEntity == null || eventEntity.IsDisable)
+        if (eventEntity == null)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
 
-        // Admin thấy tất cả trạng thái; các role khác chỉ thấy Published/Closed
+        // Admin thấy tất cả (kể cả đã xoá/disable); các role khác không thấy disabled
         var role = _httpContext.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
         var isAdmin = Enum.TryParse<RoleEnum>(role, true, out var userRole) && userRole == RoleEnum.Admin;
-        if (!isAdmin && eventEntity.Status == EventStatusEnum.Draft)
+
+        if (!isAdmin)
+        {
+            if (eventEntity.IsDisable)
+                throw new NotFoundException("EVENT_NOT_FOUND");
+            if (eventEntity.Status == EventStatusEnum.Draft)
+                throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        return ToResponse(eventEntity);
+    }
+
+    public async Task<Response.EventResponse> GetAdminEvent(Guid eventId)
+    {
+        var eventEntity = await _dbContext.Events.AsNoTracking().FirstOrDefaultAsync(x => x.Id == eventId);
+        if (eventEntity == null)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
@@ -1257,19 +1271,13 @@ public class Service : IService
                         && x.Team.TeamDetails.Any(td => td.UserId == userId && !td.IsDisable && td.Status == TeamDetailStatusEnum.Active))
             .Select(x => x.Event)
             .Distinct()
-            .Where(x => x.Status == EventStatusEnum.Published || x.Status == EventStatusEnum.Closed);
+            .Where(x => !x.IsDisable && (x.Status == EventStatusEnum.Published || x.Status == EventStatusEnum.Closed));
 
         if (!string.IsNullOrWhiteSpace(request.Keyword))
         {
             var normalizedKeyword = request.Keyword.Trim().ToLower();
             query = query.Where(x => x.Name.ToLower().Contains(normalizedKeyword)
-                                     || (x.Description != null && x.Description.ToLower().Contains(normalizedKeyword))
-                                     || (x.Season != null && x.Season.ToLower().Contains(normalizedKeyword)));
-        }
-
-        if (request.Year.HasValue)
-        {
-            query = query.Where(x => x.StartTime.HasValue && x.StartTime.Value.Year == request.Year.Value);
+                                     || (x.Description != null && x.Description.ToLower().Contains(normalizedKeyword)));
         }
 
         if (!string.IsNullOrWhiteSpace(request.Status))
@@ -1314,7 +1322,7 @@ public class Service : IService
 
         return await _dbContext.Events
             .AsNoTracking()
-            .Where(x => x.IsDisable == (isDisable ?? false)
+            .Where(x => !x.IsDisable
                 && (x.Status == EventStatusEnum.Published || x.Status == EventStatusEnum.Closed))
             .Select(x => new Response.EventParticipantResponse
             {

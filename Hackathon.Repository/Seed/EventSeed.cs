@@ -22,7 +22,7 @@ public static class EventSeed
                 MaxMember = 4,
                 Status = EventStatusEnum.Published,
                 NumberRound = 2,
-                Season = "2026",
+                Season = SeasonEnum.Winter,
                 IsDisable = false,
                 CreatedAt = SeedConstants.CreatedAt,
                 UpdatedAt = SeedConstants.CreatedAt
@@ -58,7 +58,7 @@ public static class EventSeed
             MaxMember = 5,
             Status = status,
             NumberRound = 3,
-            Season = startYear.ToString(),
+            Season = SeasonEnum.Winter,
             IsDisable = isDisable,
             CreatedAt = SeedConstants.CreatedAt,
             UpdatedAt = SeedConstants.CreatedAt

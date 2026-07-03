@@ -38,7 +38,7 @@ public static class Request
         public int? LimitTeam { get; set; }
         public int? MinMember { get; set; }
         public int? MaxMember { get; set; }
-        public string? Season { get; set; }
+        public Hackathon.Repository.Enum.SeasonEnum? Season { get; set; }
     }
 
     public class UpdateEventRequest
@@ -52,7 +52,7 @@ public static class Request
         public int? MinMember { get; set; }
         public int? MaxMember { get; set; }
         public EventStatusEnum? Status { get; set; }
-        public string? Season { get; set; }
+        public Hackathon.Repository.Enum.SeasonEnum? Season { get; set; }
     }
 
     public class AssignStaffToEventRequest

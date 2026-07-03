@@ -15,6 +15,8 @@ public static class Request
         public DateOnly? DateOfBirth { get; set; }
         public string? StudentId { get; set; }
         public string? College { get; set; }
+        public string? ImgUrl { get; set; }
+        public string? LinkUrl { get; set; }
 
     }
 

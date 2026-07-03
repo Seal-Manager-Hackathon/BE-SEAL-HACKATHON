@@ -29,7 +29,9 @@ Content-Type: application/json
     "address": "456 Updated St",
     "dateOfBirth": "2002-10-18",
     "studentId": "STU123456",
-    "college": "FPT University"
+    "college": "FPT University",
+    "imgUrl": "https://example.com/image.jpg",
+    "linkUrl": "https://example.com"
 }
 ```
 
@@ -45,7 +47,8 @@ Gửi dưới dạng `application/json`.
 | `address` | `string` | Không | Địa chỉ. |
 | `dateOfBirth` | `date` | Không | Ngày tháng năm sinh (VD: 2002-10-18). |
 | `studentId` | `string` | Không | Mã sinh viên. |
-| `college` | `string` | Không | Trường đại học/Cao đẳng. |
+| `imgUrl` | `string` | Không | URL ảnh đại diện mới (thay thế avatarUrl). |
+| `linkUrl` | `string` | Không | URL liên kết cá nhân (VD: portfolio, github). |
 
 *Lưu ý: Chỉ các trường được gửi (khác null) mới được cập nhật.*
 *Upload ảnh đại diện dùng API riêng: `PATCH /api/v1/users/avatar` (multipart/form-data).*
@@ -67,7 +70,13 @@ Gửi dưới dạng `application/json`.
 ## Business rules
 - Các trường gửi lên nếu khác null sẽ được cập nhật.
 - User đang gọi API phải tồn tại trong hệ thống.
+<<<<<<< HEAD
 - Upload avatar dùng API riêng `PATCH /api/v1/users/avatar` với `multipart/form-data`.
+=======
+- Endpoint nhận `application/json` (không phải FormData).
+- Upload file ảnh dùng API riêng `PATCH /api/v1/users/me/avatar` (`multipart/form-data`).
+- **`college` không nằm trong API update** — mặc định là `"FPT University"` khi đăng ký, không cho sửa.
+>>>>>>> main
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |

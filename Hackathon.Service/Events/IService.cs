@@ -30,6 +30,7 @@ public interface IService
     Task<string> PublishLeaderboard(Guid eventId);
     Task<string> PublishEvent(Guid eventId);
     Task<Response.EventResponse> GetEvent(Guid eventId);
+    Task<Response.EventResponse> GetAdminEvent(Guid eventId);
     Task<BasePaginationResponse> GetJoinedEvents(Request.GetJoinedEventsRequest request);
     Task<List<Response.EventParticipantResponse>> GetMostParticipants(int? limit, bool? isDisable);
 }

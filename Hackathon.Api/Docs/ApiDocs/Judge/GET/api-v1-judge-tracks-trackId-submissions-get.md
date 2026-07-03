@@ -20,8 +20,8 @@ Yêu cầu access token hợp lệ của tài khoản Giảng viên được ph�
 ## Query Parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
 |---|---|---|---:|---|
-| `roundId` | `guid` | **Có** | ID của vòng cần xem. |
-| `status` | `string` | Không | Lọc theo trạng thái chấm: `all` (tất cả, mặc định), `pending` (chưa chấm), `graded` (đã chấm). |
+| `roundId` | `guid` | Không | ID của vòng cần xem. Nếu **không truyền**, lấy tất cả các round của track đó. |
+| `isGraded` | `bool` | Không | `true`: bài đã chấm, `false` hoặc ko truyền: bài chưa chấm (mặc định: `false`). |
 | `pageIndex` | `int` | Không | Số trang hiện tại (mặc định: 1). |
 | `pageSize` | `int` | Không | Số phần tử trên trang (mặc định: 10, tối đa: 100). |
 
@@ -76,11 +76,11 @@ Yêu cầu access token hợp lệ của tài khoản Giảng viên được ph�
 
 ## Business rules
 - Giám khảo gọi API phải được phân công chấm bảng đấu này. Nếu sai, từ chối xem và báo lỗi `FORBIDDEN`.
-- **`roundId` là bắt buộc** — API chỉ trả về kết quả cho 1 round cụ thể.
-- Mỗi team chỉ xuất hiện **1 lần duy nhất** (lấy bài nộp mới nhất của team trong round đó).
+- **`roundId` là không bắt buộc** — nếu ko truyền, lấy bài nộp mới nhất của mỗi team ở **tất cả các round** trong track.
+- Mỗi team có thể xuất hiện **nhiều lần** (1 lần mỗi round) khi ko truyền `roundId`.
+- Nếu truyền `roundId`, mỗi team chỉ xuất hiện **1 lần duy nhất** (lấy bài nộp mới nhất của team trong round đó).
 - Nếu team chưa nộp bài → `submissionId = null`, `gradingStatus = "NoSubmission"`, không có score.
 - `gradingStatus` so sánh **số lượng ScoreItem judge đã chấm** với tổng criteria items của template active.
-- Support lọc theo `status`: `all` (mặc định), `pending` (gồm NoSubmission + Pending), `graded`.
 - Support phân trang qua `pageIndex` và `pageSize`, đếm theo số lượng **team** (không phải submission).
 
 ## Lỗi có thể xảy ra

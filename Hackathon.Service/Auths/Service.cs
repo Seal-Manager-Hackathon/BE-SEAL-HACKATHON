@@ -127,6 +127,7 @@ public class Service : IService
                 IsVerified = false,
                 Status = UserStatusEnum.Active,
                 AvatarUrl = $"https://robohash.org/{request.Email}",
+                College = "FPT University",
                 CreatedAt = DateTimeOffset.UtcNow,
                 UpdatedAt = DateTimeOffset.UtcNow
             };

@@ -47,8 +47,6 @@ public class Service : IService
                && !string.IsNullOrWhiteSpace(user.FirstName)
                && !string.IsNullOrWhiteSpace(user.LastName)
                && !string.IsNullOrWhiteSpace(user.PhoneNumber)
-               && !string.IsNullOrWhiteSpace(user.Address)
-               && user.DateOfBirth != DateTimeOffset.MinValue
                && !string.IsNullOrWhiteSpace(user.StudentId)
                && !string.IsNullOrWhiteSpace(user.College);
     }
@@ -123,7 +121,13 @@ public class Service : IService
 
         if (!IsProfileCompleted(user))
         {
-            throw new BadRequestException("USER_PROFILE_NOT_COMPLETED");
+            var missing = new System.Collections.Generic.List<string>();
+            if (string.IsNullOrWhiteSpace(user.FirstName)) missing.Add("firstName");
+            if (string.IsNullOrWhiteSpace(user.LastName)) missing.Add("lastName");
+            if (string.IsNullOrWhiteSpace(user.PhoneNumber)) missing.Add("phoneNumber");
+            if (string.IsNullOrWhiteSpace(user.StudentId)) missing.Add("studentId");
+            if (string.IsNullOrWhiteSpace(user.College)) missing.Add("college");
+            throw new BadRequestException($"USER_PROFILE_NOT_COMPLETED: missing {string.Join(", ", missing)}");
         }
 
         var isDuplicatedName = await _dbContext.Teams.AnyAsync(x => x.Name == teamName);

@@ -179,6 +179,14 @@ public class EventsController : ControllerBase
         return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    [HttpGet("/api/v1/admin/events/{eventId:guid}")]
+    public async Task<IActionResult> GetAdminEvent(Guid eventId)
+    {
+        var result = await _eventsService.GetAdminEvent(eventId);
+        return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
+
     [Authorize(Policy = JwtExtensions.StaffOrAdminPolicy)]
     [HttpGet("/api/v1/admin/events/{eventId:guid}/setup-status")]
     public async Task<IActionResult> GetSetupStatus(Guid eventId)
