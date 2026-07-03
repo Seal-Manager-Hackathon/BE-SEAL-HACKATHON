@@ -4,7 +4,7 @@
 
 ## 1. PATCH /api/v1/users/profile — UpdateProfileRequest
 
-**Thay đổi:** Thêm `ImgUrl` (string), `LinkUrl` (string).
+**Thay đổi:** Thêm `ImgUrl` (string), `LinkUrl` (string). Bỏ `AvatarUrl` (đã có endpoint riêng `PATCH /api/v1/users/me/avatar`). Endpoint nhận JSON (`application/json`), không dùng FormData nữa.
 
 **Trước:**
 ```
@@ -15,10 +15,9 @@ studentId, college
 
 **Sau:**
 ```
-firstName, lastName, phoneNumber, avatarUrl (file),
-bio, address, dateOfBirth,
-studentId, college,
-imgUrl, linkUrl       ← mới
+firstName (string), lastName (string), phoneNumber (string),
+bio (string?), address (string?), dateOfBirth (date?), studentId (string), college (string),
+imgUrl (string?), linkUrl (string?)       ← mới, bỏ avatarUrl
 ```
 
 ---

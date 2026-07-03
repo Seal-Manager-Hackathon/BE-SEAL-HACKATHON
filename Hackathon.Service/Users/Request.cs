@@ -10,7 +10,6 @@ public static class Request
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string? PhoneNumber { get; set; }
-        public IFormFile? AvatarUrl { get; set; }
         public string? Bio { get; set; }
         public string? Address { get; set; }
         public DateOnly? DateOfBirth { get; set; }

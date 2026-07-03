@@ -19,18 +19,19 @@ Không có.
 ```http
 PATCH /api/v1/users/profile
 Authorization: Bearer {accessToken}
-Content-Type: multipart/form-data
+Content-Type: application/json
 
 {
     "firstName": "John updated",
     "lastName": "Doe updated",
     "phoneNumber": "0987654321",
-    "avatarUrl": (file upload),
     "bio": "Updated bio",
     "address": "456 Updated St",
     "dateOfBirth": "2002-10-18",
     "studentId": "STU123456",
-    "college": "FPT University"
+    "college": "FPT University",
+    "imgUrl": "https://example.com/image.jpg",
+    "linkUrl": "https://example.com"
 }
 ```
 
@@ -42,12 +43,13 @@ Gửi dưới dạng `application/json`.
 | `firstName` | `string` | Không | Tên của người dùng. |
 | `lastName` | `string` | Không | Họ của người dùng. |
 | `phoneNumber` | `string` | Không | Số điện thoại. |
-| `avatarUrl` | `string` | Không | URL ảnh đại diện. Upload file qua API `PATCH /api/v1/users/avatar`. |
 | `bio` | `string` | Không | Giới thiệu ngắn về bản thân. |
 | `address` | `string` | Không | Địa chỉ. |
 | `dateOfBirth` | `date` | Không | Ngày tháng năm sinh (VD: 2002-10-18). |
 | `studentId` | `string` | Không | Mã sinh viên. |
 | `college` | `string` | Không | Trường đại học/Cao đẳng. |
+| `imgUrl` | `string` | Không | URL ảnh đại diện mới (thay thế avatarUrl). |
+| `linkUrl` | `string` | Không | URL liên kết cá nhân (VD: portfolio, github). |
 
 *Lưu ý: Chỉ các trường được gửi (khác null) mới được cập nhật.*
 
@@ -68,8 +70,8 @@ Gửi dưới dạng `application/json`.
 ## Business rules
 - Các trường gửi lên nếu khác null sẽ được cập nhật.
 - User đang gọi API phải tồn tại trong hệ thống.
-- `avatarUrl` là string URL (link ảnh).
-- Upload file ảnh dùng API riêng `PATCH /api/v1/users/avatar` (`multipart/form-data`).
+- Endpoint nhận `application/json` (không phải FormData).
+- Upload file ảnh dùng API riêng `PATCH /api/v1/users/me/avatar` (`multipart/form-data`).
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
