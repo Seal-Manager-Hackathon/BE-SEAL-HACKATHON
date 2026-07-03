@@ -690,4 +690,61 @@ public class Service : IService
             CurrentTeamCount = teamCount
         };
     }
+
+    public async Task<Response.MyEventAssignmentResponse> GetMyEventAssignment(Guid eventId, Hackathon.Repository.Enum.EventRoleEnum? role)
+    {
+        var userId = GetCurrentUserId();
+
+        var assignEventQuery = _dbContext.AssignEvents
+            .AsNoTracking()
+            .Include(x => x.Event)
+            .Include(x => x.EventRole)
+            .Where(x => x.UserId == userId
+                        && x.EventId == eventId
+                        && !x.IsDisable
+                        && !x.Event.IsDisable);
+
+        if (role.HasValue)
+        {
+            assignEventQuery = assignEventQuery.Where(x =>
+                x.EventRoleId != null
+                && _dbContext.EventRoles.Any(er =>
+                    er.Id == x.EventRoleId &&
+                    er.Name == role.Value &&
+                    !er.IsDisable));
+        }
+
+        var assignEvent = await assignEventQuery.FirstOrDefaultAsync();
+
+        if (assignEvent == null)
+        {
+            throw new NotFoundException("NOT_ASSIGNED_TO_EVENT");
+        }
+
+        var tracks = await _dbContext.AssignTracks
+            .AsNoTracking()
+            .Include(x => x.Track)
+            .Where(x =>
+                x.AssignEventId == assignEvent.Id
+                && !x.IsDisable
+                && !x.Track.IsDisable)
+            .OrderBy(x => x.Track.Title)
+            .Select(x => new Response.MyEventTrackResponse
+            {
+                AssignTrackId = x.Id,
+                TrackId = x.TrackId,
+                TrackTitle = x.Track.Title,
+                TrackDescription = x.Track.Description,
+            })
+            .ToListAsync();
+
+        return new Response.MyEventAssignmentResponse
+        {
+            AssignEventId = assignEvent.Id,
+            EventId = assignEvent.EventId,
+            EventName = assignEvent.Event.Name,
+            Role = assignEvent.EventRole != null ? (Hackathon.Repository.Enum.EventRoleEnum?)assignEvent.EventRole.Name : null,
+            Tracks = tracks,
+        };
+    }
 }

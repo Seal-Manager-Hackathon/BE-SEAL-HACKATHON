@@ -18,4 +18,5 @@ public interface IService
     Task<BasePaginationResponse> GetTracks(Guid? eventId, string? keyword, bool? isDisable, PaginationRequest paginationRequest);
     Task<BasePaginationResponse> GetAdminTopicsByTrack(Guid trackId, string? keyword, bool? isDisable, PaginationRequest paginationRequest);
     Task<Response.TrackTeamCountResponse> GetTrackTeamCount(Guid trackId);
+    Task<Response.MyEventAssignmentResponse> GetMyEventAssignment(Guid eventId, Hackathon.Repository.Enum.EventRoleEnum? role);
 }

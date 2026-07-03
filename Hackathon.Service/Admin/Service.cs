@@ -40,7 +40,7 @@ public class Service : IService
         return userId;
     }
 
-    public async Task<BasePaginationResponse> GetAllUsers(RoleEnum? role, PaginationRequest paginationRequest)
+    public async Task<BasePaginationResponse> GetAllUsers(RoleEnum? role, string? keyword, PaginationRequest paginationRequest)
     {
         var q = _dbContext.Users
             .AsNoTracking()
@@ -49,6 +49,14 @@ public class Service : IService
         if (role.HasValue)
         {
             q = q.Where(x => x.Role == role.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            var normalized = keyword.Trim().ToLower();
+            q = q.Where(x => x.FirstName.ToLower().Contains(normalized)
+                || x.LastName.ToLower().Contains(normalized)
+                || x.Email.ToLower() == normalized);
         }
 
         var totalCount = await q.CountAsync();
@@ -74,20 +82,18 @@ public class Service : IService
             q = q.Where(x => x.IsVerified == query.IsVerified.Value);
         }
 
-        // KeySearch — search across email, userId, studentId, firstName, lastName
+        // KeySearch — search across firstName, lastName (partial match)
         if (!string.IsNullOrWhiteSpace(query.KeySearch))
         {
             var normalized = query.KeySearch.Trim().ToLower();
-            q = q.Where(x => x.Email.ToLower().Contains(normalized)
-                || x.StudentId.ToLower().Contains(normalized)
-                || x.FirstName.ToLower().Contains(normalized)
+            q = q.Where(x => x.FirstName.ToLower().Contains(normalized)
                 || x.LastName.ToLower().Contains(normalized));
         }
 
         if (!string.IsNullOrWhiteSpace(query.MailSearch))
         {
             var normalized = query.MailSearch.Trim().ToLower();
-            q = q.Where(x => x.Email.ToLower().Contains(normalized));
+            q = q.Where(x => x.Email.ToLower() == normalized);
         }
 
         if (query.IdSearch.HasValue)
@@ -103,7 +109,7 @@ public class Service : IService
         if (!string.IsNullOrWhiteSpace(query.StudentIdSearch))
         {
             var normalizedStudentId = query.StudentIdSearch.Trim().ToLower();
-            q = q.Where(x => x.StudentId.ToLower().Contains(normalizedStudentId));
+            q = q.Where(x => x.StudentId.ToLower() == normalizedStudentId);
         }
 
         var totalCount = await q.CountAsync();
