@@ -47,7 +47,6 @@ Gửi dưới dạng `application/json`.
 | `address` | `string` | Không | Địa chỉ. |
 | `dateOfBirth` | `date` | Không | Ngày tháng năm sinh (VD: 2002-10-18). |
 | `studentId` | `string` | Không | Mã sinh viên. |
-| `college` | `string` | Không | Trường đại học/Cao đẳng. |
 | `imgUrl` | `string` | Không | URL ảnh đại diện mới (thay thế avatarUrl). |
 | `linkUrl` | `string` | Không | URL liên kết cá nhân (VD: portfolio, github). |
 
@@ -72,6 +71,7 @@ Gửi dưới dạng `application/json`.
 - User đang gọi API phải tồn tại trong hệ thống.
 - Endpoint nhận `application/json` (không phải FormData).
 - Upload file ảnh dùng API riêng `PATCH /api/v1/users/me/avatar` (`multipart/form-data`).
+- **`college` không nằm trong API update** — mặc định là `"FPT University"` khi đăng ký, không cho sửa.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |

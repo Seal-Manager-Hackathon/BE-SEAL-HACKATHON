@@ -141,7 +141,6 @@ public class Service : IService
             user.DateOfBirth = localDob.ToUniversalTime();
         }
         if (request.StudentId != null) user.StudentId = request.StudentId;
-        if (request.College != null) user.College = request.College;
         if (request.ImgUrl != null) user.ImgUrl = request.ImgUrl;
         if (request.LinkUrl != null) user.LinkUrl = request.LinkUrl;
 
