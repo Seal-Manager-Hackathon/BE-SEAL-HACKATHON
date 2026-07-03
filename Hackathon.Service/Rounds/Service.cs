@@ -1202,7 +1202,7 @@ public class Service : IService
             NextRoundName = nextRound?.Name,
             NextRoundLimitTeam = nextRound?.LimitTeam,
             TotalTeams = advancedTeams.Count,
-            TotalAdvanced = advancedTeams.Count(x => x.IsAdvanced),
+            TotalAdvanced = nextRound == null ? advancedTeams.Count : advancedTeams.Count(x => x.IsAdvanced),
             Message = message,
             Teams = advancedTeams,
         };
