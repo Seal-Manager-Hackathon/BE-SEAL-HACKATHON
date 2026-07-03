@@ -16,6 +16,7 @@ Không có.
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
 |---|---|---|---:|---|
 | `role` | `int` | Không | Lọc theo role người dùng. Xem bảng `RoleEnum` bên dưới. Nếu không truyền, trả về tất cả role. |
+| `keyword` | `string` | Không | Tìm kiếm theo tên (firstName/lastName, Contains). Nếu nhập email, dùng `mailSearch` ở API search. |
 | `pageIndex` | `int` | Không | Trang hiện tại (mặc định `1`). |
 | `pageSize` | `int` | Không | Số item mỗi trang (mặc định `10`, tối đa `100`). |
 

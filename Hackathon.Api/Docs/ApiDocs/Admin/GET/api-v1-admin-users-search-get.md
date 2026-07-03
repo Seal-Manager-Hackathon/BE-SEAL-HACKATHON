@@ -15,11 +15,11 @@ Không có.
 ## Query parameters
 | Tên | Kiểu dữ liệu | Bắt buộc | Mô tả |
 |---|---|---|---:|---|
-| `keySearch` | `string` | Không | Tìm kiếm tổng quát (contains) qua email, studentId, firstName, lastName — không phân biệt hoa thường. |
-| `mailSearch` | `string` | Không | Tìm kiếm theo email (contains, không phân biệt hoa thường). |
+| `keySearch` | `string` | Không | Tìm kiếm theo **tên** (firstName/lastName, Contains). Không search email hay studentId ở param này. |
+| `mailSearch` | `string` | Không | Tìm kiếm theo email **chính xác** (== exact match). |
 | `idSearch` | `guid` | Không | Tìm kiếm theo UserId chính xác. |
 | `role` | `int` | Không | Lọc theo RoleEnum (`0`=Admin, `1`=Staff, `2`=Student, `3`=Lecturer). |
-| `studentIdSearch` | `string` | Không | Tìm kiếm theo StudentId (contains, không phân biệt hoa thường). |
+| `studentIdSearch` | `string` | Không | Tìm kiếm theo StudentId **chính xác** (== exact match). |
 | `isDisable` | `bool` | Không | Lọc theo trạng thái soft-disable. Nếu không truyền, lấy tất cả. |
 | `isVerified` | `bool` | Không | Lọc theo trạng thái xác thực email. Nếu không truyền, lấy tất cả. |
 | `pageIndex` | `int` | Không | Trang hiện tại (mặc định `1`). |

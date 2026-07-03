@@ -15,6 +15,7 @@ public static class Response
         public DateTimeOffset? EndSubmission { get; set; }
         public int? LimitTeam { get; set; }
         public bool IsDisable { get; set; }
+        public bool IsEnded { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }
 
@@ -40,6 +41,7 @@ public static class Response
         public DateTimeOffset? EndSubmission { get; set; }
         public int? LimitTeam { get; set; }
         public bool IsDisable { get; set; }
+        public bool IsEnded { get; set; }
     }
 
     public class MyRoundResponse
@@ -56,6 +58,7 @@ public static class Response
         public DateTimeOffset? EndTime { get; set; }
         public DateTimeOffset? StartSubmission { get; set; }
         public DateTimeOffset? EndSubmission { get; set; }
+        public bool IsEnded { get; set; }
     }
 
     public class MyRoundDetailResponse

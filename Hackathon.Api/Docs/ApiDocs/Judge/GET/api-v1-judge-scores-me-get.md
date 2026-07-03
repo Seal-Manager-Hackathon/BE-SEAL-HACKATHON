@@ -57,6 +57,7 @@ Yêu cầu access token hợp lệ của tài khoản Giảng viên với vai tr
 - Người gọi phải là giảng viên có vai trò Judge đang hoạt động.
 - Chỉ trả về các bảng điểm thật (không mock, không disable) của judge hiện tại.
 - `isGraded` mặc định `false`: trả bài chưa chấm. Truyền `true` để lấy bài đã chấm.
+- **Thay đổi logic:** Giờ chỉ trả về 1 score cuối mỗi team (group theo RegisterTeamId), không trả tất cả lịch sử chấm.
 - Kết quả được sắp xếp theo thời gian cập nhật giảm dần.
 
 ## Lỗi có thể xảy ra

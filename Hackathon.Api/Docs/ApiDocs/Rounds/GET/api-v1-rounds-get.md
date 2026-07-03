@@ -44,6 +44,7 @@ Không có.
       "endSubmission": "datetimeoffset|null",
       "limitTeam": 0,
       "isDisable": false,
+      "isEnded": false,
       "createdAt": "datetimeoffset"
     }
   ],
@@ -54,6 +55,7 @@ Không có.
 ## Business rules
 - `eventId` là bắt buộc, event phải tồn tại và không bị disable.
 - Chỉ trả về các round thuộc event đó, chưa bị disable.
+- `isEnded` = true nếu `endTime` đã qua so với thời gian hiện tại.
 - Kết quả sắp xếp theo `RoundNo` tăng dần, sau đó `CreatedAt` tăng dần.
 
 ## Lỗi có thể xảy ra

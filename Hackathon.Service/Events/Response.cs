@@ -121,6 +121,15 @@ public static class Response
         public string TeamName { get; set; } = null!;
         public decimal? TotalScore { get; set; }
         public int? LevelAward { get; set; }
+        public List<RoundScoreResponse> RoundScores { get; set; } = new();
+    }
+
+    public class RoundScoreResponse
+    {
+        public Guid RoundId { get; set; }
+        public string RoundName { get; set; } = null!;
+        public int? RoundNo { get; set; }
+        public decimal? AverageScore { get; set; }
     }
 
     public class EventSummaryResponse

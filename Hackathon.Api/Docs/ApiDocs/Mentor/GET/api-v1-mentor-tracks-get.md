@@ -6,6 +6,12 @@ Giúp Mentor xem danh sách các track (bảng thi đấu) mà mình được BT
 ## URL
 `GET /api/v1/mentor/tracks`
 
+## ⛔ ĐÃ XOÁ — CHUYỂN SANG API MỚI
+API này đã bị xoá. Thay bằng:  
+**`GET /api/v1/tracks/my-assignment?eventId={eventId}&role=Mentor`**
+
+Xem doc tại: `Docs/ApiDocs/Tracks/GET/api-v1-tracks-my-assignment-get.md`
+
 ## Quyền
 Mentor phụ trách track (Yêu cầu đăng nhập tài khoản Giảng viên được phân công)
 

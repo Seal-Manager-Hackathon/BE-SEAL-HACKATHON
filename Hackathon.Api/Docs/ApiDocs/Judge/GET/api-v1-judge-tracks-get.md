@@ -6,7 +6,14 @@ Giúp giảng viên được phân công vai trò Judge xem danh sách các bả
 ## URL
 `GET /api/v1/judge/tracks`
 
+## ⛔ ĐÃ XOÁ — CHUYỂN SANG API MỚI
+API này đã bị xoá. Thay bằng:  
+**`GET /api/v1/tracks/my-assignment?eventId={eventId}&role=Judge`**
+
+Xem doc tại: `Docs/ApiDocs/Tracks/GET/api-v1-tracks-my-assignment-get.md`
+
 ## Authorization
+Yêu cầu access token hợp lệ của tài khoản Giảng viên với vai trò Judge trong event.
 Yêu cầu access token hợp lệ của tài khoản Giảng viên với vai trò Judge trong event.
 
 ## Response body (Success - 200 OK)

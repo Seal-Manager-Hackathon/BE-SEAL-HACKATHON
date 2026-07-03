@@ -34,13 +34,15 @@ Public API (Không yêu cầu đăng nhập)
     "startSubmission": "2026-07-01T08:00:00Z",
     "endSubmission": "2026-07-01T17:30:00Z",
     "limitTeam": 50,
-    "isDisable": false
+    "isDisable": false,
+    "isEnded": false
   }
 }
 ```
 
 ## Business rules
 - Round phải tồn tại trong DB và chưa bị soft-disable.
+- `isEnded` = true nếu `endTime` đã qua so với thời gian hiện tại.
 - Round thuộc một event cụ thể (`Rounds.EventId`). FE có thể dùng `eventId` trong response để lấy tiếp leaderboard của event hoặc các dữ liệu event-level khác.
 - Nếu cần hiển thị tiêu chí chấm điểm của round, gọi tiếp [`GET /api/v1/rounds/{roundId}/criteria`](../Critical/58-GET-api-v1-rounds-roundId-criteria.md).
 

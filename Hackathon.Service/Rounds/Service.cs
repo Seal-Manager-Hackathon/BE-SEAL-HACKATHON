@@ -74,6 +74,7 @@ public class Service : IService
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
 
+        var now = DateTimeOffset.UtcNow;
         var rounds = await _dbContext.Rounds
             .AsNoTracking()
             .Where(x => x.EventId == eventId && !x.IsDisable)
@@ -92,6 +93,7 @@ public class Service : IService
                 EndSubmission = x.EndSubmission,
                 LimitTeam = x.LimitTeam,
                 IsDisable = x.IsDisable,
+                IsEnded = x.EndTime.HasValue && x.EndTime.Value <= now,
                 CreatedAt = x.CreatedAt
             })
             .ToListAsync();
@@ -101,6 +103,7 @@ public class Service : IService
 
     public async Task<Response.RoundDetailResponse> GetRound(Guid roundId)
     {
+        var now = DateTimeOffset.UtcNow;
         var round = await _dbContext.Rounds
             .AsNoTracking()
             .Where(x => x.Id == roundId && !x.IsDisable && !x.Event.IsDisable)
@@ -117,7 +120,8 @@ public class Service : IService
                 StartSubmission = x.StartSubmission,
                 EndSubmission = x.EndSubmission,
                 LimitTeam = x.LimitTeam,
-                IsDisable = x.IsDisable
+                IsDisable = x.IsDisable,
+                IsEnded = x.EndTime.HasValue && x.EndTime.Value <= now
             })
             .FirstOrDefaultAsync();
 
@@ -184,7 +188,8 @@ public class Service : IService
                 StartTime = x.Round.StartTime,
                 EndTime = x.Round.EndTime,
                 StartSubmission = x.Round.StartSubmission,
-                EndSubmission = x.Round.EndSubmission
+                EndSubmission = x.Round.EndSubmission,
+                IsEnded = x.Round.EndTime.HasValue && x.Round.EndTime.Value <= DateTimeOffset.UtcNow
             })
             .ToListAsync();
 
@@ -1318,7 +1323,6 @@ public class Service : IService
                     await dbContext.RoundDetails.AddRangeAsync(nextRoundDetails);
                 }
 
-                round.IsDisable = true;
                 round.UpdatedAt = now;
                 await dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -1327,7 +1331,6 @@ public class Service : IService
         }
 
         // No next round or limit = 0: just close the round
-        round.IsDisable = true;
         round.UpdatedAt = now;
         await dbContext.SaveChangesAsync();
     }

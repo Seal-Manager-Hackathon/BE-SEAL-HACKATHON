@@ -52,7 +52,8 @@ Response dùng `ApiResponseFactory.Base(data)`.
       "startTime": "datetimeoffset|null",
       "endTime": "datetimeoffset|null",
       "startSubmission": "datetimeoffset|null",
-      "endSubmission": "datetimeoffset|null"
+      "endSubmission": "datetimeoffset|null",
+      "isEnded": false
     }
   ],
   "message": "SUCCESS"
@@ -64,6 +65,7 @@ Response dùng `ApiResponseFactory.Base(data)`.
 - User phải là thành viên của team (không bị soft-disable).
 - Nếu truyền `eventId`, event phải tồn tại.
 - Chỉ trả về các round mà team đang tham gia, không bị disable.
+- `isEnded` = true nếu `endTime` đã qua so với thời gian hiện tại.
 
 ## Lỗi có thể xảy ra
 | HTTP | messageCode | message/detail |
