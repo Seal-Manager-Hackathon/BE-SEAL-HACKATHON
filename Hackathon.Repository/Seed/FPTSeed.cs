@@ -395,12 +395,9 @@ public static class FPTSeed
         };
         foreach (var (id, name, desc, score) in e1r1Items)
             criteriaItems.Add(new CriteriaItems { Id = id, CriteriaTemplateId = Ev1R1Tpl1Id, Name = name, Description = desc, Score = score, IsDisable = false, CreatedAt = Now, UpdatedAt = Now });
-        // Items for template 2 (inactive)
-        foreach (var (id, name, desc, score) in e1r1Items)
-            criteriaItems.Add(new CriteriaItems { Id = Guid.Parse($"23000000-0000-0000-0000-0000000001{10 + Array.IndexOf(e1r1Items, e1r1Items.First(x => x.id == Guid.Parse(($"23000000-0000-0000-0000-0000000001" + (0 + 0).ToString()))).id):X1}"), CriteriaTemplateId = Ev1R1Tpl2Id, Name = name, Description = desc, Score = score, IsDisable = true, CreatedAt = Now, UpdatedAt = Now });
-        // Items for template 3 (inactive)
-        foreach (var (id, name, desc, score) in e1r1Items)
-            criteriaItems.Add(new CriteriaItems { Id = Guid.Parse($"23000000-0000-0000-0000-0000000001{20 + Array.IndexOf(e1r1Items, e1r1Items.First(x => x.id == Guid.Parse(($"23000000-0000-0000-0000-0000000001" + (0 + 0).ToString()))).id):X1}"), CriteriaTemplateId = Ev1R1Tpl3Id, Name = name, Description = desc, Score = score, IsDisable = true, CreatedAt = Now, UpdatedAt = Now });
+        // Items for template 2 (inactive) & template 3 (inactive)
+        criteriaItems.AddRange(e1r1Items.Select((x, idx) => new CriteriaItems { Id = Guid.Parse($"23000000-0000-0000-0000-0000000001A{idx:X1}"), CriteriaTemplateId = Ev1R1Tpl2Id, Name = x.name, Description = x.desc, Score = x.score, IsDisable = true, CreatedAt = Now, UpdatedAt = Now }));
+        criteriaItems.AddRange(e1r1Items.Select((x, idx) => new CriteriaItems { Id = Guid.Parse($"23000000-0000-0000-0000-0000000001B{idx:X1}"), CriteriaTemplateId = Ev1R1Tpl3Id, Name = x.name, Description = x.desc, Score = x.score, IsDisable = true, CreatedAt = Now, UpdatedAt = Now }));
 
         modelBuilder.Entity<CriteriaTemplates>().HasData(criteriaTemplates);
         modelBuilder.Entity<CriteriaItems>().HasData(criteriaItems);
