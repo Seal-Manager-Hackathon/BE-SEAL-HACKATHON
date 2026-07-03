@@ -119,13 +119,15 @@ public class Service : IService
 
     public async Task<Response.SetupStatusResponse> GetSetupStatus(Guid eventId)
     {
-        var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
+        var isAdmin = IsCurrentUserAdmin();
+
+        var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && (isAdmin || !x.IsDisable));
         if (!eventExists)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
 
-        if (!IsCurrentUserAdmin())
+        if (!isAdmin)
         {
             await EnsureStaffAssignedToEvent(eventId);
         }
@@ -1240,6 +1242,17 @@ public class Service : IService
                 throw new NotFoundException("EVENT_NOT_FOUND");
             if (eventEntity.Status == EventStatusEnum.Draft)
                 throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        return ToResponse(eventEntity);
+    }
+
+    public async Task<Response.EventResponse> GetAdminEvent(Guid eventId)
+    {
+        var eventEntity = await _dbContext.Events.AsNoTracking().FirstOrDefaultAsync(x => x.Id == eventId);
+        if (eventEntity == null)
+        {
+            throw new NotFoundException("EVENT_NOT_FOUND");
         }
 
         return ToResponse(eventEntity);
