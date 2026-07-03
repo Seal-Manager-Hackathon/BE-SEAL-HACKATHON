@@ -77,4 +77,21 @@ public static class Response
         public int? MaxTeam { get; set; }
         public int CurrentTeamCount { get; set; }
     }
+
+    public class MyEventAssignmentResponse
+    {
+        public Guid AssignEventId { get; set; }
+        public Guid EventId { get; set; }
+        public string EventName { get; set; } = null!;
+        public Hackathon.Repository.Enum.EventRoleEnum? Role { get; set; }
+        public List<MyEventTrackResponse> Tracks { get; set; } = new();
+    }
+
+    public class MyEventTrackResponse
+    {
+        public Guid AssignTrackId { get; set; }
+        public Guid TrackId { get; set; }
+        public string TrackTitle { get; set; } = string.Empty;
+        public string? TrackDescription { get; set; }
+    }
 }

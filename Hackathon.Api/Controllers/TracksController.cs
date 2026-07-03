@@ -34,6 +34,20 @@ public class TracksController : ControllerBase
         return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
     }
 
+    [HttpGet("my-assignment")]
+    [Authorize]
+    public async Task<IActionResult> GetMyEventAssignment([FromQuery] Guid eventId, [FromQuery] string? role)
+    {
+        Hackathon.Repository.Enum.EventRoleEnum? eventRole = null;
+        if (!string.IsNullOrWhiteSpace(role) && System.Enum.TryParse<Hackathon.Repository.Enum.EventRoleEnum>(role, true, out var parsed))
+        {
+            eventRole = parsed;
+        }
+
+        var result = await _tracksService.GetMyEventAssignment(eventId, eventRole);
+        return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+    }
+
     [HttpGet("{trackId:guid}/teams/count")]
     public async Task<IActionResult> GetTrackTeamCount(Guid trackId)
     {

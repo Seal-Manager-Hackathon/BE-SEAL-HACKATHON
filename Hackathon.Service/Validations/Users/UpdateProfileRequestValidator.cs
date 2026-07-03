@@ -19,10 +19,6 @@ public class UpdateProfileRequestValidator : AbstractValidator<Request.UpdatePro
             .Matches(@"^\+?[0-9]{9,15}$").WithMessage("PHONE_NUMBER_INVALID")
             .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber));
 
-        RuleFor(x => x.AvatarUrl)
-            .NotNull().WithMessage("AVATAR_URL_INVALID")
-            .When(x => x.AvatarUrl != null);
-
         RuleFor(x => x.DateOfBirth)
             .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.UtcNow)).WithMessage("DATE_OF_BIRTH_INVALID")
             .When(x => x.DateOfBirth.HasValue);

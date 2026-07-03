@@ -21,9 +21,9 @@ public class AdminController : ControllerBase
     }
 
     [HttpGet("users")]
-    public async Task<IActionResult> GetAllUsers([FromQuery] RoleEnum? role, [FromQuery] PaginationRequest paginationRequest)
+    public async Task<IActionResult> GetAllUsers([FromQuery] RoleEnum? role, [FromQuery] string? keyword, [FromQuery] PaginationRequest paginationRequest)
     {
-        var result = await _adminService.GetAllUsers(role, paginationRequest);
+        var result = await _adminService.GetAllUsers(role, keyword, paginationRequest);
         return Ok(result);
     }
 

@@ -6,7 +6,7 @@ namespace Hackathon.Service.Admin;
 
 public interface IService
 {
-    Task<BasePaginationResponse> GetAllUsers(RoleEnum? role, PaginationRequest paginationRequest);
+    Task<BasePaginationResponse> GetAllUsers(RoleEnum? role, string? keyword, PaginationRequest paginationRequest);
     Task<BasePaginationResponse> SearchUsers(GetUsersQuery query);
     Task<BasePaginationResponse> GetRounds(Guid eventId, GetAdminRoundsRequest request);
     Task<CreateRoundResponse> CreateRound(Guid eventId, CreateRoundRequest request);
