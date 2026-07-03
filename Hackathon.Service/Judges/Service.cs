@@ -403,8 +403,18 @@ public class Service : IService
 
         var totalCount = await query.CountAsync();
 
-        var items = await query
+        var allScores = await query
             .OrderByDescending(x => x.UpdatedAt)
+            .ToListAsync();
+
+        // Group by team (RegisterTeamId) and take only the latest score per team
+        var grouped = allScores
+            .GroupBy(x => x.Submission.RoundDetail.RegisterTeamId)
+            .Select(g => g.First())
+            .ToList();
+
+        var totalCountAfter = grouped.Count;
+        var items = grouped
             .Skip((pageIndex - 1) * pageSize)
             .Take(pageSize)
             .Select(x => new Response.JudgeMyScoreItemResponse
@@ -421,9 +431,9 @@ public class Service : IService
                 SubmittedAt = x.Submission.SubmittedAt,
                 UpdatedAt = x.UpdatedAt
             })
-            .ToListAsync();
+            .ToList();
 
-        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
+        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCountAfter);
     }
 
     public Task<Response.JudgeSubmissionScoreResponse> SubmitScore(Guid submissionId, Request.SubmitScoreRequest request)
