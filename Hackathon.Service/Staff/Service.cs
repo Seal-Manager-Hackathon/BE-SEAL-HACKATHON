@@ -59,8 +59,7 @@ public class Service : IService
             .Include(x => x.EventRole)
             .Where(x => x.UserId == userId
                         && !x.IsDisable
-                        && !x.Event.IsDisable
-                        && x.Event.Status != EventStatusEnum.Draft
+                        && x.Event.Status == EventStatusEnum.Published
                         && x.Event.StartTime.HasValue
                         && x.Event.StartTime.Value <= now
                         && x.Event.EndTime.HasValue
@@ -106,8 +105,7 @@ public class Service : IService
             .Include(x => x.EventRole)
             .Where(x => x.UserId == userId
                         && !x.IsDisable
-                        && !x.Event.IsDisable
-                        && x.Event.Status != EventStatusEnum.Draft);
+                        && x.Event.Status == EventStatusEnum.Published);
 
         var totalCount = await query.CountAsync();
 

@@ -411,7 +411,7 @@ public class Service : IService
             Status = EventStatusEnum.Draft,
             NumberRound = 0,
             Season = request.Season,
-            IsDisable = false,
+            IsDisable = true,
             CreatedAt = now,
             UpdatedAt = now,
         };
@@ -1125,7 +1125,7 @@ public class Service : IService
     public async Task<BasePaginationResponse> GetEvents(Request.GetEventsRequest request)
     {
         var query = _dbContext.Events.AsNoTracking()
-            .Where(x => (x.Status == EventStatusEnum.Published || x.Status == EventStatusEnum.Closed));
+            .Where(x => !x.IsDisable && (x.Status == EventStatusEnum.Published || x.Status == EventStatusEnum.Closed));
 
         if (!string.IsNullOrWhiteSpace(request.Keyword))
         {
@@ -1271,7 +1271,7 @@ public class Service : IService
                         && x.Team.TeamDetails.Any(td => td.UserId == userId && !td.IsDisable && td.Status == TeamDetailStatusEnum.Active))
             .Select(x => x.Event)
             .Distinct()
-            .Where(x => x.Status == EventStatusEnum.Published || x.Status == EventStatusEnum.Closed);
+            .Where(x => !x.IsDisable && (x.Status == EventStatusEnum.Published || x.Status == EventStatusEnum.Closed));
 
         if (!string.IsNullOrWhiteSpace(request.Keyword))
         {
@@ -1322,7 +1322,7 @@ public class Service : IService
 
         return await _dbContext.Events
             .AsNoTracking()
-            .Where(x => x.IsDisable == (isDisable ?? false)
+            .Where(x => !x.IsDisable
                 && (x.Status == EventStatusEnum.Published || x.Status == EventStatusEnum.Closed))
             .Select(x => new Response.EventParticipantResponse
             {

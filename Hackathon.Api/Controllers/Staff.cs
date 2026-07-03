@@ -195,7 +195,7 @@ public class Staff : ControllerBase
         return Ok(result);
     }
 
-    [Authorize(Policy = JwtExtensions.StaffPolicy)]
+    [Authorize(Policy = JwtExtensions.StaffLecturerOrAdminPolicy)]
     [HttpGet("events/current")]
     public async Task<IActionResult> GetCurrentStaffEvents()
     {
