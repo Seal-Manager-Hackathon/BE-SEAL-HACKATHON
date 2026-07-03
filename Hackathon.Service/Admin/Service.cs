@@ -229,22 +229,19 @@ public class Service : IService
 
         var now = DateTimeOffset.UtcNow;
 
-        // Không thể sửa round nếu event đã bắt đầu
-        if (eventEntity.StartTime.HasValue && now >= eventEntity.StartTime.Value)
-        {
-            // Ngoại lệ: nếu chỉ sửa tên/mô tả và ko đổi thời gian/RoundNo thì vẫn cho phép
-            var isChangingCriticalFields = request.StartTime.HasValue
-                || request.EndTime.HasValue
-                || request.StartSubmission.HasValue
-                || request.EndSubmission.HasValue
-                || request.RoundNo.HasValue
-                || request.LimitTeam.HasValue;
-
-            if (isChangingCriticalFields)
-            {
-                throw new BadRequestException("EVENT_ALREADY_STARTED");
-            }
-        }
+        // ⚠️ Ràng buộc thời gian (comment để tham khảo):
+        // Hiện tại cho phép sửa round kể cả khi event đã bắt đầu.
+        // Nếu cần chặn sau này, uncomment block dưới:
+        // if (eventEntity.StartTime.HasValue && now >= eventEntity.StartTime.Value)
+        // {
+        //     var isChangingCriticalFields = request.StartTime.HasValue
+        //         || request.EndTime.HasValue
+        //         || request.StartSubmission.HasValue
+        //         || request.EndSubmission.HasValue
+        //         || request.RoundNo.HasValue
+        //         || request.LimitTeam.HasValue;
+        //     if (isChangingCriticalFields) throw new BadRequestException("EVENT_ALREADY_STARTED");
+        // }
 
         var nextStartTime = request.StartTime ?? round.StartTime;
         var nextEndTime = request.EndTime ?? round.EndTime;
