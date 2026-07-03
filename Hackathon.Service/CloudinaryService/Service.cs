@@ -38,9 +38,9 @@ public class Service : IService
             throw new BadRequestException("INVALID_IMAGE_FORMAT", "Only .jpg, .jpeg, .png, .gif, .webp are allowed.");
         }
 
-        if (file.Length > 5 * 1024 * 1024)
+        if (file.Length > 50 * 1024 * 1024)
         {
-            throw new BadRequestException("FILE_TOO_LARGE", "Image must be less than 5MB.");
+            throw new BadRequestException("FILE_TOO_LARGE", "Image must be less than 50MB.");
         }
 
         await using var stream = file.OpenReadStream();
