@@ -37,7 +37,7 @@ Không yêu cầu Access Token (Public API).
     "maxMember": 5,
     "status": 0, /* 0: Draft, 1: Published, 2: Closed, 3: Cancelled */
     "numberRound": 3,
-    "season": "Mùa hè 2026",
+    "season": "Summer",
     "isDisable": false,
     "createdAt": "2026-06-22T08:00:00Z"
   }

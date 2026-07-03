@@ -8,7 +8,7 @@ Lấy danh sách phân trang tất cả các event dành cho Admin/Staff quản 
 
 ## Request Parameters
 *   **Query Parameters:**
-    *   `keyword` (string, Không bắt buộc): Tìm kiếm theo tên, mô tả hoặc season của event.
+    *   `keyword` (string, Không bắt buộc): Tìm kiếm theo tên hoặc mô tả của event.
     *   `year` (int, Không bắt buộc): Lọc các event bắt đầu trong năm chỉ định.
     *   `status` (string, Không bắt buộc): Lọc theo trạng thái của event.
     *   `isDisable` (bool, Không bắt buộc): Lọc theo trạng thái soft-disable (`true` để lấy các event đã ẩn, `false` để lấy các event đang hoạt động).
@@ -38,7 +38,7 @@ Authorization: Bearer <token>
         "startTime": "2026-07-01T08:00:00Z",
         "endTime": "2026-07-10T17:00:00Z",
         "status": 0, /* 0: Draft, 1: Published, 2: Closed */
-        "season": "Mùa hè 2026",
+        "season": "Summer",
         "isDisable": false,
         "createdAt": "2026-06-22T08:00:00Z"
       }

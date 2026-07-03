@@ -8,7 +8,7 @@ Lấy danh sách phân trang các event đã Published hoặc Closed (ẩn Draft
 
 ## Request Parameters
 *   **Query Parameters:**
-    *   `keyword` (string, Không bắt buộc): Tìm kiếm theo tên, mô tả hoặc season của event.
+    *   `keyword` (string, Không bắt buộc): Tìm kiếm theo tên hoặc mô tả của event.
     *   `year` (int, Không bắt buộc): Lọc các event bắt đầu trong năm chỉ định.
     *   `status` (string, Không bắt buộc): Lọc theo trạng thái của event (ví dụ: `Draft`, `Upcoming`, `Ongoing`, `Ended`).
     *   `pageIndex` (int, Không bắt buộc, mặc định: 1): Số trang hiện tại.
@@ -35,7 +35,7 @@ Không yêu cầu Access Token (Public API).
         "startTime": "2026-07-01T08:00:00Z",
         "endTime": "2026-07-10T17:00:00Z",
         "status": 0, /* 0: Draft, 1: Published, 2: Closed, 3: Cancelled */
-        "season": "Mùa hè 2026",
+        "season": "Summer",
         "createdAt": "2026-06-22T08:00:00Z"
       }
     ],

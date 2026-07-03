@@ -30,7 +30,7 @@ Staff.
         "assignEventId": "guid",
         "eventId": "guid",
         "eventName": "SEAL Hackathon 2026",
-        "season": "Mùa hè 2026",
+        "season": "Summer",
         "startTime": "2026-07-01T08:00:00Z",
         "endTime": "2026-07-10T17:00:00Z",
         "role": 1,

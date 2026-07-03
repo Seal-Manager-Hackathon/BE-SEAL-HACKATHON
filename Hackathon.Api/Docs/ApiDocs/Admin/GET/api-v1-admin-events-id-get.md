@@ -25,7 +25,7 @@ Yêu cầu access token hợp lệ của tài khoản **Admin**.
   "timestampUtc": "2026-07-03T10:00:00Z",
   "data": {
     "id": "4d2034e3-80fb-4572-a04e-27df2bae6d25",
-    "name": "Hackathon mùa hè",
+    "name": "SEAL Hackathon Summer 2026",
     "description": "Sự kiện công nghệ lớn nhất năm",
     "startTime": "2026-08-01T08:00:00+07:00",
     "endTime": "2026-08-03T17:00:00+07:00",
@@ -35,7 +35,7 @@ Yêu cầu access token hợp lệ của tài khoản **Admin**.
     "maxMember": 5,
     "status": "Draft",
     "numberRound": 0,
-    "season": "Summer 2026",
+    "season": "Summer",
     "isDisable": false,
     "createdAt": "2026-07-03T09:00:00Z"
   },

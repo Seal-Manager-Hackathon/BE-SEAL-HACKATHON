@@ -31,11 +31,11 @@ Không có.
       "assignEventId": "b1a7d6c2-4821-4f9b-bd5e-3c2fa56789e0",
       "eventId": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
       "eventName": "SEAL Hackathon 2026",
-      "season": "Mùa hè 2026",
+      "season": "Summer",
       "startTime": "2026-07-01T08:00:00Z",
       "endTime": "2026-07-10T17:00:00Z",
       "role": 0, /* 0: Mentor, 1: Judge */
-      "eventStatus": 1 /* 0: Draft, 1: Published, 2: Closed, 3: Cancelled */
+      "eventStatus": 1 /* 0: Draft, 1: Published, 2: Closed */
     }
   ]
 }

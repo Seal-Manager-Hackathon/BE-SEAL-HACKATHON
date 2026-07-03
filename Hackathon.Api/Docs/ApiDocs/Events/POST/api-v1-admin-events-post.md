@@ -21,7 +21,7 @@ Yêu cầu access token hợp lệ với role `Admin`.
   "minMember": 0,
   "maxMember": 0,
   "numberRound": 0,
-  "season": "string|null"
+  "season": "Summer"
 }
 ```
 
@@ -36,7 +36,7 @@ Yêu cầu access token hợp lệ với role `Admin`.
 | `minMember` | `int` | Không | Số lượng thành viên tối thiểu mỗi team. |
 | `maxMember` | `int` | Không | Số lượng thành viên tối đa mỗi team. |
 | `numberRound` | `int` | Không | Số vòng thi của event. |
-| `season` | `string` | Không | Mùa/mùa giải của event. |
+| `season` | `SeasonEnum` | Không | Mùa giải: `Spring`, `Summer`, `Autumn`, `Winter`. |
 
 ## Response body
 ```json

@@ -54,6 +54,7 @@ public class Service : IService
             Status = eventEntity.Status?.ToString(),
             NumberRound = eventEntity.NumberRound,
             Season = eventEntity.Season,
+            Year = eventEntity.StartTime?.Year ?? eventEntity.CreatedAt.Year,
             IsDisable = eventEntity.IsDisable,
             CreatedAt = eventEntity.CreatedAt,
         };
@@ -104,7 +105,7 @@ public class Service : IService
 
     public async Task<Response.AssignStaffToEventResponse> AssignStaffToEvent(Guid eventId, Request.AssignStaffToEventRequest request)
     {
-        var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
+        var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId);
         if (!eventExists)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
@@ -327,6 +328,7 @@ public class Service : IService
                 EndTime = x.EndTime,
                 Status = x.Status.ToString(),
                 Season = x.Season,
+                Year = x.StartTime != null ? x.StartTime.Value.Year : x.CreatedAt.Year,
                 CreatedAt = x.CreatedAt,
             })
             .ToListAsync();
@@ -380,6 +382,7 @@ public class Service : IService
                 EndTime = x.EndTime,
                 Status = x.Status.ToString(),
                 Season = x.Season,
+                Year = x.StartTime != null ? x.StartTime.Value.Year : x.CreatedAt.Year,
                 IsDisable = x.IsDisable,
                 CreatedAt = x.CreatedAt,
             })
@@ -453,6 +456,7 @@ public class Service : IService
                 EndTime = x.EndTime,
                 Status = x.Status.ToString(),
                 Season = x.Season,
+                Year = x.StartTime != null ? x.StartTime.Value.Year : x.CreatedAt.Year,
                 CreatedAt = x.CreatedAt,
             })
             .ToListAsync();
@@ -485,6 +489,7 @@ public class Service : IService
                 Status = x.Status.ToString(),
                 NumberRound = x.NumberRound,
                 Season = x.Season,
+                Year = x.StartTime != null ? x.StartTime.Value.Year : x.CreatedAt.Year,
                 IsDisable = x.IsDisable,
                 CreatedAt = x.CreatedAt,
                 TeamCount = x.RegisterTeams.Count(rt => !rt.IsDisable && rt.Status == RegisterTeamStatusEnum.Approved && !rt.Team.IsDisable),
