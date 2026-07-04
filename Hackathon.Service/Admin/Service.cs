@@ -150,7 +150,7 @@ public class Service : IService
     public async Task<CreateRoundResponse> CreateRound(Guid eventId, CreateRoundRequest request)
     {
         var eventEntity = await _dbContext.Events
-            .FirstOrDefaultAsync(x => x.Id == eventId && !x.IsDisable);
+            .FirstOrDefaultAsync(x => x.Id == eventId);
 
         if (eventEntity == null)
         {

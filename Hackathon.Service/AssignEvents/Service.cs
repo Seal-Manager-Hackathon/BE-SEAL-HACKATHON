@@ -60,7 +60,7 @@ public class Service : IService
 
     public async Task<BasePaginationResponse> GetEventAssignments(Guid eventId, EventRoleEnum? eventRole, string? keyword, Guid? trackId, bool? isDisable, PaginationRequest paginationRequest)
     {
-        var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
+        var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId);
         if (!eventExists)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
@@ -146,7 +146,7 @@ public class Service : IService
 
     public async Task<BasePaginationResponse> GetAvailableLecturers(Guid eventId, Request.GetAvailableLecturersRequest request)
     {
-        var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
+        var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId);
         if (!eventExists)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
@@ -242,7 +242,7 @@ public class Service : IService
 
     public async Task<Response.AssignEventResponse> AssignLecturerToEvent(Guid eventId, Request.AssignLecturerRequest request)
     {
-        var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
+        var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId);
         if (!eventExists)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
