@@ -399,14 +399,13 @@ public class Service : IService
 
     public async Task<BasePaginationResponse> GetRegisterTeamsByEvent(Guid eventId, string? keyword, RegisterTeamStatusEnum? status, bool? isDisable, PaginationRequest paginationRequest)
     {
-        var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
-        if (!eventExists)
-        {
-            throw new NotFoundException("EVENT_NOT_FOUND");
-        }
-
         if (!IsCurrentUserAdmin())
         {
+            var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
+            if (!eventExists)
+            {
+                throw new NotFoundException("EVENT_NOT_FOUND");
+            }
             await EnsureStaffAssignedToEvent(eventId);
         }
 

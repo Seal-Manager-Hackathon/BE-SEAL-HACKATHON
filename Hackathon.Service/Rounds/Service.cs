@@ -65,13 +65,16 @@ public class Service : IService
 
     public async Task<List<Response.RoundResponse>> GetRounds(Guid eventId)
     {
-        var eventExists = await _dbContext.Events
-            .AsNoTracking()
-            .AnyAsync(x => x.Id == eventId && !x.IsDisable);
-
-        if (!eventExists)
+        if (!IsCurrentUserAdmin())
         {
-            throw new NotFoundException("EVENT_NOT_FOUND");
+            var eventExists = await _dbContext.Events
+                .AsNoTracking()
+                .AnyAsync(x => x.Id == eventId && !x.IsDisable);
+
+            if (!eventExists)
+            {
+                throw new NotFoundException("EVENT_NOT_FOUND");
+            }
         }
 
         var now = DateTimeOffset.UtcNow;
@@ -104,9 +107,13 @@ public class Service : IService
     public async Task<Response.RoundDetailResponse> GetRound(Guid roundId)
     {
         var now = DateTimeOffset.UtcNow;
-        var round = await _dbContext.Rounds
-            .AsNoTracking()
-            .Where(x => x.Id == roundId && !x.IsDisable && !x.Event.IsDisable)
+        var query = _dbContext.Rounds.AsNoTracking().Where(x => x.Id == roundId);
+        if (!IsCurrentUserAdmin())
+        {
+            query = query.Where(x => !x.IsDisable && !x.Event.IsDisable);
+        }
+
+        var round = await query
             .Select(x => new Response.RoundDetailResponse
             {
                 Id = x.Id,
@@ -666,7 +673,7 @@ public class Service : IService
     {
         var round = await _dbContext.Rounds
             .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == roundId && !x.IsDisable);
+            .FirstOrDefaultAsync(x => x.Id == roundId);
 
         if (round == null)
         {

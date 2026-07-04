@@ -85,10 +85,13 @@ public class Service : IService
 
     public async Task<List<Response.EventAssignmentResponse>> GetEventAssignments(Guid eventId)
     {
-        var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
-        if (!eventExists)
+        if (!IsCurrentUserAdmin())
         {
-            throw new NotFoundException("EVENT_NOT_FOUND");
+            var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
+            if (!eventExists)
+            {
+                throw new NotFoundException("EVENT_NOT_FOUND");
+            }
         }
 
         return await _dbContext.AssignEvents
@@ -179,10 +182,13 @@ public class Service : IService
 
     public async Task<List<Response.AwardResponse>> GetAwards(Guid eventId)
     {
-        var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
-        if (!eventExists)
+        if (!IsCurrentUserAdmin())
         {
-            throw new NotFoundException("EVENT_NOT_FOUND");
+            var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
+            if (!eventExists)
+            {
+                throw new NotFoundException("EVENT_NOT_FOUND");
+            }
         }
 
         return await _dbContext.Awards
@@ -203,10 +209,13 @@ public class Service : IService
 
     public async Task<List<Response.LeaderboardResponse>> GetLeaderboard(Guid eventId)
     {
-        var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
-        if (!eventExists)
+        if (!IsCurrentUserAdmin())
         {
-            throw new NotFoundException("EVENT_NOT_FOUND");
+            var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
+            if (!eventExists)
+            {
+                throw new NotFoundException("EVENT_NOT_FOUND");
+            }
         }
 
         var leaderboard = await _dbContext.LeaderBoards
@@ -305,10 +314,13 @@ public class Service : IService
 
     public async Task<Response.EventSummaryResponse> GetSummary(Guid eventId)
     {
-        var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
-        if (!eventExists)
+        if (!IsCurrentUserAdmin())
         {
-            throw new NotFoundException("EVENT_NOT_FOUND");
+            var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
+            if (!eventExists)
+            {
+                throw new NotFoundException("EVENT_NOT_FOUND");
+            }
         }
 
         var totalApprovedTeams = await _dbContext.RegisterTeams.CountAsync(x => x.EventId == eventId
@@ -331,10 +343,13 @@ public class Service : IService
 
     public async Task<List<Response.TeamScoreResponse>> GetTeamScores(Guid eventId, Guid teamId)
     {
-        var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
-        if (!eventExists)
+        if (!IsCurrentUserAdmin())
         {
-            throw new NotFoundException("EVENT_NOT_FOUND");
+            var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
+            if (!eventExists)
+            {
+                throw new NotFoundException("EVENT_NOT_FOUND");
+            }
         }
 
         var teamExists = await _dbContext.RegisterTeams.AnyAsync(x => x.EventId == eventId
@@ -446,10 +461,13 @@ public class Service : IService
 
     public async Task<Response.AssignStaffToEventResponse> AssignStaffToEvent(Guid eventId, Request.AssignStaffToEventRequest request)
     {
-        var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
-        if (!eventExists)
+        if (!IsCurrentUserAdmin())
         {
-            throw new NotFoundException("EVENT_NOT_FOUND");
+            var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
+            if (!eventExists)
+            {
+                throw new NotFoundException("EVENT_NOT_FOUND");
+            }
         }
 
         var staff = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == request.UserId && !x.IsDisable);
@@ -494,10 +512,13 @@ public class Service : IService
 
     public async Task<Response.CreateAwardResponse> CreateAward(Guid eventId, Request.CreateAwardRequest request)
     {
-        var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
-        if (!eventExists)
+        if (!IsCurrentUserAdmin())
         {
-            throw new NotFoundException("EVENT_NOT_FOUND");
+            var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
+            if (!eventExists)
+            {
+                throw new NotFoundException("EVENT_NOT_FOUND");
+            }
         }
 
         if (string.IsNullOrWhiteSpace(request.Name))
@@ -590,10 +611,13 @@ public class Service : IService
 
     public async Task<string> RecalculateLeaderboard(Guid eventId)
     {
-        var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
-        if (!eventExists)
+        if (!IsCurrentUserAdmin())
         {
-            throw new NotFoundException("EVENT_NOT_FOUND");
+            var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
+            if (!eventExists)
+            {
+                throw new NotFoundException("EVENT_NOT_FOUND");
+            }
         }
 
         if (!IsCurrentUserAdmin())
@@ -761,10 +785,13 @@ public class Service : IService
 
     public async Task<string> LockLeaderboard(Guid eventId)
     {
-        var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
-        if (!eventExists)
+        if (!IsCurrentUserAdmin())
         {
-            throw new NotFoundException("EVENT_NOT_FOUND");
+            var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
+            if (!eventExists)
+            {
+                throw new NotFoundException("EVENT_NOT_FOUND");
+            }
         }
 
         if (!IsCurrentUserAdmin())
@@ -789,10 +816,13 @@ public class Service : IService
 
     public async Task<string> PublishLeaderboard(Guid eventId)
     {
-        var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
-        if (!eventExists)
+        if (!IsCurrentUserAdmin())
         {
-            throw new NotFoundException("EVENT_NOT_FOUND");
+            var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
+            if (!eventExists)
+            {
+                throw new NotFoundException("EVENT_NOT_FOUND");
+            }
         }
 
         if (!IsCurrentUserAdmin())

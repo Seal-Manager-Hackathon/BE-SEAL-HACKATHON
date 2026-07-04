@@ -81,7 +81,7 @@ public class Service : IService
 
     public async Task<BasePaginationResponse> GetTracks(Guid? eventId, string? keyword, bool? isDisable, PaginationRequest paginationRequest)
     {
-        if (eventId.HasValue)
+        if (eventId.HasValue && !IsCurrentUserAdmin())
         {
             var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId.Value && !x.IsDisable);
             if (!eventExists)
@@ -148,7 +148,7 @@ public class Service : IService
             throw new NotFoundException("TRACK_NOT_FOUND");
         }
 
-        if (track.Event.IsDisable)
+        if (!IsCurrentUserAdmin() && track.Event.IsDisable)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
@@ -158,10 +158,13 @@ public class Service : IService
 
     public async Task<BasePaginationResponse> GetTopicsByTrack(Guid trackId, string? keyword, bool? isDisable, PaginationRequest paginationRequest)
     {
-        var trackExists = await _dbContext.Tracks.AsNoTracking().AnyAsync(x => x.Id == trackId && !x.IsDisable);
-        if (!trackExists)
+        if (!IsCurrentUserAdmin())
         {
-            throw new NotFoundException("TRACK_NOT_FOUND");
+            var trackExists = await _dbContext.Tracks.AsNoTracking().AnyAsync(x => x.Id == trackId && !x.IsDisable);
+            if (!trackExists)
+            {
+                throw new NotFoundException("TRACK_NOT_FOUND");
+            }
         }
 
         var query = _dbContext.Topics.AsNoTracking().Where(x => x.TrackId == trackId && x.IsDisable == (isDisable ?? false));
@@ -227,10 +230,13 @@ public class Service : IService
             throw new BadRequestException("TRACK_TITLE_REQUIRED");
         }
 
-        var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
-        if (!eventExists)
+        if (!IsCurrentUserAdmin())
         {
-            throw new NotFoundException("EVENT_NOT_FOUND");
+            var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
+            if (!eventExists)
+            {
+                throw new NotFoundException("EVENT_NOT_FOUND");
+            }
         }
 
         var titleExists = await _dbContext.Tracks.AsNoTracking().AnyAsync(x => x.EventId == eventId
@@ -275,7 +281,7 @@ public class Service : IService
             throw new NotFoundException("TRACK_NOT_FOUND");
         }
 
-        if (track.Event.IsDisable)
+        if (!IsCurrentUserAdmin() && track.Event.IsDisable)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
@@ -332,7 +338,7 @@ public class Service : IService
             throw new NotFoundException("TRACK_NOT_FOUND");
         }
 
-        if (track.Event.IsDisable)
+        if (!IsCurrentUserAdmin() && track.Event.IsDisable)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
@@ -366,7 +372,7 @@ public class Service : IService
             throw new NotFoundException("TRACK_NOT_FOUND");
         }
 
-        if (track.Event.IsDisable)
+        if (!IsCurrentUserAdmin() && track.Event.IsDisable)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
@@ -389,14 +395,13 @@ public class Service : IService
 
     public async Task<BasePaginationResponse> GetApprovedTeamsByEvent(Guid eventId, string? keyword, RegisterTeamStatusEnum? status, bool? isDisable, PaginationRequest paginationRequest)
     {
-        var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
-        if (!eventExists)
-        {
-            throw new NotFoundException("EVENT_NOT_FOUND");
-        }
-
         if (!IsCurrentUserAdmin())
         {
+            var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId && !x.IsDisable);
+            if (!eventExists)
+            {
+                throw new NotFoundException("EVENT_NOT_FOUND");
+            }
             await EnsureStaffAssignedToEvent(eventId);
         }
 
