@@ -461,13 +461,15 @@ public class Service : IService
 
     public async Task<Response.AssignStaffToEventResponse> AssignStaffToEvent(Guid eventId, Request.AssignStaffToEventRequest request)
     {
-        if (!IsCurrentUserAdmin())
+        var eventEntity = await _dbContext.Events.AsNoTracking().FirstOrDefaultAsync(x => x.Id == eventId);
+        if (eventEntity == null)
         {
-            var eventExists = await _dbContext.Events.AnyAsync(x => x.Id == eventId && !x.IsDisable);
-            if (!eventExists)
-            {
-                throw new NotFoundException("EVENT_NOT_FOUND");
-            }
+            throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        if (eventEntity.Status == EventStatusEnum.Closed)
+        {
+            throw new BadRequestException("EVENT_IS_CLOSED");
         }
 
         var staff = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == request.UserId && !x.IsDisable);

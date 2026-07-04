@@ -242,10 +242,15 @@ public class Service : IService
 
     public async Task<Response.AssignEventResponse> AssignLecturerToEvent(Guid eventId, Request.AssignLecturerRequest request)
     {
-        var eventExists = await _dbContext.Events.AsNoTracking().AnyAsync(x => x.Id == eventId);
-        if (!eventExists)
+        var eventEntity = await _dbContext.Events.AsNoTracking().FirstOrDefaultAsync(x => x.Id == eventId);
+        if (eventEntity == null)
         {
             throw new NotFoundException("EVENT_NOT_FOUND");
+        }
+
+        if (eventEntity.Status == EventStatusEnum.Closed)
+        {
+            throw new BadRequestException("EVENT_IS_CLOSED");
         }
 
         if (!IsCurrentUserAdmin())
