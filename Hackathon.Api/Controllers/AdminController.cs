@@ -5,6 +5,7 @@ using Hackathon.Service.Rounds;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using AdminService = Hackathon.Service.Admin;
+using EventsService = Hackathon.Service.Events;
 
 namespace Hackathon.Api.Controllers;
 
@@ -14,10 +15,12 @@ namespace Hackathon.Api.Controllers;
 public class AdminController : ControllerBase
 {
     private readonly AdminService.IService _adminService;
+    private readonly EventsService.IService _eventsService;
 
-    public AdminController(AdminService.IService adminService)
+    public AdminController(AdminService.IService adminService, EventsService.IService eventsService)
     {
         _adminService = adminService;
+        _eventsService = eventsService;
     }
 
     [HttpGet("users")]
@@ -75,6 +78,13 @@ public class AdminController : ControllerBase
     {
         var result = await _adminService.SendSystemNotification(request);
         return Ok(ApiResponseFactory.Base(result, 200, "SYSTEM_NOTIFICATION_SENT", traceId: HttpContext.TraceIdentifier));
+    }
+
+    [HttpDelete("assign-events/{id:guid}")]
+    public async Task<IActionResult> RemoveStaffAssignment(Guid id)
+    {
+        var message = await _eventsService.RemoveStaffAssignment(id);
+        return Ok(ApiResponseFactory.Base(null, 200, message, traceId: HttpContext.TraceIdentifier));
     }
 
     [HttpPatch("users/{userId:guid}/role")]

@@ -44,6 +44,14 @@ public class EventsController : ControllerBase
     }
 
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    [HttpGet("/api/v1/admin/events/{eventId:guid}/staff/available")]
+    public async Task<IActionResult> GetAvailableStaff(Guid eventId, [FromQuery] string? keyword, [FromQuery] PaginationRequest paginationRequest)
+    {
+        var result = await _eventsService.GetAvailableStaff(eventId, keyword, paginationRequest);
+        return Ok(result);
+    }
+
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
     [HttpPost("/api/v1/admin/events/{eventId:guid}/awards")]
     public async Task<IActionResult> CreateAward(Guid eventId, EventsService.Request.CreateAwardRequest request)
     {
@@ -173,10 +181,10 @@ public class EventsController : ControllerBase
 
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
     [HttpGet("/api/v1/admin/events/{eventId:guid}/assignments")]
-    public async Task<IActionResult> GetEventAssignments(Guid eventId)
+    public async Task<IActionResult> GetEventAssignments(Guid eventId, [FromQuery] PaginationRequest paginationRequest)
     {
-        var result = await _eventsService.GetEventAssignments(eventId);
-        return Ok(ApiResponseFactory.Base(result, 200, "SUCCESS", traceId: HttpContext.TraceIdentifier));
+        var result = await _eventsService.GetEventAssignments(eventId, paginationRequest);
+        return Ok(result);
     }
 
     [Authorize(Policy = JwtExtensions.AdminPolicy)]

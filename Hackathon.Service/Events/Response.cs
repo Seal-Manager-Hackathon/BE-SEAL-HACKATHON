@@ -152,6 +152,17 @@ public static class Response
         public List<CriteriaScoreResponse> CriteriaScores { get; set; } = new();
     }
 
+    public class AvailableStaffResponse
+    {
+        public Guid Id { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
+        public string AvatarUrl { get; set; } = string.Empty;
+    }
+
     public class CriteriaScoreResponse
     {
         public Guid CriteriaItemId { get; set; }

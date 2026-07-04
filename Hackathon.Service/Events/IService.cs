@@ -6,8 +6,10 @@ public interface IService
 {
     Task<BasePaginationResponse> GetEvents(Request.GetEventsRequest request);
     Task<BasePaginationResponse> GetEventsForAdmin(Request.GetEventsForAdminRequest request);
-    Task<List<Response.EventAssignmentResponse>> GetEventAssignments(Guid eventId);
+    Task<BasePaginationResponse> GetEventAssignments(Guid eventId, PaginationRequest paginationRequest);
     Task<Response.SetupStatusResponse> GetSetupStatus(Guid eventId);
+    Task<string> RemoveStaffAssignment(Guid assignEventId);
+    Task<BasePaginationResponse> GetAvailableStaff(Guid eventId, string? keyword, PaginationRequest paginationRequest);
     Task<List<Response.AwardResponse>> GetAwards(Guid eventId);
     Task<List<Response.LeaderboardResponse>> GetLeaderboard(Guid eventId);
     Task<Response.EventSummaryResponse> GetSummary(Guid eventId);

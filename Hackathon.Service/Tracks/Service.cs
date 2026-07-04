@@ -41,11 +41,15 @@ public class Service : IService
 
     private async Task EnsureStaffAssignedToEvent(Guid eventId)
     {
+        if (IsCurrentUserAdmin())
+        {
+            return;
+        }
+
         var staffId = GetCurrentUserId();
         var isAssigned = await _dbContext.AssignEvents.AnyAsync(x => x.UserId == staffId
             && x.EventId == eventId
-            && !x.IsDisable
-            && !x.Event.IsDisable);
+            && !x.IsDisable);
 
         if (!isAssigned)
         {

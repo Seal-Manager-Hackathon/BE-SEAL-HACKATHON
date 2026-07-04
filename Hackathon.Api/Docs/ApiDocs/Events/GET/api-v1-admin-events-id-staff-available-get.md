@@ -1,11 +1,11 @@
-# GET /api/v1/admin/events/{eventId}/assignments
+# GET /api/v1/admin/events/{eventId}/staff/available
 
 **Role:** Admin
 **Policy:** AdminPolicy
 
 ## Mô tả
 
-Lấy danh sách staff được phân công vào event (có phân trang). Chỉ trả về user có Role == Staff.
+Lấy danh sách staff có sẵn để phân công vào event (chưa được assign, đang Active, ko bị disable).
 
 ## Request
 
@@ -19,6 +19,7 @@ Lấy danh sách staff được phân công vào event (có phân trang). Chỉ 
 
 | Param | Type | Default | Mô tả |
 |-------|------|---------|-------|
+| keyword | string | null | Tìm kiếm theo tên hoặc email |
 | pageIndex | int | 1 | Trang hiện tại |
 | pageSize | int | 10 | Số bản ghi mỗi trang (max 100) |
 
@@ -29,7 +30,6 @@ Lấy danh sách staff được phân công vào event (có phân trang). Chỉ 
 | Code | Mô tả |
 |------|-------|
 | 200 | Thành công |
-| 404 | EVENT_NOT_FOUND |
 
 ### Body
 
@@ -38,25 +38,25 @@ Lấy danh sách staff được phân công vào event (có phân trang). Chỉ 
   "data": {
     "items": [
       {
-        "assignEventId": "guid",
-        "userId": "guid",
+        "id": "guid",
+        "firstName": "Nguyễn",
+        "lastName": "Văn A",
         "fullName": "Nguyễn Văn A",
         "email": "staff@example.com",
-        "eventRoleId": null,
-        "eventRoleName": null,
-        "assignedTracks": []
+        "phoneNumber": "0123456789",
+        "avatarUrl": ""
       }
     ],
     "pageIndex": 1,
     "pageSize": 10,
-    "totalCount": 5
+    "totalCount": 3
   }
 }
 ```
 
 ## Logic
 
-- Admin bypass IsDisable check của event
-- Query AssignEvents với EventId == eventId && !x.IsDisable && x.User.Role == RoleEnum.Staff
-- Staff không có EventRole (chỉ lecturers mới có role Mentor/Judge) nên eventRoleName luôn null
-- Staff không có AssignedTracks nên mảng luôn rỗng
+- Lọc User có Role == Staff && IsDisable == false && Status == Active
+- Loại trừ staff đã được assign vào event (trong AssignEvents.EventId == eventId && !IsDisable)
+- Có keyword search: FirstName + LastName hoặc Email
+- Phân trang

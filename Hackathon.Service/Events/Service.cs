@@ -48,11 +48,15 @@ public class Service : IService
 
     private async Task EnsureStaffAssignedToEvent(Guid eventId)
     {
+        if (IsCurrentUserAdmin())
+        {
+            return;
+        }
+
         var staffId = GetCurrentUserId();
         var isAssigned = await _dbContext.AssignEvents.AnyAsync(x => x.UserId == staffId
             && x.EventId == eventId
-            && !x.IsDisable
-            && !x.Event.IsDisable);
+            && !x.IsDisable);
 
         if (!isAssigned)
         {
@@ -83,7 +87,7 @@ public class Service : IService
         };
     }
 
-    public async Task<List<Response.EventAssignmentResponse>> GetEventAssignments(Guid eventId)
+    public async Task<BasePaginationResponse> GetEventAssignments(Guid eventId, PaginationRequest paginationRequest)
     {
         if (!IsCurrentUserAdmin())
         {
@@ -94,14 +98,21 @@ public class Service : IService
             }
         }
 
-        return await _dbContext.AssignEvents
+        var pageIndex = paginationRequest.PageIndex <= 0 ? 1 : paginationRequest.PageIndex;
+        var pageSize = paginationRequest.PageSize <= 0 ? 10 : Math.Min(paginationRequest.PageSize, 100);
+
+        var query = _dbContext.AssignEvents
             .AsNoTracking()
             .Include(x => x.User)
             .Include(x => x.EventRole)
-            .Include(x => x.AssignTracks.Where(at => !at.IsDisable))
-                .ThenInclude(at => at.Track)
-            .Where(x => x.EventId == eventId && !x.IsDisable)
+            .Where(x => x.EventId == eventId && !x.IsDisable && x.User.Role == RoleEnum.Staff);
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
             .OrderByDescending(x => x.CreatedAt)
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
             .Select(x => new Response.EventAssignmentResponse
             {
                 AssignEventId = x.Id,
@@ -109,17 +120,74 @@ public class Service : IService
                 FullName = x.User.FirstName + " " + x.User.LastName,
                 Email = x.User.Email,
                 EventRoleId = x.EventRoleId,
-                EventRoleName = x.EventRole != null ? x.EventRole.Name : null,
-                AssignedTracks = x.AssignTracks
-                    .Where(at => !at.IsDisable)
-                    .Select(at => new Response.AssignedTrackResponse
-                    {
-                        AssignTrackId = at.Id,
-                        TrackId = at.TrackId,
-                        TrackTitle = at.Track.Title
-                    }).ToList()
+                EventRoleName = null,
+                AssignedTracks = new List<Response.AssignedTrackResponse>()
             })
             .ToListAsync();
+
+        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
+    }
+
+    public async Task<string> RemoveStaffAssignment(Guid assignEventId)
+    {
+        var assignEvent = await _dbContext.AssignEvents
+            .FirstOrDefaultAsync(x => x.Id == assignEventId && !x.IsDisable);
+
+        if (assignEvent == null)
+        {
+            throw new NotFoundException("ASSIGN_EVENT_NOT_FOUND");
+        }
+
+        assignEvent.IsDisable = true;
+        assignEvent.UpdatedAt = DateTimeOffset.UtcNow;
+        _dbContext.AssignEvents.Update(assignEvent);
+        await _dbContext.SaveChangesAsync();
+
+        return "STAFF_ASSIGNMENT_REMOVED_SUCCESSFULLY";
+    }
+
+    public async Task<BasePaginationResponse> GetAvailableStaff(Guid eventId, string? keyword, PaginationRequest paginationRequest)
+    {
+        var assignedStaffIds = _dbContext.AssignEvents.AsNoTracking()
+            .Where(x => x.EventId == eventId && !x.IsDisable)
+            .Select(x => x.UserId);
+
+        var query = _dbContext.Users.AsNoTracking()
+            .Where(x => x.Role == RoleEnum.Staff
+                        && !x.IsDisable
+                        && x.Status == UserStatusEnum.Active
+                        && !assignedStaffIds.Contains(x.Id));
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            var normalizedKeyword = keyword.Trim().ToLower();
+            query = query.Where(x => (x.FirstName + " " + x.LastName).ToLower().Contains(normalizedKeyword)
+                                  || x.Email.ToLower().Contains(normalizedKeyword));
+        }
+
+        var totalCount = await query.CountAsync();
+
+        paginationRequest.PageIndex = paginationRequest.PageIndex <= 0 ? 1 : paginationRequest.PageIndex;
+        paginationRequest.PageSize = paginationRequest.PageSize <= 0 ? 10 : Math.Min(paginationRequest.PageSize, 100);
+
+        var items = await query
+            .OrderBy(x => x.FirstName)
+            .ThenBy(x => x.LastName)
+            .Skip((paginationRequest.PageIndex - 1) * paginationRequest.PageSize)
+            .Take(paginationRequest.PageSize)
+            .Select(x => new Response.AvailableStaffResponse
+            {
+                Id = x.Id,
+                FirstName = x.FirstName,
+                LastName = x.LastName,
+                FullName = x.FirstName + " " + x.LastName,
+                Email = x.Email ?? string.Empty,
+                PhoneNumber = x.PhoneNumber ?? string.Empty,
+                AvatarUrl = x.AvatarUrl ?? string.Empty
+            })
+            .ToListAsync();
+
+        return ApiResponseFactory.BasePagination(items, paginationRequest.PageIndex, paginationRequest.PageSize, totalCount);
     }
 
     public async Task<Response.SetupStatusResponse> GetSetupStatus(Guid eventId)
