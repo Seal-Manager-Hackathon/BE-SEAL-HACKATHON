@@ -47,8 +47,6 @@ public class Service : IService
                && !string.IsNullOrWhiteSpace(user.FirstName)
                && !string.IsNullOrWhiteSpace(user.LastName)
                && !string.IsNullOrWhiteSpace(user.PhoneNumber)
-               && !string.IsNullOrWhiteSpace(user.Address)
-               && user.DateOfBirth != DateTimeOffset.MinValue
                && !string.IsNullOrWhiteSpace(user.StudentId)
                && !string.IsNullOrWhiteSpace(user.College);
     }

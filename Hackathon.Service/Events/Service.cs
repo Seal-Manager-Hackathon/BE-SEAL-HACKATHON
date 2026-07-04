@@ -62,6 +62,7 @@ public class Service : IService
 
     private static Response.EventResponse ToResponse(Repository.Entity.Events eventEntity)
     {
+        var year = eventEntity.StartTime?.Year ?? eventEntity.CreatedAt.Year;
         return new Response.EventResponse
         {
             Id = eventEntity.Id,
@@ -76,6 +77,7 @@ public class Service : IService
             Status = eventEntity.Status,
             NumberRound = eventEntity.NumberRound,
             Season = eventEntity.Season,
+            Year = year,
             IsDisable = eventEntity.IsDisable,
             CreatedAt = eventEntity.CreatedAt,
         };
@@ -419,6 +421,20 @@ public class Service : IService
         await _dbContext.Events.AddAsync(eventEntity);
         await _dbContext.SaveChangesAsync();
 
+        // Create LeaderBoard for this event
+        var leaderboard = new Repository.Entity.LeaderBoards
+        {
+            Id = Guid.NewGuid(),
+            EventId = eventEntity.Id,
+            Year = eventEntity.StartTime?.Year ?? eventEntity.CreatedAt.Year,
+            IsLocked = false,
+            IsPublished = false,
+            IsDisable = false,
+            CreatedAt = now,
+            UpdatedAt = now,
+        };
+        await _dbContext.LeaderBoards.AddAsync(leaderboard);
+
         // Start background monitoring for this event's rounds
         _roundEndScheduler.ScheduleEvent(eventEntity.Id);
 
@@ -591,7 +607,7 @@ public class Service : IService
         var eventInfo = await _dbContext.Events
             .AsNoTracking()
             .Where(x => x.Id == eventId && !x.IsDisable)
-            .Select(x => new { x.EndTime })
+            .Select(x => new { x.StartTime, x.CreatedAt })
             .FirstAsync();
 
         var leaderboard = await _dbContext.LeaderBoards.FirstOrDefaultAsync(x => x.EventId == eventId && !x.IsDisable);
@@ -601,7 +617,7 @@ public class Service : IService
             {
                 Id = Guid.NewGuid(),
                 EventId = eventId,
-                Year = eventInfo.EndTime?.Year,
+                Year = eventInfo.StartTime?.Year ?? eventInfo.CreatedAt.Year,
                 IsDisable = false,
                 CreatedAt = now,
                 UpdatedAt = now
@@ -611,7 +627,7 @@ public class Service : IService
         }
         else
         {
-            leaderboard.Year = eventInfo.EndTime?.Year;
+            leaderboard.Year = eventInfo.StartTime?.Year ?? eventInfo.CreatedAt.Year;
         }
 
         // Load all approved teams with their submissions, scores, and score items
@@ -846,6 +862,14 @@ public class Service : IService
         if (request.StartTime.HasValue)
         {
             eventEntity.StartTime = request.StartTime;
+            // Update LeaderBoard year when StartTime changes
+            var leaderboard = await _dbContext.LeaderBoards.FirstOrDefaultAsync(x => x.EventId == eventId && !x.IsDisable);
+            if (leaderboard != null)
+            {
+                leaderboard.Year = request.StartTime.Value.Year;
+                leaderboard.UpdatedAt = DateTimeOffset.UtcNow;
+                _dbContext.LeaderBoards.Update(leaderboard);
+            }
         }
 
         if (request.EndTime.HasValue)
@@ -1163,6 +1187,7 @@ public class Service : IService
                 EndTime = x.EndTime,
                 Status = x.Status,
                 Season = x.Season,
+                Year = x.StartTime != null ? x.StartTime.Value.Year : x.CreatedAt.Year,
                 CreatedAt = x.CreatedAt,
             })
             .ToListAsync();
@@ -1214,6 +1239,7 @@ public class Service : IService
                 EndTime = x.EndTime,
                 Status = x.Status,
                 Season = x.Season,
+                Year = x.StartTime != null ? x.StartTime.Value.Year : x.CreatedAt.Year,
                 IsDisable = x.IsDisable,
                 CreatedAt = x.CreatedAt,
             })
@@ -1305,6 +1331,7 @@ public class Service : IService
                 EndTime = x.EndTime,
                 Status = x.Status,
                 Season = x.Season,
+                Year = x.StartTime != null ? x.StartTime.Value.Year : x.CreatedAt.Year,
                 CreatedAt = x.CreatedAt,
             })
             .ToListAsync();
@@ -1338,6 +1365,7 @@ public class Service : IService
                 Status = x.Status,
                 NumberRound = x.NumberRound,
                 Season = x.Season,
+                Year = x.StartTime != null ? x.StartTime.Value.Year : x.CreatedAt.Year,
                 IsDisable = x.IsDisable,
                 CreatedAt = x.CreatedAt,
                 TeamCount = x.RegisterTeams.Count(rt => !rt.IsDisable && rt.Status == RegisterTeamStatusEnum.Approved && !rt.Team.IsDisable),

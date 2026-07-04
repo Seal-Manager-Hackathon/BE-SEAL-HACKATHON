@@ -15,6 +15,7 @@ public static class Response
         public DateTimeOffset? EndTime { get; set; }
         public EventRoleEnum? Role { get; set; }
         public EventStatusEnum? EventStatus { get; set; }
+        public int? Year { get; set; }
     }
 
     public class LecturerTrackResponse

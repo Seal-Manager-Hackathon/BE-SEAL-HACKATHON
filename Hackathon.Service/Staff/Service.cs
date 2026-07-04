@@ -74,7 +74,8 @@ public class Service : IService
                 StartTime = x.Event.StartTime,
                 EndTime = x.Event.EndTime,
                 Role = x.EventRole != null ? (EventRoleEnum?)x.EventRole.Name : null,
-                EventStatus = x.Event.Status
+                EventStatus = x.Event.Status,
+                Year = x.Event.StartTime != null ? x.Event.StartTime.Value.Year : x.Event.CreatedAt.Year
             })
             .ToListAsync();
 
@@ -123,7 +124,8 @@ public class Service : IService
                 StartTime = x.Event.StartTime,
                 EndTime = x.Event.EndTime,
                 Role = x.EventRole != null ? (EventRoleEnum?)x.EventRole.Name : null,
-                EventStatus = x.Event.Status
+                EventStatus = x.Event.Status,
+                Year = x.Event.StartTime != null ? x.Event.StartTime.Value.Year : x.Event.CreatedAt.Year
             })
             .ToListAsync();
 
@@ -245,7 +247,8 @@ public class Service : IService
                 StartTime = x.Event.StartTime,
                 EndTime = x.Event.EndTime,
                 Role = x.EventRole != null ? (EventRoleEnum?)x.EventRole.Name : null,
-                EventStatus = x.Event.Status
+                EventStatus = x.Event.Status,
+                Year = x.Event.StartTime != null ? x.Event.StartTime.Value.Year : x.Event.CreatedAt.Year
             })
             .ToListAsync();
 

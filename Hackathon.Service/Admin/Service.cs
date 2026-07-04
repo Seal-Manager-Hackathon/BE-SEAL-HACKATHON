@@ -54,8 +54,7 @@ public class Service : IService
         if (!string.IsNullOrWhiteSpace(keyword))
         {
             var normalized = keyword.Trim().ToLower();
-            q = q.Where(x => x.FirstName.ToLower().Contains(normalized)
-                || x.LastName.ToLower().Contains(normalized)
+            q = q.Where(x => (x.FirstName + " " + x.LastName).ToLower().Contains(normalized)
                 || x.Email.ToLower() == normalized);
         }
 
@@ -86,8 +85,7 @@ public class Service : IService
         if (!string.IsNullOrWhiteSpace(query.KeySearch))
         {
             var normalized = query.KeySearch.Trim().ToLower();
-            q = q.Where(x => x.FirstName.ToLower().Contains(normalized)
-                || x.LastName.ToLower().Contains(normalized));
+            q = q.Where(x => (x.FirstName + " " + x.LastName).ToLower().Contains(normalized));
         }
 
         if (!string.IsNullOrWhiteSpace(query.MailSearch))

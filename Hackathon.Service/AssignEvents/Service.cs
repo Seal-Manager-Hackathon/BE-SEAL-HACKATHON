@@ -176,8 +176,6 @@ public class Service : IService
         {
             var normalizedKeyword = request.Keyword.Trim().ToLower();
             query = query.Where(x => (x.FirstName + " " + x.LastName).ToLower().Contains(normalizedKeyword)
-                                  || x.FirstName.ToLower().Contains(normalizedKeyword)
-                                  || x.LastName.ToLower().Contains(normalizedKeyword)
                                   || x.Email.ToLower().Contains(normalizedKeyword));
         }
 

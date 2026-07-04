@@ -16,6 +16,7 @@ public static class Response
         public Hackathon.Repository.Enum.EventStatusEnum? Status { get; set; }
         public int? NumberRound { get; set; }
         public Hackathon.Repository.Enum.SeasonEnum? Season { get; set; }
+        public int? Year { get; set; }
         public bool IsDisable { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }
@@ -54,6 +55,7 @@ public static class Response
         public DateTimeOffset? EndTime { get; set; }
         public Hackathon.Repository.Enum.EventStatusEnum? Status { get; set; }
         public Hackathon.Repository.Enum.SeasonEnum? Season { get; set; }
+        public int? Year { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }
 
@@ -65,6 +67,7 @@ public static class Response
         public DateTimeOffset? EndTime { get; set; }
         public Hackathon.Repository.Enum.EventStatusEnum? Status { get; set; }
         public Hackathon.Repository.Enum.SeasonEnum? Season { get; set; }
+        public int? Year { get; set; }
         public bool IsDisable { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }
