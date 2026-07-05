@@ -78,7 +78,7 @@ public class Service : IService
     public async Task<Response.CreateTopicResponse> CreateTopic(Guid trackId, Request.CreateTopicRequest request)
     {
         // Verify track exists
-        var trackExists = await _dbContext.Tracks.AnyAsync(x => x.Id == trackId && !x.IsDisable);
+        var trackExists = await _dbContext.Tracks.AnyAsync(x => x.Id == trackId);
         if (!trackExists)
         {
             throw new NotFoundException("TRACK_NOT_FOUND");
