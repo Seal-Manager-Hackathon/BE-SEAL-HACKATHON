@@ -269,7 +269,7 @@ public class Service : IService
 
         var track = await _dbContext.Tracks
             .Include(x => x.Event)
-            .FirstOrDefaultAsync(x => x.Id == trackId && !x.IsDisable);
+            .FirstOrDefaultAsync(x => x.Id == trackId);
         if (track == null)
         {
             throw new NotFoundException("TRACK_NOT_FOUND");

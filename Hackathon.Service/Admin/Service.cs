@@ -220,12 +220,7 @@ public class Service : IService
 
         var eventEntity = await _dbContext.Events
             .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == round.EventId && !x.IsDisable);
-
-        if (eventEntity == null)
-        {
-            throw new NotFoundException("EVENT_NOT_FOUND");
-        }
+            .FirstOrDefaultAsync(x => x.Id == round.EventId);
 
         var now = DateTimeOffset.UtcNow;
 
