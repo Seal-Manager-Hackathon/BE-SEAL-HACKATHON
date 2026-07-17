@@ -270,7 +270,5 @@ public class AppDbContext : DbContext
         modelBuilder.SeedNotifications();
         modelBuilder.SeedReports();
         modelBuilder.SeedLeaderBoards();
-        modelBuilder.SeedDemoData();
-        modelBuilder.SeedFPTData();
     }
 }

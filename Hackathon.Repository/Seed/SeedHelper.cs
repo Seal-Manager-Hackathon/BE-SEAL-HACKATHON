@@ -9,7 +9,6 @@ public static class SeedHelper
     /// </summary>
     public static string HashDefaultPassword()
     {
-        // Pre-computed: BCrypt.Net.BCrypt.EnhancedHashPassword("String1@Matkhaubimat123", HashType.SHA256)
         return "$2a$11$6JmxlzTY.JGQBNoJCaMl4OSWS3ZGEGHMLglBlK8viRNX5pGT7dizK";
     }
 }
