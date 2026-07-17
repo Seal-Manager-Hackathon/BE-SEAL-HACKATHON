@@ -1,15 +1,33 @@
-# Project Docs Index
+# BE-SEAL-HACKATHON
 
-Đọc file này trước khi cần thêm context.
+SEAL Hackathon Management System — 3-layer .NET 8 backend (Api → Service → Repository).
 
-## Read order
-1. `doc/PROJECT.md` - context dự án và schema hiện tại.
-2. `doc/RULES.md` - luật nghiệp vụ và authorization.
-3. `doc/FEATURES.md` - chức năng chính hệ thống.
-4. `Hackathon2026.dbml` - schema/database source of truth.
+## Modules
+- Auth (JWT, BCrypt + Pepper, refresh rotation)
+- Events (status machine: Draft → Published → Closed)
+- Teams (invite, kick, leave, disband)
+- Registration (auto-reject on deadline)
+- Scoring (upsert, sum-based total, retake)
+- Reports/Regrade (Pending → Resolved/Reject/Canceled)
+- Leaderboard (auto-create on publish)
+- Background Jobs (Quartz: close, reject, expire)
+- Notifications (personal, team, system, mentor)
 
-## Key rules
-- Nếu docs mâu thuẫn DBML, DBML thắng.
-- Không đọc lại toàn bộ docs nếu task nhỏ.
-- Không scan repo rộng nếu đã biết file cần sửa.
-- Khi đổi schema/business rule, cập nhật DBML + docs + code liên quan.
+## Setup
+```bash
+dotnet restore
+dotnet ef database update --project Hackathon.Repository --startup-project Hackathon.Api
+dotnet run --project Hackathon.Api
+```
+
+## Seed Accounts
+Password for all seed users: `String1@`
+
+| Email | Role | Status |
+|-------|------|--------|
+| admin.active@test.local | Admin | Active |
+| staff.active@test.local | Staff | Active |
+| judge.active@test.local | Judge (Lecturer) | Active |
+| mentor.active@test.local | Mentor (Lecturer) | Active |
+| leader1@test.local | Student Leader | Active |
+| member1@test.local | Student Member | Active |

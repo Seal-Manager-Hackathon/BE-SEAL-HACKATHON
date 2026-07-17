@@ -5,19 +5,19 @@ SEAL Hackathon Management System là backend quản lý hackathon end-to-end: ac
 
 ## Tech
 - .NET 8, C#, EF Core, PostgreSQL.
-- Main projects: `Hackathon.Api`, `Hackathon.Service`, `Hackathon.Repository`.
+- 3-layer architecture: `Hackathon.Api` → `Hackathon.Service` → `Hackathon.Repository`.
 - Entities: `Hackathon.Repository/Entity`.
 - Enums: `Hackathon.Repository/Enum`.
 - DbContext: `Hackathon.Repository/AppDbContext.cs`.
+- Background jobs: Quartz.
+- Auth: JWT + BCrypt Enhanced (SHA256) + Pepper.
 
 ## Schema
-- Source of truth: `Hackathon2026.dbml`.
-- Current schema: 27 tables/entities in `Hackathon.Repository/AppDbContext.cs`.
+- Current schema: 27+ tables/entities in `Hackathon.Repository/AppDbContext.cs`.
 - Tables/entities plural, fields singular.
 - PK/FK: `Guid`.
 - Time: `DateTimeOffset`.
-- Soft-disable: `IsDisable`.
-- No `IsActive`, no `IsDelete`.
+- Soft-disable: `IsDisable` (no `IsActive`, no `IsDelete`).
 
 ## Removed concepts
 Do not re-add unless user explicitly changes schema:
@@ -56,4 +56,19 @@ Users
 -> EventRoles
 -> AssignTracks
 -> Tracks
+```
+
+## Report flow
+```text
+Users -> Reports (no FK to AssignEvent or Submission)
+```
+
+## Background job flow
+```text
+Quartz scheduler
+-> AutoCloseExpiredEventsJob (10 min)
+-> AutoRejectPendingRegistrationsJob (12 h)
+-> ExpirePendingEmailVerificationsJob (2 min)
+-> ExpirePendingInvitationsJob (15 min)
+-> EndRoundJob (Channel-based BackgroundService)
 ```
