@@ -873,12 +873,7 @@ public class Service : IService
             eventEntity.MaxMember = request.MaxMember;
         }
 
-        if (request.Status.HasValue)
-        {
-            eventEntity.Status = request.Status.Value;
-        }
-
-        if (request.Season != null)
+if (request.Season != null)
         {
             eventEntity.Season = request.Season;
         }
@@ -963,11 +958,73 @@ public class Service : IService
             throw new ConflictException("EVENT_NOT_IN_DRAFT_STATUS");
         }
 
+        // Validate basic event fields
+        if (string.IsNullOrWhiteSpace(eventEntity.Name))
+            throw new BadRequestException("EVENT_NAME_REQUIRED");
+        if (string.IsNullOrWhiteSpace(eventEntity.Description))
+            throw new BadRequestException("EVENT_DESCRIPTION_REQUIRED");
+        if (!eventEntity.StartTime.HasValue || !eventEntity.EndTime.HasValue)
+            throw new BadRequestException("EVENT_TIME_REQUIRED");
+        if (eventEntity.StartTime.Value >= eventEntity.EndTime.Value)
+            throw new BadRequestException("START_TIME_MUST_BE_BEFORE_END_TIME");
+        if (!eventEntity.Season.HasValue)
+            throw new BadRequestException("EVENT_SEASON_REQUIRED");
+        if (!eventEntity.LimitTeam.HasValue || eventEntity.LimitTeam.Value <= 0)
+            throw new BadRequestException("LIMIT_TEAM_MUST_BE_POSITIVE");
+        if (!eventEntity.MinMember.HasValue || eventEntity.MinMember.Value <= 0)
+            throw new BadRequestException("MIN_MEMBER_MUST_BE_POSITIVE");
+        if (!eventEntity.MaxMember.HasValue || eventEntity.MaxMember.Value <= 0)
+            throw new BadRequestException("MAX_MEMBER_MUST_BE_POSITIVE");
+
+        // Validate setup completeness
+        var hasRounds = await _dbContext.Rounds.AnyAsync(x => x.EventId == eventId && !x.IsDisable);
+        var hasCriteria = await _dbContext.Rounds
+            .Where(x => x.EventId == eventId && !x.IsDisable)
+            .SelectMany(x => x.CriteriaTemplates)
+            .AnyAsync(ct => !ct.IsDisable && ct.CriteriaItems.Any(ci => !ci.IsDisable));
+        var hasTracks = await _dbContext.Tracks.AnyAsync(x => x.EventId == eventId && !x.IsDisable);
+        var hasTopics = await _dbContext.Tracks
+            .Where(x => x.EventId == eventId && !x.IsDisable)
+            .SelectMany(x => x.Topics)
+            .AnyAsync(t => !t.IsDisable);
+        var hasAwards = await _dbContext.Awards.AnyAsync(x => x.EventId == eventId && !x.IsDisable);
+        var hasAssignedStaff = await _dbContext.AssignEvents.AnyAsync(x => x.EventId == eventId && !x.IsDisable);
+
+        if (!hasRounds) throw new BadRequestException("NO_ROUNDS");
+        if (!hasCriteria) throw new BadRequestException("NO_CRITERIA");
+        if (!hasTracks) throw new BadRequestException("NO_TRACKS");
+        if (!hasTopics) throw new BadRequestException("NO_TOPICS");
+        if (!hasAwards) throw new BadRequestException("NO_AWARDS");
+        if (!hasAssignedStaff) throw new BadRequestException("NO_ASSIGNED_STAFF");
+
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+        var now = DateTimeOffset.UtcNow;
         eventEntity.Status = EventStatusEnum.Published;
-        eventEntity.UpdatedAt = DateTimeOffset.UtcNow;
+        eventEntity.UpdatedAt = now;
 
         _dbContext.Events.Update(eventEntity);
+
+        // Auto-create leaderboard if not exists
+        var leaderboard = await _dbContext.LeaderBoards.FirstOrDefaultAsync(x => x.EventId == eventId && !x.IsDisable);
+        if (leaderboard == null)
+        {
+            leaderboard = new Repository.Entity.LeaderBoards
+            {
+                Id = Guid.NewGuid(),
+                EventId = eventId,
+                Year = eventEntity.EndTime?.Year,
+                IsLocked = false,
+                IsPublished = false,
+                IsDisable = false,
+                CreatedAt = now,
+                UpdatedAt = now,
+            };
+            await _dbContext.LeaderBoards.AddAsync(leaderboard);
+        }
+
         await _dbContext.SaveChangesAsync();
+        await transaction.CommitAsync();
 
         return "EVENT_PUBLISHED_SUCCESSFULLY";
     }
@@ -1026,18 +1083,27 @@ public class Service : IService
             throw new NotFoundException("EVENT_NOT_FOUND");
         }
 
+        if (eventEntity.Status != EventStatusEnum.Published)
+        {
+            throw new ConflictException("EVENT_NOT_IN_PUBLISHED_STATUS");
+        }
+
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+        var now = DateTimeOffset.UtcNow;
         eventEntity.Status = EventStatusEnum.Closed;
-        eventEntity.UpdatedAt = DateTimeOffset.UtcNow;
+        eventEntity.UpdatedAt = now;
 
         var leaderboard = await _dbContext.LeaderBoards.FirstOrDefaultAsync(x => x.EventId == eventId && !x.IsDisable);
         if (leaderboard != null)
         {
             leaderboard.IsLocked = true;
-            leaderboard.UpdatedAt = DateTimeOffset.UtcNow;
+            leaderboard.UpdatedAt = now;
         }
 
         _dbContext.Events.Update(eventEntity);
         await _dbContext.SaveChangesAsync();
+        await transaction.CommitAsync();
 
         return "EVENT_CLOSED_SUCCESSFULLY";
     }
@@ -1061,24 +1127,7 @@ public class Service : IService
 
     public async Task<string> UnpublishEvent(Guid eventId)
     {
-        var eventEntity = await _dbContext.Events.FirstOrDefaultAsync(x => x.Id == eventId && !x.IsDisable);
-        if (eventEntity == null)
-        {
-            throw new NotFoundException("EVENT_NOT_FOUND");
-        }
-
-        if (eventEntity.Status != EventStatusEnum.Published)
-        {
-            throw new ConflictException("EVENT_NOT_IN_PUBLISHED_STATUS");
-        }
-
-        eventEntity.Status = EventStatusEnum.Draft;
-        eventEntity.UpdatedAt = DateTimeOffset.UtcNow;
-
-        _dbContext.Events.Update(eventEntity);
-        await _dbContext.SaveChangesAsync();
-
-        return "EVENT_UNPUBLISHED_SUCCESSFULLY";
+        throw new BadRequestException("CANNOT_UNPUBLISH_EVENT");
     }
 
     public async Task<string> UpdateLecturerRole(Guid id, Request.UpdateLecturerRoleRequest request)

@@ -25,6 +25,7 @@ public interface IService
     Task<string> LockTeam(Guid teamId);
     Task<string> UnlockTeam(Guid teamId);
     Task<string> LeaveTeam(Guid teamId);
+    Task<string> DisbandTeam(Guid teamId);
     Task<Response.AppealResponse> AppealRound(Guid teamId, Guid roundId, Request.RoundAppealRequest request);
     Task<Response.AppealResponse> AppealSubmission(Guid teamId, Guid submissionId, Request.SubmissionAppealRequest request);
 }

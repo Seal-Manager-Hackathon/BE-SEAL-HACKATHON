@@ -729,7 +729,7 @@ public class Service : IService
                         TrackTitle = roundDetail.RegisterTeam.Track?.Title,
                         TopicId = roundDetail.RegisterTeam.TopicId,
                         TopicTitle = roundDetail.RegisterTeam.Topic?.Title,
-                        SubmissionStatus = SubmissionStatusEnum.Unsubmitted,
+                        SubmissionStatus = SubmissionStatusEnum.Submitted,
                         GradingStatus = null,
                         AssignedJudges = BuildAssignedJudges(null, trackAssignTracks),
                     }
@@ -753,7 +753,7 @@ public class Service : IService
                 TopicTitle = roundDetail.RegisterTeam.Topic?.Title,
                 Url = submission.Url,
                 Description = submission.Description,
-                SubmissionStatus = submission.Status ?? SubmissionStatusEnum.Unsubmitted,
+                SubmissionStatus = submission.Status ?? SubmissionStatusEnum.Submitted,
                 SubmittedAt = submission.SubmittedAt,
                 GradingStatus = GetGradingStatus(submission, assignedJudges),
                 AssignedJudges = assignedJudges,

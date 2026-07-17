@@ -19,36 +19,31 @@ public static class Response
     public class StaffReportListItemResponse
     {
         public Guid ReportId { get; set; }
-        public Guid? SubmissionId { get; set; }
-        public string? TeamName { get; set; }
-        public string? EventName { get; set; }
         public string? Title { get; set; }
         public string? TypeReport { get; set; }
         public ReportStatusEnum? Status { get; set; }
         public string? StatusName { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }
- 
-    public class StaffReportDetailResponse : StaffReportListItemResponse
+
+    public class StaffReportDetailResponse
     {
+        public Guid ReportId { get; set; }
         public Guid UserId { get; set; }
         public string? UserName { get; set; }
-        public Guid? AssignEventId { get; set; }
-        public Guid? TeamId { get; set; }
-        public Guid? RoundId { get; set; }
-        public int? RoundNo { get; set; }
+        public string? Title { get; set; }
         public string? Description { get; set; }
-        public string? ImgUrl { get; set; }
-        public string? FileUrl { get; set; }
+        public string? TypeReport { get; set; }
+        public ReportStatusEnum? Status { get; set; }
+        public string? StatusName { get; set; }
         public string? Reason { get; set; }
-        public bool IsRegrade { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset UpdatedAt { get; set; }
     }
 
     public class ApproveRegradeResponse
     {
         public Guid ReportId { get; set; }
-        public Guid? SubmissionId { get; set; }
         public ReportStatusEnum Status { get; set; }
         public string StatusName { get; set; } = string.Empty;
         public bool IsRegrade { get; set; }

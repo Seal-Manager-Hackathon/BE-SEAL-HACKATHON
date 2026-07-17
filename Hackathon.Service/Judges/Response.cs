@@ -203,8 +203,6 @@ public static class Response
         public string? TrackTitle { get; set; }
         public string? Url { get; set; }
         public string? Description { get; set; }
-        public Guid ReportId { get; set; }
-        public string? ReportTitle { get; set; }
         public Guid SourceScoreId { get; set; }
         public decimal? SourceTotalScore { get; set; }
         public bool IsRegraded { get; set; }

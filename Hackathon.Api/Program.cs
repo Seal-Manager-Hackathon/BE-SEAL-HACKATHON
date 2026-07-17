@@ -151,6 +151,30 @@ builder.Services.AddQuartz(options =>
         .WithSimpleSchedule(schedule => schedule
             .WithIntervalInHours(12)
             .RepeatForever()));
+
+    var autoCloseExpiredEventsJobKey = new JobKey(nameof(AutoCloseExpiredEventsJob));
+
+    options.AddJob<AutoCloseExpiredEventsJob>(job =>
+        job.WithIdentity(autoCloseExpiredEventsJobKey));
+
+    options.AddTrigger(trigger => trigger
+        .ForJob(autoCloseExpiredEventsJobKey)
+        .WithIdentity($"{nameof(AutoCloseExpiredEventsJob)}-trigger")
+        .WithSimpleSchedule(schedule => schedule
+            .WithIntervalInMinutes(10)
+            .RepeatForever()));
+
+    var expirePendingInvitationsJobKey = new JobKey(nameof(ExpirePendingInvitationsJob));
+
+    options.AddJob<ExpirePendingInvitationsJob>(job =>
+        job.WithIdentity(expirePendingInvitationsJobKey));
+
+    options.AddTrigger(trigger => trigger
+        .ForJob(expirePendingInvitationsJobKey)
+        .WithIdentity($"{nameof(ExpirePendingInvitationsJob)}-trigger")
+        .WithSimpleSchedule(schedule => schedule
+            .WithIntervalInMinutes(15)
+            .RepeatForever()));
 });
 
 builder.Services.AddQuartzHostedService(options =>

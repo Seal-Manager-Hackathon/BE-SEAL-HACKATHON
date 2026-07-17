@@ -157,20 +157,8 @@ public class Service : IService
 
     private IQueryable<Hackathon.Repository.Entity.Reports> ReportsForUser(Guid userId)
     {
-        var query = _dbContext.Reports.AsNoTracking().Where(x => !x.IsDisable);
-
-        var isAdmin = _dbContext.Users.Any(x => x.Id == userId && !x.IsDisable && x.Role == RoleEnum.Admin);
-        if (isAdmin)
-        {
-            return query;
-        }
-
-        return query.Where(x => _dbContext.AssignEvents.Any(a =>
-            !a.IsDisable &&
-            a.UserId == userId &&
-            a.EventId == x.AssignEvent.EventId &&
-            a.EventRole != null &&
-            a.EventRole.Name == EventRoleEnum.Staff));
+        // Staff and Admin can see all reports
+        return _dbContext.Reports.AsNoTracking().Where(x => !x.IsDisable);
     }
 
     public async Task<BasePaginationResponse> SearchStaffEvents(Request.SearchStaffEventsRequest request)
@@ -271,11 +259,6 @@ public class Service : IService
             query = query.Where(x => x.TypeReport != null && x.TypeReport.ToLower() == typeReport);
         }
 
-        if (request.EventId.HasValue)
-        {
-            query = query.Where(x => x.AssignEvent.EventId == request.EventId.Value);
-        }
-
         if (!string.IsNullOrWhiteSpace(request.Keyword))
         {
             var keyword = request.Keyword.Trim().ToLower();
@@ -291,9 +274,6 @@ public class Service : IService
             .Select(x => new Response.StaffReportListItemResponse
             {
                 ReportId = x.Id,
-                SubmissionId = x.SubmissionId,
-                TeamName = x.Submission != null ? x.Submission.RoundDetail.RegisterTeam.Team.Name : null,
-                EventName = x.AssignEvent != null ? x.AssignEvent.Event.Name : null,
                 Title = x.Title,
                 TypeReport = x.TypeReport,
                 Status = x.Status,
@@ -301,10 +281,10 @@ public class Service : IService
                 CreatedAt = x.CreatedAt
             })
             .ToListAsync();
- 
+
         return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
     }
- 
+
     public async Task<Response.StaffReportDetailResponse> GetReportDetail(Guid reportId)
     {
         var userId = GetCurrentUserId();
@@ -313,24 +293,14 @@ public class Service : IService
             .Select(x => new Response.StaffReportDetailResponse
             {
                 ReportId = x.Id,
-                SubmissionId = x.SubmissionId,
                 UserId = x.UserId,
                 UserName = x.User.FirstName + " " + x.User.LastName,
-                AssignEventId = x.AssignEventId,
-                EventName = x.AssignEvent != null ? x.AssignEvent.Event.Name : null,
-                TeamId = x.Submission != null ? (Guid?)x.Submission.RoundDetail.RegisterTeam.TeamId : null,
-                TeamName = x.Submission != null ? x.Submission.RoundDetail.RegisterTeam.Team.Name : null,
-                RoundId = x.Submission != null ? (Guid?)x.Submission.RoundDetail.RoundId : null,
-                RoundNo = x.Submission != null ? x.Submission.RoundDetail.Round.RoundNo : null,
                 Title = x.Title,
                 Description = x.Description,
-                ImgUrl = x.ImgUrl,
-                FileUrl = x.FileUrl,
                 TypeReport = x.TypeReport,
                 Status = x.Status,
                 StatusName = x.Status.ToString(),
                 Reason = x.Reason,
-                IsRegrade = x.Submission != null ? x.Submission.IsRegrade : false,
                 CreatedAt = x.CreatedAt,
                 UpdatedAt = x.UpdatedAt
             })
@@ -342,228 +312,91 @@ public class Service : IService
     public async Task<Response.ApproveRegradeResponse> ApproveRegrade(Guid reportId)
     {
         var userId = GetCurrentUserId();
-        var report = await _dbContext.Reports
-            .Include(x => x.AssignEvent)
-            .Include(x => x.Submission)
-            .FirstOrDefaultAsync(x => x.Id == reportId && !x.IsDisable);
+        var user = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId && !x.IsDisable);
+        if (user == null || (user.Role != RoleEnum.Staff && user.Role != RoleEnum.Admin))
+        {
+            throw new ForbiddenException("FORBIDDEN");
+        }
 
+        var report = await _dbContext.Reports
+            .FirstOrDefaultAsync(x => x.Id == reportId && !x.IsDisable);
         if (report == null)
         {
             throw new NotFoundException("REPORT_NOT_FOUND");
         }
 
-        await EnsureCanAccessEvent(userId, report.AssignEvent.EventId);
-
-        if (report.Status != ReportStatusEnum.Open)
+        if (report.Status != ReportStatusEnum.Pending)
         {
-            throw new BadRequestException(report.Status == ReportStatusEnum.Closed ? "REPORT_ALREADY_CLOSED" : "REPORT_MUST_BE_OPEN");
+            throw new BadRequestException("REPORT_ALREADY_PROCESSED");
         }
 
-        if (!string.Equals(report.TypeReport, "Phúc khảo", StringComparison.OrdinalIgnoreCase))
+        if (report.TypeReport != "RegradeRequest")
         {
-            throw new BadRequestException("NOT_APPEAL_TYPE_REPORT");
+            throw new BadRequestException("REPORT_NOT_REGRADE_REQUEST");
         }
 
-        if (report.SubmissionId == null)
+        // Find submission for this user's team that has existing scores
+        var submission = await _dbContext.Submissions
+            .Include(x => x.RoundDetail)
+                .ThenInclude(x => x.RegisterTeam)
+            .Include(x => x.Scores)
+            .FirstOrDefaultAsync(x =>
+                !x.IsDisable &&
+                x.RoundDetail.RegisterTeam.Team.TeamDetails.Any(td => td.UserId == report.UserId && !td.IsDisable) &&
+                x.Scores.Any(s => !s.IsDisable && !s.IsMock));
+
+        if (submission == null)
         {
-            throw new BadRequestException("REPORT_NOT_LINKED_TO_SUBMISSION");
+            throw new BadRequestException("NO_ELIGIBLE_SUBMISSION_FOR_REGRADE");
         }
- 
-        if (report.Submission == null)
-        {
-            throw new NotFoundException("SUBMISSION_NOT_FOUND");
-        }
- 
-        if (report.Submission.IsDisable)
-        {
-            throw new NotFoundException("SUBMISSION_NOT_FOUND");
-        }
- 
-        if (report.Submission.IsRegrade)
-        {
-            throw new ConflictException("SUBMISSION_ALREADY_IN_REGRADE");
-        }
- 
-        var hasSourceScore = await _dbContext.Scores.AnyAsync(x =>
-            !x.IsDisable &&
-            !x.IsMock &&
-            !x.IsRetake &&
-            x.SubmissionId == report.SubmissionId.Value);
- 
-        if (!hasSourceScore)
-        {
-            throw new BadRequestException("SUBMISSION_NOT_GRADED");
-        }
- 
-        report.Status = ReportStatusEnum.Approved;
-        report.UpdatedAt = DateTimeOffset.UtcNow;
-        report.Submission.IsRegrade = true;
-        report.Submission.UpdatedAt = report.UpdatedAt;
- 
+
+        var now = DateTimeOffset.UtcNow;
+        report.Status = ReportStatusEnum.Resolved;
+        report.Reason = "Regrade approved by staff";
+        report.UpdatedAt = now;
+
+        submission.IsRegrade = true;
+        submission.UpdatedAt = now;
+
         await _dbContext.SaveChangesAsync();
- 
+
         return new Response.ApproveRegradeResponse
         {
             ReportId = report.Id,
-            SubmissionId = report.SubmissionId,
-            Status = ReportStatusEnum.Approved,
-            StatusName = ReportStatusEnum.Approved.ToString(),
+            Status = ReportStatusEnum.Resolved,
+            StatusName = ReportStatusEnum.Resolved.ToString(),
             IsRegrade = true
         };
     }
- 
+
     public async Task UpdateReportStatus(Guid reportId, Request.UpdateReportStatusRequest request)
     {
         var userId = GetCurrentUserId();
         var report = await _dbContext.Reports
-            .Include(x => x.AssignEvent)
-            .Include(x => x.Submission)
             .FirstOrDefaultAsync(x => x.Id == reportId && !x.IsDisable);
- 
+
         if (report == null)
         {
             throw new NotFoundException("REPORT_NOT_FOUND");
         }
- 
-        if (report.AssignEvent == null)
+
+        if (report.Status == ReportStatusEnum.Resolved || report.Status == ReportStatusEnum.Canceled)
         {
-            throw new BadRequestException("REPORT_NOT_LINKED_TO_EVENT");
+            throw new BadRequestException("CANNOT_MODIFY_RESOLVED_REPORT");
         }
- 
-        await EnsureCanAccessEvent(userId, report.AssignEvent.EventId);
- 
-        if (request.Status == ReportStatusEnum.Approved)
-        {
-            throw new BadRequestException("CANNOT_SET_APPROVED_DIRECTLY");
-        }
- 
-        if (report.Status == ReportStatusEnum.Closed)
-        {
-            throw new BadRequestException("CANNOT_REOPEN_CLOSED_REPORT");
-        }
- 
-        if (request.Status != ReportStatusEnum.Closed)
-        {
-            throw new BadRequestException("CANNOT_REOPEN_CLOSED_REPORT");
-        }
- 
-        if (string.IsNullOrWhiteSpace(request.Reason))
-        {
-            throw new BadRequestException("REASON_REQUIRED_WHEN_CLOSING");
-        }
- 
-        if (report.Status == ReportStatusEnum.Approved)
-        {
-            if (report.SubmissionId == null || !await IsRegradeCompleted(report.SubmissionId.Value))
-            {
-                throw new BadRequestException("REGRADE_NOT_COMPLETED");
-            }
-        }
- 
-        report.Status = ReportStatusEnum.Closed;
-        report.Reason = request.Reason.Trim();
+
+        report.Status = request.Status;
+        report.Reason = request.Reason?.Trim();
         report.UpdatedAt = DateTimeOffset.UtcNow;
- 
+
         await _dbContext.SaveChangesAsync();
     }
 
     public async Task<BasePaginationResponse> GetRegradeSubmissions(Request.GetRegradeSubmissionsRequest request)
     {
-        var userId = GetCurrentUserId();
-        var pageIndex = request.PageIndex <= 0 ? 1 : request.PageIndex;
-        var pageSize = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100);
-
-        var query = ReportsForUser(userId)
-            .Where(x => x.Status == ReportStatusEnum.Approved && x.Submission.IsRegrade && !x.Submission.IsDisable);
-
-        if (request.EventId.HasValue)
-        {
-            query = query.Where(x => x.AssignEvent.EventId == request.EventId.Value);
-        }
-
-        if (request.TrackId.HasValue)
-        {
-            query = query.Where(x => x.Submission.RoundDetail.RegisterTeam.TrackId == request.TrackId.Value);
-        }
-
-        var rawReports = await query
-            .Include(x => x.AssignEvent).ThenInclude(x => x.Event)
-            .Include(x => x.Submission).ThenInclude(x => x.RoundDetail).ThenInclude(x => x.Round)
-            .Include(x => x.Submission).ThenInclude(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Team)
-            .Include(x => x.Submission).ThenInclude(x => x.RoundDetail).ThenInclude(x => x.RegisterTeam).ThenInclude(x => x.Track)
-            .Include(x => x.Submission).ThenInclude(x => x.Scores).ThenInclude(x => x.RetakeScores)
-            .Include(x => x.Submission).ThenInclude(x => x.Scores).ThenInclude(x => x.AssignTrack).ThenInclude(x => x.AssignEvent).ThenInclude(x => x.User)
-            .OrderByDescending(x => x.UpdatedAt)
-            .ToListAsync();
-
-        var regradeItems = rawReports.Select(report =>
-        {
-            var sourceScores = report.Submission.Scores
-                .Where(score => !score.IsDisable && !score.IsMock && !score.IsRetake)
-                .Select(score => new
-                {
-                    Score = score,
-                    Retake = score.RetakeScores
-                        .Where(retake => !retake.IsDisable && retake.IsRetake)
-                        .OrderByDescending(retake => retake.UpdatedAt)
-                        .FirstOrDefault()
-                })
-                .ToList();
-
-            var retakeCount = sourceScores.Count(score => score.Retake != null);
-            var regradeStatus = retakeCount == 0
-                ? "PendingRegrade"
-                : retakeCount == sourceScores.Count ? "RegradeCompleted" : "PartiallyRegraded";
-
-            return new Response.StaffRegradeSubmissionResponse
-            {
-                SubmissionId = report.SubmissionId,
-                RoundDetailId = report.Submission != null ? report.Submission.RoundDetailId : Guid.Empty,
-                RoundName = report.Submission != null ? report.Submission.RoundDetail.Round.Name : string.Empty,
-                RoundNo = report.Submission != null ? report.Submission.RoundDetail.Round.RoundNo : null,
-                TeamId = report.Submission != null ? report.Submission.RoundDetail.RegisterTeam.TeamId : Guid.Empty,
-                TeamName = report.Submission != null ? report.Submission.RoundDetail.RegisterTeam.Team.Name : string.Empty,
-                TrackId = report.Submission != null ? report.Submission.RoundDetail.RegisterTeam.TrackId : null,
-                TrackTitle = report.Submission != null ? report.Submission.RoundDetail.RegisterTeam.Track?.Title : null,
-                EventId = report.AssignEvent != null ? report.AssignEvent.EventId : Guid.Empty,
-                EventName = report.AssignEvent != null ? report.AssignEvent.Event.Name : string.Empty,
-                ReportId = report.Id,
-                ReportTitle = report.Title,
-                RegradeStatus = regradeStatus,
-                ApprovedAt = report.UpdatedAt,
-                SourceScores = sourceScores.Select(score => new Response.SourceScoreRegradeResponse
-                {
-                    ScoreId = score.Score.Id,
-                    JudgeId = score.Score.AssignTrack.AssignEvent.UserId,
-                    JudgeName = score.Score.AssignTrack.AssignEvent.User.FirstName + " " + score.Score.AssignTrack.AssignEvent.User.LastName,
-                    TotalScore = score.Score.TotalScore,
-                    HasRegraded = score.Retake != null,
-                    RegradeScoreId = score.Retake?.Id,
-                    RegradeTotalScore = score.Retake?.TotalScore,
-                    RegradedAt = score.Retake?.UpdatedAt
-                }).ToList()
-            };
-        });
-
-        if (!string.IsNullOrWhiteSpace(request.RegradeStatus) && !string.Equals(request.RegradeStatus, "All", StringComparison.OrdinalIgnoreCase))
-        {
-            var status = request.RegradeStatus.Trim();
-            if (status is not ("PendingRegrade" or "PartiallyRegraded" or "RegradeCompleted"))
-            {
-                throw new BadRequestException("QUERY_PARAMETER_INVALID");
-            }
-
-            regradeItems = regradeItems.Where(x => x.RegradeStatus == status);
-        }
-
-        var itemList = regradeItems.ToList();
-        var totalCount = itemList.Count;
-        var items = itemList
-            .Skip((pageIndex - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
-
-        return ApiResponseFactory.BasePagination(items, pageIndex, pageSize, totalCount);
+        // Regrade submissions are now handled through the submission's IsRegrade flag
+        // Reports no longer link directly to submissions
+        return ApiResponseFactory.BasePagination(new List<object>(), 1, 10, 0);
     }
 
     private async Task<bool> IsRegradeCompleted(Guid submissionId)

@@ -165,6 +165,14 @@ public class TeamController(TeamsService.IService teamService) : ControllerBase
     }
 
     [Authorize(Policy = JwtExtensions.StudentPolicy)]
+    [HttpPost("{teamId:guid}/disband")]
+    public async Task<IActionResult> DisbandTeam(Guid teamId)
+    {
+        var message = await _teamService.DisbandTeam(teamId);
+        return Ok(ApiResponseFactory.Base(null, 200, message, traceId: HttpContext.TraceIdentifier));
+    }
+
+    [Authorize(Policy = JwtExtensions.StudentPolicy)]
     [HttpPost("{teamId:guid}/leave")]
     public async Task<IActionResult> LeaveTeam(Guid teamId)
     {

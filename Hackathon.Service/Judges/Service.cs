@@ -229,10 +229,7 @@ public class Service : IService
                     er.Name == EventRoleEnum.Judge &&
                     !er.IsDisable) &&
                 x.Submission.IsRegrade &&
-                !x.Submission.IsDisable &&
-                x.Submission.Report != null &&
-                !x.Submission.Report.IsDisable &&
-                x.Submission.Report.Status == ReportStatusEnum.Approved);
+                !x.Submission.IsDisable);
 
         if (eventId.HasValue)
         {
@@ -258,8 +255,7 @@ public class Service : IService
         var totalCount = await query.CountAsync();
 
         var items = await query
-            .OrderByDescending(x => x.Submission.Report!.UpdatedAt)
-            .ThenByDescending(x => x.Submission.SubmittedAt)
+            .OrderByDescending(x => x.Submission.SubmittedAt)
             .Skip((pageIndex - 1) * pageSize)
             .Take(pageSize)
             .Select(x => new Response.JudgeRegradeSubmissionResponse
@@ -273,8 +269,6 @@ public class Service : IService
                 TrackTitle = x.Submission.RoundDetail.RegisterTeam.Track != null ? x.Submission.RoundDetail.RegisterTeam.Track.Title : null,
                 Url = x.Submission.Url,
                 Description = x.Submission.Description,
-                ReportId = x.Submission.Report!.Id,
-                ReportTitle = x.Submission.Report.Title,
                 SourceScoreId = x.Id,
                 SourceTotalScore = x.TotalScore,
                 IsRegraded = x.RetakeScores.Any(r => !r.IsDisable && r.IsRetake),
@@ -287,8 +281,7 @@ public class Service : IService
                     .Where(r => !r.IsDisable && r.IsRetake)
                     .OrderByDescending(r => r.UpdatedAt)
                     .Select(r => r.TotalScore)
-                    .FirstOrDefault(),
-                ApprovedAt = x.Submission.Report.UpdatedAt
+                    .FirstOrDefault()
             })
             .ToListAsync();
 
@@ -612,16 +605,6 @@ public class Service : IService
             throw new BadRequestException("SUBMISSION_NOT_IN_REGRADE");
         }
 
-        var reportApproved = await _dbContext.Reports.AnyAsync(x =>
-            !x.IsDisable &&
-            x.SubmissionId == sourceScore.SubmissionId &&
-            x.Status == ReportStatusEnum.Approved);
-
-        if (!reportApproved)
-        {
-            throw new BadRequestException("REPORT_NOT_APPROVED");
-        }
-
         var hasRetake = await _dbContext.Scores.AnyAsync(x =>
             !x.IsDisable &&
             x.IsRetake &&
@@ -641,49 +624,90 @@ public class Service : IService
         var submissionAccess = await EnsureJudgeCanAccessSubmission(userId, submissionId);
         var criteriaItems = await ValidateScoreRequest(request, submissionAccess.RoundId);
 
-        if (!isMock && !isRetake)
-        {
-            var scoreExists = await _dbContext.Scores.AnyAsync(x =>
-                !x.IsDisable &&
-                !x.IsMock &&
-                !x.IsRetake &&
-                x.SubmissionId == submissionId &&
-                x.AssignTrackId == submissionAccess.AssignTrackId);
-
-            if (scoreExists)
-            {
-                throw new ConflictException("SCORE_ALREADY_EXISTS");
-            }
-        }
-
         if (sourceScore != null && sourceScore.AssignTrackId != submissionAccess.AssignTrackId)
         {
             throw new ForbiddenException("SCORE_NOT_OWNED_BY_JUDGE");
         }
 
-        var now = DateTimeOffset.UtcNow;
+        // For real scores, validate ALL criteria items are scored (no partial submission)
+        if (!isMock && !isRetake)
+        {
+            var totalCriteriaCount = await _dbContext.CriteriaTemplates
+                .Where(x => x.RoundId == submissionAccess.RoundId && !x.IsDisable)
+                .SelectMany(x => x.CriteriaItems)
+                .CountAsync(x => !x.IsDisable);
 
-        // Auto-calculate total score from criteria items
+            if (request.Scores.Count != totalCriteriaCount)
+            {
+                throw new BadRequestException("ALL_CRITERIA_ITEMS_REQUIRED");
+            }
+        }
+
+        var now = DateTimeOffset.UtcNow;
         var autoTotalScore = request.Scores.Sum(x => x.Score);
 
-        var score = new Scores
-        {
-            Id = Guid.NewGuid(),
-            SubmissionId = submissionId,
-            AssignTrackId = submissionAccess.AssignTrackId,
-            IsRetake = isRetake,
-            RetakeFromScoreId = sourceScore?.Id,
-            TotalScore = autoTotalScore,
-            IsMock = isMock,
-            CreatedAt = now,
-            UpdatedAt = now,
-            IsDisable = false
-        };
+        Scores score;
 
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            await _dbContext.Scores.AddAsync(score);
+            // Upsert: if judge already scored this submission, soft-delete old items and update
+            if (!isMock && !isRetake)
+            {
+                var existingScore = await _dbContext.Scores
+                    .Include(x => x.ScoreItems)
+                    .FirstOrDefaultAsync(x =>
+                        !x.IsDisable && !x.IsMock && !x.IsRetake &&
+                        x.SubmissionId == submissionId &&
+                        x.AssignTrackId == submissionAccess.AssignTrackId);
+
+                if (existingScore != null)
+                {
+                    foreach (var item in existingScore.ScoreItems.Where(x => !x.IsDisable))
+                    {
+                        item.IsDisable = true;
+                        item.UpdatedAt = now;
+                    }
+
+                    existingScore.TotalScore = autoTotalScore;
+                    existingScore.UpdatedAt = now;
+                    score = existingScore;
+                }
+                else
+                {
+                    score = new Scores
+                    {
+                        Id = Guid.NewGuid(),
+                        SubmissionId = submissionId,
+                        AssignTrackId = submissionAccess.AssignTrackId,
+                        IsRetake = false,
+                        RetakeFromScoreId = null,
+                        TotalScore = autoTotalScore,
+                        IsMock = false,
+                        CreatedAt = now,
+                        UpdatedAt = now,
+                        IsDisable = false
+                    };
+                    await _dbContext.Scores.AddAsync(score);
+                }
+            }
+            else
+            {
+                score = new Scores
+                {
+                    Id = Guid.NewGuid(),
+                    SubmissionId = submissionId,
+                    AssignTrackId = submissionAccess.AssignTrackId,
+                    IsRetake = isRetake,
+                    RetakeFromScoreId = sourceScore?.Id,
+                    TotalScore = autoTotalScore,
+                    IsMock = isMock,
+                    CreatedAt = now,
+                    UpdatedAt = now,
+                    IsDisable = false
+                };
+                await _dbContext.Scores.AddAsync(score);
+            }
 
             foreach (var itemRequest in request.Scores)
             {
@@ -699,6 +723,17 @@ public class Service : IService
                     UpdatedAt = now,
                     IsDisable = false
                 });
+            }
+
+            // Set submission status to Graded for real scores
+            if (!isMock)
+            {
+                var submission = await _dbContext.Submissions.FirstOrDefaultAsync(x => x.Id == submissionId);
+                if (submission != null)
+                {
+                    submission.Status = SubmissionStatusEnum.Graded;
+                    submission.UpdatedAt = now;
+                }
             }
 
             await _dbContext.SaveChangesAsync();

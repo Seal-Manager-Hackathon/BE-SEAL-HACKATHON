@@ -449,11 +449,6 @@ public class Service : IService
         }
 
         var now = DateTimeOffset.UtcNow;
-        foreach (var member in membersToRemove)
-        {
-            member.IsDisable = true;
-            member.UpdatedAt = now;
-        }
 
         // Notify removed members
         var leader = await _dbContext.Users
@@ -477,7 +472,8 @@ public class Service : IService
         var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            _dbContext.TeamDetails.UpdateRange(membersToRemove);
+            // Hard delete the TeamDetails records (kick = permanent removal)
+            _dbContext.TeamDetails.RemoveRange(membersToRemove);
             _dbContext.Notifications.AddRange(removedNotifications);
             await _dbContext.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -927,6 +923,57 @@ public class Service : IService
         return "TEAM_UNLOCKED_SUCCESSFULLY";
     }
 
+    public async Task<string> DisbandTeam(Guid teamId)
+    {
+        var userId = GetCurrentUserId();
+
+        await ValidateAndGetStudentAsync(userId);
+
+        var team = await _dbContext.Teams.FirstOrDefaultAsync(x => x.Id == teamId && !x.IsDisable);
+        if (team == null)
+        {
+            throw new NotFoundException("TEAM_NOT_FOUND");
+        }
+
+        // Only leader can disband
+        await ValidateAndGetLeaderDetailAsync(teamId, userId, "ONLY_TEAM_LEADER_CAN_DISBAND_TEAM");
+
+        var now = DateTimeOffset.UtcNow;
+
+        // Set all active members to inactive
+        var activeMembers = await _dbContext.TeamDetails
+            .Where(x => x.TeamId == teamId && !x.IsDisable && x.Status == TeamDetailStatusEnum.Active)
+            .ToListAsync();
+
+        foreach (var member in activeMembers)
+        {
+            member.IsDisable = true;
+            member.Status = TeamDetailStatusEnum.Inactive;
+            member.UpdatedAt = now;
+        }
+
+        // Disable team
+        team.IsDisable = true;
+        team.CanEdit = false;
+        team.UpdatedAt = now;
+
+        var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            _dbContext.TeamDetails.UpdateRange(activeMembers);
+            _dbContext.Teams.Update(team);
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
+        return "TEAM_DISBANDED_SUCCESSFULLY";
+    }
+
     public async Task<string> LeaveTeam(Guid teamId)
     {
         var userId = GetCurrentUserId();
@@ -1000,7 +1047,7 @@ public class Service : IService
         }
 
         var alreadyAppealed = await _dbContext.Reports
-            .AnyAsync(r => r.Submission.RoundDetailId == roundDetail.Id
+            .AnyAsync(r => r.UserId == userId
                            && r.TypeReport == "Phúc khảo"
                            && !r.IsDisable);
 
@@ -1030,14 +1077,10 @@ public class Service : IService
         {
             Id = Guid.NewGuid(),
             UserId = userId,
-            AssignEventId = assignEventId,
-            SubmissionId = submission.Id,
             Title = request.Title,
             Description = request.Description,
-            ImgUrl = request.ImgUrl,
-            FileUrl = request.FileUrl,
             TypeReport = "Phúc khảo",
-            Status = ReportStatusEnum.Open,
+            Status = ReportStatusEnum.Pending,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow
         };
@@ -1094,7 +1137,7 @@ public class Service : IService
         }
 
         var alreadyAppealed = await _dbContext.Reports
-            .AnyAsync(r => r.SubmissionId == submissionId && r.TypeReport == "Phúc khảo" && !r.IsDisable);
+            .AnyAsync(r => r.UserId == userId && r.TypeReport == "Phúc khảo" && !r.IsDisable);
 
         if (alreadyAppealed)
         {
@@ -1122,14 +1165,10 @@ public class Service : IService
         {
             Id = Guid.NewGuid(),
             UserId = userId,
-            AssignEventId = assignEventId,
-            SubmissionId = submissionId,
             Title = request.Title,
             Description = request.Description,
-            ImgUrl = request.ImgUrl,
-            FileUrl = request.FileUrl,
             TypeReport = "Phúc khảo",
-            Status = ReportStatusEnum.Open,
+            Status = ReportStatusEnum.Pending,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow
         };
