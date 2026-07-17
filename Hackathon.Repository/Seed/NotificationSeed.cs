@@ -1,3 +1,4 @@
+using System;
 using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
 using Microsoft.EntityFrameworkCore;
@@ -8,131 +9,39 @@ public static class NotificationSeed
 {
     public static void SeedNotifications(this ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Invitations>().HasData(
-            new Invitations
-            {
-                Id = Guid.Parse("70000000-0000-0000-0000-000000000001"),
-                TeamId = SeedConstants.GreenCodersTeamId,
-                UserId = SeedConstants.StudentMemberUserId,
-                LimitTime = SeedConstants.CreatedAt.AddDays(3),
-                Status = InvitationStatusEnum.Pending,
-                Description = "Seed invitation",
-                IsDisable = false,
-                CreatedAt = SeedConstants.CreatedAt,
-                UpdatedAt = SeedConstants.CreatedAt
-            },
-
-            // 10 New Invitations for new Students
-            CreateInvitation(Guid.Parse("70000000-0000-0000-0000-000000000010"), Guid.Parse("30000000-0000-0000-0000-000000000010"), Guid.Parse("10000000-0000-0000-0000-000000000010")),
-            CreateInvitation(Guid.Parse("70000000-0000-0000-0000-000000000011"), Guid.Parse("30000000-0000-0000-0000-000000000011"), Guid.Parse("10000000-0000-0000-0000-000000000011")),
-            CreateInvitation(Guid.Parse("70000000-0000-0000-0000-000000000012"), Guid.Parse("30000000-0000-0000-0000-000000000012"), Guid.Parse("10000000-0000-0000-0000-000000000012")),
-            CreateInvitation(Guid.Parse("70000000-0000-0000-0000-000000000013"), Guid.Parse("30000000-0000-0000-0000-000000000013"), Guid.Parse("10000000-0000-0000-0000-000000000013")),
-            CreateInvitation(Guid.Parse("70000000-0000-0000-0000-000000000014"), Guid.Parse("30000000-0000-0000-0000-000000000014"), Guid.Parse("10000000-0000-0000-0000-000000000014")),
-            CreateInvitation(Guid.Parse("70000000-0000-0000-0000-000000000015"), Guid.Parse("30000000-0000-0000-0000-000000000015"), Guid.Parse("10000000-0000-0000-0000-000000000015")),
-            CreateInvitation(Guid.Parse("70000000-0000-0000-0000-000000000016"), Guid.Parse("30000000-0000-0000-0000-000000000016"), Guid.Parse("10000000-0000-0000-0000-000000000016")),
-            CreateInvitation(Guid.Parse("70000000-0000-0000-0000-000000000017"), Guid.Parse("30000000-0000-0000-0000-000000000017"), Guid.Parse("10000000-0000-0000-0000-000000000017")),
-            CreateInvitation(Guid.Parse("70000000-0000-0000-0000-000000000018"), Guid.Parse("30000000-0000-0000-0000-000000000018"), Guid.Parse("10000000-0000-0000-0000-000000000018")),
-            CreateInvitation(Guid.Parse("70000000-0000-0000-0000-000000000019"), Guid.Parse("30000000-0000-0000-0000-000000000019"), Guid.Parse("10000000-0000-0000-0000-000000000019"))
-        );
-
+        // 15 Notifications (combining personal, team, system targets with read, unread, pending statuses)
         modelBuilder.Entity<Notifications>().HasData(
-            new Notifications
-            {
-                Id = Guid.Parse("71000000-0000-0000-0000-000000000001"),
-                UserId = SeedConstants.StudentLeaderUserId,
-                TeamId = SeedConstants.SeedInnovatorsTeamId,
-                Title = "Registration approved",
-                Status = NotificationStatusEnum.Unread,
-                Description = "Your team registration has been approved",
-                TargetType = NotificationTargetTypeEnum.Personal,
-                IsDisable = false,
-                CreatedAt = SeedConstants.CreatedAt,
-                UpdatedAt = SeedConstants.CreatedAt
-            },
-
-            // 10 New Notifications
-            CreateNotification(Guid.Parse("71000000-0000-0000-0000-000000000010"), Guid.Parse("10000000-0000-0000-0000-000000000010"), Guid.Parse("30000000-0000-0000-0000-000000000010"), "New Team Created"),
-            CreateNotification(Guid.Parse("71000000-0000-0000-0000-000000000011"), Guid.Parse("10000000-0000-0000-0000-000000000011"), Guid.Parse("30000000-0000-0000-0000-000000000011"), "New Team Created"),
-            CreateNotification(Guid.Parse("71000000-0000-0000-0000-000000000012"), Guid.Parse("10000000-0000-0000-0000-000000000012"), Guid.Parse("30000000-0000-0000-0000-000000000012"), "New Team Created"),
-            CreateNotification(Guid.Parse("71000000-0000-0000-0000-000000000013"), Guid.Parse("10000000-0000-0000-0000-000000000013"), Guid.Parse("30000000-0000-0000-0000-000000000013"), "New Team Created"),
-            CreateNotification(Guid.Parse("71000000-0000-0000-0000-000000000014"), Guid.Parse("10000000-0000-0000-0000-000000000014"), Guid.Parse("30000000-0000-0000-0000-000000000014"), "New Team Created"),
-            CreateNotification(Guid.Parse("71000000-0000-0000-0000-000000000015"), Guid.Parse("10000000-0000-0000-0000-000000000015"), Guid.Parse("30000000-0000-0000-0000-000000000015"), "New Team Created"),
-            CreateNotification(Guid.Parse("71000000-0000-0000-0000-000000000016"), Guid.Parse("10000000-0000-0000-0000-000000000016"), Guid.Parse("30000000-0000-0000-0000-000000000016"), "New Team Created"),
-            CreateNotification(Guid.Parse("71000000-0000-0000-0000-000000000017"), Guid.Parse("10000000-0000-0000-0000-000000000017"), Guid.Parse("30000000-0000-0000-0000-000000000017"), "New Team Created"),
-            CreateNotification(Guid.Parse("71000000-0000-0000-0000-000000000018"), Guid.Parse("10000000-0000-0000-0000-000000000018"), Guid.Parse("30000000-0000-0000-0000-000000000018"), "New Team Created"),
-            CreateNotification(Guid.Parse("71000000-0000-0000-0000-000000000019"), Guid.Parse("10000000-0000-0000-0000-000000000019"), Guid.Parse("30000000-0000-0000-0000-000000000019"), "New Team Created")
+            new Notifications { Id = Guid.Parse("90000000-0000-0000-0000-000000000001"), UserId = SeedConstants.UserStudentLeaderActive1, TeamId = null, Title = "Chào mừng bạn", Status = NotificationStatusEnum.Read, Description = "Chào mừng bạn gia nhập hệ thống", TargetType = NotificationTargetTypeEnum.Personal, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Notifications { Id = Guid.Parse("90000000-0000-0000-0000-000000000002"), UserId = SeedConstants.UserStudentLeaderActive1, TeamId = TeamSeed.Team1, Title = "Đăng ký thành công", Status = NotificationStatusEnum.Read, Description = "Alpha Tech đăng ký thành công", TargetType = NotificationTargetTypeEnum.Team, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Notifications { Id = Guid.Parse("90000000-0000-0000-0000-000000000003"), UserId = null, TeamId = null, Title = "Bảo trì hệ thống", Status = NotificationStatusEnum.Unread, Description = "Hệ thống sẽ bảo trì vào 22h", TargetType = NotificationTargetTypeEnum.System, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Notifications { Id = Guid.Parse("90000000-0000-0000-0000-000000000004"), UserId = SeedConstants.UserStudentLeaderActive2, TeamId = TeamSeed.Team2, Title = "Gợi ý đề tài", Status = NotificationStatusEnum.Unread, Description = "Có đề tài mới phù hợp với đội của bạn", TargetType = NotificationTargetTypeEnum.Team, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Notifications { Id = Guid.Parse("90000000-0000-0000-0000-000000000005"), UserId = SeedConstants.UserJudgeActive, TeamId = null, Title = "Lịch chấm thi", Status = NotificationStatusEnum.Pending, Description = "Vui lòng xem lịch chấm thi", TargetType = NotificationTargetTypeEnum.Personal, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Notifications { Id = Guid.Parse("90000000-0000-0000-0000-000000000006"), UserId = SeedConstants.UserMentorActive, TeamId = null, Title = "Yêu cầu hướng dẫn", Status = NotificationStatusEnum.Unread, Description = "Bạn có lời mời làm mentor", TargetType = NotificationTargetTypeEnum.Personal, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Notifications { Id = Guid.Parse("90000000-0000-0000-0000-000000000007"), UserId = SeedConstants.UserStudentMemberActive1, TeamId = TeamSeed.Team1, Title = "Nhắc nhở nộp bài", Status = NotificationStatusEnum.Unread, Description = "Hạn nộp bài sắp hết", TargetType = NotificationTargetTypeEnum.Team, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Notifications { Id = Guid.Parse("90000000-0000-0000-0000-000000000008"), UserId = SeedConstants.UserStudentMemberActive2, TeamId = TeamSeed.Team2, Title = "Điểm số mới", Status = NotificationStatusEnum.Unread, Description = "Đội của bạn đã được công bố điểm", TargetType = NotificationTargetTypeEnum.Team, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Notifications { Id = Guid.Parse("90000000-0000-0000-0000-000000000009"), UserId = SeedConstants.UserStaffActive, TeamId = null, Title = "Báo cáo mới", Status = NotificationStatusEnum.Read, Description = "Có báo cáo gian lận mới", TargetType = NotificationTargetTypeEnum.Personal, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Notifications { Id = Guid.Parse("90000000-0000-0000-0000-000000000010"), UserId = SeedConstants.UserAdminActive, TeamId = null, Title = "User đăng ký mới", Status = NotificationStatusEnum.Read, Description = "Có 5 user mới đăng ký", TargetType = NotificationTargetTypeEnum.Personal, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Notifications { Id = Guid.Parse("90000000-0000-0000-0000-000000000011"), UserId = SeedConstants.UserStudentLeaderActive3, TeamId = TeamSeed.Team3, Title = "Đăng ký thành công", Status = NotificationStatusEnum.Read, Description = "Gamma Devs đăng ký thành công", TargetType = NotificationTargetTypeEnum.Team, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Notifications { Id = Guid.Parse("90000000-0000-0000-0000-000000000012"), UserId = SeedConstants.UserStudentLeaderActive3, TeamId = TeamSeed.Team3, Title = "Bị khóa do vi phạm", Status = NotificationStatusEnum.Unread, Description = "Thành viên đội vi phạm quy chế", TargetType = NotificationTargetTypeEnum.Team, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Notifications { Id = Guid.Parse("90000000-0000-0000-0000-000000000013"), UserId = SeedConstants.UserStudentLeaderActive1, TeamId = null, Title = "Thông báo nháp", Status = NotificationStatusEnum.Read, Description = "Nháp", TargetType = NotificationTargetTypeEnum.Personal, IsDisable = true, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt }, // disabled
+            new Notifications { Id = Guid.Parse("90000000-0000-0000-0000-000000000014"), UserId = SeedConstants.UserStudentMemberInactive1, TeamId = null, Title = "Nhắc nhở xác thực email", Status = NotificationStatusEnum.Pending, Description = "Vui lòng xác thực email", TargetType = NotificationTargetTypeEnum.Personal, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Notifications { Id = Guid.Parse("90000000-0000-0000-0000-000000000015"), UserId = SeedConstants.UserStudentMemberBanned3, TeamId = null, Title = "Tài khoản bị khóa", Status = NotificationStatusEnum.Read, Description = "Tài khoản bị khóa vì gian lận", TargetType = NotificationTargetTypeEnum.Personal, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt }
         );
 
+        // 12 Mentor Notifications
         modelBuilder.Entity<MentorNotifications>().HasData(
-            new MentorNotifications
-            {
-                Id = Guid.Parse("72000000-0000-0000-0000-000000000001"),
-                AssignTrackId = SeedConstants.MentorAiAssignTrackId,
-                Title = "New team registered",
-                Description = "A new team joined your track",
-                IsDisable = false,
-                CreatedAt = SeedConstants.CreatedAt,
-                UpdatedAt = SeedConstants.CreatedAt
-            },
-
-            // 10 New MentorNotifications
-            CreateMentorNotification(Guid.Parse("72000000-0000-0000-0000-000000000010"), Guid.Parse("41000000-0000-0000-0000-000000000010")),
-            CreateMentorNotification(Guid.Parse("72000000-0000-0000-0000-000000000011"), Guid.Parse("41000000-0000-0000-0000-000000000011")),
-            CreateMentorNotification(Guid.Parse("72000000-0000-0000-0000-000000000012"), Guid.Parse("41000000-0000-0000-0000-000000000012")),
-            CreateMentorNotification(Guid.Parse("72000000-0000-0000-0000-000000000013"), Guid.Parse("41000000-0000-0000-0000-000000000013")),
-            CreateMentorNotification(Guid.Parse("72000000-0000-0000-0000-000000000014"), Guid.Parse("41000000-0000-0000-0000-000000000014")),
-            CreateMentorNotification(Guid.Parse("72000000-0000-0000-0000-000000000015"), Guid.Parse("41000000-0000-0000-0000-000000000015")),
-            CreateMentorNotification(Guid.Parse("72000000-0000-0000-0000-000000000016"), Guid.Parse("41000000-0000-0000-0000-000000000016")),
-            CreateMentorNotification(Guid.Parse("72000000-0000-0000-0000-000000000017"), Guid.Parse("41000000-0000-0000-0000-000000000017")),
-            CreateMentorNotification(Guid.Parse("72000000-0000-0000-0000-000000000018"), Guid.Parse("41000000-0000-0000-0000-000000000018")),
-            CreateMentorNotification(Guid.Parse("72000000-0000-0000-0000-000000000019"), Guid.Parse("41000000-0000-0000-0000-000000000019"))
+            new MentorNotifications { Id = Guid.Parse("92000000-0000-0000-0000-000000000001"), AssignTrackId = AssignmentSeed.At6, Title = "Yêu cầu Mentor Track AI 1", Description = "Bạn được phân công làm mentor", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new MentorNotifications { Id = Guid.Parse("92000000-0000-0000-0000-000000000002"), AssignTrackId = AssignmentSeed.At6, Title = "Yêu cầu Mentor Track AI 2", Description = "Nhắc nhở kiểm tra tiến độ đội", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new MentorNotifications { Id = Guid.Parse("92000000-0000-0000-0000-000000000003"), AssignTrackId = AssignmentSeed.At7, Title = "Yêu cầu Mentor Track Web 1", Description = "Học viên cần hỗ trợ deploy", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new MentorNotifications { Id = Guid.Parse("92000000-0000-0000-0000-000000000004"), AssignTrackId = AssignmentSeed.At7, Title = "Yêu cầu Mentor Track Web 2", Description = "Tài liệu hướng dẫn mới", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new MentorNotifications { Id = Guid.Parse("92000000-0000-0000-0000-000000000005"), AssignTrackId = AssignmentSeed.At11, Title = "Yêu cầu Mentor Security 1", Description = "Hỗ trợ sửa lỗi bảo mật", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new MentorNotifications { Id = Guid.Parse("92000000-0000-0000-0000-000000000006"), AssignTrackId = AssignmentSeed.At11, Title = "Yêu cầu Mentor Security 2", Description = "Xem bản thảo báo cáo", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new MentorNotifications { Id = Guid.Parse("92000000-0000-0000-0000-000000000007"), AssignTrackId = AssignmentSeed.At12, Title = "Yêu cầu Mentor Blockchain 1", Description = "Xác nhận smart contract", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new MentorNotifications { Id = Guid.Parse("92000000-0000-0000-0000-000000000008"), AssignTrackId = AssignmentSeed.At12, Title = "Yêu cầu Mentor Blockchain 2", Description = "Test net deploy", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new MentorNotifications { Id = Guid.Parse("92000000-0000-0000-0000-000000000009"), AssignTrackId = AssignmentSeed.At14, Title = "Yêu cầu Mentor Security Autumn", Description = "Hỗ trợ đội Event 7", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new MentorNotifications { Id = Guid.Parse("92000000-0000-0000-0000-000000000010"), AssignTrackId = AssignmentSeed.At6, Title = "Yêu cầu nháp 1", Description = "Nháp", IsDisable = true, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt }, // disabled
+            new MentorNotifications { Id = Guid.Parse("92000000-0000-0000-0000-000000000011"), AssignTrackId = AssignmentSeed.At6, Title = "Yêu cầu nháp 2", Description = "Nháp", IsDisable = true, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt }, // disabled
+            new MentorNotifications { Id = Guid.Parse("92000000-0000-0000-0000-000000000012"), AssignTrackId = AssignmentSeed.At7, Title = "Yêu cầu nháp 3", Description = "Nháp", IsDisable = true, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt } // disabled
         );
-    }
-
-    private static Invitations CreateInvitation(Guid id, Guid teamId, Guid userId)
-    {
-        return new Invitations
-        {
-            Id = id,
-            TeamId = teamId,
-            UserId = userId,
-            LimitTime = SeedConstants.CreatedAt.AddDays(3),
-            Status = InvitationStatusEnum.Pending,
-            Description = "Seed invitation detail",
-            IsDisable = false,
-            CreatedAt = SeedConstants.CreatedAt,
-            UpdatedAt = SeedConstants.CreatedAt
-        };
-    }
-
-    private static Notifications CreateNotification(Guid id, Guid userId, Guid teamId, string title)
-    {
-        return new Notifications
-        {
-            Id = id,
-            UserId = userId,
-            TeamId = teamId,
-            Title = title,
-            Status = NotificationStatusEnum.Unread,
-            Description = $"Notification for team activity in {title}",
-            TargetType = NotificationTargetTypeEnum.Personal,
-            IsDisable = false,
-            CreatedAt = SeedConstants.CreatedAt,
-            UpdatedAt = SeedConstants.CreatedAt
-        };
-    }
-
-    private static MentorNotifications CreateMentorNotification(Guid id, Guid assignTrackId)
-    {
-        return new MentorNotifications
-        {
-            Id = id,
-            AssignTrackId = assignTrackId,
-            Title = "Event Update Notification",
-            Description = "A new track status update has been broadcasted",
-            IsDisable = false,
-            CreatedAt = SeedConstants.CreatedAt,
-            UpdatedAt = SeedConstants.CreatedAt
-        };
     }
 }

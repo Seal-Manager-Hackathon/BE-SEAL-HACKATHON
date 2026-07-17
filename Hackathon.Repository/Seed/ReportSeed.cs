@@ -1,3 +1,4 @@
+using System;
 using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
 using Microsoft.EntityFrameworkCore;
@@ -8,57 +9,20 @@ public static class ReportSeed
 {
     public static void SeedReports(this ModelBuilder modelBuilder)
     {
+        // 12 Reports with unique/null SubmissionId to satisfy unique index constraint
         modelBuilder.Entity<Reports>().HasData(
-            new Reports
-            {
-                Id = Guid.Parse("73000000-0000-0000-0000-000000000001"),
-                UserId = SeedConstants.JudgeUserId,
-                AssignEventId = SeedConstants.JudgeAssignEventId,
-                SubmissionId = SeedConstants.GreenCodersFinalSubmissionId,
-                Title = "Seed submission report",
-                Description = "Seed report for final submission",
-                ImgUrl = "https://seed.local/reports/image.png",
-                FileUrl = "https://seed.local/reports/file.pdf",
-                Status = ReportStatusEnum.Open,
-                Reason = "Seed review reason",
-                TypeReport = "Submission",
-                IsDisable = false,
-                CreatedAt = SeedConstants.CreatedAt,
-                UpdatedAt = SeedConstants.CreatedAt
-            },
-
-            // 10 New Reports connected to 10 new Submissions
-            CreateReport(Guid.Parse("73000000-0000-0000-0000-000000000010"), SeedConstants.JudgeUserId, SeedConstants.JudgeAssignEventId, Guid.Parse("33000000-0000-0000-0000-000000000010")),
-            CreateReport(Guid.Parse("73000000-0000-0000-0000-000000000011"), SeedConstants.JudgeUserId, SeedConstants.JudgeAssignEventId, Guid.Parse("33000000-0000-0000-0000-000000000011")),
-            CreateReport(Guid.Parse("73000000-0000-0000-0000-000000000012"), SeedConstants.JudgeUserId, SeedConstants.JudgeAssignEventId, Guid.Parse("33000000-0000-0000-0000-000000000012")),
-            CreateReport(Guid.Parse("73000000-0000-0000-0000-000000000013"), SeedConstants.JudgeUserId, SeedConstants.JudgeAssignEventId, Guid.Parse("33000000-0000-0000-0000-000000000013")),
-            CreateReport(Guid.Parse("73000000-0000-0000-0000-000000000014"), SeedConstants.JudgeUserId, SeedConstants.JudgeAssignEventId, Guid.Parse("33000000-0000-0000-0000-000000000014")),
-            CreateReport(Guid.Parse("73000000-0000-0000-0000-000000000015"), SeedConstants.JudgeUserId, SeedConstants.JudgeAssignEventId, Guid.Parse("33000000-0000-0000-0000-000000000015")),
-            CreateReport(Guid.Parse("73000000-0000-0000-0000-000000000016"), Guid.Parse("10000000-0000-0000-0000-000000000021"), Guid.Parse("40000000-0000-0000-0000-000000000016"), Guid.Parse("33000000-0000-0000-0000-000000000016")), // customized JudgeAssign
-            CreateReport(Guid.Parse("73000000-0000-0000-0000-000000000017"), Guid.Parse("10000000-0000-0000-0000-000000000022"), Guid.Parse("40000000-0000-0000-0000-000000000017"), Guid.Parse("33000000-0000-0000-0000-000000000017")),
-            CreateReport(Guid.Parse("73000000-0000-0000-0000-000000000018"), SeedConstants.JudgeUserId, SeedConstants.JudgeAssignEventId, Guid.Parse("33000000-0000-0000-0000-000000000018")),
-            CreateReport(Guid.Parse("73000000-0000-0000-0000-000000000019"), SeedConstants.JudgeUserId, SeedConstants.JudgeAssignEventId, Guid.Parse("33000000-0000-0000-0000-000000000019"))
+            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000001"), UserId = SeedConstants.UserStudentLeaderActive1, AssignEventId = AssignmentSeed.Ae3, SubmissionId = SubmissionSeed.Sub1, Title = "Báo cáo nộp muộn", Description = "Lỗi mạng khi nộp bài", ImgUrl = "https://test/err.png", FileUrl = "https://test/err.log", Status = ReportStatusEnum.Open, Reason = null, TypeReport = "LateSubmission", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000002"), UserId = SeedConstants.UserStudentLeaderActive2, AssignEventId = AssignmentSeed.Ae3, SubmissionId = SubmissionSeed.Sub2, Title = "Lỗi file nộp", Description = "File nộp bị hỏng định dạng", ImgUrl = null, FileUrl = null, Status = ReportStatusEnum.Closed, Reason = "Đã hỗ trợ nộp lại", TypeReport = "CorruptedFile", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000003"), UserId = SeedConstants.UserJudgeActive, AssignEventId = AssignmentSeed.Ae1, SubmissionId = SubmissionSeed.Sub3, Title = "Nghi vấn đạo văn", Description = "Nội dung giống dự án khác 80%", ImgUrl = "https://test/plagiarism.png", FileUrl = null, Status = ReportStatusEnum.Approved, Reason = "Bị trừ 50% số điểm", TypeReport = "Plagiarism", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000004"), UserId = SeedConstants.UserMentorActive, AssignEventId = AssignmentSeed.Ae2, SubmissionId = SubmissionSeed.Sub4, Title = "Đề xuất phúc khảo", Description = "Mong muốn chấm lại bài", ImgUrl = null, FileUrl = null, Status = ReportStatusEnum.Open, Reason = null, TypeReport = "RegradeRequest", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000005"), UserId = SeedConstants.UserStudentLeaderActive3, AssignEventId = AssignmentSeed.Ae6, SubmissionId = SubmissionSeed.Sub5, Title = "Báo cáo lỗi UI", Description = "Trang nộp bài bị crash", ImgUrl = null, FileUrl = null, Status = ReportStatusEnum.Open, Reason = null, TypeReport = "SystemBug", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000006"), UserId = SeedConstants.UserJudgeInactive, AssignEventId = AssignmentSeed.Ae10, SubmissionId = SubmissionSeed.Sub6, Title = "Vi phạm quy chế", Description = "Đội thi dùng code có sẵn không xin phép", ImgUrl = null, FileUrl = null, Status = ReportStatusEnum.Closed, Reason = "Không đủ bằng chứng", TypeReport = "RuleViolation", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000007"), UserId = SeedConstants.UserStudentMemberActive1, AssignEventId = AssignmentSeed.Ae3, SubmissionId = SubmissionSeed.Sub7, Title = "Đổi ý tưởng", Description = "Xin phép đổi đề tài", ImgUrl = null, FileUrl = null, Status = ReportStatusEnum.Open, Reason = null, TypeReport = "TopicChange", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000008"), UserId = SeedConstants.UserStudentMemberActive2, AssignEventId = AssignmentSeed.Ae3, SubmissionId = SubmissionSeed.Sub8, Title = "Rút lui khỏi giải", Description = "Lý do sức khỏe", ImgUrl = null, FileUrl = null, Status = ReportStatusEnum.Approved, Reason = "Đã xác nhận", TypeReport = "Withdrawal", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000009"), UserId = SeedConstants.UserJudgeActive, AssignEventId = AssignmentSeed.Ae4, SubmissionId = SubmissionSeed.Sub9, Title = "Code không chạy", Description = "Thiếu readme và hướng dẫn cài đặt", ImgUrl = null, FileUrl = null, Status = ReportStatusEnum.Open, Reason = null, TypeReport = "InvalidSubmission", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000010"), UserId = SeedConstants.UserMentorActive, AssignEventId = AssignmentSeed.Ae5, SubmissionId = SubmissionSeed.Sub10, Title = "Độ trễ phản hồi", Description = "Đội thi phản hồi chậm", ImgUrl = null, FileUrl = null, Status = ReportStatusEnum.Open, Reason = null, TypeReport = "LowEngagement", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000011"), UserId = SeedConstants.UserStudentLeaderActive1, AssignEventId = AssignmentSeed.Ae3, SubmissionId = SubmissionSeed.Sub11, Title = "Báo cáo nháp", Description = "Nháp", ImgUrl = null, FileUrl = null, Status = ReportStatusEnum.Open, Reason = null, TypeReport = "DraftReport", IsDisable = true, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt }, // disabled
+            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000012"), UserId = SeedConstants.UserStudentMemberBanned3, AssignEventId = null, SubmissionId = null, Title = "Kháng cáo khóa tài khoản", Description = "Mong muốn được mở lại tài khoản", ImgUrl = null, FileUrl = null, Status = ReportStatusEnum.Open, Reason = null, TypeReport = "BanAppeal", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt }
         );
-    }
-
-    private static Reports CreateReport(Guid id, Guid userId, Guid assignEventId, Guid submissionId)
-    {
-        return new Reports
-        {
-            Id = id,
-            UserId = userId,
-            AssignEventId = assignEventId,
-            SubmissionId = submissionId,
-            Title = "Evaluation Report",
-            Description = "Report detail comments",
-            ImgUrl = "https://seed.local/reports/image.png",
-            FileUrl = "https://seed.local/reports/file.pdf",
-            Status = ReportStatusEnum.Open,
-            Reason = "Paging evaluation review comment",
-            TypeReport = "Submission",
-            IsDisable = false,
-            CreatedAt = SeedConstants.CreatedAt,
-            UpdatedAt = SeedConstants.CreatedAt
-        };
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using Hackathon.Repository.Entity;
 using Microsoft.EntityFrameworkCore;
 
@@ -5,95 +6,51 @@ namespace Hackathon.Repository.Seed;
 
 public static class LeaderBoardSeed
 {
+    // Leaderboard IDs
+    public static readonly Guid Lb1 = Guid.Parse("60000000-0000-0000-0000-000000000001");
+    public static readonly Guid Lb2 = Guid.Parse("60000000-0000-0000-0000-000000000002");
+    public static readonly Guid Lb3 = Guid.Parse("60000000-0000-0000-0000-000000000003");
+    public static readonly Guid Lb4 = Guid.Parse("60000000-0000-0000-0000-000000000004");
+    public static readonly Guid Lb5 = Guid.Parse("60000000-0000-0000-0000-000000000005");
+    public static readonly Guid Lb6 = Guid.Parse("60000000-0000-0000-0000-000000000006");
+    public static readonly Guid Lb7 = Guid.Parse("60000000-0000-0000-0000-000000000007");
+    public static readonly Guid Lb8 = Guid.Parse("60000000-0000-0000-0000-000000000008");
+    public static readonly Guid Lb9 = Guid.Parse("60000000-0000-0000-0000-000000000009");
+    public static readonly Guid Lb10 = Guid.Parse("60000000-0000-0000-0000-000000000010");
+
     public static void SeedLeaderBoards(this ModelBuilder modelBuilder)
     {
+        // 10 Leaderboards representing different events
         modelBuilder.Entity<LeaderBoards>().HasData(
-            new LeaderBoards
-            {
-                Id = SeedConstants.LeaderBoardId,
-                EventId = SeedConstants.SealHackathonEventId,
-                Year = 2026,
-                IsDisable = false,
-                CreatedAt = SeedConstants.CreatedAt,
-                UpdatedAt = SeedConstants.CreatedAt
-            },
-
-            // 10 New LeaderBoards for 10 new Events
-            CreateLeaderBoard(Guid.Parse("60000000-0000-0000-0000-000000000010"), Guid.Parse("20000000-0000-0000-0000-000000000010"), 2024),
-            CreateLeaderBoard(Guid.Parse("60000000-0000-0000-0000-000000000011"), Guid.Parse("20000000-0000-0000-0000-000000000011"), 2024),
-            CreateLeaderBoard(Guid.Parse("60000000-0000-0000-0000-000000000012"), Guid.Parse("20000000-0000-0000-0000-000000000012"), 2025),
-            CreateLeaderBoard(Guid.Parse("60000000-0000-0000-0000-000000000013"), Guid.Parse("20000000-0000-0000-0000-000000000013"), 2025),
-            CreateLeaderBoard(Guid.Parse("60000000-0000-0000-0000-000000000014"), Guid.Parse("20000000-0000-0000-0000-000000000014"), 2025),
-            CreateLeaderBoard(Guid.Parse("60000000-0000-0000-0000-000000000015"), Guid.Parse("20000000-0000-0000-0000-000000000015"), 2026),
-            CreateLeaderBoard(Guid.Parse("60000000-0000-0000-0000-000000000016"), Guid.Parse("20000000-0000-0000-0000-000000000016"), 2026),
-            CreateLeaderBoard(Guid.Parse("60000000-0000-0000-0000-000000000017"), Guid.Parse("20000000-0000-0000-0000-000000000017"), 2026),
-            CreateLeaderBoard(Guid.Parse("60000000-0000-0000-0000-000000000018"), Guid.Parse("20000000-0000-0000-0000-000000000018"), 2027),
-            CreateLeaderBoard(Guid.Parse("60000000-0000-0000-0000-000000000019"), Guid.Parse("20000000-0000-0000-0000-000000000019"), 2027)
+            new LeaderBoards { Id = Lb1, EventId = SeedConstants.Event1Draft, Year = 2026, IsLocked = false, IsPublished = false, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoards { Id = Lb2, EventId = SeedConstants.Event2Published, Year = 2026, IsLocked = true, IsPublished = true, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoards { Id = Lb3, EventId = SeedConstants.Event3Closed, Year = 2026, IsLocked = true, IsPublished = true, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoards { Id = Lb4, EventId = SeedConstants.Event4Published, Year = 2026, IsLocked = false, IsPublished = false, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoards { Id = Lb5, EventId = SeedConstants.Event5Draft, Year = 2026, IsLocked = false, IsPublished = false, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoards { Id = Lb6, EventId = SeedConstants.Event6Closed, Year = 2026, IsLocked = true, IsPublished = true, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoards { Id = Lb7, EventId = SeedConstants.Event7Published, Year = 2026, IsLocked = false, IsPublished = false, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoards { Id = Lb8, EventId = SeedConstants.Event8Draft, Year = 2026, IsLocked = false, IsPublished = false, IsDisable = true, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt }, // disabled leaderboard
+            new LeaderBoards { Id = Lb9, EventId = SeedConstants.Event9Closed, Year = 2025, IsLocked = true, IsPublished = true, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoards { Id = Lb10, EventId = SeedConstants.Event10Published, Year = 2026, IsLocked = false, IsPublished = true, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt }
         );
 
+        // 15 Leaderboard Details linking teams and displaying scores and award levels
         modelBuilder.Entity<LeaderBoardDetails>().HasData(
-            new LeaderBoardDetails
-            {
-                Id = Guid.Parse("61000000-0000-0000-0000-000000000001"),
-                LeaderBoardId = SeedConstants.LeaderBoardId,
-                TeamId = SeedConstants.SeedInnovatorsTeamId,
-                Score = 90m,
-                LevelAward = 1,
-                IsDisable = false,
-                CreatedAt = SeedConstants.CreatedAt,
-                UpdatedAt = SeedConstants.CreatedAt
-            },
-            new LeaderBoardDetails
-            {
-                Id = Guid.Parse("61000000-0000-0000-0000-000000000002"),
-                LeaderBoardId = SeedConstants.LeaderBoardId,
-                TeamId = SeedConstants.GreenCodersTeamId,
-                Score = 82m,
-                LevelAward = 2,
-                IsDisable = false,
-                CreatedAt = SeedConstants.CreatedAt,
-                UpdatedAt = SeedConstants.CreatedAt
-            },
-
-            // 10 New LeaderBoardDetails connecting new teams to new leaderboards
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000010"), Guid.Parse("60000000-0000-0000-0000-000000000010"), Guid.Parse("30000000-0000-0000-0000-000000000010"), 85m, 1),
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000011"), Guid.Parse("60000000-0000-0000-0000-000000000011"), Guid.Parse("30000000-0000-0000-0000-000000000011"), 89m, 1),
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000012"), Guid.Parse("60000000-0000-0000-0000-000000000012"), Guid.Parse("30000000-0000-0000-0000-000000000012"), 91m, 1),
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000013"), Guid.Parse("60000000-0000-0000-0000-000000000013"), Guid.Parse("30000000-0000-0000-0000-000000000013"), 78m, 2),
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000014"), Guid.Parse("60000000-0000-0000-0000-000000000014"), Guid.Parse("30000000-0000-0000-0000-000000000014"), 88m, 1),
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000015"), Guid.Parse("60000000-0000-0000-0000-000000000015"), Guid.Parse("30000000-0000-0000-0000-000000000015"), 92m, 1),
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000016"), Guid.Parse("60000000-0000-0000-0000-000000000016"), Guid.Parse("30000000-0000-0000-0000-000000000016"), 87m, 1),
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000017"), Guid.Parse("60000000-0000-0000-0000-000000000017"), Guid.Parse("30000000-0000-0000-0000-000000000017"), 83m, 2),
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000018"), Guid.Parse("60000000-0000-0000-0000-000000000018"), Guid.Parse("30000000-0000-0000-0000-000000000018"), 95m, 1),
-            CreateLeaderBoardDetail(Guid.Parse("61000000-0000-0000-0000-000000000019"), Guid.Parse("60000000-0000-0000-0000-000000000019"), Guid.Parse("30000000-0000-0000-0000-000000000019"), 94m, 1)
+            new LeaderBoardDetails { Id = Guid.Parse("61000000-0000-0000-0000-000000000001"), LeaderBoardId = Lb2, TeamId = TeamSeed.Team1, Score = 85.0m, LevelAward = 1, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoardDetails { Id = Guid.Parse("61000000-0000-0000-0000-000000000002"), LeaderBoardId = Lb2, TeamId = TeamSeed.Team2, Score = 90.0m, LevelAward = 2, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoardDetails { Id = Guid.Parse("61000000-0000-0000-0000-000000000003"), LeaderBoardId = Lb2, TeamId = TeamSeed.Team3, Score = 75.0m, LevelAward = 3, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoardDetails { Id = Guid.Parse("61000000-0000-0000-0000-000000000004"), LeaderBoardId = Lb2, TeamId = TeamSeed.Team4, Score = 80.0m, LevelAward = null, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoardDetails { Id = Guid.Parse("61000000-0000-0000-0000-000000000005"), LeaderBoardId = Lb2, TeamId = TeamSeed.Team5, Score = 55.0m, LevelAward = null, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoardDetails { Id = Guid.Parse("61000000-0000-0000-0000-000000000006"), LeaderBoardId = Lb3, TeamId = TeamSeed.Team1, Score = 95.0m, LevelAward = 1, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoardDetails { Id = Guid.Parse("61000000-0000-0000-0000-000000000007"), LeaderBoardId = Lb3, TeamId = TeamSeed.Team2, Score = 88.0m, LevelAward = 2, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoardDetails { Id = Guid.Parse("61000000-0000-0000-0000-000000000008"), LeaderBoardId = Lb4, TeamId = TeamSeed.Team6, Score = 70.0m, LevelAward = null, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoardDetails { Id = Guid.Parse("61000000-0000-0000-0000-000000000009"), LeaderBoardId = Lb4, TeamId = TeamSeed.Team7, Score = 78.0m, LevelAward = null, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoardDetails { Id = Guid.Parse("61000000-0000-0000-0000-000000000010"), LeaderBoardId = Lb4, TeamId = TeamSeed.Team8, Score = 60.0m, LevelAward = null, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoardDetails { Id = Guid.Parse("61000000-0000-0000-0000-000000000011"), LeaderBoardId = Lb6, TeamId = TeamSeed.Team1, Score = 82.0m, LevelAward = 1, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoardDetails { Id = Guid.Parse("61000000-0000-0000-0000-000000000012"), LeaderBoardId = Lb7, TeamId = TeamSeed.Team11, Score = 90.0m, LevelAward = 1, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoardDetails { Id = Guid.Parse("61000000-0000-0000-0000-000000000013"), LeaderBoardId = Lb7, TeamId = TeamSeed.Team12, Score = 87.0m, LevelAward = null, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
+            new LeaderBoardDetails { Id = Guid.Parse("61000000-0000-0000-0000-000000000014"), LeaderBoardId = Lb2, TeamId = TeamSeed.Team10, Score = 40.0m, LevelAward = null, IsDisable = true, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt }, // disabled detail
+            new LeaderBoardDetails { Id = Guid.Parse("61000000-0000-0000-0000-000000000015"), LeaderBoardId = Lb10, TeamId = TeamSeed.Team15, Score = 85.0m, LevelAward = 1, IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt }
         );
-    }
-
-    private static LeaderBoards CreateLeaderBoard(Guid id, Guid eventId, int year)
-    {
-        return new LeaderBoards
-        {
-            Id = id,
-            EventId = eventId,
-            Year = year,
-            IsDisable = false,
-            CreatedAt = SeedConstants.CreatedAt,
-            UpdatedAt = SeedConstants.CreatedAt
-        };
-    }
-
-    private static LeaderBoardDetails CreateLeaderBoardDetail(Guid id, Guid leaderBoardId, Guid teamId, decimal score, int levelAward)
-    {
-        return new LeaderBoardDetails
-        {
-            Id = id,
-            LeaderBoardId = leaderBoardId,
-            TeamId = teamId,
-            Score = score,
-            LevelAward = levelAward,
-            IsDisable = false,
-            CreatedAt = SeedConstants.CreatedAt,
-            UpdatedAt = SeedConstants.CreatedAt
-        };
     }
 }

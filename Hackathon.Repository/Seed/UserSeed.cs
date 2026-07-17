@@ -1,3 +1,4 @@
+using System;
 using Hackathon.Repository.Entity;
 using Hackathon.Repository.Enum;
 using Microsoft.EntityFrameworkCore;
@@ -9,65 +10,49 @@ public static class UserSeed
     public static void SeedUsers(this ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Users>().HasData(
-            CreateUser(SeedConstants.AdminUserId, "admin@seed.local", "Admin", "Seed", "System Administrator", RoleEnum.Admin),
-            CreateUser(SeedConstants.StaffUserId, "staff@seed.local", "Staff", "Seed", "Event Staff", RoleEnum.Staff),
-            CreateUser(SeedConstants.MentorUserId, "mentor@seed.local", "Mentor", "Lecturer", "Seed Mentor", RoleEnum.Lecturer),
-            CreateUser(SeedConstants.JudgeUserId, "judge@seed.local", "Judge", "Lecturer", "Seed Judge", RoleEnum.Lecturer),
-            CreateUser(SeedConstants.StudentLeaderUserId, "leader@seed.local", "Student", "Leader", "SEAL001", RoleEnum.Student),
-            CreateUser(SeedConstants.StudentMemberUserId, "member@seed.local", "Student", "Member", "SEAL002", RoleEnum.Student),
-            CreateUser(SeedConstants.GreenLeaderUserId, "green.leader@seed.local", "Green", "Leader", "SEAL003", RoleEnum.Student),
-
-            // 10 Student Data Seeds
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000010"), "alex.jones@student.local", "Alex", "Jones", "SEAL010", RoleEnum.Student),
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000011"), "emma.watson@student.local", "Emma", "Watson", "SEAL011", RoleEnum.Student),
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000012"), "liam.smith@student.local", "Liam", "Smith", "SEAL012", RoleEnum.Student),
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000013"), "sophia.brown@student.local", "Sophia", "Brown", "SEAL013", RoleEnum.Student),
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000014"), "mason.davis@student.local", "Mason", "Davis", "SEAL014", RoleEnum.Student),
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000015"), "olivia.miller@student.local", "Olivia", "Miller", "SEAL015", RoleEnum.Student),
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000016"), "ethan.wilson@student.local", "Ethan", "Wilson", "SEAL016", RoleEnum.Student),
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000017"), "ava.taylor@student.local", "Ava", "Taylor", "SEAL017", RoleEnum.Student),
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000018"), "lucas.thomas@student.local", "Lucas", "Thomas", "SEAL018", RoleEnum.Student),
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000019"), "mia.white@student.local", "Mia", "White", "SEAL019", RoleEnum.Student),
-
-            // 5 Staff Data Seeds
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000025"), "sarah.johnson@staff.local", "Sarah", "Johnson", "STF001", RoleEnum.Staff),
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000026"), "michael.chen@staff.local", "Michael", "Chen", "STF002", RoleEnum.Staff),
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000027"), "emily.davis@staff.local", "Emily", "Davis", "STF003", RoleEnum.Staff),
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000028"), "kevin.nguyen@staff.local", "Kevin", "Nguyen", "STF004", RoleEnum.Staff),
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000029"), "lisa.taylor@staff.local", "Lisa", "Taylor", "STF005", RoleEnum.Staff),
-
-            // 5 Mentor / Lecturer Data Seeds
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000020"), "robert.martin@lecturer.local", "Robert", "Martin", "LECT001", RoleEnum.Lecturer),
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000021"), "linda.clark@lecturer.local", "Linda", "Clark", "LECT002", RoleEnum.Lecturer),
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000022"), "david.lewis@lecturer.local", "David", "Lewis", "LECT003", RoleEnum.Lecturer),
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000023"), "barbara.hall@lecturer.local", "Barbara", "Hall", "LECT004", RoleEnum.Lecturer),
-            CreateUser(Guid.Parse("10000000-0000-0000-0000-000000000024"), "james.allen@lecturer.local", "James", "Allen", "LECT005", RoleEnum.Lecturer)
+            CreateUser(SeedConstants.UserAdminActive, "admin.active@test.local", "Admin", "Active", "ADM001", RoleEnum.Admin, UserStatusEnum.Active, true, false),
+            CreateUser(SeedConstants.UserAdminBanned, "admin.banned@test.local", "Admin", "Banned", "ADM002", RoleEnum.Admin, UserStatusEnum.Banned, true, false, "Security violation", SeedConstants.CreatedAt),
+            CreateUser(SeedConstants.UserStaffActive, "staff.active@test.local", "Staff", "Active", "STF001", RoleEnum.Staff, UserStatusEnum.Active, true, false),
+            CreateUser(SeedConstants.UserStaffInactive, "staff.inactive@test.local", "Staff", "Inactive", "STF002", RoleEnum.Staff, UserStatusEnum.Inactive, false, false),
+            CreateUser(SeedConstants.UserJudgeActive, "judge.active@test.local", "Judge", "Active", "JDG001", RoleEnum.Lecturer, UserStatusEnum.Active, true, false),
+            CreateUser(SeedConstants.UserJudgeInactive, "judge.inactive@test.local", "Judge", "Inactive", "JDG002", RoleEnum.Lecturer, UserStatusEnum.Inactive, true, false),
+            CreateUser(SeedConstants.UserMentorActive, "mentor.active@test.local", "Mentor", "Active", "MNT001", RoleEnum.Lecturer, UserStatusEnum.Active, true, false),
+            CreateUser(SeedConstants.UserMentorBanned, "mentor.banned@test.local", "Mentor", "Banned", "MNT002", RoleEnum.Lecturer, UserStatusEnum.Banned, true, false, "Spamming", SeedConstants.CreatedAt),
+            CreateUser(SeedConstants.UserStudentLeaderActive1, "leader1@test.local", "Student", "Leader1", "STU001", RoleEnum.Student, UserStatusEnum.Active, true, false),
+            CreateUser(SeedConstants.UserStudentMemberActive1, "member1@test.local", "Student", "Member1", "STU002", RoleEnum.Student, UserStatusEnum.Active, true, false),
+            CreateUser(SeedConstants.UserStudentMemberInactive1, "member1.in@test.local", "Student", "MemberInactive1", "STU003", RoleEnum.Student, UserStatusEnum.Inactive, false, false),
+            CreateUser(SeedConstants.UserStudentLeaderActive2, "leader2@test.local", "Student", "Leader2", "STU004", RoleEnum.Student, UserStatusEnum.Active, true, false),
+            CreateUser(SeedConstants.UserStudentMemberActive2, "member2@test.local", "Student", "Member2", "STU005", RoleEnum.Student, UserStatusEnum.Active, true, false),
+            CreateUser(SeedConstants.UserStudentLeaderActive3, "leader3@test.local", "Student", "Leader3", "STU006", RoleEnum.Student, UserStatusEnum.Active, true, false),
+            CreateUser(SeedConstants.UserStudentMemberBanned3, "member3.ban@test.local", "Student", "MemberBanned3", "STU007", RoleEnum.Student, UserStatusEnum.Banned, true, false, "Cheating", SeedConstants.CreatedAt)
         );
     }
 
-    private static Users CreateUser(Guid id, string email, string firstName, string lastName, string studentId, RoleEnum role)
+    private static Users CreateUser(Guid id, string email, string firstName, string lastName, string studentId, RoleEnum role, UserStatusEnum status, bool isVerified, bool isDisable, string? banReason = null, DateTimeOffset? bannedAt = null)
     {
         return new Users
         {
             Id = id,
             Email = email,
-            HashPassword = "seed-password-hash-not-for-login",
+            HashPassword = "$2a$11$ELUlXu.C3Yh0miS3.dAZaO17ER/stLENq.EWnMYmPBiwZ14X8g1i6", // "String1@" BCrypt hash
             FirstName = firstName,
             LastName = lastName,
             PhoneNumber = "0900000000",
-            AvatarUrl = "https://seed.local/avatar.png",
-            Bio = "Seed user",
-            Address = "Seed address",
-            DateOfBirth = new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            AvatarUrl = $"https://api.dicebear.com/7.x/bottts/svg?seed={email}",
+            Bio = "Test user biography",
+            Address = "FPT Campus Ho Chi Minh City",
+            DateOfBirth = new DateTimeOffset(2002, 5, 20, 0, 0, 0, TimeSpan.Zero),
             StudentId = studentId,
+            College = "FPT University",
+            ImgUrl = $"https://api.dicebear.com/7.x/bottts/svg?seed={email}",
+            LinkUrl = $"https://github.com/{firstName.ToLower()}",
             Role = role,
-            College = "Seed University",
-            ImgUrl = "https://seed.local/profile.png",
-            LinkUrl = "https://seed.local/users",
-            VerifyEmailAt = SeedConstants.CreatedAt,
-            Status = UserStatusEnum.Active,
-            IsVerified = true,
-            IsDisable = false,
+            VerifyEmailAt = isVerified ? SeedConstants.CreatedAt : null,
+            Status = status,
+            BanReason = banReason,
+            BannedAt = bannedAt,
+            IsVerified = isVerified,
+            IsDisable = isDisable,
             CreatedAt = SeedConstants.CreatedAt,
             UpdatedAt = SeedConstants.CreatedAt
         };
