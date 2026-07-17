@@ -5,146 +5,164 @@ namespace Hackathon.Repository.Seed;
 
 public static class CriteriaSeed
 {
-    // 20 Criteria Templates
-    public static readonly Guid Tpl1  = Guid.Parse("22000000-0000-0000-0000-000000000001");
-    public static readonly Guid Tpl2  = Guid.Parse("22000000-0000-0000-0000-000000000002");
-    public static readonly Guid Tpl3  = Guid.Parse("22000000-0000-0000-0000-000000000003");
-    public static readonly Guid Tpl4  = Guid.Parse("22000000-0000-0000-0000-000000000004");
-    public static readonly Guid Tpl5  = Guid.Parse("22000000-0000-0000-0000-000000000005");
-    public static readonly Guid Tpl6  = Guid.Parse("22000000-0000-0000-0000-000000000006");
-    public static readonly Guid Tpl7  = Guid.Parse("22000000-0000-0000-0000-000000000007");
-    public static readonly Guid Tpl8  = Guid.Parse("22000000-0000-0000-0000-000000000008");
-    public static readonly Guid Tpl9  = Guid.Parse("22000000-0000-0000-0000-000000000009");
-    public static readonly Guid Tpl10 = Guid.Parse("22000000-0000-0000-0000-000000000010");
-    public static readonly Guid Tpl11 = Guid.Parse("22000000-0000-0000-0000-000000000011");
-    public static readonly Guid Tpl12 = Guid.Parse("22000000-0000-0000-0000-000000000012");
-    public static readonly Guid Tpl13 = Guid.Parse("22000000-0000-0000-0000-000000000013");
-    public static readonly Guid Tpl14 = Guid.Parse("22000000-0000-0000-0000-000000000014");
-    public static readonly Guid Tpl15 = Guid.Parse("22000000-0000-0000-0000-000000000015");
-    public static readonly Guid Tpl16 = Guid.Parse("22000000-0000-0000-0000-000000000016");
-    public static readonly Guid Tpl17 = Guid.Parse("22000000-0000-0000-0000-000000000017");
-    public static readonly Guid Tpl18 = Guid.Parse("22000000-0000-0000-0000-000000000018");
-    public static readonly Guid Tpl19 = Guid.Parse("22000000-0000-0000-0000-000000000019");
-    public static readonly Guid Tpl20 = Guid.Parse("22000000-0000-0000-0000-000000000020");
-
-    // 40 Criteria Items (2 per template)
-    public static readonly Guid Item1  = Guid.Parse("23000000-0000-0000-0000-000000000001");
-    public static readonly Guid Item2  = Guid.Parse("23000000-0000-0000-0000-000000000002");
-    public static readonly Guid Item3  = Guid.Parse("23000000-0000-0000-0000-000000000003");
-    public static readonly Guid Item4  = Guid.Parse("23000000-0000-0000-0000-000000000004");
-    public static readonly Guid Item5  = Guid.Parse("23000000-0000-0000-0000-000000000005");
-    public static readonly Guid Item6  = Guid.Parse("23000000-0000-0000-0000-000000000006");
-    public static readonly Guid Item7  = Guid.Parse("23000000-0000-0000-0000-000000000007");
-    public static readonly Guid Item8  = Guid.Parse("23000000-0000-0000-0000-000000000008");
-    public static readonly Guid Item9  = Guid.Parse("23000000-0000-0000-0000-000000000009");
-    public static readonly Guid Item10 = Guid.Parse("23000000-0000-0000-0000-000000000010");
-    public static readonly Guid Item11 = Guid.Parse("23000000-0000-0000-0000-000000000011");
-    public static readonly Guid Item12 = Guid.Parse("23000000-0000-0000-0000-000000000012");
-    public static readonly Guid Item13 = Guid.Parse("23000000-0000-0000-0000-000000000013");
-    public static readonly Guid Item14 = Guid.Parse("23000000-0000-0000-0000-000000000014");
-    public static readonly Guid Item15 = Guid.Parse("23000000-0000-0000-0000-000000000015");
-    public static readonly Guid Item16 = Guid.Parse("23000000-0000-0000-0000-000000000016");
-    public static readonly Guid Item17 = Guid.Parse("23000000-0000-0000-0000-000000000017");
-    public static readonly Guid Item18 = Guid.Parse("23000000-0000-0000-0000-000000000018");
-    public static readonly Guid Item19 = Guid.Parse("23000000-0000-0000-0000-000000000019");
-    public static readonly Guid Item20 = Guid.Parse("23000000-0000-0000-0000-000000000020");
-    public static readonly Guid Item21 = Guid.Parse("23000000-0000-0000-0000-000000000021");
-    public static readonly Guid Item22 = Guid.Parse("23000000-0000-0000-0000-000000000022");
-    public static readonly Guid Item23 = Guid.Parse("23000000-0000-0000-0000-000000000023");
-    public static readonly Guid Item24 = Guid.Parse("23000000-0000-0000-0000-000000000024");
-    public static readonly Guid Item25 = Guid.Parse("23000000-0000-0000-0000-000000000025");
-    public static readonly Guid Item26 = Guid.Parse("23000000-0000-0000-0000-000000000026");
-    public static readonly Guid Item27 = Guid.Parse("23000000-0000-0000-0000-000000000027");
-    public static readonly Guid Item28 = Guid.Parse("23000000-0000-0000-0000-000000000028");
-    public static readonly Guid Item29 = Guid.Parse("23000000-0000-0000-0000-000000000029");
-    public static readonly Guid Item30 = Guid.Parse("23000000-0000-0000-0000-000000000030");
-    public static readonly Guid Item31 = Guid.Parse("23000000-0000-0000-0000-000000000031");
-    public static readonly Guid Item32 = Guid.Parse("23000000-0000-0000-0000-000000000032");
-    public static readonly Guid Item33 = Guid.Parse("23000000-0000-0000-0000-000000000033");
-    public static readonly Guid Item34 = Guid.Parse("23000000-0000-0000-0000-000000000034");
-    public static readonly Guid Item35 = Guid.Parse("23000000-0000-0000-0000-000000000035");
-    public static readonly Guid Item36 = Guid.Parse("23000000-0000-0000-0000-000000000036");
-    public static readonly Guid Item37 = Guid.Parse("23000000-0000-0000-0000-000000000037");
-    public static readonly Guid Item38 = Guid.Parse("23000000-0000-0000-0000-000000000038");
-    public static readonly Guid Item39 = Guid.Parse("23000000-0000-0000-0000-000000000039");
-    public static readonly Guid Item40 = Guid.Parse("23000000-0000-0000-0000-000000000040");
-
     public static void SeedCriteria(this ModelBuilder modelBuilder)
     {
-        // Templates (active ones for main rounds, disabled for edge cases)
+        var c = SeedConstants.CreatedAt;
+
+        // 30 CriteriaTemplates
         modelBuilder.Entity<CriteriaTemplates>().HasData(
-            Create(Tpl1,  RoundSeed.R1E2,  "Đánh giá sơ loại E2R1",     "Bảng đánh giá chính thức", false),
-            Create(Tpl2,  RoundSeed.R2E2,  "Đánh giá chung kết E2R2",   "Bảng đánh giá chính thức", false),
-            Create(Tpl3,  RoundSeed.R1E3,  "Đánh giá vòng duy nhất",    "Bảng đánh giá chính thức", false),
-            Create(Tpl4,  RoundSeed.R1E4,  "Đánh giá ý tưởng E4R1",     "Bảng đánh giá chính thức", false),
-            Create(Tpl5,  RoundSeed.R2E4,  "Đánh giá pitching E4R2",    "Bảng đánh giá chính thức", false),
-            Create(Tpl6,  RoundSeed.R3E4,  "Đánh giá chung kết E4R3",   "Bảng đánh giá chính thức", false),
-            Create(Tpl7,  RoundSeed.R1E6,  "Đánh giá lý thuyết E6R1",   "Bảng đánh giá chính thức", false),
-            Create(Tpl8,  RoundSeed.R1E7,  "Đánh giá demo E7R1",        "Bảng đánh giá chính thức", false),
-            Create(Tpl9,  RoundSeed.R2E7,  "Đánh giá hackathon E7R2",   "Bảng đánh giá chính thức", false),
-            Create(Tpl10, RoundSeed.R1E10, "Đánh giá xét duyệt E10R1",  "Bảng đánh giá chính thức", false),
-            Create(Tpl11, RoundSeed.R2E10, "Đánh giá phỏng vấn E10R2",  "Bảng đánh giá chính thức", false),
-            Create(Tpl12, RoundSeed.R1E9,  "Đánh giá phỏng vấn E9R1",   "Bảng đánh giá chính thức", false),
-            Create(Tpl13, RoundSeed.R1E1,  "Đánh giá khởi động E1R1",   "Bảng đánh giá draft",      false),
-            Create(Tpl14, RoundSeed.R1E5,  "Đánh giá thiết kế E5R1",    "Bảng đánh giá draft",      false),
-            Create(Tpl15, RoundSeed.R1E8,  "Đánh giá phân tích E8R1",   "Bảng đánh giá draft",      false),
+            // E2R1
+            Create(SeedConstants.Ct1, SeedConstants.RoundE2R1, "Đánh giá ý tưởng", "Tính sáng tạo và khả thi của ý tưởng"),
+            Create(SeedConstants.Ct2, SeedConstants.RoundE2R1, "Đánh giá kỹ thuật", "Chất lượng kỹ thuật và công nghệ"),
+            // E2R2
+            Create(SeedConstants.Ct3, SeedConstants.RoundE2R2, "Đánh giá sản phẩm", "Chất lượng sản phẩm hoàn thiện"),
+            // E2R3
+            Create(SeedConstants.Ct4, SeedConstants.RoundE2R3, "Đánh giá tổng quan", "Đánh giá tổng quan dự án"),
+            // E3R1
+            Create(SeedConstants.Ct5, SeedConstants.RoundE3R1, "Chấm điểm sơ loại", "Tiêu chí chấm vòng sơ loại"),
+            Create(SeedConstants.Ct6, SeedConstants.RoundE3R1, "Chấm điểm bổ sung", "Tiêu chí bổ sung"),
+            // E3R2
+            Create(SeedConstants.Ct7, SeedConstants.RoundE3R2, "Chấm bán kết", "Tiêu chí vòng bán kết"),
+            // E3R3
+            Create(SeedConstants.Ct8, SeedConstants.RoundE3R3, "Chấm chung kết", "Tiêu chí vòng chung kết"),
+            // E4R1
+            Create(SeedConstants.Ct9, SeedConstants.RoundE4R1, "Đánh giá ý tưởng", "Sáng tạo và tác động"),
+            Create(SeedConstants.Ct10, SeedConstants.RoundE4R1, "Đánh giá kỹ thuật R1", "Kỹ thuật vòng 1"),
+            // E4R2
+            Create(SeedConstants.Ct11, SeedConstants.RoundE4R2, "Đánh giá phát triển", "Quá trình phát triển"),
+            // E4R3
+            Create(SeedConstants.Ct12, SeedConstants.RoundE4R3, "Chấm chung kết", "Chung kết"),
+            // E6R1
+            Create(SeedConstants.Ct13, SeedConstants.RoundE6R1, "Sơ loại", "Sơ loại"),
+            Create(SeedConstants.Ct14, SeedConstants.RoundE6R2, "Chung kết", "Chung kết"),
+            // E7R1
+            Create(SeedConstants.Ct15, SeedConstants.RoundE7R1, "Khởi động", "Vòng khởi động"),
+            Create(SeedConstants.Ct16, SeedConstants.RoundE7R1, "Bổ sung khởi động", "Tiêu chí bổ sung"),
+            // E7R2
+            Create(SeedConstants.Ct17, SeedConstants.RoundE7R2, "Bán kết", "Vòng bán kết"),
+            // E7R3
+            Create(SeedConstants.Ct18, SeedConstants.RoundE7R3, "Chung kết E7", "Chung kết"),
+            // E10R1
+            Create(SeedConstants.Ct19, SeedConstants.RoundE10R1, "Khởi động E10", "Vòng khởi động E10"),
+            Create(SeedConstants.Ct20, SeedConstants.RoundE10R1, "Bổ sung E10", "Bổ sung"),
+            // E10R2
+            Create(SeedConstants.Ct21, SeedConstants.RoundE10R2, "Chung kết E10", "Chung kết E10"),
             // Disabled templates
-            Create(Tpl16, RoundSeed.R1E2,  "Bảng dự phòng A",            "Dự phòng",                 true),
-            Create(Tpl17, RoundSeed.R2E2,  "Bảng dự phòng B",            "Dự phòng",                 true),
-            Create(Tpl18, RoundSeed.R1E4,  "Bảng dự phòng C",            "Dự phòng",                 true),
-            Create(Tpl19, RoundSeed.R1E7,  "Bảng dự phòng D",            "Dự phòng",                 true),
-            Create(Tpl20, RoundSeed.R1E10, "Bảng dự phòng E",            "Dự phòng",                 true)
+            Create(SeedConstants.Ct22, SeedConstants.RoundE2R1, "Template cũ E2R1", "Đã disable", true),
+            Create(SeedConstants.Ct23, SeedConstants.RoundE4R1, "Template cũ E4R1", "Đã disable", true),
+            Create(SeedConstants.Ct24, SeedConstants.RoundE7R1, "Template cũ E7R1", "Đã disable", true),
+            Create(SeedConstants.Ct25, SeedConstants.RoundE10R1, "Template cũ E10R1", "Đã disable", true),
+            Create(SeedConstants.Ct26, SeedConstants.RoundE3R1, "Template cũ E3R1", "Đã disable", true),
+            Create(SeedConstants.Ct27, SeedConstants.RoundE6R1, "Template cũ E6R1", "Đã disable", true),
+            Create(SeedConstants.Ct28, SeedConstants.RoundE9R1, "Template E9R1", "Vòng 1 E9 - không có score nào dùng"),
+            Create(SeedConstants.Ct29, SeedConstants.RoundE5R1, "Template E5R1", "Vòng 1 E5 - draft"),
+            Create(SeedConstants.Ct30, SeedConstants.RoundE8R1, "Template E8R1", "Vòng 1 E8 - draft")
         );
 
-        // 40 Criteria Items (2 per template, with varying max scores)
+        // 60 CriteriaItems (2 per template)
         modelBuilder.Entity<CriteriaItems>().HasData(
-            Create(Item1, Tpl1,  "Ý tưởng sáng tạo",   "Tính mới lạ", 50m, false),
-            Create(Item2, Tpl1,  "Tính khả thi",        "Khả năng phát triển", 50m, false),
-            Create(Item3, Tpl2,  "Chất lượng code",     "Kiến trúc và style", 60m, false),
-            Create(Item4, Tpl2,  "Demo sản phẩm",       "Hoạt động ổn định", 40m, false),
-            Create(Item5, Tpl3,  "Nghiên cứu thị trường","Khảo sát thực tế", 50m, false),
-            Create(Item6, Tpl3,  "Lựa chọn công nghệ",  "Phù hợp bài toán", 50m, false),
-            Create(Item7, Tpl4,  "Sáng tạo ý tưởng",    "Tính mới", 40m, false),
-            Create(Item8, Tpl4,  "Tác động xã hội",     "Lợi ích cộng đồng", 60m, false),
-            Create(Item9, Tpl5,  "Kỹ năng thuyết trình","Pitching", 50m, false),
-            Create(Item10,Tpl5,  "Business model",      "Kế hoạch tài chính", 50m, false),
-            Create(Item11,Tpl6,  "Sản phẩm hoàn chỉnh", "Mức độ hoàn thiện", 60m, false),
-            Create(Item12,Tpl6,  "Khả năng mở rộng",    "Scalability", 40m, false),
-            Create(Item13,Tpl7,  "Kiến thức nền tảng",  "Lý thuyết cơ bản", 50m, false),
-            Create(Item14,Tpl7,  "Giải quyết vấn đề",   "Problem solving", 50m, false),
-            Create(Item15,Tpl8,  "Chất lượng video",    "Nội dung demo", 50m, false),
-            Create(Item16,Tpl8,  "Tính thuyết phục",    "Sức hút", 50m, false),
-            Create(Item17,Tpl9,  "Kết quả 24h",         "Sản phẩm sau 24h", 70m, false),
-            Create(Item18,Tpl9,  "Tinh thần đồng đội",  "Teamwork", 30m, false),
-            Create(Item19,Tpl10, "Hồ sơ năng lực",      "CV & Portfolio", 50m, false),
-            Create(Item20,Tpl10, "Kinh nghiệm dự án",   "Project experience", 50m, false),
-            Create(Item21,Tpl11, "Kỹ năng giao tiếp",   "Communication", 40m, false),
-            Create(Item22,Tpl11, "Kiến thức chuyên môn","Technical deep dive", 60m, false),
-            Create(Item23,Tpl12, "Phản biện",           "Critical thinking", 50m, false),
-            Create(Item24,Tpl12, "Thái độ",             "Attitude", 50m, false),
-            Create(Item25,Tpl13, "Ý tưởng khởi đầu",    "Initial idea", 50m, false),
-            Create(Item26,Tpl13, "Kế hoạch thực hiện",  "Execution plan", 50m, false),
-            Create(Item27,Tpl14, "Thiết kế giải pháp",  "Solution design", 50m, false),
-            Create(Item28,Tpl14, "Công nghệ sử dụng",   "Tech stack", 50m, false),
-            Create(Item29,Tpl15, "Phân tích yêu cầu",   "Requirements", 50m, false),
-            Create(Item30,Tpl15, "Kiến trúc hệ thống",  "System architecture", 50m, false),
-            // Disabled criteria items
-            Create(Item31,Tpl16, "Dự phòng A1",         "Dự phòng", 50m, true),
-            Create(Item32,Tpl16, "Dự phòng A2",         "Dự phòng", 50m, true),
-            Create(Item33,Tpl17, "Dự phòng B1",         "Dự phòng", 50m, true),
-            Create(Item34,Tpl17, "Dự phòng B2",         "Dự phòng", 50m, true),
-            Create(Item35,Tpl18, "Dự phòng C1",         "Dự phòng", 50m, true),
-            Create(Item36,Tpl18, "Dự phòng C2",         "Dự phòng", 50m, true),
-            Create(Item37,Tpl19, "Dự phòng D1",         "Dự phòng", 50m, true),
-            Create(Item38,Tpl19, "Dự phòng D2",         "Dự phòng", 50m, true),
-            Create(Item39,Tpl20, "Dự phòng E1",         "Dự phòng", 50m, true),
-            Create(Item40,Tpl20, "Dự phòng E2",         "Dự phòng", 50m, true)
+            // Ct1 (E2R1 - Ý tưởng)
+            Create(SeedConstants.Item1, SeedConstants.Ct1, "Sáng tạo", "Tính sáng tạo của ý tưởng", 25m),
+            Create(SeedConstants.Item2, SeedConstants.Ct1, "Khả thi", "Tính khả thi của ý tưởng", 25m),
+            // Ct2 (E2R1 - Kỹ thuật)
+            Create(SeedConstants.Item3, SeedConstants.Ct2, "Công nghệ", "Công nghệ sử dụng", 20m),
+            Create(SeedConstants.Item4, SeedConstants.Ct2, "Kiến trúc", "Kiến trúc hệ thống", 20m),
+            // Ct3 (E2R2 - Sản phẩm)
+            Create(SeedConstants.Item5, SeedConstants.Ct3, "UI/UX", "Giao diện người dùng", 30m),
+            Create(SeedConstants.Item6, SeedConstants.Ct3, "Chức năng", "Đầy đủ chức năng", 30m),
+            // Ct4 (E2R3 - Tổng quan)
+            Create(SeedConstants.Item7, SeedConstants.Ct4, "Hoàn thiện", "Mức độ hoàn thiện", 40m),
+            Create(SeedConstants.Item8, SeedConstants.Ct4, "Thuyết trình", "Kỹ năng thuyết trình", 40m),
+            // Ct5 (E3R1 - Sơ loại)
+            Create(SeedConstants.Item9, SeedConstants.Ct5, "Chất lượng", "Chất lượng bài nộp", 25m),
+            Create(SeedConstants.Item10, SeedConstants.Ct5, "Đúng hạn", "Nộp đúng hạn", 25m),
+            // Ct6 (E3R1 - Bổ sung)
+            Create(SeedConstants.Item11, SeedConstants.Ct6, "Sáng tạo BS", "Sáng tạo bổ sung", 15m),
+            Create(SeedConstants.Item12, SeedConstants.Ct6, "Tác động", "Tác động xã hội", 15m),
+            // Ct7 (E3R2)
+            Create(SeedConstants.Item13, SeedConstants.Ct7, "Phát triển", "Tiến độ phát triển", 30m),
+            Create(SeedConstants.Item14, SeedConstants.Ct7, "Hợp tác", "Tinh thần đồng đội", 30m),
+            // Ct8 (E3R3)
+            Create(SeedConstants.Item15, SeedConstants.Ct8, "Kết quả", "Kết quả cuối cùng", 50m),
+            Create(SeedConstants.Item16, SeedConstants.Ct8, "Ấn tượng", "Ấn tượng tổng thể", 50m),
+            // Ct9 (E4R1)
+            Create(SeedConstants.Item17, SeedConstants.Ct9, "Ý tưởng", "Ý tưởng kinh doanh", 25m),
+            Create(SeedConstants.Item18, SeedConstants.Ct9, "Tác động XH", "Tác động xã hội", 25m),
+            // Ct10 (E4R1)
+            Create(SeedConstants.Item19, SeedConstants.Ct10, "Kỹ thuật", "Kỹ thuật", 25m),
+            Create(SeedConstants.Item20, SeedConstants.Ct10, "Dữ liệu", "Xử lý dữ liệu", 25m),
+            // Ct11 (E4R2)
+            Create(SeedConstants.Item21, SeedConstants.Ct11, "Tiến độ", "Tiến độ", 35m),
+            Create(SeedConstants.Item22, SeedConstants.Ct11, "Chất lượng code", "Code quality", 35m),
+            // Ct12 (E4R3)
+            Create(SeedConstants.Item23, SeedConstants.Ct12, "Sản phẩm", "Sản phẩm cuối", 45m),
+            Create(SeedConstants.Item24, SeedConstants.Ct12, "Demo", "Phần demo", 45m),
+            // Ct13 (E6R1)
+            Create(SeedConstants.Item25, SeedConstants.Ct13, "Cơ bản", "Đánh giá cơ bản", 20m),
+            Create(SeedConstants.Item26, SeedConstants.Ct13, "Nâng cao", "Đánh giá nâng cao", 20m),
+            // Ct14 (E6R2)
+            Create(SeedConstants.Item27, SeedConstants.Ct14, "Chung kết 1", "Tiêu chí 1", 40m),
+            Create(SeedConstants.Item28, SeedConstants.Ct14, "Chung kết 2", "Tiêu chí 2", 40m),
+            // Ct15 (E7R1)
+            Create(SeedConstants.Item29, SeedConstants.Ct15, "Khởi động 1", "Tiêu chí 1", 20m),
+            Create(SeedConstants.Item30, SeedConstants.Ct15, "Khởi động 2", "Tiêu chí 2", 20m),
+            // Ct16 (E7R1)
+            Create(SeedConstants.Item31, SeedConstants.Ct16, "BS Khởi động 1", "Bổ sung 1", 15m),
+            Create(SeedConstants.Item32, SeedConstants.Ct16, "BS Khởi động 2", "Bổ sung 2", 15m),
+            // Ct17 (E7R2)
+            Create(SeedConstants.Item33, SeedConstants.Ct17, "Bán kết 1", "Tiêu chí 1", 30m),
+            Create(SeedConstants.Item34, SeedConstants.Ct17, "Bán kết 2", "Tiêu chí 2", 30m),
+            // Ct18 (E7R3)
+            Create(SeedConstants.Item35, SeedConstants.Ct18, "Chung kết 1", "Tiêu chí 1", 45m),
+            Create(SeedConstants.Item36, SeedConstants.Ct18, "Chung kết 2", "Tiêu chí 2", 45m),
+            // Ct19 (E10R1)
+            Create(SeedConstants.Item37, SeedConstants.Ct19, "E10 R1-1", "Tiêu chí 1", 25m),
+            Create(SeedConstants.Item38, SeedConstants.Ct19, "E10 R1-2", "Tiêu chí 2", 25m),
+            // Ct20 (E10R1)
+            Create(SeedConstants.Item39, SeedConstants.Ct20, "E10 R1 BS-1", "Bổ sung 1", 15m),
+            Create(SeedConstants.Item40, SeedConstants.Ct20, "E10 R1 BS-2", "Bổ sung 2", 15m),
+            // Ct21 (E10R2)
+            Create(SeedConstants.Item41, SeedConstants.Ct21, "E10 CK-1", "Tiêu chí 1", 40m),
+            Create(SeedConstants.Item42, SeedConstants.Ct21, "E10 CK-2", "Tiêu chí 2", 40m),
+            // Disabled - Ct22
+            Create(SeedConstants.Item43, SeedConstants.Ct22, "Cũ 1", "Item cũ", 10m, true),
+            Create(SeedConstants.Item44, SeedConstants.Ct22, "Cũ 2", "Item cũ", 10m, true),
+            // Disabled - Ct23
+            Create(SeedConstants.Item45, SeedConstants.Ct23, "Cũ E4 1", "Item cũ", 10m, true),
+            Create(SeedConstants.Item46, SeedConstants.Ct23, "Cũ E4 2", "Item cũ", 10m, true),
+            // Disabled - Ct24
+            Create(SeedConstants.Item47, SeedConstants.Ct24, "Cũ E7 1", "Item cũ", 10m, true),
+            Create(SeedConstants.Item48, SeedConstants.Ct24, "Cũ E7 2", "Item cũ", 10m, true),
+            // Disabled - Ct25
+            Create(SeedConstants.Item49, SeedConstants.Ct25, "Cũ E10 1", "Item cũ", 10m, true),
+            Create(SeedConstants.Item50, SeedConstants.Ct25, "Cũ E10 2", "Item cũ", 10m, true),
+            // Disabled - Ct26
+            Create(SeedConstants.Item51, SeedConstants.Ct26, "Cũ E3 1", "Item cũ", 10m, true),
+            Create(SeedConstants.Item52, SeedConstants.Ct26, "Cũ E3 2", "Item cũ", 10m, true),
+            // Disabled - Ct27
+            Create(SeedConstants.Item53, SeedConstants.Ct27, "Cũ E6 1", "Item cũ", 10m, true),
+            Create(SeedConstants.Item54, SeedConstants.Ct27, "Cũ E6 2", "Item cũ", 10m, true),
+            // Ct28 (E9R1 - no scores)
+            Create(SeedConstants.Item55, SeedConstants.Ct28, "E9R1-1", "Item 1", 20m),
+            Create(SeedConstants.Item56, SeedConstants.Ct28, "E9R1-2", "Item 2", 20m),
+            // Ct29 (E5R1 - draft)
+            Create(SeedConstants.Item57, SeedConstants.Ct29, "E5R1-1", "Item 1", 20m),
+            Create(SeedConstants.Item58, SeedConstants.Ct29, "E5R1-2", "Item 2", 20m),
+            // Ct30 (E8R1 - draft)
+            Create(SeedConstants.Item59, SeedConstants.Ct30, "E8R1-1", "Item 1", 20m),
+            Create(SeedConstants.Item60, SeedConstants.Ct30, "E8R1-2", "Item 2", 20m)
         );
     }
 
-    private static CriteriaTemplates Create(Guid id, Guid roundId, string title, string desc, bool isDisable)
-        => new() { Id = id, RoundId = roundId, Title = title, Description = desc, IsDisable = isDisable, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt };
+    private static CriteriaTemplates Create(Guid id, Guid roundId, string title, string desc, bool isDisable = false) => new()
+    {
+        Id = id, RoundId = roundId, Title = title, Description = desc,
+        IsDisable = isDisable, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt
+    };
 
-    private static CriteriaItems Create(Guid id, Guid tplId, string name, string desc, decimal score, bool isDisable)
-        => new() { Id = id, CriteriaTemplateId = tplId, Name = name, Description = desc, Score = score, IsDisable = isDisable, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt };
+    private static CriteriaItems Create(Guid id, Guid templateId, string name, string desc, decimal score, bool isDisable = false) => new()
+    {
+        Id = id, CriteriaTemplateId = templateId, Name = name, Description = desc, Score = score,
+        IsDisable = isDisable, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt
+    };
 }

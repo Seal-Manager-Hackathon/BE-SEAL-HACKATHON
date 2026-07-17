@@ -4,41 +4,88 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Hackathon.Repository.Seed;
 
+// Report IDs: 39000000-xxxx
 public static class ReportSeed
 {
+    public static readonly Guid Rpt1 = Guid.Parse("39000000-0000-0000-0000-000000000001");
+    public static readonly Guid Rpt2 = Guid.Parse("39000000-0000-0000-0000-000000000002");
+    public static readonly Guid Rpt3 = Guid.Parse("39000000-0000-0000-0000-000000000003");
+    public static readonly Guid Rpt4 = Guid.Parse("39000000-0000-0000-0000-000000000004");
+    public static readonly Guid Rpt5 = Guid.Parse("39000000-0000-0000-0000-000000000005");
+    public static readonly Guid Rpt6 = Guid.Parse("39000000-0000-0000-0000-000000000006");
+    public static readonly Guid Rpt7 = Guid.Parse("39000000-0000-0000-0000-000000000007");
+    public static readonly Guid Rpt8 = Guid.Parse("39000000-0000-0000-0000-000000000008");
+    public static readonly Guid Rpt9 = Guid.Parse("39000000-0000-0000-0000-000000000009");
+    public static readonly Guid Rpt10 = Guid.Parse("39000000-0000-0000-0000-000000000010");
+    public static readonly Guid Rpt11 = Guid.Parse("39000000-0000-0000-0000-000000000011");
+    public static readonly Guid Rpt12 = Guid.Parse("39000000-0000-0000-0000-000000000012");
+    public static readonly Guid Rpt13 = Guid.Parse("39000000-0000-0000-0000-000000000013");
+    public static readonly Guid Rpt14 = Guid.Parse("39000000-0000-0000-0000-000000000014");
+    public static readonly Guid Rpt15 = Guid.Parse("39000000-0000-0000-0000-000000000015");
+    public static readonly Guid Rpt16 = Guid.Parse("39000000-0000-0000-0000-000000000016");
+    public static readonly Guid Rpt17 = Guid.Parse("39000000-0000-0000-0000-000000000017");
+    public static readonly Guid Rpt18 = Guid.Parse("39000000-0000-0000-0000-000000000018");
+    public static readonly Guid Rpt19 = Guid.Parse("39000000-0000-0000-0000-000000000019");
+    public static readonly Guid Rpt20 = Guid.Parse("39000000-0000-0000-0000-000000000020");
+    public static readonly Guid Rpt21 = Guid.Parse("39000000-0000-0000-0000-000000000021");
+    public static readonly Guid Rpt22 = Guid.Parse("39000000-0000-0000-0000-000000000022");
+    public static readonly Guid Rpt23 = Guid.Parse("39000000-0000-0000-0000-000000000023");
+    public static readonly Guid Rpt24 = Guid.Parse("39000000-0000-0000-0000-000000000024");
+    public static readonly Guid Rpt25 = Guid.Parse("39000000-0000-0000-0000-000000000025");
+    public static readonly Guid Rpt26 = Guid.Parse("39000000-0000-0000-0000-000000000026");
+    public static readonly Guid Rpt27 = Guid.Parse("39000000-0000-0000-0000-000000000027");
+    public static readonly Guid Rpt28 = Guid.Parse("39000000-0000-0000-0000-000000000028");
+    public static readonly Guid Rpt29 = Guid.Parse("39000000-0000-0000-0000-000000000029");
+    public static readonly Guid Rpt30 = Guid.Parse("39000000-0000-0000-0000-000000000030");
+
     public static void SeedReports(this ModelBuilder modelBuilder)
     {
+        var c = SeedConstants.CreatedAt;
+
         modelBuilder.Entity<Reports>().HasData(
-            // 20 Reports covering all statuses and types
-            // Pending reports
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000001"), UserId = SeedConstants.UserStudentLeader1, Title = "Nộp bài muộn do lỗi mạng", Description = "Không thể nộp bài đúng hạn do mạng trường mất kết nối", Status = ReportStatusEnum.Pending, Reason = null, TypeReport = "LateSubmission", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000002"), UserId = SeedConstants.UserStudentLeader2, Title = "Yêu cầu phúc khảo", Description = "Điểm số không phản ánh đúng chất lượng bài làm", Status = ReportStatusEnum.Pending, Reason = null, TypeReport = "RegradeRequest", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            // Resolved reports
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000003"), UserId = SeedConstants.UserStudentLeader3, Title = "Lỗi file nộp", Description = "File nộp bị hỏng không mở được", Status = ReportStatusEnum.Resolved, Reason = "Đã hỗ trợ nộp lại file mới", TypeReport = "CorruptedFile", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000004"), UserId = SeedConstants.UserJudgeActive, Title = "Nghi vấn đạo văn", Description = "Phát hiện code giống với dự án khác", Status = ReportStatusEnum.Resolved, Reason = "Đã trừ 50% điểm số", TypeReport = "Plagiarism", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000005"), UserId = SeedConstants.UserStudentMember1, Title = "Phúc khảo điểm số", Description = "Mong muốn chấm lại bài vòng 1", Status = ReportStatusEnum.Resolved, Reason = "Đã đồng ý phúc khảo", TypeReport = "RegradeRequest", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            // Rejected reports
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000006"), UserId = SeedConstants.UserStudentLeader4, Title = "Vi phạm quy chế", Description = "Đội thi dùng code mua từ bên ngoài", Status = ReportStatusEnum.Reject, Reason = "Không đủ bằng chứng xác thực", TypeReport = "RuleViolation", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000007"), UserId = SeedConstants.UserMentorActive, Title = "Đề xuất thay đổi đề tài", Description = "Đề tài hiện tại quá khó với sinh viên", Status = ReportStatusEnum.Reject, Reason = "Đã quá hạn thay đổi đề tài", TypeReport = "TopicChange", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            // Canceled reports
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000008"), UserId = SeedConstants.UserStudentLeader5, Title = "Báo cáo trùng lặp", Description = "Đã gửi nhầm, đây là báo cáo trùng", Status = ReportStatusEnum.Canceled, Reason = "Người dùng tự hủy", TypeReport = "Duplicate", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000009"), UserId = SeedConstants.UserStudentLeader6, Title = "Rút lui khỏi giải", Description = "Lý do sức khỏe không thể tiếp tục", Status = ReportStatusEnum.Canceled, Reason = "Đã xác nhận rút lui", TypeReport = "Withdrawal", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            // More pending reports (various types)
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000010"), UserId = SeedConstants.UserStudentLeader7, Title = "Báo cáo lỗi hệ thống", Description = "Trang nộp bài bị lỗi không upload được", Status = ReportStatusEnum.Pending, Reason = null, TypeReport = "SystemBug", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000011"), UserId = SeedConstants.UserStudentMember2, Title = "Khiếu nại điểm", Description = "Điểm vòng 1 thấp hơn dự kiến", Status = ReportStatusEnum.Pending, Reason = null, TypeReport = "ScoreComplaint", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000012"), UserId = SeedConstants.UserStudentMember3, Title = "Đổi ý tưởng", Description = "Muốn đổi chủ đề dự án", Status = ReportStatusEnum.Pending, Reason = null, TypeReport = "TopicChange", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000013"), UserId = SeedConstants.UserStudentMember4, Title = "Báo cáo gian lận", Description = "Phát hiện đội bạn dùng điện thoại trong giờ thi", Status = ReportStatusEnum.Pending, Reason = null, TypeReport = "Cheating", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000014"), UserId = SeedConstants.UserStudentMember5, Title = "Đề xuất cải tiến", Description = "Nên bổ sung tính năng chat trực tiếp", Status = ReportStatusEnum.Pending, Reason = null, TypeReport = "Suggestion", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            // More resolved
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000015"), UserId = SeedConstants.UserStudentMember6, Title = "Xin gia hạn", Description = "Cần thêm 2 ngày để hoàn thiện", Status = ReportStatusEnum.Resolved, Reason = "Đã gia hạn thêm 2 ngày", TypeReport = "Extension", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000016"), UserId = SeedConstants.UserStudentMember7, Title = "Lỗi tài liệu", Description = "Tài liệu hướng dẫn không rõ ràng", Status = ReportStatusEnum.Resolved, Reason = "Đã cập nhật tài liệu", TypeReport = "Documentation", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            // More rejected
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000017"), UserId = SeedConstants.UserStudentMember8, Title = "Khiếu nại kết quả", Description = "Kết quả chung cuộc không công bằng", Status = ReportStatusEnum.Reject, Reason = "Kết quả đã được hội đồng xác nhận", TypeReport = "ResultComplaint", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000018"), UserId = SeedConstants.UserStudentMember9, Title = "Báo cáo spam", Description = "Nội dung không liên quan", Status = ReportStatusEnum.Reject, Reason = "Không đúng định dạng báo cáo", TypeReport = "Spam", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            // Disabled report
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000019"), UserId = SeedConstants.UserStudentLeader1, Title = "Báo cáo nháp", Description = "Bản nháp chưa hoàn chỉnh", Status = ReportStatusEnum.Pending, Reason = null, TypeReport = "Draft", IsDisable = true, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt },
-            // Banned student report
-            new Reports { Id = Guid.Parse("91000000-0000-0000-0000-000000000020"), UserId = SeedConstants.UserStudentBanned, Title = "Kháng cáo khóa tài khoản", Description = "Mong muốn được mở lại tài khoản để tham gia kỳ sau", Status = ReportStatusEnum.Pending, Reason = null, TypeReport = "BanAppeal", IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt }
+            // Phúc khảo (appeal) reports — for regrade flow
+            Create(Rpt1, SeedConstants.UserStudentLeader1, "Phúc khảo điểm vòng 1", "Em nghĩ bài em làm tốt hơn điểm được nhận", ReportStatusEnum.Pending, "Phúc khảo"),
+            Create(Rpt2, SeedConstants.UserStudentLeader2, "Phúc khảo điểm vòng 2", "Điểm thấp hơn so với kỳ vọng", ReportStatusEnum.Pending, "Phúc khảo"),
+            Create(Rpt3, SeedConstants.UserStudentLeader3, "Phúc khảo bài nộp", "Nhờ xem lại bài", ReportStatusEnum.Resolved, "Phúc khảo"),
+            Create(Rpt4, SeedConstants.UserStudentLeader4, "Phúc khảo lần cuối", "Mong được xem xét", ReportStatusEnum.Reject, "Phúc khảo"),
+            // Technical issue reports
+            Create(Rpt5, SeedConstants.UserStudentMember1, "Lỗi hệ thống nộp bài", "Không nộp được bài đúng hạn", ReportStatusEnum.Pending, "Kỹ thuật"),
+            Create(Rpt6, SeedConstants.UserStudentMember2, "Lỗi đăng nhập", "Không thể đăng nhập vào hệ thống", ReportStatusEnum.Resolved, "Kỹ thuật"),
+            Create(Rpt7, SeedConstants.UserStudentMember3, "Lỗi hiển thị điểm", "Điểm không hiển thị đúng", ReportStatusEnum.Pending, "Kỹ thuật"),
+            // Policy / rule violation reports
+            Create(Rpt8, SeedConstants.UserStudentLeader5, "Báo cáo vi phạm", "Team khác copy ý tưởng", ReportStatusEnum.Pending, "Vi phạm"),
+            Create(Rpt9, SeedConstants.UserStudentLeader6, "Sao chép code", "Phát hiện team dùng code giống nhau", ReportStatusEnum.Resolved, "Vi phạm"),
+            Create(Rpt10, SeedConstants.UserStudentMember4, "Spam trong hệ thống", "Một số thành viên spam tin nhắn", ReportStatusEnum.Canceled, "Vi phạm"),
+            // Other / general reports
+            Create(Rpt11, SeedConstants.UserStudentLeader7, "Góp ý event", "Nên kéo dài thời gian nộp bài", ReportStatusEnum.Resolved, "Góp ý"),
+            Create(Rpt12, SeedConstants.UserStudentMember5, "Thắc mắc về luật", "Không hiểu rõ về vòng loại", ReportStatusEnum.Pending, "Thắc mắc"),
+            Create(Rpt13, SeedConstants.UserStudentLeader8, "Yêu cầu hỗ trợ", "Cần mentor hướng dẫn thêm", ReportStatusEnum.Pending, "Hỗ trợ"),
+            Create(Rpt14, SeedConstants.UserStudentLeader9, "Báo mất tài khoản", "Bị mất quyền truy cập", ReportStatusEnum.Resolved, "Bảo mật"),
+            Create(Rpt15, SeedConstants.UserStudentMember6, "Lỗi giao diện", "Giao diện mobile bị vỡ", ReportStatusEnum.Pending, "Kỹ thuật"),
+            // More edge case reports
+            Create(Rpt16, SeedConstants.UserStaff1, "Báo cáo nội bộ", "Kiểm tra hoạt động staff", ReportStatusEnum.Pending, "Nội bộ"),
+            Create(Rpt17, SeedConstants.UserJudge1, "Lỗi chấm điểm", "Không thể nhập điểm được", ReportStatusEnum.Resolved, "Kỹ thuật"),
+            Create(Rpt18, SeedConstants.UserStaffBanned, "Khiếu nại", "Yêu cầu mở lại tài khoản", ReportStatusEnum.Pending, "Khiếu nại"),
+            Create(Rpt19, SeedConstants.UserStudentMember7, "Phúc khảo vòng chung kết", "Xin chấm lại bài vòng chung kết", ReportStatusEnum.Pending, "Phúc khảo"),
+            Create(Rpt20, SeedConstants.UserStudentMember8, "Báo cáo sai sót", "Thông tin đội bị sai", ReportStatusEnum.Reject, "Khác"),
+            // More reports to hit 30
+            Create(Rpt21, SeedConstants.UserStudentMember9, "Phúc khảo E3", "Xin review lại điểm E3", ReportStatusEnum.Pending, "Phúc khảo"),
+            Create(Rpt22, SeedConstants.UserStudentMember10, "Phúc khảo E6", "Điểm E6 không chính xác", ReportStatusEnum.Resolved, "Phúc khảo"),
+            Create(Rpt23, SeedConstants.UserStudentMember11, "Yêu cầu rời đội", "Muốn rời khỏi đội hiện tại", ReportStatusEnum.Pending, "Hỗ trợ"),
+            Create(Rpt24, SeedConstants.UserStudentMember12, "Báo mất dữ liệu", "Bài nộp bị mất", ReportStatusEnum.Canceled, "Kỹ thuật"),
+            Create(Rpt25, SeedConstants.UserStudentMember13, "Phúc khảo lần 2", "Phúc khảo lần 2 cho bài vòng 1", ReportStatusEnum.Pending, "Phúc khảo"),
+            Create(Rpt26, SeedConstants.UserStudentMember14, "Góp ý tổ chức", "Công tác tổ chức cần cải thiện", ReportStatusEnum.Resolved, "Góp ý"),
+            Create(Rpt27, SeedConstants.UserStudentMember15, "Báo cáo bug", "Bug ở trang nộp bài", ReportStatusEnum.Pending, "Kỹ thuật"),
+            Create(Rpt28, SeedConstants.UserStudentMember16, "Phúc khảo E9", "Điểm E9 thấp bất thường", ReportStatusEnum.Pending, "Phúc khảo"),
+            Create(Rpt29, SeedConstants.UserStudentMember17, "Yêu cầu hỗ trợ kỹ thuật", "Cần giúp đỡ về môi trường dev", ReportStatusEnum.Pending, "Hỗ trợ"),
+            Create(Rpt30, SeedConstants.UserStudentMember18, "Phản ánh mentor", "Mentor không hỗ trợ nhiệt tình", ReportStatusEnum.Pending, "Phản ánh")
         );
     }
+
+    private static Reports Create(Guid id, Guid userId, string title, string description, ReportStatusEnum status, string typeReport) => new()
+    {
+        Id = id, UserId = userId, Title = title, Description = description,
+        Status = status, TypeReport = typeReport,
+        IsDisable = false, CreatedAt = SeedConstants.CreatedAt, UpdatedAt = SeedConstants.CreatedAt
+    };
 }
